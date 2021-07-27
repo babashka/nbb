@@ -1,0 +1,7 @@
+.shadow-cljs
+node_modules
+out
+.nrepl-port
+.cpcache
+.lsp
+.rebel_readline_history

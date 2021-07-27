@@ -1,0 +1,24 @@
+{
+  "name": "tbd",
+  "version": "0.0.1",
+  "description": "Babashka like thing for nodeJS. TBD.",
+  "main": "out/dist.js",
+  "bin": {
+    "tbd": "out/dist.js"
+  },
+  "scripts": {
+    "prepare": "bb release"
+  },
+  "devDependencies": {
+    "shadow-cljs": "^2.15.2",
+    "source-map-support": "^0.5.19"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/borkdude/tbd"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "uuid": "^8.3.2"
+  }
+}

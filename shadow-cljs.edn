@@ -1,0 +1,11 @@
+{:source-paths ["src" "test"]
+ :dependencies [[io.nervous/cljs-nodejs-externs "0.2.0"]
+                [borkdude/sci "0.2.6"]]
+ :builds {:app {:target :node-script
+                :main tbd.core/main
+                :output-to "out/dist.js"
+                :exports {}
+                :compiler-options {:infer-externs :auto}}
+          :test {:target :node-test
+                 :output-to "target/test/test.js"
+                 :autorun true}}}
