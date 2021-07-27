@@ -25,10 +25,13 @@ Create a script:
 ``` clojure
 (def sh (js/require "shelljs"))
 
-(-> sh (.cd  ".."))
-(-> sh .ls prn)
-(.cd sh "foobar")
-(-> sh .ls prn)
+(defmacro $ [op & args]
+  (list* (symbol (str "." op)) 'sh args))
+
+($ cd  "..")
+(-> ($ ls) prn)
+($ cd "foobar")
+(-> ($ ls) prn)
 ```
 
 Call the script:
