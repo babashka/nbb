@@ -39,6 +39,8 @@ $ tbd script.cljs
 #js ["node_modules" "package-lock.json" "package.json" "script.cljs"]
 ```
 
+The script takes about 150-200ms seconds to run on my laptop.
+
 ## License
 
 TBD.
