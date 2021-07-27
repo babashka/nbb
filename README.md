@@ -14,7 +14,7 @@ To build locally:
 - `bb release`
 - `npm install -g`
 
-Then from some other dir, install some NPM library to use in a script:
+Then from some other dir, install some NPM library to use in a script, for example `shelljs`:
 
 ```
 $ npm install shelljs
@@ -47,6 +47,29 @@ $ tbd script.cljs
 ```
 
 The script takes about 150-200ms seconds to run on my laptop.
+
+Another example using `csv-parse`:
+
+```
+$ npm install csv-parse
+```
+
+Script:
+
+``` clojure
+(def csv-parse (js/require "csv-parse/lib/sync"))
+
+(-> (csv-parse "foo,bar,baz\n1,2,3" #js {:columns true})
+    (js->clj :keywordize-keys true)
+    prn)
+```
+
+Call the script:
+
+```
+$ tbd script.cljs
+[{:foo "1", :bar "2", :baz "3"}]
+```
 
 ## License
 
