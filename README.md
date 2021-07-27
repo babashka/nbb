@@ -10,11 +10,13 @@ To build locally:
 - `bb release`
 - `npm install -g`
 
-Then from some other dir:
+Then from some other dir, install some NPM library to use in a script:
 
-- `npm install shelljs`
+```
+$ npm install shelljs
+```
 
-Make script:
+Create a script:
 
 ``` clojure
 (def sh (js/require "shelljs"))
