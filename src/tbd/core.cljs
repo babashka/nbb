@@ -6,6 +6,7 @@
 
 (def cwd (.cwd js/process))
 
+;; hack from  https://swizec.com/blog/making-a-node-cli-both-global-and-local/
 (defn patched-require [s]
   (let [path (str/join "/" [cwd "node_modules" s])]
     (try (js/require path)
