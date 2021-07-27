@@ -28,6 +28,7 @@ Create a script:
 (defmacro $ [op & args]
   (list* (symbol (str "." op)) 'sh args))
 
+(prn (str ($ which "git")))
 (prn (str ($ pwd)))
 ($ cd  "..")
 (-> ($ ls) prn)
@@ -39,6 +40,7 @@ Call the script:
 
 ```
 $ tbd script.cljs
+"/usr/bin/git"
 "/private/tmp/foobar"
 #js ["4ever-clojure""clj-async-profiler" "clj-sqlite-graalvm-native" "clojure-lsp" ...]
 #js ["node_modules" "package-lock.json" "package.json" "script.cljs"]
