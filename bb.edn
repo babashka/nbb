@@ -3,5 +3,5 @@
   shadow-compile (shell "npx shadow-cljs compile :app")
   shadow-node-repl (shell "npx shadow-cljs node-repl")
   release (do (shell "npx shadow-cljs --force-spawn release app")
-              (shell "chmod +x dist/out.js"))
+              (shell "chmod +x out/dist.js"))
   publish (shell "npm publish")}}
