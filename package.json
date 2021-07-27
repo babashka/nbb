@@ -2,9 +2,8 @@
   "name": "tbd",
   "version": "0.0.1",
   "description": "Babashka like thing for nodeJS. TBD.",
-  "main": "out/dist.js",
   "bin": {
-    "tbd": "out/dist.js"
+    "tbd": "out/cli.js"
   },
   "scripts": {
     "prepare": "bb release"

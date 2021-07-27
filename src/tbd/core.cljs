@@ -17,23 +17,21 @@
 
 (set! (.-require universe) patched-require)
 
-(def sci-ctx (sci/init {:namespaces {'clojure.core {'prn prn 'println println}}
-                        :classes {'js universe :allow :all}}))
+(def sci-ctx (atom (sci/init {:namespaces {'clojure.core {'prn prn 'println println}}
+                              :classes {'js universe :allow :all}})))
 
 (defn eval! [code]
   (let [reader (sci/reader code)]
     (try
       (loop [result nil]
-        (let [next-val (sci/parse-next sci-ctx reader)]
+        (let [next-val (sci/parse-next @sci-ctx reader)]
           (if-not (= :sci.core/eof next-val)
-            (let [result (sci/eval-form sci-ctx next-val)]
+            (let [result (sci/eval-form @sci-ctx next-val)]
               (recur result))
             result)))
       (catch :default e
         (prn (str e))))))
 
-(def fs (js/require "fs"))
-
-(defn main [& [script-file]]
-  (let [source (str (.readFileSync fs script-file))]
-    (eval! source)))
+(defn register-plugin! [plug-in-name sci-opts]
+  plug-in-name ;; unused for now
+  (swap! sci-ctx sci/merge-opts sci-opts))

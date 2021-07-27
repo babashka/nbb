@@ -1,4 +1,8 @@
-{:aliases {:repl/rebel
+{:deps {reagent/reagent {:mvn/version "1.0.0"}
+        cljsjs/react {:mvn/version "17.0.2-0"}
+        cljsjs/react-dom {:mvn/version "17.0.2-0"}
+        cljsjs/react-dom-server {:mvn/version "17.0.2-0"}}
+ :aliases {:repl/rebel
            {:extra-deps {nrepl/nrepl                {:mvn/version "0.8.3"}
                          cider/cider-nrepl          {:mvn/version "0.26.0"}
                          com.bhauman/rebel-readline {:mvn/version "0.1.4"}}
