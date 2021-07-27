@@ -2,6 +2,10 @@
 
 A babashka like thing for nodeJS.
 
+## Status
+
+Experimental.
+
 ## Usage
 
 To build locally:
