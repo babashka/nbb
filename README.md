@@ -28,6 +28,7 @@ Create a script:
 (defmacro $ [op & args]
   (list* (symbol (str "." op)) 'sh args))
 
+(prn (str ($ pwd)))
 ($ cd  "..")
 (-> ($ ls) prn)
 ($ cd "foobar")
@@ -38,6 +39,7 @@ Call the script:
 
 ```
 $ tbd script.cljs
+"/private/tmp/foobar"
 #js ["4ever-clojure""clj-async-profiler" "clj-sqlite-graalvm-native" "clojure-lsp" ...]
 #js ["node_modules" "package-lock.json" "package.json" "script.cljs"]
 ```
