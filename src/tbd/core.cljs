@@ -20,8 +20,7 @@
 (def sci-ctx (atom (sci/init {:namespaces {'clojure.core {'prn prn 'println println}}
                               :classes {'js universe :allow :all}})))
 
-(defn ^:export eval-code
-  [code]
+(defn ^:export eval-code [code]
   (let [reader (sci/reader code)]
     (try
       (loop [result nil]
