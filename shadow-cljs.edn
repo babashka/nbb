@@ -1,26 +1,31 @@
 {:source-paths ["src" "test"]
  :dependencies [[io.nervous/cljs-nodejs-externs "0.2.0"]
+                [reagent "1.1.0"]
                 [borkdude/sci "0.2.6"]]
- :builds {;; :main {:target :node-script
+ :builds {:modules {:target :npm-module
+                    :output-dir "out"
+                    :entries [tbd.core
+                              tbd.reagent]}
+          ;; :main {:target :node-script
           ;;        :main tbd.main/main
           ;;        :output-to "out/dist.js"
           ;;        :exports {}
           ;;        :compiler-options {:infer-externs :auto}}
-          :lib {:target :node-library
-                ;; :main tbd.core/main
-                :output-dir "out"
-                :exports {}
-                :compiler-options {:infer-externs :auto}
-                :js-options {:resolve {"react" {:target :global
-                                                :global "React"}
-                                       "react-dom" {:target :global
-                                                    :global "ReactDOM"}}}
-                :modules
-                {:tbd {:entries [tbd.core]}
-                 :tbd.main {:entries [tbd.main]
-                            :depends-on #{:tbd}}
-                 :tbd.reagent {:entries [tbd.reagent]
-                               :depends-on #{:tbd}}}}
+          ; :lib {:target :node-library
+          ;       ;; :main tbd.core/main
+          ;       :output-dir "out"
+          ;       :exports {}
+          ;       :compiler-options {:infer-externs :auto}
+          ;       :js-options {:resolve {"react" {:target :global
+          ;                                       :global "React"}
+          ;                              "react-dom" {:target :global
+          ;                                           :global "ReactDOM"}}}
+          ;       :modules
+          ;       {:tbd {:entries [tbd.core]}
+          ;        :tbd.main {:entries [tbd.main]
+          ;                   :depends-on #{:tbd}}
+          ;        :tbd.reagent {:entries [tbd.reagent]
+          ;                      :depends-on #{:tbd}}}}
           :test {:target :node-test
                  :output-to "target/test/test.js"
                  :autorun true}}}
