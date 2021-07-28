@@ -2,10 +2,18 @@
  :dependencies [[io.nervous/cljs-nodejs-externs "0.2.0"]
                 [reagent "1.1.0"]
                 [borkdude/sci "0.2.6"]]
- :builds {:modules {:target :npm-module
+ :builds {:modules {:target :esm
+                    :runtime :node
                     :output-dir "out"
-                    :entries [tbd.core
-                              tbd.reagent]}
+
+                    :modules
+                    {:tbd.core {:exports {:eval_code tbd.core/eval!}}
+                     :tbd.main {:main {:init-fn tbd.main/main}
+                                :depends-on #{:tbd.core}}
+                     :tbd.reagent {:entries [tbd.reagent]
+                                   :depends-on #{:tbd.core}}}}
+                    ; :entries [tbd.core
+                    ;           tbd.reagent]}
           ;; :main {:target :node-script
           ;;        :main tbd.main/main
           ;;        :output-to "out/dist.js"
