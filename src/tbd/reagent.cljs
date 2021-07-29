@@ -19,3 +19,5 @@
  ::reagent
  {:namespaces {'reagent.core reagent-namespace
                'reagent.dom reagent-dom-namespace}})
+
+(defn foo [])

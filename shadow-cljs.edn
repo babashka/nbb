@@ -12,12 +12,11 @@
                     :output-dir "out"
 
                     :modules
-                    {:tbd.core {:exports {:eval_code tbd.core/eval-code}}
-                     :tbd.main {:main {:init-fn tbd.main/main}
-                                :entries [tbd.main]
-                                :depends-on #{:tbd.core}}
-                     :tbd.reagent {:entries [tbd.reagent]
-                                   :depends-on #{:tbd.core}}}}
+                    {:tbd_core {:exports {:eval_code tbd.core/eval_code}}
+                     :tbd_main {:init-fn tbd.main/init
+                                :depends-on #{:tbd_core}}
+                     :tbd_reagent {:init-fn tbd.reagent/init
+                                   :depends-on #{:tbd_core}}}}
                     ; :entries [tbd.core
                     ;           tbd.reagent]}
           ;; :main {:target :node-script
