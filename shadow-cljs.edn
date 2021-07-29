@@ -6,14 +6,17 @@
                    :output-to "out/main.js"
                    :main tbd.main/main
                    :exports {}
-                   :compiler-options {:infer-externs :auto}}
-          :modules {:target :esm
+                   :compiler-options {:infer-externs :auto}
+                   :js-options {:keep-as-import #{"fs"}}}
+          :modules {:compiler-options {:infer-externs :auto
+                                       #_#_:pseudo-names true}
+                    :target :esm
                     :runtime :node
                     :output-dir "out"
 
                     :modules
                     {:tbd_core {:exports {:eval_code tbd.core/eval_code}}
-                     :tbd_main {:init-fn tbd.main/init
+                     :tbd_main {:init-fn tbd.main/main
                                 :depends-on #{:tbd_core}}
                      :tbd_reagent {:init-fn tbd.reagent/init
                                    :depends-on #{:tbd_core}}}}
