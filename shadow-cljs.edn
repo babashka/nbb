@@ -2,13 +2,14 @@
  :dependencies [[io.nervous/cljs-nodejs-externs "0.2.0"]
                 [reagent "1.1.0"]
                 [borkdude/sci "0.2.6"]]
- :builds {:normal {:target :node-script
+ :builds {#_#_:normal {:target :node-script
                    :output-to "out/main.js"
                    :main tbd.main/main
                    :exports {}
                    :compiler-options {:infer-externs :auto}
                    :js-options {:keep-as-import #{"fs"}}}
-          :modules {:compiler-options {:infer-externs :auto
+          :modules {:js-options {:keep-as-import #{"fs"}}
+                    :compiler-options {:infer-externs :auto
                                        #_#_:pseudo-names true}
                     :target :esm
                     :runtime :node

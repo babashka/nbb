@@ -1,7 +1,9 @@
 {:tasks
- {shadow-server (shell "npx shadow-cljs server")
-  shadow-compile (shell "npx shadow-cljs compile :app")
-  shadow-node-repl (shell "npx shadow-cljs node-repl")
-  release (do (shell "npx shadow-cljs --force-spawn release app")
-              (shell "chmod +x out/dist.js"))
-  publish (shell "npm publish")}}
+ {#_#_shadow-server (shell "npx shadow-cljs server")
+  #_#_shadow-compile (shell "npx shadow-cljs compile :app")
+  #_#_shadow-node-repl (shell "npx shadow-cljs node-repl")
+  release (do (shell "npx shadow-cljs --force-spawn release modules")
+              (spit "out/tbd_core.js"
+                    (clojure.string/replace (slurp "out/tbd_core.js") (re-pattern "self") "globalThis"))
+              (shell "chmod +x out/tbd_main.js"))
+  #_#_publish (shell "npm publish")}}

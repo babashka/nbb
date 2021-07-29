@@ -15,6 +15,7 @@
         (try (normal-require path)
              (catch :default _e
                (normal-require s)))))))
+;; also see https://github.com/thheller/shadow-cljs/blob/master/packages/shadow-cljs/cli/runner.js
 
 #_(set! (.-require universe) patched-require)
 
