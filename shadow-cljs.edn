@@ -2,13 +2,19 @@
  :dependencies [[io.nervous/cljs-nodejs-externs "0.2.0"]
                 [reagent "1.1.0"]
                 [borkdude/sci "0.2.6"]]
- :builds {:modules {:target :esm
+ :builds {:normal {:target :node-script
+                   :output-to "out/main.js"
+                   :main tbd.main/main
+                   :exports {}
+                   :compiler-options {:infer-externs :auto}}
+          :modules {:target :esm
                     :runtime :node
                     :output-dir "out"
 
                     :modules
-                    {:tbd.core {:exports {:eval_code tbd.core/eval!}}
+                    {:tbd.core {:exports {:eval_code tbd.core/eval-code}}
                      :tbd.main {:main {:init-fn tbd.main/main}
+                                :entries [tbd.main]
                                 :depends-on #{:tbd.core}}
                      :tbd.reagent {:entries [tbd.reagent]
                                    :depends-on #{:tbd.core}}}}
