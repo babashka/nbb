@@ -6,4 +6,5 @@
               (spit "out/tbd_core.js"
                     (clojure.string/replace (slurp "out/tbd_core.js") (re-pattern "self") "globalThis"))
               (shell "chmod +x out/tbd_main.js"))
+  run (shell "node out/tbd_main.js test.cljs")
   #_#_publish (shell "npm publish")}}
