@@ -32,21 +32,13 @@
           as (:as opts)
           default (:default opts)]
       (case libname
-        reagent.core
+        ;; built-ins
+        (reagent.core reagent.dom reagent.dom.server)
         (-> (esm/dynamic-import "./tbd_reagent.js")
             (.then (fn [_mod]
                      (when as
                        (sci/binding [sci/ns ns-obj]
-                         (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote 'reagent.core)))))
-                     (handle-libspecs ns-obj cb (next libspecs)))))
-        reagent.dom.server
-        (-> (esm/dynamic-import "./tbd_reagent.js")
-            (.then (fn [_mod]
-                     (when as
-                       (sci/binding [sci/ns ns-obj]
-                         (sci/eval-form @sci-ctx
-                                        (list 'alias (list 'quote as)
-                                              (list 'quote 'reagent.dom.server)))))
+                         (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname)))))
                      (handle-libspecs ns-obj cb (next libspecs)))))
         ;; default
         (-> (esm/dynamic-import libname)
