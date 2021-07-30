@@ -1,13 +1,12 @@
 (ns tbd.core
-  (:require [clojure.string :as str]
-            [sci.core :as sci]))
+  (:require [sci.core :as sci]))
 
 (def universe goog/global)
 
 (def cwd (.cwd js/process))
 
 ;; hack from  https://swizec.com/blog/making-a-node-cli-both-global-and-local/
-(let [normal-require js/require]
+#_(let [normal-require js/require]
   (defn patched-require [s]
     (if (str/starts-with? s ".")
       (normal-require (str/join "/" [cwd s]))
@@ -16,7 +15,7 @@
              (catch :default _e
                (normal-require s)))))))
 
-(set! (.-require universe) patched-require)
+(set! (.-require universe) js/require)
 
 (def sci-ctx (sci/init {:namespaces {'clojure.core {'prn prn 'println println}}
                         :classes {'js universe :allow :all}}))
