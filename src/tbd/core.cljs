@@ -31,15 +31,33 @@
           opts (apply hash-map opts)
           as (:as opts)
           default (:default opts)]
-      (-> (esm/dynamic-import libname)
-          (.then (fn [mod]
-                   (when as
-                     (sci/binding [sci/ns ns-obj]
-                       (sci/eval-form @sci-ctx (list 'def as mod))))
-                   (when default
-                     (sci/binding [sci/ns ns-obj]
-                       (sci/eval-form @sci-ctx (list 'def default (.-default mod)))))
-                   (handle-libspecs ns-obj cb (next libspecs))))))
+      (case libname
+        reagent.core
+        (-> (esm/dynamic-import "./tbd_reagent.js")
+            (.then (fn [_mod]
+                     (when as
+                       (sci/binding [sci/ns ns-obj]
+                         (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote 'reagent.core)))))
+                     (handle-libspecs ns-obj cb (next libspecs)))))
+        reagent.dom.server
+        (-> (esm/dynamic-import "./tbd_reagent.js")
+            (.then (fn [_mod]
+                     (when as
+                       (sci/binding [sci/ns ns-obj]
+                         (sci/eval-form @sci-ctx
+                                        (list 'alias (list 'quote as)
+                                              (list 'quote 'reagent.dom.server)))))
+                     (handle-libspecs ns-obj cb (next libspecs)))))
+        ;; default
+        (-> (esm/dynamic-import libname)
+            (.then (fn [mod]
+                     (when as
+                       (sci/binding [sci/ns ns-obj]
+                         (sci/eval-form @sci-ctx (list 'def as mod))))
+                     (when default
+                       (sci/binding [sci/ns ns-obj]
+                         (sci/eval-form @sci-ctx (list 'def default (.-default mod)))))
+                     (handle-libspecs ns-obj cb (next libspecs)))))))
     (cb ns-obj)))
 
 (defn eval-ns-form [reader ns-form cb]
@@ -79,6 +97,5 @@
       (catch :default e
         (.log js/console e)))))
 
-(defn register-plugin! [plug-in-name sci-opts]
-  plug-in-name ;; unused for now
+(defn register-plugin! [_plug-in-name sci-opts]
   (swap! sci-ctx sci/merge-opts sci-opts))
