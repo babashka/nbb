@@ -2,6 +2,12 @@
  {#_#_shadow-server (shell "npx shadow-cljs server")
   #_#_shadow-compile (shell "npx shadow-cljs compile :app")
   #_#_shadow-node-repl (shell "npx shadow-cljs node-repl")
+  compile (do (shell "npx shadow-cljs --force-spawn compile modules")
+              (spit "out/tbd_core.js"
+                    (clojure.string/replace (slurp "out/tbd_core.js") (re-pattern "self") "globalThis"))
+              (spit "out/tbd_main.js"
+                    (str "#!/usr/bin/env node\n\n" (slurp "out/tbd_main.js")))
+              (shell "chmod +x out/tbd_main.js"))
   release (do (shell "npx shadow-cljs --force-spawn release modules")
               (spit "out/tbd_core.js"
                     (clojure.string/replace (slurp "out/tbd_core.js") (re-pattern "self") "globalThis"))
