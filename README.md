@@ -21,11 +21,14 @@ $ npm install csv-parse
 $ npm install shelljs
 ```
 
+and suppose you have some local JS file `foo.js` with `console.log("hello");`.
+
 Create a script which uses the NPM libraries:
 
 ``` clojure
 (ns script
-  (:require ["csv-parse/lib/sync.js" :default csv-parse]
+  (:require ["./foo.js"]
+            ["csv-parse/lib/sync.js" :default csv-parse]
             ["fs" :as fs]
             ["shelljs" :default sh]))
 
@@ -40,6 +43,7 @@ Call the script:
 
 ```
 $ tbd script.cljs
+hello
 237
 #js ["CHANGELOG.md" "README.md" "bb.edn" "deps.edn" "main.js" "node_modules" "out" "package-lock.json" "package.json" "shadow-cljs.edn" "src" "test.cljs"]
 #js [#js ["foo" "bar"]]
