@@ -1,11 +1,9 @@
 {
   "name": "tbd",
   "type": "module",
+  "main": "out/tbd_main.js",
   "version": "0.0.1",
   "description": "Babashka like thing for nodeJS. TBD.",
-  "bin": {
-    "tbd": "out/tbd_main.js"
-  },
   "scripts": {
     "prepare": "bb release"
   },
