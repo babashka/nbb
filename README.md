@@ -14,62 +14,38 @@ To build locally:
 - `bb release`
 - `npm install -g`
 
-Then from some other dir, install some NPM library to use in a script, for example `shelljs`:
-
-```
-$ npm install shelljs
-```
-
-Create a script:
-
-``` clojure
-(def sh (js/require "shelljs"))
-
-(defmacro $ [op & args]
-  (list* (symbol (str "." op)) 'sh args))
-
-(prn (str ($ which "git")))
-(prn (str ($ pwd)))
-($ cd  "..")
-(-> ($ ls) prn)
-($ cd "foobar")
-(-> ($ ls) prn)
-```
-
-Call the script:
-
-```
-$ tbd script.cljs
-"/usr/bin/git"
-"/private/tmp/foobar"
-#js ["4ever-clojure""clj-async-profiler" "clj-sqlite-graalvm-native" "clojure-lsp" ...]
-#js ["node_modules" "package-lock.json" "package.json" "script.cljs"]
-```
-
-The script takes about 150-200ms seconds to run on my laptop.
-
-Another example using `csv-parse`:
+Then from some other dir, install some NPM libraries to use in the script. E.g.:
 
 ```
 $ npm install csv-parse
+$ npm install shelljs
 ```
 
-Script:
+Create a script which uses the NPM libraries:
 
 ``` clojure
-(def csv-parse (js/require "csv-parse/lib/sync"))
+(ns script
+  (:require ["csv-parse/lib/sync.js" :default csv-parse]
+            ["fs" :as fs]
+            ["shelljs" :default sh]))
 
-(-> (csv-parse "foo,bar,baz\n1,2,3" #js {:columns true})
-    (js->clj :keywordize-keys true)
-    prn)
+(println (count (str (.readFileSync fs "test.cljs"))))
+
+(prn (.ls sh "."))
+
+(prn (csv-parse "foo,bar"))
 ```
 
 Call the script:
 
 ```
 $ tbd script.cljs
-[{:foo "1", :bar "2", :baz "3"}]
+237
+#js ["CHANGELOG.md" "README.md" "bb.edn" "deps.edn" "main.js" "node_modules" "out" "package-lock.json" "package.json" "shadow-cljs.edn" "src" "test.cljs"]
+#js [#js ["foo" "bar"]]
 ```
+
+The script takes about 200ms seconds to run on my laptop.
 
 ## License
 
