@@ -37,5 +37,3 @@
 (defn register-plugin! [plug-in-name sci-opts]
   plug-in-name ;; unused for now
   (swap! sci-ctx sci/merge-opts sci-opts))
-
-(prn :dude)

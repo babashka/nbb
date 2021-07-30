@@ -1,8 +1,11 @@
 (ns tbd.main
-  (:require [tbd.core :as tbd]
-            ["fs" :as fs]))
+  (:require [applied-science.js-interop :as j]
+            [shadow.esm :as esm]
+            [tbd.core :as tbd]))
 
 (defn main []
-  (let [[_ _ script-file] js/process.argv
-        source (str (.readFileSync fs script-file))]
-    (tbd/eval_code source)))
+  (let [[_ _ script-file] js/process.argv]
+    (.then (esm/dynamic-import "fs")
+           (fn [fs]
+             (let [source (str (j/call fs :readFileSync script-file))]
+               (tbd/eval_code source)))) ))
