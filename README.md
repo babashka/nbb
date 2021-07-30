@@ -51,6 +51,35 @@ hello
 
 The script takes about 200ms seconds to run on my laptop.
 
+## Reagent
+
+TBD (yes, we need a better name) includes `reagent.core` which will be lazily loaded when required. You can use this together with [ink](https://github.com/vadimdemedes/ink) to create a TUI application:
+
+```
+$ npm install ink
+```
+
+`ink-demo.cljs`:
+``` clojure
+(ns ink-demo
+  (:require [reagent.core :as r]
+            ["ink" :refer [render Text]]))
+
+(defonce state (r/atom 0))
+(doseq [n (range 1 11)]
+  (js/setTimeout #(swap! state inc) (* n 500)))
+
+(defn hello []
+  [:> Text {:color "green"} "Hello, world! " @state])
+
+(render (r/as-element [hello]))
+```
+
+```
+$ tbd ink.cljs
+Hello, world! 8
+```
+
 ## License
 
 TBD.
