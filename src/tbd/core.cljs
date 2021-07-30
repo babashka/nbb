@@ -6,17 +6,6 @@
 
 (def cwd (.cwd js/process))
 
-;; hack from  https://swizec.com/blog/making-a-node-cli-both-global-and-local/
-#_(defn patched-import [s]
-  (if (str/starts-with? s ".")
-    (esm/dynamic-import (str/join "/" [cwd s]))
-    (let [path (str/join "/" [cwd "node_modules" s])]
-      (-> (esm/dynamic-import path)
-          (.catch
-           (fn [_]
-             (esm/dynamic-import s)))))))
-;; also see https://github.com/thheller/shadow-cljs/blob/master/packages/shadow-cljs/cli/runner.js
-
 (set! (.-import universe) esm/dynamic-import)
 
 (def sci-ctx (atom (sci/init {:namespaces {'clojure.core {'prn prn 'println println}}
