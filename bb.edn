@@ -5,6 +5,8 @@
   release (do (shell "npx shadow-cljs --force-spawn release modules")
               (spit "out/tbd_core.js"
                     (clojure.string/replace (slurp "out/tbd_core.js") (re-pattern "self") "globalThis"))
+              (spit "out/tbd_main.js"
+                    (str "#!/usr/bin/env node\n\n" (slurp "out/tbd_main.js")))
               (shell "chmod +x out/tbd_main.js"))
-  run (shell "node out/tbd_main.js test.cljs")
+  run (shell "out/tbd_main.js test.cljs")
   #_#_publish (shell "npm publish")}}
