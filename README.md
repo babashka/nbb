@@ -75,10 +75,7 @@ $ npm install ink
 (render (r/as-element [hello]))
 ```
 
-```
-$ tbd ink.cljs
-Hello, world! 8
-```
+<img src="img/ink.gif"/>
 
 ## License
 
