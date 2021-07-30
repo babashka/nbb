@@ -32,7 +32,7 @@ Create a script which uses the NPM libraries:
             ["fs" :as fs]
             ["shelljs" :default sh]))
 
-(println (count (str (.readFileSync fs "test.cljs"))))
+(println (count (str (.readFileSync fs "script.cljs"))))
 
 (prn (.ls sh "."))
 
@@ -44,7 +44,7 @@ Call the script:
 ```
 $ tbd script.cljs
 hello
-237
+264
 #js ["CHANGELOG.md" "README.md" "bb.edn" "deps.edn" "main.js" "node_modules" "out" "package-lock.json" "package.json" "shadow-cljs.edn" "src" "test.cljs"]
 #js [#js ["foo" "bar"]]
 ```
