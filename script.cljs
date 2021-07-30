@@ -3,7 +3,7 @@
             ["fs" :as fs]
             ["shelljs" :default sh]))
 
-(println (count (str (.readFileSync fs "test.cljs"))))
+(println (count (str (.readFileSync fs "script.cljs"))))
 
 (prn (.ls sh "."))
 
