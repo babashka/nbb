@@ -29,7 +29,8 @@
           [libname & opts] fst
           opts (apply hash-map opts)
           as (:as opts)
-          default (:default opts)]
+          default (:default opts)
+          refer (:refer opts)]
       (case libname
         ;; built-ins
         (reagent.core reagent.dom reagent.dom.server)
@@ -48,6 +49,9 @@
                      (when default
                        (sci/binding [sci/ns ns-obj]
                          (sci/eval-form @sci-ctx (list 'def default (.-default mod)))))
+                     (doseq [field refer]
+                       (sci/binding [sci/ns ns-obj]
+                         (sci/eval-form @sci-ctx (list 'def field (aget mod (str field))))))
                      (handle-libspecs ns-obj cb (next libspecs)))))))
     (cb ns-obj)))
 
