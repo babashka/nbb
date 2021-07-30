@@ -1,11 +1,12 @@
 {
   "name": "tbd",
+  "type": "module",
+  "main": "out/tbd_main.js",
+  "bin": {
+    "tbd": "./out/tbd_main.js"
+  },
   "version": "0.0.1",
   "description": "Babashka like thing for nodeJS. TBD.",
-  "main": "out/dist.js",
-  "bin": {
-    "tbd": "out/dist.js"
-  },
   "scripts": {
     "prepare": "bb release"
   },
@@ -19,6 +20,9 @@
   },
   "license": "MIT",
   "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "source-maps": "^1.0.12",
     "uuid": "^8.3.2"
   }
 }
