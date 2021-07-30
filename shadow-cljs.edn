@@ -1,5 +1,6 @@
 {:source-paths ["src" "test"]
- :dependencies [[io.nervous/cljs-nodejs-externs "0.2.0"]
+ :deps true
+ #_#_:dependencies [[io.nervous/cljs-nodejs-externs "0.2.0"]
                 [reagent "1.1.0"]
                 [borkdude/sci "0.2.6"]
                 [applied-science/js-interop "0.2.11"]]

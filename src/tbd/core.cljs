@@ -1,23 +1,24 @@
 (ns tbd.core
   (:require [clojure.string :as str]
-            [sci.core :as sci]))
+            [sci.core :as sci]
+            [shadow.esm :as esm]))
 
 (def universe goog/global)
 
 (def cwd (.cwd js/process))
 
 ;; hack from  https://swizec.com/blog/making-a-node-cli-both-global-and-local/
-#_(let [normal-require js/require]
-  (defn patched-require [s]
-    (if (str/starts-with? s ".")
-      (normal-require (str/join "/" [cwd s]))
-      (let [path (str/join "/" [cwd "node_modules" s])]
-        (try (normal-require path)
-             (catch :default _e
-               (normal-require s)))))))
+(defn patched-import [s]
+  (if (str/starts-with? s ".")
+    (esm/dynamic-import (str/join "/" [cwd s]))
+    (let [path (str/join "/" [cwd "node_modules" s])]
+      (-> (esm/dynamic-import path)
+          (.catch
+           (fn [_]
+             (esm/dynamic-import s)))))))
 ;; also see https://github.com/thheller/shadow-cljs/blob/master/packages/shadow-cljs/cli/runner.js
 
-#_(set! (.-require universe) patched-require)
+(set! (.-import universe) patched-import)
 
 (def sci-ctx (atom (sci/init {:namespaces {'clojure.core {'prn prn 'println println}}
                               :classes {'js universe :allow :all}})))
