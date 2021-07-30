@@ -14,6 +14,14 @@ To build locally:
 - `bb release`
 - `npm install -g`
 
+or:
+
+```
+npx shadow-cljs --force-spawn release app
+chmod +x out/dist.js
+npm install -g
+```
+
 Then from some other dir, install some NPM library to use in a script, for example `shelljs`:
 
 ```
