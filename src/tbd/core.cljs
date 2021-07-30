@@ -1,5 +1,6 @@
 (ns tbd.core
-  (:require [sci.core :as sci]
+  (:require [clojure.string :as str]
+            [sci.core :as sci]
             [shadow.esm :as esm]))
 
 (def universe goog/global)
@@ -12,6 +13,15 @@
                               :classes {'js universe :allow :all}})))
 
 (def last-ns (atom @sci/ns))
+
+(defn dynamic-import
+  "This is a workaround for loading local .js and .json file relative to the script itself."
+  [s]
+  (if (str/starts-with? s ".")
+    (.catch (esm/dynamic-import (str/join "/" [cwd s]))
+            (fn [_]
+              (esm/dynamic-import s)))
+    (esm/dynamic-import s)))
 
 (defn handle-libspecs [ns-obj cb libspecs]
   (if libspecs
@@ -30,7 +40,7 @@
                          (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname)))))
                      (handle-libspecs ns-obj cb (next libspecs)))))
         ;; default
-        (-> (esm/dynamic-import libname)
+        (-> (dynamic-import libname)
             (.then (fn [mod]
                      (when as
                        (sci/binding [sci/ns ns-obj]
