@@ -45,7 +45,8 @@ $ npx nodashka script.cljs
 #js [#js ["foo" "bar"]]
 ```
 
-The script takes about 200ms seconds to run on my laptop.
+The script takes about 200ms seconds to run on my laptop when ran as a globally
+installed `nodashka`, but unfortunately `npx` adds another 300ms or so.
 
 ## Reagent
 
@@ -74,6 +75,15 @@ $ npm install ink
 ```
 
 <img src="img/ink.gif"/>
+
+## Problems
+
+If you are a JS expert, which I am not, and you have some insights to the
+following issues, feel free to reach out via Github Discussions or the
+`#nodashka` channel on Clojurians Slack.
+
+- Using `npx` to start `nodashka` is slow. Nodashka itself only takes 180ms or so to start. But `npx` adds another 300ms or so to it.
+- Can a global install of `nodashka` be combined with local dependencies? How?
 
 ## Build
 
