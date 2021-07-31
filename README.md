@@ -6,13 +6,21 @@ A babashka like thing for nodeJS.
 
 Experimental.
 
-## Usage
+## Build
 
-To build locally:
+Prequisites:
+
+- [babashka](https://babashka.org/) >= 0.4.0
+- [Clojure CLI](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools) >= 1.10.3.933
+- NodeJS 16.5.0 (lower version may work, but this is the one I used to build)
+
+To build locally, follow these steps:
 
 - Clone and cd into this repo
 - `bb release`
 - `npm install -g`
+
+## Usage
 
 Then from some other dir, install some NPM libraries to use in the script. E.g.:
 
