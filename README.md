@@ -2,6 +2,8 @@
 
 Not [babashka](https://babashka.org/). Node.js babashka!?
 
+Previously known as TBD and Nodashka.
+
 ## Status
 
 Experimental.
