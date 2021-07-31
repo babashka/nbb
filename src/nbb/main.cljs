@@ -9,5 +9,5 @@
       (.then (esm/dynamic-import "fs")
              (fn [fs]
                (let [source (str (j/call fs :readFileSync script-file))]
-                 (nbb/eval_code source))))
+                 (nbb/eval-code source))))
       (println "Nodashka expects a script file argument.")) ))

@@ -7,7 +7,8 @@
 
 (def cwd (.cwd js/process))
 
-;; (set! (.-import universe) esm/dynamic-import)
+(set! (.-import universe) esm/dynamic-import)
+#_(set! (.-require universe) (js/nbb.core._require_))
 
 (def sci-ctx (atom (sci/init {:namespaces {'clojure.core {'prn prn 'println println}}
                               :classes {'js universe :allow :all}})))
@@ -24,7 +25,9 @@
               (esm/dynamic-import s)))
     (esm/dynamic-import s)))
 
-(defn handle-libspecs [ns-obj cb libspecs]
+(declare eval-expr)
+
+(defn handle-libspecs [ns-obj reader libspecs]
   (if libspecs
     (let [fst (first libspecs)
           [libname & opts] fst
@@ -40,7 +43,7 @@
                      (when as
                        (sci/binding [sci/ns ns-obj]
                          (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname)))))
-                     (handle-libspecs ns-obj cb (next libspecs)))))
+                     (handle-libspecs ns-obj reader (next libspecs)))))
         ;; default
         (-> (dynamic-import libname)
             (.then (fn [mod]
@@ -53,45 +56,48 @@
                      (doseq [field refer]
                        (sci/binding [sci/ns ns-obj]
                          (sci/eval-form @sci-ctx (list 'def field (aget mod (str field))))))
-                     (handle-libspecs ns-obj cb (next libspecs)))))))
-    (cb ns-obj)))
+                     (handle-libspecs ns-obj reader (next libspecs)))))))
+    (eval-expr ns-obj reader)))
 
-(defn eval-ns-form [reader ns-form cb]
+(defn eval-ns-form [reader ns-form]
   ;; the parsing is still very crude, we only support a subset of the ns form
   (let [[_ns ns-name requires] ns-form
         ns-obj (sci/binding [sci/ns @sci/ns]
                  (sci/eval-form @sci-ctx (list 'do (list 'ns ns-name) '*ns*)))
         _ (reset! last-ns ns-obj)
         [_require & libspecs] requires]
-    (handle-libspecs ns-obj cb libspecs)))
+    (handle-libspecs ns-obj reader libspecs)))
 
-(defn read-next [reader result]
+(defn eval-require [reader require-form]
+  (let [args (rest require-form)
+        libspecs (sci/binding [sci/ns @last-ns]
+                       (mapv #(sci/eval-form @sci-ctx %) args))]
+    (handle-libspecs @last-ns reader libspecs)))
+
+(defn eval-expr
+  "Evaluates top level forms asynchronously. Returns promise of last value."
+  [prev-val reader]
   (let [next-val (sci/parse-next @sci-ctx reader)]
     (if-not (= :sci.core/eof next-val)
-      (if (and (seq? next-val)
-               (= 'ns (first next-val)))
-        (eval-ns-form reader next-val #(read-next reader %))
-        (recur reader (sci/binding [sci/ns @last-ns]
-                        (sci/eval-form @sci-ctx next-val))))
-      result)))
+      (if (seq? next-val)
+        (let [fst (first next-val)]
+          (cond (= 'ns fst)
+                (eval-ns-form reader next-val)
+                (= 'require fst)
+                (eval-require reader next-val)
+                :else
+                (let [result (sci/binding [sci/ns @last-ns]
+                               (sci/eval-form @sci-ctx next-val))]
+                  (recur result reader))))
+        (let [result (sci/binding [sci/ns @last-ns]
+                       (sci/eval-form @sci-ctx next-val))]
+          (recur result reader)))
+      ;; wrap normal value in promise
+      (js/Promise.resolve prev-val))))
 
-(defn eval_code [code]
+(defn eval-code [code]
   (let [reader (sci/reader code)]
-    (try
-      (loop [result nil
-             init? true]
-        (let [next-val (sci/parse-next @sci-ctx reader)]
-          (if-not (= :sci.core/eof next-val)
-            (if (and init?
-                     (seq? next-val)
-                     (= 'ns (first next-val)))
-              (eval-ns-form reader next-val #(read-next reader %))
-              (let [result (sci/binding [sci/ns @last-ns]
-                             (sci/eval-form @sci-ctx next-val))]
-                (recur result false)))
-            result)))
-      (catch :default e
-        (.log js/console e)))))
+    (eval-expr nil reader)))
 
 (defn register-plugin! [_plug-in-name sci-opts]
   (swap! sci-ctx sci/merge-opts sci-opts))
