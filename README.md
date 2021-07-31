@@ -93,6 +93,15 @@ following issues, feel free to reach out via Github Discussions or the
   bin)/nbb script.cljs` is a way to get better startup time.
 - Can a global install of `nbb` be combined with local dependencies? How?
 
+## Require syntax and rules
+
+Nbb adopts the syntax that `shadow-cljs` and CLJS provide for requiring NPM
+libraries. It also supports the non-CLJS-standard `:default` option which is
+only supported by `shadow-cljs`. Requiring libraries can only be done through a
+top level `ns` form and/or one or more top-level `require` forms. Additionally,
+`nbb` does not support `js/require`, but it does allow `js/import` (dynamic
+import).
+
 ## Build
 
 Prequisites:
