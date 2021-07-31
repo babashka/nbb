@@ -1,6 +1,6 @@
-(ns nodashka.reagent
+(ns nbb.reagent
   (:require #_[reagent.dom.server :as rds]
-            [nodashka.core :as nodashka]
+            [nbb.core :as nbb]
             [reagent.core :as r]
             [reagent.dom :as rdom]
             [sci.core :as sci]))
@@ -22,7 +22,7 @@
   {'render-to-string (sci/copy-var rds/render-to-string rdsns)})
 
 (defn init []
-  (nodashka/register-plugin!
+  (nbb/register-plugin!
    ::reagent
    {:namespaces {'reagent.core reagent-namespace
                  'reagent.dom reagent-dom-namespace

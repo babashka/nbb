@@ -1,6 +1,6 @@
-# Nodashka
+# Nbb
 
-A [babashka](https://babashka.org/)-like tool for Node.js.
+Not [babashka](https://babashka.org/). Node.js babashka!?
 
 ## Status
 
@@ -8,10 +8,10 @@ Experimental.
 
 ## Usage
 
-Install `nodashka` from NPM:
+Install `nbb` from NPM:
 
 ```
-$ npm install nodashka
+$ npm install nbb
 ```
 
 and perhaps some other NPM libraries to use in the script. E.g.:
@@ -39,7 +39,7 @@ Create a script which uses the NPM libraries:
 Call the script:
 
 ```
-$ npx nodashka script.cljs
+$ npx nbb script.cljs
 264
 #js ["CHANGELOG.md" "README.md" "bb.edn" "deps.edn" "main.js" "node_modules" "out" "package-lock.json" "package.json" "shadow-cljs.edn" "src" "test.cljs"]
 #js [#js ["foo" "bar"]]
@@ -48,13 +48,13 @@ $ npx nodashka script.cljs
 ## Startup time
 
 The above script takes about 200ms seconds to run on my laptop when ran as a
-globally installed `nodashka`, but unfortunately `npx` adds another 300ms or so.
+globally installed `nbb`, but unfortunately `npx` adds another 300ms or so.
 
-To get faster startup time for a local `nodashka`, use `$(npm bin)/nodashka script.cljs`.
+To get faster startup time for a local `nbb`, use `$(npm bin)/nbb script.cljs`.
 
 ## Reagent
 
-Nodashka includes `reagent.core` which will be lazily loaded when required. You
+Nbb includes `reagent.core` which will be lazily loaded when required. You
 can use this together with [ink](https://github.com/vadimdemedes/ink) to create
 a TUI application:
 
@@ -84,12 +84,12 @@ $ npm install ink
 
 If you are a JS expert, which I am not, and you have some insights to the
 following issues, feel free to reach out via Github Discussions or the
-`#nodashka` channel on Clojurians Slack.
+`#nbb` channel on Clojurians Slack.
 
-- Using `npx` to start `nodashka` is slow. Nodashka itself only takes 180ms or
+- Using `npx` to start `nbb` is slow. Nbb itself only takes 180ms or
   so to start. But `npx` adds another 300ms or so to it. It seems `$(npm
-  bin)/nodashka script.cljs` is a way to get better startup time.
-- Can a global install of `nodashka` be combined with local dependencies? How?
+  bin)/nbb script.cljs` is a way to get better startup time.
+- Can a global install of `nbb` be combined with local dependencies? How?
 
 ## Build
 

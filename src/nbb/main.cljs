@@ -1,6 +1,6 @@
-(ns nodashka.main
+(ns nbb.main
   (:require [applied-science.js-interop :as j]
-            [nodashka.core :as nodashka]
+            [nbb.core :as nbb]
             [shadow.esm :as esm]))
 
 (defn main []
@@ -9,5 +9,5 @@
       (.then (esm/dynamic-import "fs")
              (fn [fs]
                (let [source (str (j/call fs :readFileSync script-file))]
-                 (nodashka/eval_code source))))
+                 (nbb/eval_code source))))
       (println "Nodashka expects a script file argument.")) ))

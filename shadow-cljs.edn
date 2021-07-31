@@ -5,11 +5,11 @@
                     :runtime :node
                     :output-dir "out"
                     :modules
-                    {:nodashka_core {:init-fn nodashka.core/init}
-                     :nodashka_main {:init-fn nodashka.main/main
-                                :depends-on #{:nodashka_core}}
-                     :nodashka_reagent {:init-fn nodashka.reagent/init
-                                   :depends-on #{:nodashka_core}}}}
+                    {:nbb_core {:init-fn nbb.core/init}
+                     :nbb_main {:init-fn nbb.main/main
+                                :depends-on #{:nbb_core}}
+                     :nbb_reagent {:init-fn nbb.reagent/init
+                                   :depends-on #{:nbb_core}}}}
           :test {:target :node-test
                  :output-to "target/test/test.js"
                  :autorun true}}}

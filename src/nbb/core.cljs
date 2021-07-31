@@ -1,4 +1,4 @@
-(ns nodashka.core
+(ns nbb.core
   (:require [clojure.string :as str]
             [sci.core :as sci]
             [shadow.esm :as esm]))
@@ -35,7 +35,7 @@
       (case libname
         ;; built-ins
         (reagent.core reagent.dom reagent.dom.server)
-        (-> (esm/dynamic-import "./nodashka_reagent.js")
+        (-> (esm/dynamic-import "./nbb_reagent.js")
             (.then (fn [_mod]
                      (when as
                        (sci/binding [sci/ns ns-obj]
