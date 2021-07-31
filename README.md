@@ -77,7 +77,7 @@ $ npm install ink
 
 ## Startup time
 
-The baseline startup time for script is about 200ms seconds on my
+The baseline startup time for a script is about 200ms seconds on my
 laptop. Ufortunately `npx` adds another 300ms or so.
 To get faster startup time for a local `nbb`, use `$(npm bin)/nbb script.cljs`,
 or install `nbb` globally..
