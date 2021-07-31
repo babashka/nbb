@@ -22,7 +22,7 @@ To build:
 
 ## Usage
 
-Then from some other dir, install some NPM libraries to use in the script. E.g.:
+Install some NPM libraries to use in the script. E.g.:
 
 ```
 $ npm install csv-parse
