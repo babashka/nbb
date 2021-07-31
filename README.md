@@ -25,18 +25,15 @@ To build:
 Install some NPM libraries to use in the script. E.g.:
 
 ```
-$ npm install csv-parse
-$ npm install shelljs
+$ npm install -g csv-parse
+$ npm install -g shelljs
 ```
-
-and suppose you have some local JS file `foo.js` with `console.log("hello");`.
 
 Create a script which uses the NPM libraries:
 
 ``` clojure
 (ns script
-  (:require ["./foo.js"]
-            ["csv-parse/lib/sync.js" :default csv-parse]
+  (:require ["csv-parse/lib/sync.js" :default csv-parse]
             ["fs" :as fs]
             ["shelljs" :default sh]))
 
@@ -66,7 +63,7 @@ can use this together with [ink](https://github.com/vadimdemedes/ink) to create
 a TUI application:
 
 ```
-$ npm install ink
+$ npm install -g ink
 ```
 
 `ink-demo.cljs`:
