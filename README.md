@@ -50,7 +50,7 @@ $ npx nodashka script.cljs
 The above script takes about 200ms seconds to run on my laptop when ran as a
 globally installed `nodashka`, but unfortunately `npx` adds another 300ms or so.
 
-To get faster startup time, use `$(npm bin)/nodashka script.cljs`.
+To get faster startup time for a local `nodashka`, use `$(npm bin)/nodashka script.cljs`.
 
 ## Reagent
 
