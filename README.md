@@ -1,6 +1,6 @@
-# TBD
+# Nodashka
 
-A babashka like thing for nodeJS.
+A [babashka](https://babashka.org/)-like tool for Node.js.
 
 ## Status
 
@@ -12,7 +12,7 @@ Prequisites:
 
 - [babashka](https://babashka.org/) >= 0.4.0
 - [Clojure CLI](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools) >= 1.10.3.933
-- NodeJS 16.5.0 (lower version may work, but this is the one I used to build)
+- Node.js 16.5.0 (lower version may work, but this is the one I used to build)
 
 To build:
 
@@ -50,7 +50,7 @@ Create a script which uses the NPM libraries:
 Call the script:
 
 ```
-$ tbd script.cljs
+$ nodashka script.cljs
 hello
 264
 #js ["CHANGELOG.md" "README.md" "bb.edn" "deps.edn" "main.js" "node_modules" "out" "package-lock.json" "package.json" "shadow-cljs.edn" "src" "test.cljs"]
@@ -61,7 +61,9 @@ The script takes about 200ms seconds to run on my laptop.
 
 ## Reagent
 
-TBD (yes, we need a better name) includes `reagent.core` which will be lazily loaded when required. You can use this together with [ink](https://github.com/vadimdemedes/ink) to create a TUI application:
+Nodashka includes `reagent.core` which will be lazily loaded when required. You
+can use this together with [ink](https://github.com/vadimdemedes/ink) to create
+a TUI application:
 
 ```
 $ npm install ink
@@ -87,4 +89,6 @@ $ npm install ink
 
 ## License
 
-TBD.
+Copyright © 2019-2020 Michiel Borkent
+
+Distributed under the EPL License. See LICENSE.

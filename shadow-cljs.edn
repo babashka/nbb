@@ -1,50 +1,15 @@
-{:source-paths ["src" "test"]
- :deps true
- #_#_:dependencies [[io.nervous/cljs-nodejs-externs "0.2.0"]
-                [reagent "1.1.0"]
-                [borkdude/sci "0.2.6"]
-                [applied-science/js-interop "0.2.11"]]
- :builds {#_#_:normal {:target :node-script
-                   :output-to "out/main.js"
-                   :main tbd.main/main
-                   :exports {}
-                   :compiler-options {:infer-externs :auto}
-                   :js-options {:keep-as-import #{"fs"}}}
-          :modules {:js-options {:keep-as-import #{"fs"}}
-                    :compiler-options {:infer-externs :auto
-                                       #_#_:pseudo-names true}
+{:deps true
+ :builds {:modules {:js-options {:keep-as-import #{"fs"}}
+                    :compiler-options {:infer-externs :auto}
                     :target :esm
                     :runtime :node
                     :output-dir "out"
-
                     :modules
-                    {:tbd_core {:exports {:eval_code tbd.core/eval_code}}
-                     :tbd_main {:init-fn tbd.main/main
-                                :depends-on #{:tbd_core}}
-                     :tbd_reagent {:init-fn tbd.reagent/init
-                                   :depends-on #{:tbd_core}}}}
-                    ; :entries [tbd.core
-                    ;           tbd.reagent]}
-          ;; :main {:target :node-script
-          ;;        :main tbd.main/main
-          ;;        :output-to "out/dist.js"
-          ;;        :exports {}
-          ;;        :compiler-options {:infer-externs :auto}}
-          ; :lib {:target :node-library
-          ;       ;; :main tbd.core/main
-          ;       :output-dir "out"
-          ;       :exports {}
-          ;       :compiler-options {:infer-externs :auto}
-          ;       :js-options {:resolve {"react" {:target :global
-          ;                                       :global "React"}
-          ;                              "react-dom" {:target :global
-          ;                                           :global "ReactDOM"}}}
-          ;       :modules
-          ;       {:tbd {:entries [tbd.core]}
-          ;        :tbd.main {:entries [tbd.main]
-          ;                   :depends-on #{:tbd}}
-          ;        :tbd.reagent {:entries [tbd.reagent]
-          ;                      :depends-on #{:tbd}}}}
+                    {:nodashka_core {:init-fn nodashka.core/init}
+                     :nodashka_main {:init-fn nodashka.main/main
+                                :depends-on #{:nodashka_core}}
+                     :nodashka_reagent {:init-fn nodashka.reagent/init
+                                   :depends-on #{:nodashka_core}}}}
           :test {:target :node-test
                  :output-to "target/test/test.js"
                  :autorun true}}}

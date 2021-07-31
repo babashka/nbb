@@ -1,12 +1,12 @@
 {
-  "name": "tbd",
+  "name": "nodashka",
   "type": "module",
-  "main": "out/tbd_main.js",
+  "main": "out/nodashka_main.js",
   "bin": {
-    "tbd": "./out/tbd_main.js"
+    "nodashka": "./out/nodashka_main.js"
   },
   "version": "0.0.1",
-  "description": "Babashka like thing for nodeJS. TBD.",
+  "description": "Babashka-like tool for Node.js.",
   "scripts": {
     "prepare": "bb release"
   },
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/borkdude/tbd"
+    "url": "https://github.com/borkdude/nodashka"
   },
   "license": "MIT",
   "dependencies": {

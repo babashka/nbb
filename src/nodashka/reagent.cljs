@@ -1,9 +1,9 @@
-(ns tbd.reagent
-  (:require [reagent.core :as r]
+(ns nodashka.reagent
+  (:require #_[reagent.dom.server :as rds]
+            [nodashka.core :as nodashka]
+            [reagent.core :as r]
             [reagent.dom :as rdom]
-            #_[reagent.dom.server :as rds]
-            [sci.core :as sci]
-            [tbd.core :as tbd]))
+            [sci.core :as sci]))
 
 (def rns (sci/create-ns 'reagent.core nil))
 
@@ -22,7 +22,7 @@
   {'render-to-string (sci/copy-var rds/render-to-string rdsns)})
 
 (defn init []
-  (tbd/register-plugin!
+  (nodashka/register-plugin!
    ::reagent
    {:namespaces {'reagent.core reagent-namespace
                  'reagent.dom reagent-dom-namespace

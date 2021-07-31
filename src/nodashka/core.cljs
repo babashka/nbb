@@ -1,4 +1,4 @@
-(ns tbd.core
+(ns nodashka.core
   (:require [clojure.string :as str]
             [sci.core :as sci]
             [shadow.esm :as esm]))
@@ -34,7 +34,7 @@
       (case libname
         ;; built-ins
         (reagent.core reagent.dom reagent.dom.server)
-        (-> (esm/dynamic-import "./tbd_reagent.js")
+        (-> (esm/dynamic-import "./nodashka_reagent.js")
             (.then (fn [_mod]
                      (when as
                        (sci/binding [sci/ns ns-obj]
@@ -94,3 +94,5 @@
 
 (defn register-plugin! [_plug-in-name sci-opts]
   (swap! sci-ctx sci/merge-opts sci-opts))
+
+(defn init [])
