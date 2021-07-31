@@ -108,6 +108,6 @@ To build:
 
 ## License
 
-Copyright © 2019-2020 Michiel Borkent
+Copyright © 2021 Michiel Borkent
 
 Distributed under the EPL License. See LICENSE.
