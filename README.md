@@ -14,7 +14,7 @@ Prequisites:
 - [Clojure CLI](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools) >= 1.10.3.933
 - NodeJS 16.5.0 (lower version may work, but this is the one I used to build)
 
-To build locally, follow these steps:
+To build:
 
 - Clone and cd into this repo
 - `bb release`
