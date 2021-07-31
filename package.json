@@ -5,7 +5,7 @@
   "bin": {
     "nodashka": "./out/nodashka_main.js"
   },
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Babashka-like tool for Node.js.",
   "scripts": {
     "prepare": "bb release"
