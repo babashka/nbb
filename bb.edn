@@ -1,18 +1,20 @@
 {:tasks
- {#_#_shadow-server (shell "npx shadow-cljs server")
-  #_#_shadow-compile (shell "npx shadow-cljs compile :app")
-  #_#_shadow-node-repl (shell "npx shadow-cljs node-repl")
+ {:requires ([babashka.fs :as fs])
+  clean (fs/delete-tree "out")
   compile (do (shell "npx shadow-cljs --force-spawn compile modules")
               (spit "out/nodashka_core.js"
                     (clojure.string/replace (slurp "out/nodashka_core.js") (re-pattern "self") "globalThis"))
               (spit "out/nodashka_main.js"
                     (str "#!/usr/bin/env node\n\n" (slurp "out/nodashka_main.js")))
               (shell "chmod +x out/nodashka_main.js"))
-  release (do (shell "npx shadow-cljs --force-spawn release modules")
-              (spit "out/nodashka_core.js"
-                    (clojure.string/replace (slurp "out/nodashka_core.js") (re-pattern "self") "globalThis"))
-              (spit "out/nodashka_main.js"
-                    (str "#!/usr/bin/env node\n\n" (slurp "out/nodashka_main.js")))
-              (shell "chmod +x out/nodashka_main.js"))
+  release {:depends [clean]
+           :task
+           (do (shell "npx shadow-cljs --force-spawn release modules")
+               (spit "out/nodashka_core.js"
+                     (clojure.string/replace (slurp "out/nodashka_core.js") (re-pattern "self") "globalThis"))
+               (spit "out/nodashka_main.js"
+                     (str "#!/usr/bin/env node\n\n" (slurp "out/nodashka_main.js")))
+               (shell "chmod +x out/nodashka_main.js"))}
   run (shell "out/nodashka_main.js test.cljs")
-  #_#_publish (shell "npm publish")}}
+  publish {:depends [release]
+           :task (shell "npm publish")}}}

@@ -7,7 +7,7 @@
 
 (def cwd (.cwd js/process))
 
-(set! (.-import universe) esm/dynamic-import)
+;; (set! (.-import universe) esm/dynamic-import)
 
 (def sci-ctx (atom (sci/init {:namespaces {'clojure.core {'prn prn 'println println}}
                               :classes {'js universe :allow :all}})))
@@ -15,9 +15,10 @@
 (def last-ns (atom @sci/ns))
 
 (defn dynamic-import
-  "This is a workaround for loading local .js and .json file relative to the script itself."
+  ;; "This is a workaround for loading local .js and .json file relative to the script itself."
   [s]
-  (if (str/starts-with? s ".")
+  (esm/dynamic-import s)
+  #_(if (str/starts-with? s ".")
     (.catch (esm/dynamic-import (str/join "/" [cwd s]))
             (fn [_]
               (esm/dynamic-import s)))
