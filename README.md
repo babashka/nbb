@@ -47,13 +47,6 @@ $ npx nbb script.cljs
 #js [#js ["foo" "bar"]]
 ```
 
-## Startup time
-
-The above script takes about 200ms seconds to run on my laptop when ran as a
-globally installed `nbb`, but unfortunately `npx` adds another 300ms or so.
-
-To get faster startup time for a local `nbb`, use `$(npm bin)/nbb script.cljs`.
-
 ## Reagent
 
 Nbb includes `reagent.core` which will be lazily loaded when required. You
@@ -82,16 +75,12 @@ $ npm install ink
 
 <img src="img/ink.gif"/>
 
-## Problems
+## Startup time
 
-If you are a JS expert, which I am not, and you have some insights to the
-following issues, feel free to reach out via Github Discussions or the
-`#nbb` channel on Clojurians Slack.
-
-- Using `npx` to start `nbb` is slow. Nbb itself only takes 180ms or
-  so to start. But `npx` adds another 300ms or so to it. It seems `$(npm
-  bin)/nbb script.cljs` is a way to get better startup time.
-- Can a global install of `nbb` be combined with local dependencies? How?
+The baseline startup time for script is about 200ms seconds on my
+laptop. Ufortunately `npx` adds another 300ms or so.
+To get faster startup time for a local `nbb`, use `$(npm bin)/nbb script.cljs`,
+or install `nbb` globally..
 
 ## Require syntax and rules
 
@@ -101,6 +90,14 @@ only supported by `shadow-cljs`. Requiring libraries can only be done through a
 top level `ns` form and/or one or more top-level `require` forms. Additionally,
 `nbb` does not support `js/require`, but it does allow `js/import` (dynamic
 import).
+
+## Open questions
+
+If you are a JS expert, which I am not, and you have some insights to the
+following issues, feel free to reach out via Github Discussions or the
+`#nbb` channel on Clojurians Slack.
+
+- Can a global install of `nbb` be combined with local dependencies? How?
 
 ## Build
 
