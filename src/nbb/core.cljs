@@ -45,18 +45,23 @@
                          (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname)))))
                      (handle-libspecs ns-obj reader (next libspecs)))))
         ;; default
-        (-> (dynamic-import libname)
-            (.then (fn [mod]
-                     (when as
+        (if (string? libname)
+          (-> (dynamic-import libname)
+              (.then (fn [mod]
+                       (when as
+                         (sci/binding [sci/ns ns-obj]
+                           (sci/eval-form @sci-ctx (list 'def as mod))))
+                       (when default
+                         (sci/binding [sci/ns ns-obj]
+                           (sci/eval-form @sci-ctx (list 'def default (.-default mod)))))
                        (sci/binding [sci/ns ns-obj]
-                         (sci/eval-form @sci-ctx (list 'def as mod))))
-                     (when default
-                       (sci/binding [sci/ns ns-obj]
-                         (sci/eval-form @sci-ctx (list 'def default (.-default mod)))))
-                     (doseq [field refer]
-                       (sci/binding [sci/ns ns-obj]
-                         (sci/eval-form @sci-ctx (list 'def field (aget mod (str field))))))
-                     (handle-libspecs ns-obj reader (next libspecs)))))))
+                         (doseq [field refer]
+                           (sci/eval-form @sci-ctx (list 'def field (aget mod (str field))))))
+                       (handle-libspecs ns-obj reader (next libspecs)))))
+          ;; assume symbol
+          (do (sci/binding [sci/ns ns-obj]
+                (sci/eval-form @sci-ctx (list 'require (list 'quote fst))))
+              (handle-libspecs ns-obj reader (next libspecs))))))
     (eval-expr ns-obj reader)))
 
 (defn eval-ns-form [reader ns-form]
