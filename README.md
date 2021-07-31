@@ -40,7 +40,6 @@ Call the script:
 
 ```
 $ npx nodashka script.cljs
-hello
 264
 #js ["CHANGELOG.md" "README.md" "bb.edn" "deps.edn" "main.js" "node_modules" "out" "package-lock.json" "package.json" "shadow-cljs.edn" "src" "test.cljs"]
 #js [#js ["foo" "bar"]]
