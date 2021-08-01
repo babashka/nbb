@@ -17,6 +17,8 @@
 
 (set! (.-import goog/global) esm/dynamic-import)
 
+(def module->internal-ns (atom {}))
+
 (defn handle-libspecs [ns-obj libspecs require cb]
   (if libspecs
     (let [fst (first libspecs)
@@ -30,18 +32,23 @@
         (reagent.core reagent.dom reagent.dom.server)
         (let [_ (-> (esm/dynamic-import "./nbb_reagent.js")
                     (.then (fn [_mod]
-                             (sci/binding [sci/ns ns-obj]
-                               (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname))))
+                             (when as
+                               (sci/binding [sci/ns ns-obj]
+                                 (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname)))))
                              (handle-libspecs ns-obj (next libspecs) require cb))))])
         ;; default
         (if (string? libname)
           ;; TODO: parse properties
           (let [[libname properties] (str/split libname #"\\$")
                 properties nil]
-            (let [mod (require libname)]
+            (let [mod (require libname)
+                  internal-ns (gensym (str "nbb.internal." (munge libname)))]
               (when as
                 (sci/binding [sci/ns ns-obj]
-                  (sci/eval-form @sci-ctx (list 'def as mod))))
+                  (let [current-ns (symbol (str @last-ns))]
+                    (swap! sci-ctx sci/merge-opts {:classes {internal-ns mod}})
+                    ;; hack, we register the alias as a reference to the class via :imports
+                    (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports as] internal-ns))))
               (when default
                 (sci/binding [sci/ns ns-obj]
                   (sci/eval-form @sci-ctx (list 'def default (.-default mod)))))

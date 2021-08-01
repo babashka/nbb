@@ -5,17 +5,11 @@
    ["shelljs" :as sh]))
 
 (println (count (str (.readFileSync fs "script.cljs"))))
-
+(println (count (str (fs/readFileSync "script.cljs"))))
 (prn (.ls sh "."))
+(prn (sh/ls "."))
 
 (prn (csv-parse "foo,bar"))
 
-;; evaluate local file
-(js/eval (str (.readFileSync fs "./foo.js")))
-
-(require '[reagent.core])
-(prn (some? reagent.core/as-element))
-;; (def fs2 (js/require "fs"))
-;; (prn (some? fs))
-;; (println (count (str (.readFileSync fs2 "script.cljs"))))
-
+(require '[reagent.core :as rg])
+(prn (some? rg/as-element))
