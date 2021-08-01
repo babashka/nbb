@@ -13,7 +13,9 @@
 ;; evaluate local file
 (js/eval (str (.readFileSync fs "./foo.js")))
 
-(def fs2 (js/require "fs"))
-(prn (some? fs))
-(println (count (str (.readFileSync fs2 "script.cljs"))))
+(require '[reagent.core])
+(prn (some? reagent.core/as-element))
+;; (def fs2 (js/require "fs"))
+;; (prn (some? fs))
+;; (println (count (str (.readFileSync fs2 "script.cljs"))))
 
