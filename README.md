@@ -31,9 +31,9 @@ Create a script which uses the NPM libraries:
             ["fs" :as fs]
             ["shelljs" :as sh]))
 
-(println (count (str (.readFileSync fs "script.cljs"))))
+(println (count (str (fs/readFileSync "script.cljs"))))
 
-(prn (.ls sh "."))
+(prn (sh/ls "."))
 
 (prn (csv-parse "foo,bar"))
 ```
@@ -60,10 +60,11 @@ $ npm install ink
 `ink-demo.cljs`:
 ``` clojure
 (ns ink-demo
-  (:require [reagent.core :as r]
-            ["ink" :refer [render Text]]))
+  (:require ["ink" :refer [render Text]]
+            [reagent.core :as r]))
 
 (defonce state (r/atom 0))
+
 (doseq [n (range 1 11)]
   (js/setTimeout #(swap! state inc) (* n 500)))
 
