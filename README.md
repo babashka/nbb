@@ -27,9 +27,9 @@ Create a script which uses the NPM libraries:
 
 ``` clojure
 (ns script
-  (:require ["csv-parse/lib/sync.js" :default csv-parse]
+  (:require ["csv-parse/lib/sync" :as csv-parse]
             ["fs" :as fs]
-            ["shelljs" :default sh]))
+            ["shelljs" :as sh]))
 
 (println (count (str (.readFileSync fs "script.cljs"))))
 
@@ -81,23 +81,6 @@ The baseline startup time for a script is about 200ms seconds on my
 laptop. Ufortunately `npx` adds another 300ms or so.
 To get faster startup time for a local `nbb`, use `$(npm bin)/nbb script.cljs`,
 or install `nbb` globally..
-
-## Require syntax and rules
-
-Nbb adopts the syntax that `shadow-cljs` and CLJS provide for requiring NPM
-libraries. It also supports the non-CLJS-standard `:default` option which is
-only supported by `shadow-cljs`. Requiring libraries can only be done through a
-top level `ns` form and/or one or more top-level `require` forms. Additionally,
-`nbb` does not support `js/require`, but it does allow `js/import` (dynamic
-import).
-
-## Open questions
-
-If you are a JS expert, which I am not, and you have some insights to the
-following issues, feel free to reach out via Github Discussions or the
-`#nbb` channel on Clojurians Slack.
-
-- Can a global install of `nbb` be combined with local dependencies? How?
 
 ## Build
 
