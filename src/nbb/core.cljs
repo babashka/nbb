@@ -15,6 +15,8 @@
 
 (declare eval-expr)
 
+(set! (.-import goog/global) esm/dynamic-import)
+
 (defn handle-libspecs [ns-obj libspecs require cb]
   (if libspecs
     (let [fst (first libspecs)
