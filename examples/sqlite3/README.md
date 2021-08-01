@@ -1,7 +1,7 @@
 # sqlite3 example
 
 ```
-$ nbb sqlite3.cljs
+$ nbb example.cljs
 1: 0
 2: 1
 3: 2

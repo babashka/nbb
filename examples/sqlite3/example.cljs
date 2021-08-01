@@ -1,4 +1,4 @@
-(ns script.sqlite
+(ns example
   (:require ["sqlite3" :as sqlite]))
 
 (def db (sqlite/Database. ":memory:"))
