@@ -13,7 +13,7 @@ Experimental.
 Install `nbb` from NPM:
 
 ```
-$ npm install nbb
+$ npm install -g nbb
 ```
 
 and perhaps some other NPM libraries to use in the script. E.g.:
@@ -41,7 +41,7 @@ Create a script which uses the NPM libraries:
 Call the script:
 
 ```
-$ npx nbb script.cljs
+$ nbb script.cljs
 264
 #js ["CHANGELOG.md" "README.md" "bb.edn" "deps.edn" "main.js" "node_modules" "out" "package-lock.json" "package.json" "shadow-cljs.edn" "src" "test.cljs"]
 #js [#js ["foo" "bar"]]
@@ -77,10 +77,10 @@ $ npm install ink
 
 ## Startup time
 
-The baseline startup time for a script is about 200ms seconds on my
-laptop. Ufortunately `npx` adds another 300ms or so.
-To get faster startup time for a local `nbb`, use `$(npm bin)/nbb script.cljs`,
-or install `nbb` globally..
+The baseline startup time for a script is about 200ms seconds on my laptop. When
+invoked via `npx` this adds another 300ms or so, so for faster startup, either
+use a globally installed `nbb` or use `$(npm bin)/nbb script.cljs` to bypass
+`npx`.
 
 ## Build
 
