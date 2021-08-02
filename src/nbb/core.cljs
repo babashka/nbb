@@ -21,7 +21,7 @@
 (def loaded-modules (atom {}))
 
 (defn handle-libspecs [ns-obj libspecs require]
-  (if libspecs
+  (if (seq libspecs)
     (let [fst (first libspecs)
           [libname & opts] fst
           opts (apply hash-map opts)
