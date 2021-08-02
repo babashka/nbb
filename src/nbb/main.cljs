@@ -17,4 +17,4 @@
              (fn [fs]
                (let [source (str (j/call fs :readFileSync script-file))]
                  (nbb/eval-code source require))))
-      (println "nbb expects a script file argument.")) ))
+      (.error js/console "Nbb expects a script file argument.")) ))
