@@ -1,9 +1,9 @@
 (ns nbb.main
-  (:require ["module" :as mod1 :refer [createRequire]]
+  (:require ["fs" :as fs]
+            ["module" :as mod1 :refer [createRequire]]
             ["path" :as path]
-            [applied-science.js-interop :as j]
             [nbb.core :as nbb]
-            [shadow.esm :as esm]))
+            [sci.core :as sci]))
 
 (defn main []
   (let [[_ _ script-file] js/process.argv
@@ -13,8 +13,9 @@
     (when require
       (set! (.-require goog/global) require))
     (if script-file
-      (.then (esm/dynamic-import "fs")
-             (fn [fs]
-               (let [source (str (j/call fs :readFileSync script-file))]
-                 (nbb/eval-code source require))))
+      (let [source (str (fs/readFileSync script-file))]
+        ;; NOTE: binding doesn't work as expected since eval-code is async.
+        ;; Since nbb currently is only called with a script file argument, this suffices
+        (sci/alter-var-root nbb/command-line-args (constantly (seq (js/process.argv.slice 3))))
+        (nbb/eval-code source require))
       (.error js/console "Nbb expects a script file argument.")) ))

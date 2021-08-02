@@ -9,8 +9,18 @@
 
 (def cwd (.cwd js/process))
 
-(def sci-ctx (atom (sci/init {:namespaces {'clojure.core {'prn prn 'println println}}
-                              :classes {'js universe :allow :all}})))
+(def core-ns (sci/create-ns 'clojure.core nil))
+
+(def command-line-args (sci/new-dynamic-var '*command-line-args* nil {:ns core-ns}))
+
+(def sci-ctx
+  (atom
+   (sci/init
+    {:namespaces {'clojure.core {'prn prn
+                                 'print print
+                                 'println println
+                                 '*command-line-args* command-line-args}}
+     :classes {'js universe :allow :all}})))
 
 (def last-ns (atom @sci/ns))
 

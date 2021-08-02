@@ -20,3 +20,4 @@
 
 ;; built-in namespaces
 (prn (str/includes? "foo" "o"))
+(prn *command-line-args*)
