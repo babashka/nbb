@@ -1,5 +1,6 @@
 {:deps true
- :builds {:modules {:js-options {:keep-as-import #{"fs" "module" "path" "react" "react-dom"}}
+ :builds {:modules {:js-options {:keep-as-import #{"fs" "module" "path"
+                                                   "react" "react-dom"}}
                     :compiler-options {:infer-externs :auto}
                     :target :esm
                     :runtime :node

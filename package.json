@@ -1,15 +1,16 @@
 {
   "name": "nbb",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "type": "module",
   "main": "out/nbb_main.js",
   "bin": {
     "nbb": "./out/nbb_main.js"
   },
   "description": "Babashka-like tool for Node.js.",
+  "dependencies": {
+  },
   "devDependencies": {
     "shadow-cljs": "^2.15.2",
-    "source-map-support": "^0.5.19",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
@@ -17,9 +18,5 @@
     "type": "git",
     "url": "https://github.com/borkdude/nbb"
   },
-  "license": "MIT",
-  "dependencies": {
-    "source-maps": "^1.0.12",
-    "uuid": "^8.3.2"
-  }
+  "license": "MIT"
 }
