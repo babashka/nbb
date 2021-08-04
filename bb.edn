@@ -11,7 +11,9 @@
                (spit "out/nbb_main.js"
                      (str "#!/usr/bin/env node\n\n" (slurp "out/nbb_main.js")))
                (shell "chmod +x out/nbb_main.js")
-               (run! fs/delete (fs/glob "out" "**.map")))}
+               (run! fs/delete (fs/glob "out" "**.map"))
+               (fs/move "out/nbb_reagent.js" "reagent" {:replace-existing true}))}
   run (shell "out/nbb_main.js test.cljs")
   publish {:depends [release]
-           :task (shell "npm publish")}}}
+           :task (do (shell "npm publish")
+                     (shell {:dir "reagent"} (shell "npm publish")))}}}

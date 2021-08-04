@@ -40,7 +40,9 @@
       (case libname
         ;; built-ins
         (reagent.core reagent.dom reagent.dom.server)
-        (-> (esm/dynamic-import "./nbb_reagent.js")
+        (-> (.catch (esm/dynamic-import "./nbb_reagent.js")
+                    (fn [_err]
+                      (esm/dynamic-import "nbb-reagent/nbb_reagent.js")))
             (.then (fn [_mod]
                      (when as
                        (sci/binding [sci/ns ns-obj]

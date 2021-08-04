@@ -3,14 +3,24 @@
             ["module" :as mod1 :refer [createRequire]]
             ["path" :as path]
             [nbb.core :as nbb]
-            [sci.core :as sci]))
+            [sci.core :as sci]
+            [shadow.esm :as esm]))
 
 (defn main []
+  
   (let [[_ _ script-file] js/process.argv
-        require (when script-file
-                  (let [path (path/resolve script-file)]
-                    (createRequire path)))]
-    (when require
+        path (when script-file (path/resolve script-file))
+        _ (prn :path path)
+        require (when path
+                  (createRequire path))]
+    (.then (esm/dynamic-import "import-meta-resolve")
+           (fn [mod]
+             (let [resolve (.-resolve mod)]
+               (.then (resolve "react" (str "file://" path))
+                      (fn [resolved]
+                        (prn :res resolved)
+                        (esm/dynamic-import resolved))))))
+    #_#_(when require
       (set! (.-require goog/global) require))
     (if script-file
       (let [source (str (fs/readFileSync script-file))]
