@@ -1,11 +1,11 @@
 {
   "name": "nbb",
+  "version": "0.0.13",
   "type": "module",
   "main": "out/nbb_main.js",
   "bin": {
     "nbb": "./out/nbb_main.js"
   },
-  "version": "0.0.12",
   "description": "Babashka-like tool for Node.js.",
   "devDependencies": {
     "shadow-cljs": "^2.15.2",
