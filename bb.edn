@@ -10,7 +10,7 @@
               (shell "chmod +x out/nbb_main.js"))
   release {:depends [clean]
            :task
-           (do (shell "npx shadow-cljs --force-spawn release modules")
+           (do (apply shell "npx shadow-cljs --force-spawn release modules" *command-line-args*)
                (spit "out/nbb_core.js"
                      (clojure.string/replace (slurp "out/nbb_core.js") (re-pattern "self") "globalThis"))
                (spit "out/nbb_main.js"

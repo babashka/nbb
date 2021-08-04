@@ -1,5 +1,5 @@
 {:deps true
- :builds {:modules {:js-options {:keep-as-import #{"fs" "module" "path"}}
+ :builds {:modules {:js-options {:keep-as-import #{"fs" "module" "path" "react" "react-dom"}}
                     :compiler-options {:infer-externs :auto}
                     :target :esm
                     :runtime :node
@@ -9,7 +9,9 @@
                      :nbb_main {:init-fn nbb.main/main
                                 :depends-on #{:nbb_core}}
                      :nbb_reagent {:init-fn nbb.reagent/init
-                                   :depends-on #{:nbb_core}}}}
+                                   :depends-on #{:nbb_core}}}
+                    :build-hooks [(shadow.cljs.build-report/hook
+                                   {:output-to "report.html"})]}
           :test {:target :node-test
                  :output-to "target/test/test.js"
                  :autorun true}}}
