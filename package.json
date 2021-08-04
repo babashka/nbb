@@ -1,6 +1,6 @@
 {
   "name": "nbb",
-  "version": "0.0.16",
+  "version": "0.0.18",
   "type": "module",
   "main": "out/nbb_main.js",
   "bin": {
@@ -14,6 +14,10 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "shadow-cljs": "^2.15.2"
+  },
+  "optionalDependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "repository": {
     "type": "git",
