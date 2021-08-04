@@ -7,9 +7,9 @@
 
 (defn main []
   (let [[_ _ script-file] js/process.argv
-        require (when script-file
-                  (let [path (path/resolve script-file)]
-                    (createRequire path)))]
+        path (when script-file (path/resolve script-file))
+        require (when path
+                  (createRequire path))]
     (when require
       (set! (.-require goog/global) require))
     (if script-file
@@ -17,5 +17,6 @@
         ;; NOTE: binding doesn't work as expected since eval-code is async.
         ;; Since nbb currently is only called with a script file argument, this suffices
         (sci/alter-var-root nbb/command-line-args (constantly (seq (js/process.argv.slice 3))))
-        (nbb/eval-code source require))
-      (.error js/console "Nbb expects a script file argument.")) ))
+        (nbb/eval-code {:require require
+                        :script-dir path} source))
+      (.error js/console "Nbb expects a script file argument."))))
