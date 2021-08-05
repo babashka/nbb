@@ -52,6 +52,7 @@
         ;; built-ins
         (reagent.core reagent.dom reagent.dom.server)
         (let [script-dir (:script-dir ctx)]
+          ;; TODO: remove import-via, it doesn't work, Reagent will still load nbb's optional react itself
           (-> (-> (import-via "react" script-dir) ;; resolve react from script location
                   (.then (fn [_react]
                            ;; then load local reagent module
