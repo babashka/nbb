@@ -1,4 +1,7 @@
-{:deps {thheller/shadow-cljs {:mvn/version "2.15.2"}
+{:paths ["src"
+         ;; How to add test sources for test target only?
+         "test"]
+ :deps {thheller/shadow-cljs {:mvn/version "2.15.2"}
         ;; reagent/reagent {:mvn/version "1.0.0"}
         cljsjs/react {:mvn/version "17.0.2-0"}
         cljsjs/react-dom {:mvn/version "17.0.2-0"}
@@ -7,12 +10,4 @@
         reagent/reagent {:mvn/version "1.1.0"}
         com.github.borkdude/sci {:git/sha "cdf6c004b323132d9da80f3d95d08c163d20dcc7"}
         #_{:local/root "/Users/borkdude/Dropbox/dev/clojure/babashka/sci"}
-        applied-science/js-interop {:mvn/version "0.2.11"}}
- :aliases {:repl/rebel
-           {:extra-deps {nrepl/nrepl                {:mvn/version "0.8.3"}
-                         cider/cider-nrepl          {:mvn/version "0.26.0"}
-                         com.bhauman/rebel-readline {:mvn/version "0.1.4"}}
-            :main-opts  ["-m" "nrepl.cmdline"
-                         "--middleware" "[cider.nrepl/cider-middleware]"
-                         "-i"
-                         "-f" "rebel-readline.main/-main"]}}}
+        applied-science/js-interop {:mvn/version "0.2.11"}}}

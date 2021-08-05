@@ -1,0 +1,3 @@
+(ns script)
+
+(prn :hello)

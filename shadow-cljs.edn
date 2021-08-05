@@ -14,5 +14,6 @@
                     :build-hooks [(shadow.cljs.build-report/hook
                                    {:output-to "report.html"})]}
           :test {:target :node-test
-                 :output-to "target/test/test.js"
+                 :ns-regexp "-test$"
+                 :output-to "target/test/test.cjs"
                  :autorun true}}}
