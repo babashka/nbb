@@ -13,10 +13,12 @@ Experimental.
 Install `nbb` from NPM:
 
 ```
-$ npm install -g nbb
+$ npm install nbb -g
 ```
 
-and perhaps some other NPM libraries to use in the script. E.g.:
+Omit `-g` for a local install.
+
+And then install some other NPM libraries to use in the script. E.g.:
 
 ```
 $ npm install csv-parse
@@ -82,6 +84,11 @@ The baseline startup time for a script is about 200ms seconds on my laptop. When
 invoked via `npx` this adds another 300ms or so, so for faster startup, either
 use a globally installed `nbb` or use `$(npm bin)/nbb script.cljs` to bypass
 `npx`.
+
+## Optional dependencies
+
+Nbb depends on React to load the optional [Reagent](#reagent) module. To not
+download react when installing nbb, use `npm install nbb --no-optional`.
 
 ## Build
 

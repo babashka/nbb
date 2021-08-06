@@ -2,6 +2,7 @@
  {:requires ([babashka.fs :as fs])
   clean (fs/delete-tree "out")
   watch (do (shell "npx shadow-cljs --force-spawn watch modules"))
+  watch-test (shell "npx shadow-cljs watch test")
   compile (shell "npx shadow-cljs --force-spawn compile modules")
   release {:depends [clean]
            :task

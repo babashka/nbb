@@ -5,18 +5,42 @@
             [nbb.core :as nbb]
             [sci.core :as sci]))
 
+(defn parse-args [args]
+  (loop [opts {}
+         args args
+         parsed-opts? false]
+    (if args
+      (let [farg (first args)
+            nargs (next args)]
+        (case farg
+          "-e" (recur (assoc opts :expr (first nargs))
+                      (next nargs)
+                      true)
+          ;; default
+          (if (not parsed-opts?)
+            (assoc opts :script farg :args (next args))
+            (throw (ex-info (str "Unrecognized options:"  args) {})))))
+      opts)))
+
 (defn main []
-  (let [[_ _ script-file] js/process.argv
+  (let [[_ _ & args] js/process.argv
+        opts (parse-args args)
+        script-file (:script opts)
+        expr (:expr opts)
         path (when script-file (path/resolve script-file))
         require (when path
                   (createRequire path))]
     (when require
       (set! (.-require goog/global) require))
-    (if script-file
-      (let [source (str (fs/readFileSync script-file))]
+    (if (or script-file expr)
+      (let [source (or expr (str (fs/readFileSync script-file)))]
         ;; NOTE: binding doesn't work as expected since eval-code is async.
         ;; Since nbb currently is only called with a script file argument, this suffices
-        (sci/alter-var-root nbb/command-line-args (constantly (seq (js/process.argv.slice 3))))
-        (nbb/eval-string {:require require
-                          :script-dir path} source))
-      (.error js/console "Nbb expects a script file argument."))))
+        (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
+        (-> (nbb/eval-string {:require require
+                              :script-dir path} source)
+            (.then (fn [val]
+                     (when expr
+                       (prn val))
+                     val))))
+      (.error js/console "Usage: nbb <script> or nbb -e <expr>."))))
