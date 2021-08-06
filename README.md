@@ -12,6 +12,7 @@ Experimental.
 
 - Ad hoc CLJS scripting with fast startup on regular Node.js.
 - Support building small TUI apps using [Reagent](#reagent).
+- Supplement [babashka](https://babashka.org/) with libraries from the Node.js ecosystem.
 
 What's next? Leave some feedback on the [Github Discussions](https://github.com/borkdude/nbb/discussions) forum or join the
   `#nbb` channel on Clojurians Slack.
