@@ -15,7 +15,8 @@ on Node.js.
 
 Additional goals are:
 
-- Fast startup without relying a custom version of Node.js.
+- Fast startup without relying on a custom version of Node.js.
+- Small artifact (current size is around 1.2MB).
 - Support building small TUI apps using [Reagent](#reagent).
 - Complement [babashka](https://babashka.org/) with libraries from the Node.js ecosystem.
 
