@@ -22,10 +22,10 @@ Additional goals are:
 
 ## Community
 
-- Submit bug report at [Github Issues](https://github.com/borkdude/nbb/issues).
+- Submit bugs at [Github Issues](https://github.com/borkdude/nbb/issues).
 - Join [Github Discussions](https://github.com/borkdude/nbb/discussions/categories) for proposing ideas, show and tell and Q&A.
--  Join the `#nbb` channel on Clojurians Slack.
-- Follow news or tweet about `nbb` using the Twitter hashtag
+-  Join the [channel](https://app.slack.com/client/T03RZGPFR/C029PTWD3HR) on Clojurians Slack.
+- Follow news or tweet using the Twitter hashtag
   [#nodebb](https://twitter.com/hashtag/nodebb?f=live).
 
 ## Requirements
