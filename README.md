@@ -2,7 +2,7 @@
 
 Not [babashka](https://babashka.org/). Node.js babashka!?
 
-CLJS scripting on Node.js.
+Ad-hoc CLJS scripting on Node.js.
 
 ## Status
 
