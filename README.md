@@ -8,6 +8,14 @@ Previously known as TBD and Nodashka.
 
 Experimental.
 
+## Goals
+
+- Ad hoc CLJS scripting with fast startup on regular Node.js.
+- Support building small TUI apps using [Reagent](#reagent).
+
+What's next? Leave some feedback on the [Github Discussions](https://github.com/borkdude/nbb/discussions) forum or join the
+  `#nbb` channel on Clojurians Slack.
+
 ## Usage
 
 Install `nbb` from NPM:
@@ -17,6 +25,13 @@ $ npm install nbb -g
 ```
 
 Omit `-g` for a local install.
+
+Try out an expression:
+
+``` clojure
+$ nbb -e '(+ 1 2 3)'
+6
+```
 
 And then install some other NPM libraries to use in the script. E.g.:
 
@@ -80,10 +95,25 @@ $ npm install ink
 
 ## Startup time
 
-The baseline startup time for a script is about 200ms seconds on my laptop. When
+``` clojure
+$ time nbb -e '(+ 1 2 3)'
+6
+nbb -e '(+ 1 2 3)'   0.17s  user 0.02s system 109% cpu 0.168 total
+```
+
+The baseline startup time for a script is about 170ms seconds on my laptop. When
 invoked via `npx` this adds another 300ms or so, so for faster startup, either
 use a globally installed `nbb` or use `$(npm bin)/nbb script.cljs` to bypass
 `npx`.
+
+## How does this tool work?
+
+CLJS code is evaluated through [SCI](https://github.com/borkdude/sci), the same
+interpreter that powers [babashka](https://babashka.org/). Because SCI works
+with advanced compilation, the bundle size, especially when combined with other
+dependencies, is smaller than what you get with self-hosted CLJS. That makes
+startup faster. The trade-off is that execution is less performant and that only
+a subset of CLJS is available (e.g. no deftype, yet).
 
 ## Optional dependencies
 
