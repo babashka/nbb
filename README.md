@@ -23,6 +23,10 @@ Additional goals are:
 What's next? Leave some feedback on the [Github Discussions](https://github.com/borkdude/nbb/discussions) forum or join the
   `#nbb` channel on Clojurians Slack.
 
+## Requirements
+
+Nbb requires Node.js v12 or newer.
+
 ## Usage
 
 Install `nbb` from NPM:
