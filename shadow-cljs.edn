@@ -1,4 +1,4 @@
-{:deps true
+{:deps {:aliases [:test]}
  :builds {:modules {:js-options {:keep-as-import #{"fs" "module" "path"
                                                    "react" "react-dom"}}
                     :compiler-options {:infer-externs :auto}

@@ -1,6 +1,5 @@
-{:paths ["src"
-         ;; How to add test sources for test target only?
-         "test"]
+{:paths ["src"]
+ :aliases {:test {:extra-paths ["test"]}}
  :deps {thheller/shadow-cljs {:mvn/version "2.15.2"}
         ;; reagent/reagent {:mvn/version "1.0.0"}
         cljsjs/react {:mvn/version "17.0.2-0"}
