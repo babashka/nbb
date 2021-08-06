@@ -2,7 +2,7 @@
 
 Not [babashka](https://babashka.org/). Node.js babashka!?
 
-Previously known as TBD and Nodashka.
+CLJS scripting on Node.js.
 
 ## Status
 
@@ -10,9 +10,14 @@ Experimental.
 
 ## Goals
 
-- Ad hoc CLJS scripting with fast startup on regular Node.js.
+Nbb's main goal is to make it _easy_ to get started with ad hoc CLJS scripting
+on Node.js.
+
+Additional goals are:
+
+- Fast startup without relying a custom version of Node.js.
 - Support building small TUI apps using [Reagent](#reagent).
-- Supplement [babashka](https://babashka.org/) with libraries from the Node.js ecosystem.
+- Complement [babashka](https://babashka.org/) with libraries from the Node.js ecosystem.
 
 What's next? Leave some feedback on the [Github Discussions](https://github.com/borkdude/nbb/discussions) forum or join the
   `#nbb` channel on Clojurians Slack.
