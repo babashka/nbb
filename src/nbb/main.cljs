@@ -40,7 +40,7 @@
         (-> (nbb/eval-string {:require require
                               :script-dir path} source)
             (.then (fn [val]
-                     (when expr
+                     (when (and expr (some? val))
                        (prn val))
                      val))))
       (.error js/console "Usage: nbb <script> or nbb -e <expr>."))))

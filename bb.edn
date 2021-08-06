@@ -1,4 +1,5 @@
-{:tasks
+{:paths ["script"]
+ :tasks
  {:requires ([babashka.fs :as fs])
   clean (fs/delete-tree "out")
   watch (do (shell "npx shadow-cljs --force-spawn watch modules"))
@@ -13,6 +14,7 @@
                      (str "#!/usr/bin/env node\n\n" (slurp "out/nbb_main.js")))
                (shell "chmod +x out/nbb_main.js")
                (run! fs/delete (fs/glob "out" "**.map")))}
+  test nbb-tests/main
   run (shell "out/nbb_main.js test.cljs")
   publish {:depends [release]
            :task (do (shell "npm publish")
