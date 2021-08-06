@@ -145,8 +145,8 @@
       ;; wrap normal value in promise
       (js/Promise.resolve prev-val))))
 
-(defn eval-code [ctx code]
-  (let [reader (sci/reader code)]
+(defn eval-string [ctx s]
+  (let [reader (sci/reader s)]
     (.catch (eval-expr ctx nil reader)
             (fn [err]
               (.error js/console (str err))))))

@@ -1,3 +1,3 @@
 (ns script)
 
-(prn :hello)
+(+ 1 2 3)

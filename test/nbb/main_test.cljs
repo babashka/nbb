@@ -1,9 +1,20 @@
 (ns nbb.main-test
-  (:require [nbb.core :as nbb]
-            [clojure.test :refer [deftest is testing]]
-            ["fs" :as fs]))
+  (:require [clojure.test :refer [deftest is async]]
+            [nbb.core :as nbb]
+            [nbb.main :as main])
+  (:require-macros [nbb.test-macros :refer [with-args]]))
 
-(deftest foo-test
+(deftest eval-string-test
   (is (= 1 1))
-  (nbb/eval-code {:require nil
-                  :script-dir nil} (str (fs/readFileSync "test-resources/script.cljs"))))
+  (async done
+         (.then (nbb/eval-string nil "(+ 1 2 3)")
+                (fn [res]
+                  (is (= 6 res))
+                  (done)))))
+
+(deftest args-test
+  (async done
+         (with-args ["test-resources/script.cljs"] done
+           (.then (main/main)
+                  (fn [res]
+                    (is (= 6 res)))))))
