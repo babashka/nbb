@@ -20,8 +20,13 @@ Additional goals are:
 - Support building small TUI apps using [Reagent](#reagent).
 - Complement [babashka](https://babashka.org/) with libraries from the Node.js ecosystem.
 
-What's next? Leave some feedback on the [Github Discussions](https://github.com/borkdude/nbb/discussions) forum or join the
-  `#nbb` channel on Clojurians Slack.
+## Community
+
+- Submit bug report at [Github Issues](https://github.com/borkdude/nbb/issues).
+- Join [Github Discussions](https://github.com/borkdude/nbb/discussions/categories) for proposing ideas, show and tell and Q&A.
+-  Join the `#nbb` channel on Clojurians Slack.
+- Follow news or tweet about `nbb` using the Twitter hashtag
+  [#nodebb](https://twitter.com/hashtag/nodebb?f=live).
 
 ## Requirements
 
