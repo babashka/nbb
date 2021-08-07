@@ -3,6 +3,9 @@
             [nbb.core :as nbb]
             [nbb.main :as main]))
 
+;; NOTE: CLJS only accepts one async + done per deftest
+;; See https://clojurescript.org/tools/testing#async-testing.
+
 (defn with-args [args f]
   (let [old-args js/process.argv
         args (into-array (list* nil nil args))]
