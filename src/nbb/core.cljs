@@ -102,14 +102,16 @@
                   (js/Promise.resolve ns-obj))
               (let [munged (munge libname)
                     file (str/replace (str munged) #"\." "/")
-                    file (str file ".cljs")
+                    files [(str file ".cljs") (str file ".cljc")]
                     dirs (-> @ctx :classpath :dirs)
                     resolve (.-resolve ^js @path)
                     exists (.-existsSync ^js @fs)
                     the-file (reduce (fn [_ dir]
-                                       (let [f (resolve dir file)]
-                                         (when (exists f)
-                                           (reduced f)))) nil dirs)]
+                                       (some (fn [f]
+                                               (let [f (resolve dir f)]
+                                                 (when (exists f)
+                                                   (reduced f))))
+                                             files)) nil dirs)]
                 (if the-file
                   (-> (load-file the-file)
                       (.then
@@ -127,7 +129,7 @@
                                                   (list 'quote libname) :only (list 'quote refer)))))))
                       (.then (fn [_]
                                (handle-libspecs ns-obj (next libspecs)))))
-                  (js/Promise.resolve (js/Error. (str "Could not find namespace: " libname))))))))))
+                  (js/Promise.reject (js/Error. (str "Could not find namespace: " libname))))))))))
     (js/Promise.resolve ns-obj)))
 
 (defn eval-ns-form [ns-form]
@@ -156,7 +158,7 @@
   "Evaluates top level forms asynchronously. Returns promise of last value."
   [prev-val reader]
   (let [next-val (try (sci/binding [sci/ns @last-ns]
-                        (sci/parse-next @sci-ctx reader))
+                        (sci/parse-next @sci-ctx reader {:features #{:cljs}}))
                       (catch :default e
                         (js/Promise.resolve e)))]
     (if-not (= :sci.core/eof next-val)

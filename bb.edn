@@ -15,7 +15,7 @@
                      (str "#!/usr/bin/env node\n\n" (slurp "out/nbb_main.js")))
                (shell "chmod +x out/nbb_main.js")
                (run! fs/delete (fs/glob "out" "**.map")))}
-  run-integration-test nbb-tests/main
+  run-integration-tests nbb-tests/main
   run (shell "out/nbb_main.js test.cljs")
   publish {:depends [release]
            :task (do (shell "npm publish")

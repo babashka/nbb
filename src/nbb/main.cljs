@@ -2,6 +2,7 @@
   (:require ["fs" :as fs]
             ["module" :as mod1 :refer [createRequire]]
             ["path" :as path]
+            [clojure.string :as str]
             [nbb.core :as nbb]
             [sci.core :as sci]))
 
@@ -19,6 +20,10 @@
           "-e" (recur (assoc opts :expr (first nargs))
                       (next nargs)
                       true)
+          ("-cp" "--classpath")
+          (recur (assoc opts :classpath (first nargs))
+                 (next nargs)
+                 true)
           ;; default
           (if (not parsed-opts?)
             (assoc opts :script farg :args (next args))
@@ -30,8 +35,10 @@
         opts (parse-args args)
         script-file (:script opts)
         expr (:expr opts)
-        path (when script-file (path/resolve script-file))
+        classpath (:classpath opts)
         cwd (js/process.cwd)
+        classpath-dirs (cons cwd (str/split classpath (re-pattern path/delimiter)))
+        path (when script-file (path/resolve script-file))
         require (if path
                   (createRequire path)
                   (createRequire cwd))]
@@ -43,7 +50,7 @@
         (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
         (swap! nbb/ctx assoc
                :require require :script-dir path
-               :classpath {:dirs [cwd]})
+               :classpath {:dirs classpath-dirs})
         ;; (prn :script-dir script-dir)
         (-> (nbb/load-string source)
             (.then (fn [val]
