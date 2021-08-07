@@ -8,12 +8,12 @@ Ad-hoc CLJS scripting on Node.js.
 
 Experimental. Please report issues [here](https://github.com/borkdude/nbb/issues).
 
-## Goals
+## Goals and features
 
 Nbb's main goal is to make it _easy_ to get started with ad hoc CLJS scripting
 on Node.js.
 
-Additional goals are:
+Additional goals and features are:
 
 - Fast startup without relying on a custom version of Node.js.
 - Small artifact (current size is around 1.2MB).
