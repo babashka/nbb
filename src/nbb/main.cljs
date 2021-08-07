@@ -11,21 +11,19 @@
 
 (defn parse-args [args]
   (loop [opts {}
-         args args
-         parsed-opts? false]
+         args args]
     (if args
       (let [farg (first args)
             nargs (next args)]
         (case farg
           "-e" (recur (assoc opts :expr (first nargs))
-                      (next nargs)
-                      true)
+                      (next nargs))
           ("-cp" "--classpath")
           (recur (assoc opts :classpath (first nargs))
-                 (next nargs)
-                 true)
+                 (next nargs))
           ;; default
-          (if (not parsed-opts?)
+          (if (not (:expr args))
+            ;; when not expression, this argument is interpreted as file
             (assoc opts :script farg :args (next args))
             (throw (ex-info (str "Unrecognized options:"  args) {})))))
       opts)))
