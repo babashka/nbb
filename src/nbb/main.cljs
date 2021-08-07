@@ -6,6 +6,7 @@
             [sci.core :as sci]))
 
 (vreset! nbb/fs fs)
+(vreset! nbb/path path)
 
 (defn parse-args [args]
   (loop [opts {}
@@ -30,6 +31,7 @@
         script-file (:script opts)
         expr (:expr opts)
         path (when script-file (path/resolve script-file))
+        script-dir (if path (path/dirname path) (js/process.cwd))
         require (if path
                   (createRequire path)
                   (createRequire (js/process.cwd)))]
@@ -39,7 +41,10 @@
         ;; NOTE: binding doesn't work as expected since eval-code is async.
         ;; Since nbb currently is only called with a script file argument, this suffices
         (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
-        (swap! nbb/ctx assoc :require require :script-dir path)
+        (swap! nbb/ctx assoc
+               :require require :script-dir path
+               :classpath {:dirs [script-dir]})
+        ;; (prn :script-dir script-dir)
         (-> (nbb/load-string source)
             (.then (fn [val]
                      (when (and expr (some? val))

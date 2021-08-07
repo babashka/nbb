@@ -38,18 +38,18 @@
              (.then (fn [ns-name]
                       (is (= 'user ns-name))))
              (.then (fn [_]
-                      (nbb/load-file "test-resources/script.cljs")))
+                      (nbb/load-file "test_resources/script.cljs")))
              (.then (fn [val]
                       (is (= 6 val))))
              (.then (fn [_]
-                      (nbb/load-string "(nbb.core/load-file \"test-resources/script.cljs\")")))
+                      (nbb/load-string "(nbb.core/load-file \"test_resources/script.cljs\")")))
              (.then (fn [val]
                       (is (= 6 val))))
              (.finally (fn [] (done))))))
 
 (deftest args-test
   (async done
-         (-> (main-with-args ["test-resources/script.cljs"])
+         (-> (main-with-args ["test_resources/script.cljs"])
              (.then (fn [res]
                       (is (= 6 res))))
              (.then (fn [_]
@@ -57,11 +57,11 @@
              (.then (fn [res]
                       (is (= 10 res))))
              (.then (fn [_]
-                      (main-with-args["-e" "(nbb.core/load-file \"test-resources/script.cljs\")"])))
+                      (main-with-args["-e" "(nbb.core/load-file \"test_resources/script.cljs\")"])))
              (.then (fn [res]
                       (is (= 6 res))))
              (.then (fn [_]
-                      (main-with-args ["test-resources/load_file_test.cljs"])))
+                      (main-with-args ["test_resources/load_file_test.cljs"])))
              (.then (fn [res]
                       (is (= :loaded-by-load-file-test/loaded res))))
              (.finally (fn [] (done))))))
@@ -72,7 +72,15 @@
              (.then (fn [res]
                       (is (= 6 res))))
              (.then (fn [_]
-                      (main-with-args ["test-resources/plet.cljs"])))
+                      (main-with-args ["test_resources/plet.cljs"])))
              (.then (fn [res]
                       (is (= [1 2 "<!DOCTYPE html><html" 1] res))))
+             (.finally (fn [] (done))))))
+
+(deftest require-namespace-test
+  (async done
+         (-> (main-with-args ["-e" "(require '[test-resources.script :as s])
+                                    (s/script-fn)"])
+             (.then (fn [res]
+                      (is (= :hello res))))
              (.finally (fn [] (done))))))

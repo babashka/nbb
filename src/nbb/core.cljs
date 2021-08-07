@@ -8,6 +8,7 @@
 
 ;; workaround for import$fs not defined
 (def fs (volatile! nil))
+(def path (volatile! nil))
 
 (def universe goog/global)
 
@@ -181,14 +182,27 @@
   (swap! sci-ctx sci/merge-opts sci-opts))
 
 (reset! sci-ctx
- (sci/init
-  {:namespaces {'clojure.core {'prn prn
-                               'print print
-                               'println println
-                               '*command-line-args* command-line-args}
-                'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
-                           'slurp (sci/copy-var slurp nbb-ns)
-                           'load-file (sci/copy-var load-file nbb-ns)}}
-   :classes {'js universe :allow :all}}))
+        (sci/init
+         {:namespaces {'clojure.core {'prn prn
+                                      'print print
+                                      'println println
+                                      '*command-line-args* command-line-args}
+                       'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
+                                  'slurp (sci/copy-var slurp nbb-ns)
+                                  'load-file (sci/copy-var load-file nbb-ns)}}
+          :classes {'js universe :allow :all}
+          :load-fn (fn [{:keys [namespace]}]
+                     (let [munged (munge namespace)
+                           file (str/replace (str munged) #"\." "/")
+                           file (str file ".cljs")
+                           dirs (-> @ctx :classpath :dirs)
+                           resolve (.-resolve ^js @path)
+                           exists (.-existsSync ^js @fs)
+                           the-file (reduce (fn [_ dir]
+                                              (let [f (resolve dir file)]
+                                                (when (exists f)
+                                                  (reduced f)))) nil dirs)]
+                       {:source (slurp the-file)
+                        :file the-file}))}))
 
 (defn init [])
