@@ -123,6 +123,10 @@ Using `plet` this becomes:
       (.close browser))
 ```
 
+See the [puppeteer
+example](https://github.com/borkdude/nbb/blob/main/examples/puppeteer/example.cljs)
+for the full code.
+
 ## Reagent
 
 Nbb includes `reagent.core` which will be lazily loaded when required. You
