@@ -17,6 +17,7 @@ Additional goals are:
 
 - Fast startup without relying on a custom version of Node.js.
 - Small artifact (current size is around 1.2MB).
+- First class [macros](#macros)
 - Support building small TUI apps using [Reagent](#reagent).
 - Complement [babashka](https://babashka.org/) with libraries from the Node.js ecosystem.
 
@@ -78,6 +79,48 @@ $ nbb script.cljs
 264
 #js ["CHANGELOG.md" "README.md" "bb.edn" "deps.edn" "main.js" "node_modules" "out" "package-lock.json" "package.json" "shadow-cljs.edn" "src" "test.cljs"]
 #js [#js ["foo" "bar"]]
+```
+
+## Macros
+
+Nbb has first class support for macros: you can define them right inside your `.cljs` file, like you are used to from JVM Clojure. Consider the `plet` macro to make working with promises more palatable:
+
+
+``` clojure
+(defmacro plet
+  [bindings & body]
+  (let [binding-pairs (reverse (partition 2 bindings))
+        body (cons 'do body)]
+    (reduce (fn [body [sym expr]]
+              (let [expr (list '.resolve 'js/Promise expr)]
+                (list '.then expr (list 'clojure.core/fn (vector sym)
+                                        body))))
+            body
+            binding-pairs)))
+```
+
+Using this macro we can look async code more like sync code. Consider this puppeteer example:
+
+``` clojure
+(-> (.launch puppeteer)
+      (.then (fn [browser]
+               (-> (.newPage browser)
+                   (.then (fn [page]
+                            (-> (.goto page "https://clojure.org")
+                                (.then #(.screenshot page #js{:path "screenshot.png"}))
+                                (.catch #(js/console.log %))
+                                (.then #(.close browser)))))))))
+```
+
+Using `plet` this becomes:
+
+``` clojure
+(plet [browser (.launch puppeteer)
+       page (.newPage browser)
+       _ (.goto page "https://clojure.org")
+       _ (-> (.screenshot page #js{:path "screenshot.png"})
+             (.catch #(js/console.log %)))]
+      (.close browser))
 ```
 
 ## Reagent
