@@ -31,10 +31,10 @@
         script-file (:script opts)
         expr (:expr opts)
         path (when script-file (path/resolve script-file))
-        script-dir (if path (path/dirname path) (js/process.cwd))
+        cwd (js/process.cwd)
         require (if path
                   (createRequire path)
-                  (createRequire (js/process.cwd)))]
+                  (createRequire cwd))]
     (set! (.-require goog/global) require)
     (if (or script-file expr)
       (let [source (or expr (str (fs/readFileSync script-file)))]
@@ -43,7 +43,7 @@
         (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
         (swap! nbb/ctx assoc
                :require require :script-dir path
-               :classpath {:dirs [script-dir]})
+               :classpath {:dirs [cwd]})
         ;; (prn :script-dir script-dir)
         (-> (nbb/load-string source)
             (.then (fn [val]

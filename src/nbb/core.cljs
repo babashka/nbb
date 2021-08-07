@@ -43,6 +43,8 @@
 
 (def import-via (memoize import-via*))
 
+(declare load-file)
+
 (defn handle-libspecs [ns-obj libspecs]
   (if (seq libspecs)
     (let [fst (first libspecs)
@@ -93,9 +95,33 @@
                   (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports field] internal-subname))))
             (recur ns-obj (next libspecs)))
           ;; assume symbol
-          (do (sci/binding [sci/ns ns-obj]
-                (sci/eval-form @sci-ctx (list 'require (list 'quote fst))))
-              (recur ns-obj (next libspecs))))))
+          (sci/binding [sci/ns ns-obj]
+            (if (sci/eval-form @sci-ctx (list 'clojure.core/find-ns (list 'quote libname)))
+              (do (sci/eval-form @sci-ctx (list 'require (list 'quote fst)))
+                  (js/Promise.resolve ns-obj))
+              (let [munged (munge libname)
+                    file (str/replace (str munged) #"\." "/")
+                    file (str file ".cljs")
+                    dirs (-> @ctx :classpath :dirs)
+                    resolve (.-resolve ^js @path)
+                    exists (.-existsSync ^js @fs)
+                    the-file (reduce (fn [_ dir]
+                                       (let [f (resolve dir file)]
+                                         (when (exists f)
+                                           (reduced f)))) nil dirs)]
+                (if the-file
+                  (-> (load-file the-file)
+                      (.then
+                       (fn [_]
+                         (when as
+                           (sci/binding [sci/ns ns-obj]
+                             (sci/eval-form @sci-ctx
+                                            (list 'clojure.core/alias
+                                                  (list 'quote as)
+                                                  (list 'quote libname)))))))
+                      (.then (fn [_]
+                               (handle-libspecs ns-obj (next libspecs)))))
+                  (js/Promise.resolve (js/Error. (str "Could not find namespace: " libname))))))))))
     (js/Promise.resolve ns-obj)))
 
 (defn eval-ns-form [ns-form]
@@ -141,18 +167,17 @@
                        (fn [_]
                          (eval-expr nil reader)))
                 :else
-                (let [result (try (sci/binding [sci/ns @last-ns]
-                                    ;; assume synchronous execution, so binding is OK.
-                                    (sci/eval-form @sci-ctx next-val))
-                                  (catch :default e
-                                    (js/Promise.resolve e)))]
-                  (recur result reader))))
+                (try (sci/binding [sci/ns @last-ns]
+                       ;; assume synchronous execution, so binding is OK.
+                       (eval-expr (sci/eval-form @sci-ctx next-val) reader))
+                     (catch :default e
+                       (js/Promise.resolve e)))))
         ;; assume synchronous execution, so binding is OK.
-        (let [result (try (sci/binding [sci/ns @last-ns]
-                            (sci/eval-form @sci-ctx next-val))
-                          (catch :default e
-                            (js/Promise.resolve e)))]
-          (recur result reader)))
+        (try (sci/binding [sci/ns @last-ns]
+               ;; assume synchronous execution, so binding is OK.
+               (eval-expr (sci/eval-form @sci-ctx next-val) reader))
+             (catch :default e
+               (js/Promise.resolve e))))
       ;; wrap normal value in promise
       (js/Promise.resolve prev-val))))
 
@@ -190,19 +215,6 @@
                        'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
                                   'slurp (sci/copy-var slurp nbb-ns)
                                   'load-file (sci/copy-var load-file nbb-ns)}}
-          :classes {'js universe :allow :all}
-          :load-fn (fn [{:keys [namespace]}]
-                     (let [munged (munge namespace)
-                           file (str/replace (str munged) #"\." "/")
-                           file (str file ".cljs")
-                           dirs (-> @ctx :classpath :dirs)
-                           resolve (.-resolve ^js @path)
-                           exists (.-existsSync ^js @fs)
-                           the-file (reduce (fn [_ dir]
-                                              (let [f (resolve dir file)]
-                                                (when (exists f)
-                                                  (reduced f)))) nil dirs)]
-                       {:source (slurp the-file)
-                        :file the-file}))}))
+          :classes {'js universe :allow :all}}))
 
 (defn init [])
