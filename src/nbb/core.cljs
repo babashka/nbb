@@ -97,6 +97,7 @@
           ;; assume symbol
           (sci/binding [sci/ns ns-obj]
             (if (sci/eval-form @sci-ctx (list 'clojure.core/find-ns (list 'quote libname)))
+              ;; built-in namespace
               (do (sci/eval-form @sci-ctx (list 'require (list 'quote fst)))
                   (js/Promise.resolve ns-obj))
               (let [munged (munge libname)
@@ -118,7 +119,12 @@
                              (sci/eval-form @sci-ctx
                                             (list 'clojure.core/alias
                                                   (list 'quote as)
-                                                  (list 'quote libname)))))))
+                                                  (list 'quote libname)))))
+                         (when (seq refer)
+                           (sci/binding [sci/ns ns-obj]
+                             (sci/eval-form @sci-ctx
+                                            (list 'clojure.core/refer
+                                                  (list 'quote libname) :only (list 'quote refer)))))))
                       (.then (fn [_]
                                (handle-libspecs ns-obj (next libspecs)))))
                   (js/Promise.resolve (js/Error. (str "Could not find namespace: " libname))))))))))
