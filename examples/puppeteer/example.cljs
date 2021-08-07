@@ -30,4 +30,9 @@
              (.catch #(js/console.log %)))]
       (.close browser))
 
-
+(plet [browser (.launch puppeteer)
+       page (.newPage browser)]
+      (.goto page "https://clojure.org")
+      (-> (.screenshot page #js{:path "screenshot.png"})
+          (.catch #(js/console.log %)))
+      (.close browser))

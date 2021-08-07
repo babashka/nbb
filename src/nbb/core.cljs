@@ -1,5 +1,7 @@
 (ns nbb.core
+  (:refer-clojure :exclude [load-file])
   (:require
+   ["fs" :as fs]
    [clojure.string :as str]
    [goog.object :as gobj]
    [sci.core :as sci]
@@ -13,18 +15,15 @@
 
 (def command-line-args (sci/new-dynamic-var '*command-line-args* nil {:ns core-ns}))
 
-(def sci-ctx
-  (atom
-   (sci/init
-    {:namespaces {'clojure.core {'prn prn
-                                 'print print
-                                 'println println
-                                 '*command-line-args* command-line-args}}
-     :classes {'js universe :allow :all}})))
+(def ctx (atom {}))
+
+;; (declare eval-expr load-string slurp load-file)
+
+(def nbb-ns (sci/create-ns 'nbb.core nil))
+
+(def sci-ctx (atom nil))
 
 (def last-ns (atom @sci/ns))
-
-(declare eval-expr)
 
 (set! (.-import goog/global) esm/dynamic-import)
 
@@ -41,7 +40,7 @@
 
 (def import-via (memoize import-via*))
 
-(defn handle-libspecs [ctx ns-obj libspecs]
+(defn handle-libspecs [ns-obj libspecs]
   (if (seq libspecs)
     (let [fst (first libspecs)
           [libname & opts] fst
@@ -51,7 +50,7 @@
       (case libname
         ;; built-ins
         (reagent.core reagent.dom reagent.dom.server)
-        (let [script-dir (:script-dir ctx)]
+        (let [script-dir (:script-dir @ctx)]
           ;; TODO: remove import-via, it doesn't work, Reagent will still load nbb's optional react itself
           (-> (-> (import-via "react" script-dir) ;; resolve react from script location
                   (.then (fn [_react]
@@ -61,7 +60,7 @@
                            (when as
                              (sci/binding [sci/ns ns-obj]
                                (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname)))))
-                           (handle-libspecs ctx ns-obj (next libspecs)))))))
+                           (handle-libspecs ns-obj (next libspecs)))))))
         ;; default
         (if (string? libname)
           ;; TODO: parse properties
@@ -71,9 +70,9 @@
                      ;; skip loading if module was already loaded
                      (get @loaded-modules internal-name)
                      ;; else load module and register in loaded-modules under internal-name
-                     (let [mod ((:require ctx) libname)]
-                         (swap! loaded-modules assoc internal-name mod)
-                         mod))
+                     (let [mod ((:require @ctx) libname)]
+                       (swap! loaded-modules assoc internal-name mod)
+                       mod))
                 current-ns (symbol (str ns-obj))]
             (sci/binding [sci/ns ns-obj]
               (when as
@@ -89,14 +88,14 @@
                   (swap! sci-ctx sci/merge-opts {:classes {internal-subname mod-field}})
                   ;; Repeat hack from above
                   (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports field] internal-subname))))
-            (recur ctx ns-obj (next libspecs)))
+            (recur ns-obj (next libspecs)))
           ;; assume symbol
           (do (sci/binding [sci/ns ns-obj]
                 (sci/eval-form @sci-ctx (list 'require (list 'quote fst))))
-              (recur ctx ns-obj (next libspecs))))))
+              (recur ns-obj (next libspecs))))))
     (js/Promise.resolve ns-obj)))
 
-(defn eval-ns-form [ctx ns-form]
+(defn eval-ns-form [ns-form]
   ;; the parsing is still very crude, we only support a subset of the ns form
   ;; and ignore everything but (:require clauses)
   (let [[_ns ns-name & ns-forms] ns-form
@@ -110,48 +109,83 @@
         libspecs (mapcat (fn [require-form]
                            (rest require-form))
                          require-forms)]
-    (handle-libspecs ctx ns-obj libspecs)))
+    (handle-libspecs ns-obj libspecs)))
 
-(defn eval-require [ctx require-form]
+(defn eval-require [require-form]
   (let [args (rest require-form)
         libspecs (sci/binding [sci/ns @last-ns]
-                       (mapv #(sci/eval-form @sci-ctx %) args))]
-    (handle-libspecs ctx @last-ns libspecs)))
+                   (mapv #(sci/eval-form @sci-ctx %) args))]
+    (handle-libspecs @last-ns libspecs)))
 
 (defn eval-expr
   "Evaluates top level forms asynchronously. Returns promise of last value."
-  [ctx prev-val reader]
-  (let [next-val (sci/parse-next @sci-ctx reader)]
+  [prev-val reader]
+  (let [next-val (try (sci/parse-next @sci-ctx reader)
+                      (catch :default e
+                        (js/Promise.resolve e)))]
     (if-not (= :sci.core/eof next-val)
       (if (seq? next-val)
         (let [fst (first next-val)]
           (cond (= 'ns fst)
                 ;; async
-                (.then (eval-ns-form ctx next-val)
+                (.then (eval-ns-form next-val)
                        (fn [ns-obj]
-                         (eval-expr ctx ns-obj reader)))
+                         (eval-expr ns-obj reader)))
                 (= 'require fst)
                 ;; async
-                (.then (eval-require ctx next-val)
+                (.then (eval-require next-val)
                        (fn [_]
-                         (eval-expr ctx nil reader)))
+                         (eval-expr nil reader)))
                 :else
-                (let [result (sci/binding [sci/ns @last-ns]
-                               (sci/eval-form @sci-ctx next-val))]
-                  (recur ctx result reader))))
-        (let [result (sci/binding [sci/ns @last-ns]
-                       (sci/eval-form @sci-ctx next-val))]
-          (recur ctx result reader)))
+                (let [result (try (sci/binding [sci/ns @last-ns]
+                                    ;; assume synchronous execution, so binding is OK.
+                                    (sci/eval-form @sci-ctx next-val))
+                                  (catch :default e
+                                    (js/Promise.resolve e)))]
+                  (recur result reader))))
+        ;; assume synchronous execution, so binding is OK.
+        (let [result (try (sci/binding [sci/ns @last-ns]
+                            (sci/eval-form @sci-ctx next-val))
+                          (catch :default e
+                            (js/Promise.resolve e)))]
+          (recur result reader)))
       ;; wrap normal value in promise
       (js/Promise.resolve prev-val))))
 
-(defn eval-string [ctx s]
+(defn eval-string* [s]
   (let [reader (sci/reader s)]
-    (.catch (eval-expr ctx nil reader)
-            (fn [err]
-              (.error js/console (str err))))))
+    (eval-expr nil reader)))
+
+(defn load-string
+  "Asynchronously parses and evaluates string s. Returns promise."
+  [s]
+  (let [ns @last-ns]
+    (-> (eval-string* s)
+        (.finally (fn []
+                    ;; restore ns
+                    (reset! last-ns ns))))))
+
+(defn slurp
+  "Synchronously returns string from file f."
+  [f]
+  (str (fs/readFileSync f)))
+
+(defn load-file
+  [f]
+  (-> f slurp load-string))
 
 (defn register-plugin! [_plug-in-name sci-opts]
   (swap! sci-ctx sci/merge-opts sci-opts))
+
+(reset! sci-ctx
+ (sci/init
+  {:namespaces {'clojure.core {'prn prn
+                               'print print
+                               'println println
+                               '*command-line-args* command-line-args}
+                'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
+                           'slurp (sci/copy-var slurp nbb-ns)
+                           'load-file (sci/copy-var load-file nbb-ns)}}
+   :classes {'js universe :allow :all}}))
 
 (defn init [])

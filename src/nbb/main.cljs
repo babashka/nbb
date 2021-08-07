@@ -37,8 +37,8 @@
         ;; NOTE: binding doesn't work as expected since eval-code is async.
         ;; Since nbb currently is only called with a script file argument, this suffices
         (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
-        (-> (nbb/eval-string {:require require
-                              :script-dir path} source)
+        (swap! nbb/ctx assoc :require require :script-dir path)
+        (-> (nbb/load-string source)
             (.then (fn [val]
                      (when (and expr (some? val))
                        (prn val))
