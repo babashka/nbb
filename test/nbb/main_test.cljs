@@ -1,28 +1,51 @@
 (ns nbb.main-test
   (:require [clojure.test :refer [deftest is testing async]]
             [nbb.core :as nbb]
-            [nbb.main :as main])
-  (:require-macros [nbb.test-macros :refer [with-args]]))
+            [nbb.main :as main]))
+
+(defn with-args [args f]
+  (let [old-args js/process.argv
+        args (into-array (list* nil nil args))]
+    (set! (.-argv js/process) args)
+    (-> (f)
+        (js/Promise.resolve)
+        (.finally (fn []
+                    ;; (prn :restoring old-args)
+                    (set! (.-argv js/process) old-args))))))
+
+(defn main-with-args [args]
+  (with-args args #(main/main)))
 
 (deftest args-test
   (async done
-         (with-args ["test-resources/script.cljs"] done
-           (.then (main/main)
-                  (fn [res]
-                    (is (= 6 res)))))))
+         (-> (main-with-args ["test-resources/script.cljs"])
+             (.then (fn [res]
+                      (is (= 6 res))))
+             (.finally (fn [] (done)))))
+  ;; why the heck is this test not running?
+  (async done
+         (-> (main-with-args ["-e" "(+ x1 2 3 4)"])
+             (.then (fn [res]
+                      (prn :res res)
+                      (is (= 1 res))))
+             (.finally (fn [] (done)))))
+  (async done
+         (-> (main-with-args["-e" "(nbb.core/load-file \"test-resources/script.cljs\")"])
+             (.then (fn [res]
+                      (is (= 6 res))))
+             (.finally (fn [] (done))))))
 
 (deftest eval-string-test
-  (is (= 1 1))
   (async done
-         (.then (nbb/load-string "(+ 1 2 3)")
-                (fn [res]
-                  (is (= 6 res))
-                  (done))))
+         (-> (nbb/load-string "(+ 1 2 3)")
+             (.then (fn [res]
+                      (is (= 7 res))))
+             (.finally (fn [] (done)))))
   (async done
-         (with-args ["test-resources/plet.cljs"] done
-           (.then (main/main)
-                  (fn [res]
-                    (is (= [1 2 "<!DOCTYPE html><html" 1] res)))))))
+         (-> (main-with-args ["test-resources/plet.cljs"])
+             (.then (fn [res]
+                      (is (= [1 2 "<!DOCTYPE html><html" 1] res))))
+             (.finally (fn [] (done))))))
 
 (deftest parse-args-test
   (is (= {:expr "(+ 1 2 3)"} (main/parse-args ["-e" "(+ 1 2 3)"])))
@@ -51,5 +74,4 @@
                       (nbb/load-string "(nbb.core/load-file \"test-resources/script.cljs\")")))
              (.then (fn [val]
                       (is (= 6 val))))
-             (.finally (fn [_]
-                         (done))))))
+             (.finally (fn [] (done))))))

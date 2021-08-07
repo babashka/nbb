@@ -5,6 +5,8 @@
             [nbb.core :as nbb]
             [sci.core :as sci]))
 
+(vreset! nbb/fs fs)
+
 (defn parse-args [args]
   (loop [opts {}
          args args
@@ -28,10 +30,10 @@
         script-file (:script opts)
         expr (:expr opts)
         path (when script-file (path/resolve script-file))
-        require (when path
-                  (createRequire path))]
-    (when require
-      (set! (.-require goog/global) require))
+        require (if path
+                  (createRequire path)
+                  (createRequire (js/process.cwd)))]
+    (set! (.-require goog/global) require)
     (if (or script-file expr)
       (let [source (or expr (str (fs/readFileSync script-file)))]
         ;; NOTE: binding doesn't work as expected since eval-code is async.

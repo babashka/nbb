@@ -1,11 +1,13 @@
 (ns nbb.core
   (:refer-clojure :exclude [load-file])
   (:require
-   ["fs" :as fs]
    [clojure.string :as str]
    [goog.object :as gobj]
    [sci.core :as sci]
    [shadow.esm :as esm]))
+
+;; workaround for import$fs not defined
+(def fs (volatile! nil))
 
 (def universe goog/global)
 
@@ -168,7 +170,7 @@
 (defn slurp
   "Synchronously returns string from file f."
   [f]
-  (str (fs/readFileSync f)))
+  (str ((.-readFileSync @fs) f)))
 
 (defn load-file
   [f]
