@@ -178,10 +178,33 @@ dependencies, is smaller than what you get with self-hosted CLJS. That makes
 startup faster. The trade-off is that execution is less performant and that only
 a subset of CLJS is available (e.g. no deftype, yet).
 
-## Optional dependencies
+## Dependencies
+
+### Optional npm deps
 
 Nbb depends on React to load the optional [Reagent](#reagent) module. To not
 download react when installing nbb, use `npm install nbb --no-optional`.
+
+### Classpath
+
+To load .cljs files from other places, you can use the `--classpath`
+argument. The current dir is added to the classpath automatically.  So if there
+is a file `foo/bar.cljs` relative to your current dir, then you can load it via
+`(:require [foo.bar :as fb])`.  To load dependencies from the Clojure ecosystem,
+you can use the Clojure CLI or babashka to download them and produce a classpath:
+
+``` clojure
+$ classpath="$(clojure -A:nbb -Spath -Sdeps '{:aliases {:nbb {:replace-deps {com.github.seancorfield/honeysql {:git/tag "v2.0.0-rc5" :git/sha "01c3a55"}}}}}')"
+```
+and then feed it to the `--classpath` argument:
+
+``` clojure
+$ nbb --classpath "$classpath" -e "(require '[honey.sql :as sql]) (sql/format {:select :foo :from :bar :where [:= :baz 2]})"
+["SELECT foo FROM bar WHERE baz = ?" 2]
+```
+
+Currently `nbb` only reads from directories, not jar files, so you are
+encouraged to use git libs. Support for `.jar` files will be added later.
 
 ## Build
 
