@@ -191,8 +191,8 @@ To load `.cljs` files from local paths or dependencies, you can use the
 `--classpath` argument. The current dir is added to the classpath automatically.
 So if there is a file `foo/bar.cljs` relative to your current dir, then you can
 load it via `(:require [foo.bar :as fb])`. Note that `nbb` uses the same naming
-conventions for namespaces and directories: `foo-bar` in the namespace name
-becomes `foo_bar` in the directory name.
+conventions for namespaces and directories as other Clojure tools: `foo-bar` in
+the namespace name becomes `foo_bar` in the directory name.
 
 To load dependencies from the Clojure ecosystem,
 you can use the Clojure CLI or babashka to download them and produce a classpath:
