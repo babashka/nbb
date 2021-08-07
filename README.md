@@ -6,7 +6,7 @@ Ad-hoc CLJS scripting on Node.js.
 
 ## Status
 
-Experimental.
+Experimental. Please report issues [here](https://github.com/borkdude/nbb/issues).
 
 ## Goals
 
