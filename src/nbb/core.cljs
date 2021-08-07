@@ -122,7 +122,8 @@
 (defn eval-expr
   "Evaluates top level forms asynchronously. Returns promise of last value."
   [prev-val reader]
-  (let [next-val (try (sci/parse-next @sci-ctx reader)
+  (let [next-val (try (sci/binding [sci/ns @last-ns]
+                        (sci/parse-next @sci-ctx reader))
                       (catch :default e
                         (js/Promise.resolve e)))]
     (if-not (= :sci.core/eof next-val)
@@ -170,7 +171,7 @@
 (defn slurp
   "Synchronously returns string from file f."
   [f]
-  (str ((.-readFileSync @fs) f)))
+  (str ((.-readFileSync ^js @fs) f)))
 
 (defn load-file
   [f]

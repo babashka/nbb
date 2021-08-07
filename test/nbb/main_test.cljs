@@ -16,37 +16,6 @@
 (defn main-with-args [args]
   (with-args args #(main/main)))
 
-(deftest args-test
-  (async done
-         (-> (main-with-args ["test-resources/script.cljs"])
-             (.then (fn [res]
-                      (is (= 6 res))))
-             (.finally (fn [] (done)))))
-  ;; why the heck is this test not running?
-  (async done
-         (-> (main-with-args ["-e" "(+ x1 2 3 4)"])
-             (.then (fn [res]
-                      (prn :res res)
-                      (is (= 1 res))))
-             (.finally (fn [] (done)))))
-  (async done
-         (-> (main-with-args["-e" "(nbb.core/load-file \"test-resources/script.cljs\")"])
-             (.then (fn [res]
-                      (is (= 6 res))))
-             (.finally (fn [] (done))))))
-
-(deftest eval-string-test
-  (async done
-         (-> (nbb/load-string "(+ 1 2 3)")
-             (.then (fn [res]
-                      (is (= 7 res))))
-             (.finally (fn [] (done)))))
-  (async done
-         (-> (main-with-args ["test-resources/plet.cljs"])
-             (.then (fn [res]
-                      (is (= [1 2 "<!DOCTYPE html><html" 1] res))))
-             (.finally (fn [] (done))))))
-
 (deftest parse-args-test
   (is (= {:expr "(+ 1 2 3)"} (main/parse-args ["-e" "(+ 1 2 3)"])))
   (is (= {:script "foo.cljs", :args nil} (main/parse-args ["foo.cljs"])))
@@ -74,4 +43,40 @@
                       (nbb/load-string "(nbb.core/load-file \"test-resources/script.cljs\")")))
              (.then (fn [val]
                       (is (= 6 val))))
+             (.finally (fn [] (done))))))
+
+(deftest args-test
+  (async done
+         (-> (main-with-args ["test-resources/script.cljs"])
+             (.then (fn [res]
+                      (is (= 6 res))))
+             (.finally (fn [] (done)))))
+  ;; why the heck is this test not running?
+  (async done
+         (-> (main-with-args ["-e" "(+ x1 2 3 4)"])
+             (.then (fn [res]
+                      (prn :res res)
+                      (is (= 1 res))))
+             (.finally (fn [] (done)))))
+  (async done
+         (-> (main-with-args["-e" "(nbb.core/load-file \"test-resources/script.cljs\")"])
+             (.then (fn [res]
+                      (is (= 6 res))))
+             (.finally (fn [] (done)))))
+  (async done
+         (-> (main-with-args ["test-resources/load_file_test.cljs"])
+             (.then (fn [res]
+                      (is (= :loaded-by-load-file-test/loaded res))))
+             (.finally (fn [] (done))))))
+
+(deftest eval-string-test
+  (async done
+         (-> (nbb/load-string "(+ 1 2 3)")
+             (.then (fn [res]
+                      (is (= 7 res))))
+             (.finally (fn [] (done)))))
+  (async done
+         (-> (main-with-args ["test-resources/plet.cljs"])
+             (.then (fn [res]
+                      (is (= [1 2 "<!DOCTYPE html><html" 1] res))))
              (.finally (fn [] (done))))))
