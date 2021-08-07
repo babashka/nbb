@@ -26,7 +26,7 @@ Additional goals are:
 - Join [Github Discussions](https://github.com/borkdude/nbb/discussions/categories) for proposing ideas, show and tell and Q&A.
 -  Join the [channel](https://app.slack.com/client/T03RZGPFR/C029PTWD3HR) on Clojurians Slack.
 - Follow news or tweet using the Twitter hashtag
-  [#nodebb](https://twitter.com/hashtag/nodebb?f=live).
+  [#nbbjs](https://twitter.com/hashtag/nbbjs?f=live).
 
 ## Requirements
 
