@@ -1,5 +1,6 @@
 (ns nbb.main
   (:require ["module" :refer [createRequire]]
+            ["path" :as path]
             [clojure.string :as str]
             [nbb.core :as nbb]
             [sci.core :as sci]))
@@ -32,8 +33,8 @@
         expr (:expr opts)
         classpath (:classpath opts)
         cwd (js/process.cwd)
-        classpath-dirs (cons cwd (str/split classpath (re-pattern nbb/path:delimiter)))
-        script-path (when script-file (nbb/path:resolve script-file))
+        classpath-dirs (cons cwd (str/split classpath (re-pattern path/delimiter)))
+        script-path (when script-file (path/resolve script-file))
         require (if script-path
                   (createRequire script-path)
                   (createRequire cwd))]

@@ -1,8 +1,8 @@
 (ns nbb.core
   (:refer-clojure :exclude [load-file])
   (:require
-   ["path" :as node:path]
-   ["fs" :as node:fs]
+   ["fs" :as fs]
+   ["path" :as path]
    [clojure.string :as str]
    [goog.object :as gobj]
    [sci.core :as sci]
@@ -34,14 +34,12 @@
 
 ;; workaround for bug in shadow-cljs when requiring node modules from different
 ;; namespaces under advanced compilation
-(def path node:path)
-(def path:resolve (.-resolve node:path))
-(def path:delimiter (.-delimiter node:path))
-(def path:is-absolute (.-isAbsolute node:path))
+(def path:resolve path/resolve)
+(def path:delimiter path/delimiter)
+(def path:is-absolute path/isAbsolute)
 
-(def fs node:path)
-(def fs:exists (.-existsSync node:fs))
-(def fs:read-file-sync (.-readFileSync node:fs))
+(def fs:exists fs/existsSync)
+(def fs:read-file-sync fs/readFileSync)
 
 (defn handle-libspecs [libspecs]
   (if (seq libspecs)
