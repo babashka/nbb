@@ -32,15 +32,6 @@
 
 (declare load-file)
 
-;; workaround for bug in shadow-cljs when requiring node modules from different
-;; namespaces under advanced compilation
-(def path:resolve path/resolve)
-(def path:delimiter path/delimiter)
-(def path:is-absolute path/isAbsolute)
-
-(def fs:exists fs/existsSync)
-(def fs:read-file-sync fs/readFileSync)
-
 (defn handle-libspecs [libspecs]
   (if (seq libspecs)
     (let [fst (first libspecs)
@@ -93,8 +84,8 @@
                   dirs (-> @ctx :classpath :dirs)
                   the-file (reduce (fn [_ dir]
                                      (some (fn [f]
-                                             (let [f (path:resolve dir f)]
-                                               (when (fs:exists f)
+                                             (let [f (path/resolve dir f)]
+                                               (when (fs/existsSync f)
                                                  (reduced f))))
                                            files)) nil dirs)]
               (if the-file
@@ -180,12 +171,12 @@
 (defn slurp
   "Synchronously returns string from file f."
   [f]
-  (str (fs:read-file-sync f)))
+  (str (fs/readFileSync f)))
 
 (defn load-file
   [f]
   (let [source (slurp f)]
-    (with-async-bindings {sci/file (path:resolve f)}
+    (with-async-bindings {sci/file (path/resolve f)}
       (load-string source))))
 
 (defn register-plugin! [_plug-in-name sci-opts]
