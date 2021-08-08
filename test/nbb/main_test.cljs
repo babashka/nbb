@@ -69,7 +69,8 @@
              (.then (fn [res]
                       (is (= "test_resources/loaded_by_load_file_test.cljs" (:file res)))
                       (is (:loaded-by-load-file-test/loaded res))
-                      (is (= (:file res) (:file-via-dyn-var res)))))
+                      (is (= (:file res) (:file-via-dyn-var res)))
+                      (is (= "test_resources/load_file_test.cljs" (:load-file-test-file-dyn-var res)))))
              (.finally (fn [] (done))))))
 
 (deftest eval-string-test

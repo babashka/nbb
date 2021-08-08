@@ -44,21 +44,21 @@
                   (createRequire cwd))]
     (set! (.-require goog/global) require)
     (if (or script-file expr)
-      (let [source (or expr (str (fs/readFileSync script-file)))]
-        ;; NOTE: binding doesn't work as expected since eval-code is async.
-        ;; Since nbb currently is only called with a script file argument, this suffices
-        (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
-        (swap! nbb/ctx assoc
-               :require require :script-dir path
-               :classpath {:dirs classpath-dirs})
-        ;; (prn :script-dir script-dir)
-        (-> (nbb/load-string source)
-            (.then (fn [val]
-                     (when (and expr (some? val))
-                       (prn val))
-                     val))
-            (.catch (fn [err]
-                      (.error js/console (str err))
-                      (when (:debug opts)
-                        (throw err))))))
+      ;; Since nbb currently is only called with a script file argument, this suffices
+      (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
+          (swap! nbb/ctx assoc
+                 :require require :script-dir path
+                 :classpath {:dirs classpath-dirs})
+          ;; (prn :script-dir script-dir)
+          (-> (if expr
+                (nbb/load-string expr)
+                (nbb/load-file script-file))
+              (.then (fn [val]
+                       (when (and expr (some? val))
+                         (prn val))
+                       val))
+              (.catch (fn [err]
+                        (.error js/console (str err))
+                        (when (:debug opts)
+                          (throw err))))))
       (.error js/console "Usage: nbb <script> or nbb -e <expr>."))))

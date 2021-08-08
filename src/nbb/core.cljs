@@ -214,6 +214,8 @@
           :classes {'js universe :allow :all}
           :disable-arity-checks true}))
 
+(def ^:dynamic *file* sci/file) ;; make clj-kondo+lsp happy
+
 (defn init [])
 
 ;;;; Scratch
