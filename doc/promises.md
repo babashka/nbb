@@ -8,21 +8,22 @@ Consider `plet` and `pdo` below:
 (ns promises
   {:clj-kondo/config '{:lint-as {promises/plet clojure.core/let}}})
 
+(defn wrap-resolve [v]
+  (list '.resolve 'js/Promise v))
+
 (defmacro plet
   [bindings & body]
   (let [binding-pairs (reverse (partition 2 bindings))
         body (cons 'do body)]
-    ;; (prn binding-pairs)
     (reduce (fn [body [sym expr]]
-              (let [expr (list '.resolve 'js/Promise expr)]
+              (let [expr (wrap-resolve expr)]
                 (list '.then expr (list 'clojure.core/fn (vector sym)
                                         body))))
             body
             binding-pairs)))
 
 (defmacro pdo [& body]
-  (let [wrap-resolve (fn [v] (list '.resolve 'js/Promise v))
-        exprs (map (fn [expr]
+  (let [exprs (map (fn [expr]
                      (list '.then
                            (list 'clojure.core/fn '[_]
                                  (wrap-resolve expr))))
