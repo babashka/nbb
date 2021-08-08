@@ -85,3 +85,13 @@
              (.then (fn [res]
                       (is (= :hello res))))
              (.finally (fn [] (done))))))
+
+(deftest error-test
+  (async done
+         (-> (nbb/load-string "(+ 1 2 3) (assoc 1 2)")
+             (.catch (fn [err]
+                       (let [d (ex-data err)]
+                         (is (= 1 (:line d)))
+                         (is (= 11 (:column d))))))
+             (.finally (fn [_]
+                         (done))))))
