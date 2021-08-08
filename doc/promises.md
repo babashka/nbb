@@ -35,7 +35,6 @@ Consider `plet` and `pdo` below:
    (fn [resolve]
      (js/setTimeout resolve ms))))
 
-
 (defn do-stuff
   "Returns map in promise"
   []
