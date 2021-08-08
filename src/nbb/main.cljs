@@ -1,13 +1,8 @@
 (ns nbb.main
-  (:require ["fs" :as fs]
-            ["module" :as mod1 :refer [createRequire]]
-            ["path" :as path]
+  (:require ["module" :refer [createRequire]]
             [clojure.string :as str]
             [nbb.core :as nbb]
             [sci.core :as sci]))
-
-(vreset! nbb/fs fs)
-(vreset! nbb/path path)
 
 (defn parse-args [args]
   (loop [opts {}
@@ -37,28 +32,27 @@
         expr (:expr opts)
         classpath (:classpath opts)
         cwd (js/process.cwd)
-        classpath-dirs (cons cwd (str/split classpath (re-pattern path/delimiter)))
-        path (when script-file (path/resolve script-file))
-        require (if path
-                  (createRequire path)
+        classpath-dirs (cons cwd (str/split classpath (re-pattern nbb/path:delimiter)))
+        script-path (when script-file (nbb/path:resolve script-file))
+        require (if script-path
+                  (createRequire script-path)
                   (createRequire cwd))]
     (set! (.-require goog/global) require)
-    (if (or script-file expr)
-      (let [source (or expr (str (fs/readFileSync script-file)))]
-        ;; NOTE: binding doesn't work as expected since eval-code is async.
-        ;; Since nbb currently is only called with a script file argument, this suffices
-        (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
-        (swap! nbb/ctx assoc
-               :require require :script-dir path
-               :classpath {:dirs classpath-dirs})
-        ;; (prn :script-dir script-dir)
-        (-> (nbb/load-string source)
-            (.then (fn [val]
-                     (when (and expr (some? val))
-                       (prn val))
-                     val))
-            (.catch (fn [err]
-                      (.error js/console (str err))
-                      (when (:debug opts)
-                        (throw err))))))
+    (if (or script-path expr)
+      (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
+          (swap! nbb/ctx assoc
+                 :require require
+                 :classpath {:dirs classpath-dirs})
+          ;; (prn :script-dir script-dir)
+          (-> (if expr
+                (nbb/load-string expr)
+                (nbb/load-file script-path))
+              (.then (fn [val]
+                       (when (and expr (some? val))
+                         (prn val))
+                       val))
+              (.catch (fn [err]
+                        (.error js/console (str err))
+                        (when (:debug opts)
+                          (throw err))))))
       (.error js/console "Usage: nbb <script> or nbb -e <expr>."))))

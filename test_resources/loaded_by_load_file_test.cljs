@@ -1,3 +1,6 @@
-(ns loaded-by-load-file-test)
+(ns loaded-by-load-file-test
+  (:require [nbb.core :refer [*file*]]))
 
-::loaded
+(def x)
+
+(assoc (meta #'x) ::loaded true :file-via-dyn-var *file*)

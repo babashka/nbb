@@ -9,5 +9,5 @@
         reagent/reagent {:mvn/version "1.1.0"}
         com.github.borkdude/sci
         {:git/sha "a6e36342a82872644aa7e542fadadc05eea3cb87"}
-        ;; {:local/root "/Users/borkdude/Dropbox/dev/clojure/babashka/sci"}
+        #_{:local/root "/Users/borkdude/Dropbox/dev/clojure/babashka/sci"}
         applied-science/js-interop {:mvn/version "0.2.11"}}}

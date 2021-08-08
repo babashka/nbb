@@ -1,7 +1,8 @@
 (ns nbb.main-test
   (:require [clojure.test :refer [deftest is testing async]]
             [nbb.core :as nbb]
-            [nbb.main :as main]))
+            [nbb.main :as main]
+            [clojure.string :as str]))
 
 ;; NOTE: CLJS only accepts one async + done per deftest
 ;; See https://clojurescript.org/tools/testing#async-testing.
@@ -61,10 +62,20 @@
                       (main-with-args["-e" "(nbb.core/load-file \"test_resources/script.cljs\")"])))
              (.then (fn [res]
                       (is (= 6 res))))
-             (.then (fn [_]
-                      (main-with-args ["test_resources/load_file_test.cljs"])))
+             (.finally (fn [] (done))))))
+
+(deftest load-file-test
+  (async done
+         (-> (main-with-args ["test_resources/load_file_test.cljs"])
              (.then (fn [res]
-                      (is (= :loaded-by-load-file-test/loaded res))))
+                      (let [f (:file res)]
+                        (is (nbb/path:is-absolute f))
+                        (is (str/ends-with? f "test_resources/loaded_by_load_file_test.cljs")))
+                      (is (:loaded-by-load-file-test/loaded res))
+                      (is (= (:file res) (:file-via-dyn-var res)))
+                      (let [f (:load-file-test-file-dyn-var res)]
+                        (is (nbb/path:is-absolute f))
+                        (is (str/ends-with? f "test_resources/load_file_test.cljs" )))))
              (.finally (fn [] (done))))))
 
 (deftest eval-string-test
