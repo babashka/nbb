@@ -33,6 +33,15 @@ Additional goals and features are:
 
 Nbb requires Node.js v12 or newer.
 
+## How does this tool work?
+
+CLJS code is evaluated through [SCI](https://github.com/borkdude/sci), the same
+interpreter that powers [babashka](https://babashka.org/). Because SCI works
+with advanced compilation, the bundle size, especially when combined with other
+dependencies, is smaller than what you get with self-hosted CLJS. That makes
+startup faster. The trade-off is that execution is less performant and that only
+a subset of CLJS is available (e.g. no deftype, yet).
+
 ## Usage
 
 Install `nbb` from NPM:
@@ -168,15 +177,6 @@ The baseline startup time for a script is about 170ms seconds on my laptop. When
 invoked via `npx` this adds another 300ms or so, so for faster startup, either
 use a globally installed `nbb` or use `$(npm bin)/nbb script.cljs` to bypass
 `npx`.
-
-## How does this tool work?
-
-CLJS code is evaluated through [SCI](https://github.com/borkdude/sci), the same
-interpreter that powers [babashka](https://babashka.org/). Because SCI works
-with advanced compilation, the bundle size, especially when combined with other
-dependencies, is smaller than what you get with self-hosted CLJS. That makes
-startup faster. The trade-off is that execution is less performant and that only
-a subset of CLJS is available (e.g. no deftype, yet).
 
 ## Dependencies
 
