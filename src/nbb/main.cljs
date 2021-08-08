@@ -44,7 +44,6 @@
                   (createRequire cwd))]
     (set! (.-require goog/global) require)
     (if (or script-file expr)
-      ;; Since nbb currently is only called with a script file argument, this suffices
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
           (swap! nbb/ctx assoc
                  :require require :script-dir path
