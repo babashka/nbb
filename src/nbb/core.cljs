@@ -1,16 +1,14 @@
 (ns nbb.core
   (:refer-clojure :exclude [load-file])
   (:require
+   ["path" :as node:path]
+   ["fs" :as node:fs]
    [clojure.string :as str]
    [goog.object :as gobj]
    [sci.core :as sci]
    [sci.impl.vars :as vars]
    [shadow.esm :as esm])
   (:require-macros [nbb.macros :refer [with-async-bindings]]))
-
-;; workaround for import$fs not defined
-(def fs (volatile! nil))
-(def path (volatile! nil))
 
 (def universe goog/global)
 
@@ -32,18 +30,18 @@
 
 (def loaded-modules (atom {}))
 
-(defn import-via* [path]
-  (-> (esm/dynamic-import "import-meta-resolve")
-      (.then (fn [mod]
-               (let [resolve (.-resolve mod)]
-                 (fn [lib]
-                   (.then (resolve lib (str "file://" path))
-                          (fn [resolved]
-                            (esm/dynamic-import resolved)))))))))
-
-(def import-via (memoize import-via*))
-
 (declare load-file)
+
+;; workaround for bug in shadow-cljs when requiring node modules from different
+;; namespaces under advanced compilation
+(def path node:path)
+(def path:resolve (.-resolve node:path))
+(def path:delimiter (.-delimiter node:path))
+(def path:is-absolute (.-isAbsolute node:path))
+
+(def fs node:path)
+(def fs:exists (.-existsSync node:fs))
+(def fs:read-file-sync (.-readFileSync node:fs))
 
 (defn handle-libspecs [libspecs]
   (if (seq libspecs)
@@ -55,16 +53,11 @@
       (case libname
         ;; built-ins
         (reagent.core reagent.dom reagent.dom.server)
-        (let [script-dir (:script-dir @ctx)]
-          ;; TODO: remove import-via, it doesn't work, Reagent will still load nbb's optional react itself
-          (-> (-> (import-via "react" script-dir) ;; resolve react from script location
-                  (.then (fn [_react]
-                           ;; then load local reagent module
-                           (esm/dynamic-import "./nbb_reagent.js")))
-                  (.then (fn [_reagent]
-                           (when as
-                             (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname))))
-                           (handle-libspecs (next libspecs)))))))
+        (-> (esm/dynamic-import "./nbb_reagent.js")
+            (.then (fn [_reagent]
+                     (when as
+                       (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname))))
+                     (handle-libspecs (next libspecs)))))
         ;; default
         (if (string? libname)
           ;; TODO: parse properties
@@ -100,12 +93,10 @@
                   file (str/replace (str munged) #"\." "/")
                   files [(str file ".cljs") (str file ".cljc")]
                   dirs (-> @ctx :classpath :dirs)
-                  resolve (.-resolve ^js @path)
-                  exists (.-existsSync ^js @fs)
                   the-file (reduce (fn [_ dir]
                                      (some (fn [f]
-                                             (let [f (resolve dir f)]
-                                               (when (exists f)
+                                             (let [f (path:resolve dir f)]
+                                               (when (fs:exists f)
                                                  (reduced f))))
                                            files)) nil dirs)]
               (if the-file
@@ -191,12 +182,13 @@
 (defn slurp
   "Synchronously returns string from file f."
   [f]
-  (str ((.-readFileSync ^js @fs) f)))
+  (str (fs:read-file-sync f)))
 
 (defn load-file
   [f]
   (let [source (slurp f)]
-    (with-async-bindings {sci/file f} (load-string source))))
+    (with-async-bindings {sci/file (path:resolve f)}
+      (load-string source))))
 
 (defn register-plugin! [_plug-in-name sci-opts]
   (swap! sci-ctx sci/merge-opts sci-opts))
