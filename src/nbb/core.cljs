@@ -36,7 +36,8 @@
           [libname & opts] fst
           opts (apply hash-map opts)
           as (:as opts)
-          refer (:refer opts)]
+          refer (:refer opts)
+          rename (:rename opts)]
       (case libname
         ;; built-ins
         (reagent.core reagent.dom reagent.dom.server)
@@ -44,8 +45,13 @@
             (.then (fn [_reagent]
                      (when as
                        (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname))))
+                     (when (seq refer)
+                       (sci/eval-form @sci-ctx
+                                      (list 'clojure.core/refer
+                                            (list 'quote libname)
+                                            :only (list 'quote refer)
+                                            :rename (list 'quote rename))))
                      (handle-libspecs (next libspecs)))))
-        ;; default
         (if (string? libname)
           ;; TODO: parse properties
           (let [[libname _properties] (str/split libname #"\\$")
@@ -67,9 +73,11 @@
             (doseq [field refer]
               (let [mod-field (gobj/get mod (str field))
                     internal-subname (str internal-name "$" field)]
+                ;; TODO: not necessary if property is already mapped
                 (swap! sci-ctx sci/merge-opts {:classes {internal-subname mod-field}})
                 ;; Repeat hack from above
-                (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports field] internal-subname)))
+                (let [field (get rename field field)]
+                  (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports field] internal-subname))))
             (handle-libspecs (next libspecs)))
           ;; assume symbol
           (if (sci/eval-form @sci-ctx (list 'clojure.core/find-ns (list 'quote libname)))
@@ -98,7 +106,9 @@
                        (when (seq refer)
                          (sci/eval-form @sci-ctx
                                         (list 'clojure.core/refer
-                                              (list 'quote libname) :only (list 'quote refer))))))
+                                              (list 'quote libname)
+                                              :only (list 'quote refer)
+                                              :rename rename)))))
                     (.then (fn [_]
                              (handle-libspecs (next libspecs)))))
                 (js/Promise.reject (js/Error. (str "Could not find namespace: " libname)))))))))

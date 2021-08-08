@@ -90,12 +90,31 @@
                       (is (= [1 2 "<!DOCTYPE html><html" 1] res))))
              (.finally (fn [] (done))))))
 
-(deftest require-namespace-test
+(deftest require-built-in-namespace-test
   (async done
-         (-> (main-with-args ["-e" "(require '[test-resources.script :as s])
-                                    (s/script-fn)"])
+         (-> (main-with-args ["-e"
+                              "(require '[clojure.string :as s :refer [includes?] :rename {includes? inc?}])
+                               [(some? s/replace) (some? inc?) (= inc? s/includes?)]"])
              (.then (fn [res]
-                      (is (= :hello res))))
+                      (is (= [true true true] res))))
+             (.finally (fn [] (done))))))
+
+(deftest require-node-module-test
+  (async done
+         (-> (main-with-args ["-e"
+                              "(require '[\"fs\" :as fs :refer [existsSync] :rename {existsSync exists?}])
+                               [(some? fs/existsSync) (some? exists?) (= exists? fs/existsSync)]"])
+             (.then (fn [res]
+                      (is (= [true true true] res))))
+             (.finally (fn [] (done))))))
+
+(deftest require-namespace-from-file-test
+  (async done
+         (-> (main-with-args ["-e"
+                              "(require '[test-resources.script :as s :refer [script-fn] :rename {script-fn f}])
+                               [(s/script-fn) (f)]"])
+             (.then (fn [res]
+                      (is (= [:hello :hello] res))))
              (.finally (fn [] (done))))))
 
 (deftest error-test

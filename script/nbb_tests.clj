@@ -21,7 +21,9 @@
     (is (= (str "6" nl) (nbb* "-e" "(prn (+ 1 2 3))")))))
 
 (deftest reagent-test
-  (is (nbb "-e" "(require '[reagent.core :as r]) (some? r/as-element)")))
+  (is (= [true true]
+         (nbb "-e" "(require '[reagent.core :as r :refer [atom] :rename {atom ratom}])
+                    [(some? r/as-element) (some? ratom)]"))))
 
 (deftest classpath-test
   (let [deps '{com.github.seancorfield/honeysql {:git/tag "v2.0.0-rc5" :git/sha "01c3a55"}}
