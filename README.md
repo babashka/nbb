@@ -210,6 +210,21 @@ $ nbb --classpath "$classpath" -e "(require '[honey.sql :as sql]) (sql/format {:
 Currently `nbb` only reads from directories, not jar files, so you are
 encouraged to use git libs. Support for `.jar` files will be added later.
 
+## Current file
+
+The name of the file that is currently being executed is available via
+`nbb.core/*file*` or on the metadata of vars:
+
+``` clojure
+(ns foo
+  (:require [nbb.core :refer [*file*]]))
+
+(prn *file*) ;; "/private/tmp/foo.cljs"
+
+(defn f [])
+(prn (:file (meta #'f))) ;; "/private/tmp/foo.cljs"
+```
+
 ## Build
 
 Prequisites:
