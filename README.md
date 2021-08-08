@@ -236,6 +236,7 @@ Also check out these projects built with nbb:
 
 ## Read more
 
+- [API](doc/api.md) documentation.
 - [Promises](doc/promises.md) describes a few helper macros to deal the verbosity around promises.
 
 ## Build

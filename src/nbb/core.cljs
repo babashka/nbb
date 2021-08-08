@@ -20,8 +20,6 @@
 
 (def ctx (atom {}))
 
-;; (declare eval-expr load-string slurp load-file)
-
 (def nbb-ns (sci/create-ns 'nbb.core nil))
 
 (def sci-ctx (atom nil))
