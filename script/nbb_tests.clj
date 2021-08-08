@@ -8,8 +8,8 @@
 (def nl (System/lineSeparator))
 
 (defn nbb* [& args]
-  (-> @(process (into ["node" "out/nbb_main.js"] args) {:out :string
-                                                        :err :inherit})
+  (-> @(process (into ["node" "out/nbb_main.js" "--debug"] args) {:out :string
+                                                                  :err :inherit})
       :out))
 
 (defn nbb [& args]

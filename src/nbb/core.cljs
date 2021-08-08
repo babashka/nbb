@@ -160,7 +160,7 @@
   (let [next-val (try (sci/binding [sci/ns @last-ns]
                         (sci/parse-next @sci-ctx reader {:features #{:cljs}}))
                       (catch :default e
-                        (js/Promise.resolve e)))]
+                        (js/Promise.reject e)))]
     (if-not (= :sci.core/eof next-val)
       (if (seq? next-val)
         (let [fst (first next-val)]
@@ -179,13 +179,13 @@
                        ;; assume synchronous execution, so binding is OK.
                        (eval-expr (sci/eval-form @sci-ctx next-val) reader))
                      (catch :default e
-                       (js/Promise.resolve e)))))
+                       (js/Promise.reject e)))))
         ;; assume synchronous execution, so binding is OK.
         (try (sci/binding [sci/ns @last-ns]
                ;; assume synchronous execution, so binding is OK.
                (eval-expr (sci/eval-form @sci-ctx next-val) reader))
              (catch :default e
-               (js/Promise.resolve e))))
+               (js/Promise.reject e))))
       ;; wrap normal value in promise
       (js/Promise.resolve prev-val))))
 
@@ -223,6 +223,7 @@
                        'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
                                   'slurp (sci/copy-var slurp nbb-ns)
                                   'load-file (sci/copy-var load-file nbb-ns)}}
-          :classes {'js universe :allow :all}}))
+          :classes {'js universe :allow :all}
+          :disable-arity-checks true}))
 
 (defn init [])

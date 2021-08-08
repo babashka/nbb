@@ -21,6 +21,8 @@
           ("-cp" "--classpath")
           (recur (assoc opts :classpath (first nargs))
                  (next nargs))
+          "--debug" (recur (assoc opts :debug true)
+                           nargs)
           ;; default
           (if (not (:expr args))
             ;; when not expression, this argument is interpreted as file
@@ -54,5 +56,9 @@
             (.then (fn [val]
                      (when (and expr (some? val))
                        (prn val))
-                     val))))
+                     val))
+            (.catch (fn [err]
+                      (.error js/console (str err))
+                      (when (:debug opts)
+                        (throw err))))))
       (.error js/console "Usage: nbb <script> or nbb -e <expr>."))))
