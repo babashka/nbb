@@ -1,8 +1,8 @@
 (ns nbb.core
   (:refer-clojure :exclude [load-file])
   (:require
-   ["path" :as node:path]
-   ["fs" :as node:fs]
+   ["fs" :as fs]
+   ["path" :as path]
    [clojure.string :as str]
    [goog.object :as gobj]
    [sci.core :as sci]
@@ -31,17 +31,6 @@
 (def loaded-modules (atom {}))
 
 (declare load-file)
-
-;; workaround for bug in shadow-cljs when requiring node modules from different
-;; namespaces under advanced compilation
-(def path node:path)
-(def path:resolve (.-resolve node:path))
-(def path:delimiter (.-delimiter node:path))
-(def path:is-absolute (.-isAbsolute node:path))
-
-(def fs node:path)
-(def fs:exists (.-existsSync node:fs))
-(def fs:read-file-sync (.-readFileSync node:fs))
 
 (defn handle-libspecs [libspecs]
   (if (seq libspecs)
@@ -95,8 +84,8 @@
                   dirs (-> @ctx :classpath :dirs)
                   the-file (reduce (fn [_ dir]
                                      (some (fn [f]
-                                             (let [f (path:resolve dir f)]
-                                               (when (fs:exists f)
+                                             (let [f (path/resolve dir f)]
+                                               (when (fs/existsSync f)
                                                  (reduced f))))
                                            files)) nil dirs)]
               (if the-file
@@ -182,12 +171,12 @@
 (defn slurp
   "Synchronously returns string from file f."
   [f]
-  (str (fs:read-file-sync f)))
+  (str (fs/readFileSync f)))
 
 (defn load-file
   [f]
   (let [source (slurp f)]
-    (with-async-bindings {sci/file (path:resolve f)}
+    (with-async-bindings {sci/file (path/resolve f)}
       (load-string source))))
 
 (defn register-plugin! [_plug-in-name sci-opts]
