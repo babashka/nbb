@@ -28,8 +28,6 @@
 
 (def sci-ctx (atom nil))
 
-(def last-ns (atom @sci/ns))
-
 (set! (.-import goog/global) esm/dynamic-import)
 
 (def loaded-modules (atom {}))
@@ -133,7 +131,6 @@
   ;; and ignore everything but (:require clauses)
   (let [[_ns ns-name & ns-forms] ns-form
         ns-obj (sci/eval-form @sci-ctx (list 'do (list 'ns ns-name) '*ns*))
-        _ (reset! last-ns ns-obj)
         require-forms (filter (fn [ns-form]
                                 (and (seq? ns-form)
                                      (= :require (first ns-form))))
@@ -189,11 +186,7 @@
 (defn load-string
   "Asynchronously parses and evaluates string s. Returns promise."
   [s]
-  (let [ns @last-ns]
-    (-> (eval-string* s)
-        (.finally (fn []
-                    ;; restore ns
-                    (reset! last-ns ns))))))
+  (eval-string* s))
 
 (defn slurp
   "Synchronously returns string from file f."
