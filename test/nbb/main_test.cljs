@@ -61,10 +61,15 @@
                       (main-with-args["-e" "(nbb.core/load-file \"test_resources/script.cljs\")"])))
              (.then (fn [res]
                       (is (= 6 res))))
-             (.then (fn [_]
-                      (main-with-args ["test_resources/load_file_test.cljs"])))
+             (.finally (fn [] (done))))))
+
+(deftest load-file-test
+  (async done
+         (-> (main-with-args ["test_resources/load_file_test.cljs"])
              (.then (fn [res]
-                      (is (= :loaded-by-load-file-test/loaded res))))
+                      (is (= "test_resources/loaded_by_load_file_test.cljs" (:file res)))
+                      (is (:loaded-by-load-file-test/loaded res))
+                      (is (= (:file res) (:file-via-dyn-var res)))))
              (.finally (fn [] (done))))))
 
 (deftest eval-string-test

@@ -4,7 +4,9 @@
    [clojure.string :as str]
    [goog.object :as gobj]
    [sci.core :as sci]
-   [shadow.esm :as esm]))
+   [sci.impl.vars :as vars]
+   [shadow.esm :as esm])
+  (:require-macros [nbb.macros :refer [with-async-bindings]]))
 
 ;; workaround for import$fs not defined
 (def fs (volatile! nil))
@@ -46,56 +48,53 @@
 (declare load-file)
 
 (defn handle-libspecs [ns-obj libspecs]
-  (if (seq libspecs)
-    (let [fst (first libspecs)
-          [libname & opts] fst
-          opts (apply hash-map opts)
-          as (:as opts)
-          refer (:refer opts)]
-      (case libname
-        ;; built-ins
-        (reagent.core reagent.dom reagent.dom.server)
-        (let [script-dir (:script-dir @ctx)]
-          ;; TODO: remove import-via, it doesn't work, Reagent will still load nbb's optional react itself
-          (-> (-> (import-via "react" script-dir) ;; resolve react from script location
-                  (.then (fn [_react]
-                           ;; then load local reagent module
-                           (esm/dynamic-import "./nbb_reagent.js")))
-                  (.then (fn [_reagent]
-                           (when as
-                             (sci/binding [sci/ns ns-obj]
-                               (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname)))))
-                           (handle-libspecs ns-obj (next libspecs)))))))
-        ;; default
-        (if (string? libname)
-          ;; TODO: parse properties
-          (let [[libname _properties] (str/split libname #"\\$")
-                internal-name (symbol (str "nbb.internal." (munge libname)))
-                mod (or
-                     ;; skip loading if module was already loaded
-                     (get @loaded-modules internal-name)
-                     ;; else load module and register in loaded-modules under internal-name
-                     (let [mod ((:require @ctx) libname)]
-                       (swap! loaded-modules assoc internal-name mod)
-                       mod))
-                current-ns (symbol (str ns-obj))]
-            (sci/binding [sci/ns ns-obj]
+  (with-async-bindings {sci/ns ns-obj}
+    (if (seq libspecs)
+      (let [fst (first libspecs)
+            [libname & opts] fst
+            opts (apply hash-map opts)
+            as (:as opts)
+            refer (:refer opts)]
+        (case libname
+          ;; built-ins
+          (reagent.core reagent.dom reagent.dom.server)
+          (let [script-dir (:script-dir @ctx)]
+            ;; TODO: remove import-via, it doesn't work, Reagent will still load nbb's optional react itself
+            (-> (-> (import-via "react" script-dir) ;; resolve react from script location
+                    (.then (fn [_react]
+                             ;; then load local reagent module
+                             (esm/dynamic-import "./nbb_reagent.js")))
+                    (.then (fn [_reagent]
+                             (when as
+                               (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname))))
+                             (handle-libspecs ns-obj (next libspecs)))))))
+          ;; default
+          (if (string? libname)
+            ;; TODO: parse properties
+            (let [[libname _properties] (str/split libname #"\\$")
+                  internal-name (symbol (str "nbb.internal." (munge libname)))
+                  mod (or
+                       ;; skip loading if module was already loaded
+                       (get @loaded-modules internal-name)
+                       ;; else load module and register in loaded-modules under internal-name
+                       (let [mod ((:require @ctx) libname)]
+                         (swap! loaded-modules assoc internal-name mod)
+                         mod))
+                  current-ns (symbol (str ns-obj))]
               (when as
-                (sci/binding [sci/ns ns-obj]
-                  (swap! sci-ctx sci/merge-opts {:classes {internal-name mod}})
-                  ;; HACK, we register the alias as a reference to the class
-                  ;; via :imports we should expose this functionality in SCI
-                  ;; itself as this relies on the internal representation of
-                  (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports as] internal-name)))
+                (swap! sci-ctx sci/merge-opts {:classes {internal-name mod}})
+                ;; HACK, we register the alias as a reference to the class
+                ;; via :imports we should expose this functionality in SCI
+                ;; itself as this relies on the internal representation of
+                (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports as] internal-name))
               (doseq [field refer]
                 (let [mod-field (gobj/get mod (str field))
                       internal-subname (str internal-name "$" field)]
                   (swap! sci-ctx sci/merge-opts {:classes {internal-subname mod-field}})
                   ;; Repeat hack from above
-                  (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports field] internal-subname))))
-            (recur ns-obj (next libspecs)))
-          ;; assume symbol
-          (sci/binding [sci/ns ns-obj]
+                  (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports field] internal-subname)))
+              (handle-libspecs ns-obj (next libspecs)))
+            ;; assume symbol
             (if (sci/eval-form @sci-ctx (list 'clojure.core/find-ns (list 'quote libname)))
               ;; built-in namespace
               (do (sci/eval-form @sci-ctx (list 'require (list 'quote fst)))
@@ -117,27 +116,24 @@
                       (.then
                        (fn [_]
                          (when as
-                           (sci/binding [sci/ns ns-obj]
-                             (sci/eval-form @sci-ctx
-                                            (list 'clojure.core/alias
-                                                  (list 'quote as)
-                                                  (list 'quote libname)))))
+                           (sci/eval-form @sci-ctx
+                                          (list 'clojure.core/alias
+                                                (list 'quote as)
+                                                (list 'quote libname))))
                          (when (seq refer)
-                           (sci/binding [sci/ns ns-obj]
-                             (sci/eval-form @sci-ctx
-                                            (list 'clojure.core/refer
-                                                  (list 'quote libname) :only (list 'quote refer)))))))
+                           (sci/eval-form @sci-ctx
+                                          (list 'clojure.core/refer
+                                                (list 'quote libname) :only (list 'quote refer))))))
                       (.then (fn [_]
                                (handle-libspecs ns-obj (next libspecs)))))
-                  (js/Promise.reject (js/Error. (str "Could not find namespace: " libname))))))))))
-    (js/Promise.resolve ns-obj)))
+                  (js/Promise.reject (js/Error. (str "Could not find namespace: " libname)))))))))
+      (js/Promise.resolve ns-obj))))
 
 (defn eval-ns-form [ns-form]
   ;; the parsing is still very crude, we only support a subset of the ns form
   ;; and ignore everything but (:require clauses)
   (let [[_ns ns-name & ns-forms] ns-form
-        ns-obj (sci/binding [sci/ns @sci/ns]
-                 (sci/eval-form @sci-ctx (list 'do (list 'ns ns-name) '*ns*)))
+        ns-obj (sci/eval-form @sci-ctx (list 'do (list 'ns ns-name) '*ns*))
         _ (reset! last-ns ns-obj)
         require-forms (filter (fn [ns-form]
                                 (and (seq? ns-form)
@@ -150,17 +146,16 @@
 
 (defn eval-require [require-form]
   (let [args (rest require-form)
-        libspecs (sci/binding [sci/ns @last-ns]
-                   (mapv #(sci/eval-form @sci-ctx %) args))]
+        libspecs (mapv #(sci/eval-form @sci-ctx %) args)]
     (handle-libspecs @last-ns libspecs)))
 
 (defn eval-expr
   "Evaluates top level forms asynchronously. Returns promise of last value."
   [prev-val reader]
-  (let [next-val (try (sci/binding [sci/ns @last-ns]
-                        (sci/parse-next @sci-ctx reader {:features #{:cljs}}))
-                      (catch :default e
-                        (js/Promise.reject e)))]
+  (let [next-val (try
+                   (sci/parse-next @sci-ctx reader {:features #{:cljs}})
+                   (catch :default e
+                     (js/Promise.reject e)))]
     (if-not (= :sci.core/eof next-val)
       (if (seq? next-val)
         (let [fst (first next-val)]
@@ -175,23 +170,21 @@
                        (fn [_]
                          (eval-expr nil reader)))
                 :else
-                (try (sci/binding [sci/ns @last-ns]
-                       ;; assume synchronous execution, so binding is OK.
-                       (eval-expr (sci/eval-form @sci-ctx next-val) reader))
+                (try
+                  (eval-expr (sci/eval-form @sci-ctx next-val) reader)
                      (catch :default e
                        (js/Promise.reject e)))))
-        ;; assume synchronous execution, so binding is OK.
-        (try (sci/binding [sci/ns @last-ns]
-               ;; assume synchronous execution, so binding is OK.
-               (eval-expr (sci/eval-form @sci-ctx next-val) reader))
+        (try
+          (eval-expr (sci/eval-form @sci-ctx next-val) reader)
              (catch :default e
                (js/Promise.reject e))))
       ;; wrap normal value in promise
       (js/Promise.resolve prev-val))))
 
 (defn eval-string* [s]
-  (let [reader (sci/reader s)]
-    (eval-expr nil reader)))
+  (with-async-bindings {sci/ns @sci/ns}
+    (let [reader (sci/reader s)]
+      (eval-expr nil reader))))
 
 (defn load-string
   "Asynchronously parses and evaluates string s. Returns promise."
@@ -209,7 +202,8 @@
 
 (defn load-file
   [f]
-  (-> f slurp load-string))
+  (let [source (slurp f)]
+    (with-async-bindings {sci/file f} (load-string source))))
 
 (defn register-plugin! [_plug-in-name sci-opts]
   (swap! sci-ctx sci/merge-opts sci-opts))
@@ -222,8 +216,18 @@
                                       '*command-line-args* command-line-args}
                        'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
                                   'slurp (sci/copy-var slurp nbb-ns)
-                                  'load-file (sci/copy-var load-file nbb-ns)}}
+                                  'load-file (sci/copy-var load-file nbb-ns)
+                                  '*file* sci/file}}
           :classes {'js universe :allow :all}
           :disable-arity-checks true}))
 
 (defn init [])
+
+;;;; Scratch
+
+(comment
+
+  (vars/push-thread-bindings {sci/file "hello"})
+
+
+  )
