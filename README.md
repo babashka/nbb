@@ -136,35 +136,6 @@ See the [puppeteer
 example](https://github.com/borkdude/nbb/blob/main/examples/puppeteer/example.cljs)
 for the full code.
 
-## Reagent
-
-Nbb includes `reagent.core` which will be lazily loaded when required. You
-can use this together with [ink](https://github.com/vadimdemedes/ink) to create
-a TUI application:
-
-```
-$ npm install ink
-```
-
-`ink-demo.cljs`:
-``` clojure
-(ns ink-demo
-  (:require ["ink" :refer [render Text]]
-            [reagent.core :as r]))
-
-(defonce state (r/atom 0))
-
-(doseq [n (range 1 11)]
-  (js/setTimeout #(swap! state inc) (* n 500)))
-
-(defn hello []
-  [:> Text {:color "green"} "Hello, world! " @state])
-
-(render (r/as-element [hello]))
-```
-
-<img src="img/ink.gif"/>
-
 ## Startup time
 
 ``` clojure
@@ -224,6 +195,35 @@ The name of the file that is currently being executed is available via
 (defn f [])
 (prn (:file (meta #'f))) ;; "/private/tmp/foo.cljs"
 ```
+
+## Reagent
+
+Nbb includes `reagent.core` which will be lazily loaded when required. You
+can use this together with [ink](https://github.com/vadimdemedes/ink) to create
+a TUI application:
+
+```
+$ npm install ink
+```
+
+`ink-demo.cljs`:
+``` clojure
+(ns ink-demo
+  (:require ["ink" :refer [render Text]]
+            [reagent.core :as r]))
+
+(defonce state (r/atom 0))
+
+(doseq [n (range 1 11)]
+  (js/setTimeout #(swap! state inc) (* n 500)))
+
+(defn hello []
+  [:> Text {:color "green"} "Hello, world! " @state])
+
+(render (r/as-element [hello]))
+```
+
+<img src="img/ink.gif"/>
 
 ## Build
 
