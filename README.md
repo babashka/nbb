@@ -134,7 +134,8 @@ Using `plet` this becomes:
 
 See the [puppeteer
 example](https://github.com/borkdude/nbb/blob/main/examples/puppeteer/example.cljs)
-for the full code.
+for the full code. Also see [Promises](doc/promises.md) for more tips and tricks
+around promises.
 
 ## Startup time
 
@@ -232,6 +233,10 @@ See the [examples](examples) directory for small examples.
 Also check out these projects built with nbb:
 
 - [c64core](https://github.com/chr15m/c64core): retrocompute aesthetics twitter bot
+
+## Read more
+
+- [Promises](doc/promises.md) describes a few helper macros to deal the verbosity around promises.
 
 ## Build
 
