@@ -233,6 +233,7 @@ See the [examples](examples) directory for small examples.
 Also check out these projects built with nbb:
 
 - [c64core](https://github.com/chr15m/c64core): retrocompute aesthetics twitter bot
+- [gallery.cljs](https://gist.github.com/borkdude/05c4f4ce81a988f90917dc295d8f306e): script to download walpapers from [windowsonearth.org](https://www.windowsonearth.org).
 
 ## Read more
 
