@@ -83,7 +83,7 @@
           (if (sci/eval-form @sci-ctx (list 'clojure.core/find-ns (list 'quote libname)))
             ;; built-in namespace
             (do (sci/eval-form @sci-ctx (list 'require (list 'quote fst)))
-                (js/Promise.resolve @sci/ns))
+                (handle-libspecs (next libspecs)))
             (let [munged (munge libname)
                   file (str/replace (str munged) #"\." "/")
                   files [(str file ".cljs") (str file ".cljc")]
@@ -108,7 +108,7 @@
                                         (list 'clojure.core/refer
                                               (list 'quote libname)
                                               :only (list 'quote refer)
-                                              :rename rename)))))
+                                              :rename (list 'quote rename))))))
                     (.then (fn [_]
                              (handle-libspecs (next libspecs)))))
                 (js/Promise.reject (js/Error. (str "Could not find namespace: " libname)))))))))
