@@ -206,7 +206,9 @@
                        'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
                                   'slurp (sci/copy-var slurp nbb-ns)
                                   'load-file (sci/copy-var load-file nbb-ns)
-                                  '*file* sci/file}}
+                                  '*file* sci/file}
+                       'goog.object {'get gobj/get
+                                     'set gobj/set}}
           :classes {'js universe :allow :all}
           :disable-arity-checks true}))
 
