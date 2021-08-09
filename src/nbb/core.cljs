@@ -177,15 +177,22 @@
   (eval-string* s))
 
 (defn slurp
-  "Synchronously returns string from file f."
+  "Asynchronously returns string from file f. Returns promise."
   [f]
-  (str (fs/readFileSync f)))
+  (js/Promise.
+   (fn [resolve reject]
+     (fs/readFile f
+               (fn [error contents]
+                 (if error
+                   (reject error)
+                   (resolve (str contents))))))))
 
 (defn load-file
   [f]
-  (let [source (slurp f)]
-    (with-async-bindings {sci/file (path/resolve f)}
-      (load-string source))))
+  (with-async-bindings {sci/file (path/resolve f)}
+    (-> (slurp f)
+        (.then (fn [source]
+                 (load-string source))))))
 
 (defn register-plugin! [_plug-in-name sci-opts]
   (swap! sci-ctx sci/merge-opts sci-opts))

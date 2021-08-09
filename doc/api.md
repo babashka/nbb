@@ -9,8 +9,8 @@ In addition to `clojure.core`, `clojure.set`, `clojure.edn`, `clojure.string`,
 
 - `*file*`: dynamic var representing the currently executing file.
 - `(load-file f)`: reads contents of file f and then handles it using `load-string`.
-- `(load-string s)`: parses and evaluates `s`, returns result as promise.
-- `(slurp f)`: slurps contents of file to string, synchronously.
+- `(load-string s)`: asynchronously parses and evaluates `s`, returns result as promise.
+- `(slurp f)`: asynchronously slurps contents of file to string, returns result as promise.
 
 ## Reagent
 
