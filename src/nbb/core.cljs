@@ -207,8 +207,10 @@
                                   'slurp (sci/copy-var slurp nbb-ns)
                                   'load-file (sci/copy-var load-file nbb-ns)
                                   '*file* sci/file}
+                       ;; let's start with the most common ones
                        'goog.object {'get gobj/get
-                                     'set gobj/set}}
+                                     'set gobj/set
+                                     'getValueByKeys gobj/getValueByKeys}}
           :classes {'js universe :allow :all}
           :disable-arity-checks true}))
 

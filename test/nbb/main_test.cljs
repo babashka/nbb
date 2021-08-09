@@ -126,3 +126,14 @@
                          (is (= 11 (:column d))))))
              (.finally (fn [_]
                          (done))))))
+
+(deftest gobject-test
+  (async done
+         (-> (nbb/load-string "(require '[goog.object :as gobj])
+                               (def x #js {}) (gobj/set x \"x\" 1)
+                               (gobj/set x \"y\" 2) x")
+             (.then (fn [val]
+                      (is (= (str #js {":x" 1, ":y" 2})
+                             (str val)))))
+             (.finally (fn [_]
+                         (done))))))
