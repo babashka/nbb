@@ -134,8 +134,10 @@ Using `plet` this becomes:
 
 See the [puppeteer
 example](https://github.com/borkdude/nbb/blob/main/examples/puppeteer/example.cljs)
-for the full code. Also see [Promises](doc/promises.md) for more tips and tricks
-around promises.
+for the full code.
+
+Since v0.0.36, nbb includes [promesa](#promesa) which is a library to deal with
+promises. The above `plet` macro is similar to `promesa.core/let`.
 
 ## Startup time
 
@@ -226,6 +228,45 @@ $ npm install ink
 
 <img src="img/ink.gif"/>
 
+## Promesa
+
+Working with callbacks and promises can become tedious. Since nbb v0.0.36 the
+`promesa.core` namespace is included with the `let` and `do!` macros. An example
+using `promese.core/plet`:
+
+``` clojure
+(ns script
+  (:require [promesa.core :as p]))
+
+(defn sleep [ms]
+  (js/Promise.
+   (fn [resolve _]
+     (js/setTimeout resolve ms))))
+
+(defn do-stuff
+  "Returns map in promise"
+  []
+  (p/do!
+   (println "Doing stuff which takes a while")
+   (sleep 1000)
+   1))
+
+(p/let [a (do-stuff)
+        b (inc 1)
+        a (do-stuff)
+        c (+ b a)]
+  (prn c))
+```
+
+``` clojure
+$ nbb prom.cljs
+Doing stuff which takes a while
+Doing stuff which takes a while
+3
+```
+
+Also see [API docs](api.md).
+
 ## Examples
 
 See the [examples](examples) directory for small examples.
@@ -235,10 +276,9 @@ Also check out these projects built with nbb:
 - [c64core](https://github.com/chr15m/c64core): retrocompute aesthetics twitter bot
 - [gallery.cljs](https://gist.github.com/borkdude/05c4f4ce81a988f90917dc295d8f306e): script to download walpapers from [windowsonearth.org](https://www.windowsonearth.org).
 
-## Read more
+## API
 
-- [API](doc/api.md) documentation.
-- [Promises](doc/promises.md) describes a few helper macros to deal the verbosity around promises.
+See [API](doc/api.md) documentation.
 
 ## Build
 
