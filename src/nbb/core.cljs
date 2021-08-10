@@ -29,6 +29,20 @@
 (def loaded-modules (atom {}))
 
 (declare load-file)
+(declare handle-libspecs)
+
+(defn load-module [m libname as refer rename libspecs]
+  (-> (esm/dynamic-import m)
+      (.then (fn [_reagent]
+               (when as
+                 (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname))))
+               (when (seq refer)
+                 (sci/eval-form @sci-ctx
+                                (list 'clojure.core/refer
+                                      (list 'quote libname)
+                                      :only (list 'quote refer)
+                                      :rename (list 'quote rename))))
+               (handle-libspecs (next libspecs))))))
 
 (defn handle-libspecs [libspecs]
   (if (seq libspecs)
@@ -41,30 +55,9 @@
       (case libname
         ;; built-ins
         (reagent.core reagent.dom reagent.dom.server)
-        (-> (esm/dynamic-import "./nbb_reagent.js")
-            (.then (fn [_reagent]
-                     (when as
-                       (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname))))
-                     (when (seq refer)
-                       (sci/eval-form @sci-ctx
-                                      (list 'clojure.core/refer
-                                            (list 'quote libname)
-                                            :only (list 'quote refer)
-                                            :rename (list 'quote rename))))
-                     (handle-libspecs (next libspecs)))))
-
+        (load-module "./nbb_reagent.js" libname as refer rename libspecs)
         (promesa.core)
-        (-> (esm/dynamic-import "./nbb_promesa.js")
-            (.then (fn [_mode]
-                     (when as
-                       (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname))))
-                     (when (seq refer)
-                       (sci/eval-form @sci-ctx
-                                      (list 'clojure.core/refer
-                                            (list 'quote libname)
-                                            :only (list 'quote refer)
-                                            :rename (list 'quote rename))))
-                     (handle-libspecs (next libspecs)))))
+        (load-module "./nbb_promesa.js" libname as refer rename libspecs)
         (if (string? libname)
           ;; TODO: parse properties
           (let [[libname _properties] (str/split libname #"\\$")
