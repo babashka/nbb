@@ -253,9 +253,9 @@ using `promese.core/plet`:
 
 (p/let [a (do-stuff)
         b (inc 1)
-        a (do-stuff)
-        c (+ b a)]
-  (prn c))
+        c (do-stuff)
+        d (+ b c)]
+  (prn d))
 ```
 
 ``` clojure
