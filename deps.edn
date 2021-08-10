@@ -11,4 +11,4 @@
         com.github.borkdude/sci
         {:git/sha "1607c691b75472f4eaa6d4165df7297138356fbf"}
         #_{:local/root "/Users/borkdude/Dropbox/dev/clojure/babashka/sci"}
-        applied-science/js-interop {:mvn/version "0.2.11"}}}
+        applied-science/js-interop {:mvn/version "0.3.0"}}}

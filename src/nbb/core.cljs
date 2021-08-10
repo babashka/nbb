@@ -58,6 +58,8 @@
         (load-module "./nbb_reagent.js" libname as refer rename libspecs)
         (promesa.core)
         (load-module "./nbb_promesa.js" libname as refer rename libspecs)
+        (applied-science.js-interop)
+        (load-module "./nbb_js_interop.js" libname as refer rename libspecs)
         (if (string? libname)
           ;; TODO: parse properties
           (let [[libname _properties] (str/split libname #"\\$")
