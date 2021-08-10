@@ -234,7 +234,7 @@ Working with callbacks and promises can become tedious. Since nbb v0.0.36 the
 `promesa.core` namespace is included with the `let` and `do!` macros. An example:
 
 ``` clojure
-(ns script
+(ns prom
   (:require [promesa.core :as p]))
 
 (defn sleep [ms]
