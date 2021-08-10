@@ -1,5 +1,5 @@
 (ns nbb.core
-  (:refer-clojure :exclude [load-file])
+  (:refer-clojure :exclude [load-file time])
   (:require
    ["fs" :as fs]
    ["path" :as path]
@@ -43,6 +43,19 @@
         (reagent.core reagent.dom reagent.dom.server)
         (-> (esm/dynamic-import "./nbb_reagent.js")
             (.then (fn [_reagent]
+                     (when as
+                       (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname))))
+                     (when (seq refer)
+                       (sci/eval-form @sci-ctx
+                                      (list 'clojure.core/refer
+                                            (list 'quote libname)
+                                            :only (list 'quote refer)
+                                            :rename (list 'quote rename))))
+                     (handle-libspecs (next libspecs)))))
+
+        (promesa.core)
+        (-> (esm/dynamic-import "./nbb_promesa.js")
+            (.then (fn [_mode]
                      (when as
                        (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname))))
                      (when (seq refer)
@@ -197,12 +210,24 @@
 (defn register-plugin! [_plug-in-name sci-opts]
   (swap! sci-ctx sci/merge-opts sci-opts))
 
+(defn ^:macro time
+  "Evaluates expr and prints the time it took. Returns the value of expr."
+  [_ _ expr]
+  `(let [start# (cljs.core/system-time)
+         ret# ~expr]
+     (prn (cljs.core/str "Elapsed time: "
+                         (.toFixed (- (system-time) start#) 6)
+                         " msecs"))
+     ret#))
+
 (reset! sci-ctx
         (sci/init
          {:namespaces {'clojure.core {'prn prn
                                       'print print
                                       'println println
-                                      '*command-line-args* command-line-args}
+                                      '*command-line-args* command-line-args
+                                      'time (sci/copy-var time core-ns)
+                                      'system-time (sci/copy-var system-time core-ns)}
                        'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
                                   'slurp (sci/copy-var slurp nbb-ns)
                                   'load-file (sci/copy-var load-file nbb-ns)

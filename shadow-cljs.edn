@@ -10,6 +10,8 @@
                      :nbb_main {:init-fn nbb.main/main
                                 :depends-on #{:nbb_core}}
                      :nbb_reagent {:init-fn nbb.reagent/init
+                                   :depends-on #{:nbb_core}}
+                     :nbb_promesa {:init-fn nbb.promesa/init
                                    :depends-on #{:nbb_core}}}
                     :build-hooks [(shadow.cljs.build-report/hook
                                    {:output-to "report.html"})]}
