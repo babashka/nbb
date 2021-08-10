@@ -231,8 +231,7 @@ $ npm install ink
 ## Promesa
 
 Working with callbacks and promises can become tedious. Since nbb v0.0.36 the
-`promesa.core` namespace is included with the `let` and `do!` macros. An example
-using `promese.core/plet`:
+`promesa.core` namespace is included with the `let` and `do!` macros. An example:
 
 ``` clojure
 (ns script
