@@ -243,7 +243,6 @@ Working with callbacks and promises can become tedious. Since nbb v0.0.36 the
      (js/setTimeout resolve ms))))
 
 (defn do-stuff
-  "Returns map in promise"
   []
   (p/do!
    (println "Doing stuff which takes a while")
