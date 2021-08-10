@@ -252,7 +252,7 @@ using `promese.core/plet`:
    1))
 
 (p/let [a (do-stuff)
-        b (inc 1)
+        b (inc a)
         c (do-stuff)
         d (+ b c)]
   (prn d))
