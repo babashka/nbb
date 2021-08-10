@@ -22,8 +22,13 @@
 
 (deftest reagent-test
   (is (= [true true]
-         (nbb "-e" "(require '[reagent.core :as r :refer [atom] :rename {atom ratom}])
-                    [(some? r/as-element) (some? ratom)]"))))
+         (testing "reagent works + refer and rename work on lazy loaded module"
+           (nbb "-e" "(require '[reagent.core :as r :refer [atom] :rename {atom ratom}])
+                    [(some? r/as-element) (some? ratom)]")))))
+
+(deftest promesa-test
+  (is (= 2 (nbb "-e" "(require '[promesa.core :as p])
+                      (p/let [x (js/Promise.resolve 1)] (+ x 1))"))))
 
 (deftest classpath-test
   (let [deps '{com.github.seancorfield/honeysql {:git/tag "v2.0.0-rc5" :git/sha "01c3a55"}}
