@@ -5,6 +5,9 @@
    ["path" :as path]
    [clojure.string :as str]
    [goog.object :as gobj]
+   [goog.string :as gstr]
+   [nbb.common :refer [core-ns]]
+   [nbb.io :as io]
    [sci.core :as sci]
    [sci.impl.vars :as vars]
    [shadow.esm :as esm])
@@ -13,8 +16,6 @@
 (def universe goog/global)
 
 (def cwd (.cwd js/process))
-
-(def core-ns (sci/create-ns 'clojure.core nil))
 
 (def command-line-args (sci/new-dynamic-var '*command-line-args* nil {:ns core-ns}))
 
@@ -215,9 +216,12 @@
 
 (reset! sci-ctx
         (sci/init
-         {:namespaces {'clojure.core {'prn prn
-                                      'print print
-                                      'println println
+         {:namespaces {'clojure.core {'*print-fn* io/print-fn
+                                      '*print-newline* io/print-newline
+                                      'with-out-str (sci/copy-var io/with-out-str core-ns)
+                                      'prn (sci/copy-var io/prn core-ns)
+                                      'print (sci/copy-var io/print core-ns)
+                                      'println (sci/copy-var io/println core-ns)
                                       '*command-line-args* command-line-args
                                       'time (sci/copy-var time core-ns)
                                       'system-time (sci/copy-var system-time core-ns)}
@@ -225,11 +229,11 @@
                                   'slurp (sci/copy-var slurp nbb-ns)
                                   'load-file (sci/copy-var load-file nbb-ns)
                                   '*file* sci/file}
-                       ;; let's start with the most common ones
                        'goog.object {'get gobj/get
                                      'set gobj/set
                                      'getValueByKeys gobj/getValueByKeys}}
-          :classes {'js universe :allow :all}
+          :classes {'js universe :allow :all
+                    'goog.string #js {:StringBuffer gstr/StringBuffer}}
           :disable-arity-checks true}))
 
 (def ^:dynamic *file* sci/file) ;; make clj-kondo+lsp happy
