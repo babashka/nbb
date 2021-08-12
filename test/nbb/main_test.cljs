@@ -1,5 +1,4 @@
 (ns nbb.main-test
-  {:clj-kondo/config '{:lint-as {nbb.test-macros/deftest-async clojure.test/deftest}}}
   (:require ["path" :as path]
             [clojure.string :as str]
             [clojure.test :refer [deftest is testing]]
@@ -141,5 +140,3 @@
       (.then (fn [val]
                (is (= [":hello\n" ":hello\n" ":hello"]
                       val))))))
-
-
