@@ -6,5 +6,5 @@
       ~'done
       (-> ~@body
           (.catch (fn [err#]
-                    (prn (str err#))))
+                    (cljs.test/is (= 1 0) (str err#))))
           (.finally ~'done)))))

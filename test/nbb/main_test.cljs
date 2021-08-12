@@ -145,12 +145,11 @@
              (.finally done))))
 
 (deftest-async gobject-test
-  (-> (nbb/load-string "(require '[goog.object :as gobj])
-                               (def x #js {}) (gobj/set x \"x\" 1)
-                               (gobj/set x \"y\" 2) x")
+  (-> (nbb/load-string "(require '[goog.object :as gobj :refer [get] :rename {get jget}])
+                        (def x #js {}) (gobj/set x \"x\" 1)
+                        (gobj/set x \"y\" 2) (jget x \"y\")")
       (.then (fn [val]
-               (is (= (str #js {"x:x" 1, ":y" 2})
-                      (str val)))))))
+               (is (= 2 val))))))
 
 (deftest-async with-out-str-test
   (-> (nbb/load-string "[(with-out-str (println :hello))
