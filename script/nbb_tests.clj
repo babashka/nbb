@@ -39,6 +39,10 @@
                 "-e"
                 "(require '[honey.sql :as sql]) (sql/format {:select :foo :from :bar :where [:= :baz 2]})")))))
 
+(deftest pprint-test
+  (is (= (str "(0 1 2 3 4 5 6 7 8 9)" nl)
+         (nbb "-e" "(require '[cljs.pprint :as pp]) (with-out-str (pp/pprint (range 10)))"))))
+
 (defn main [& _]
   (let [{:keys [:error :fail]} (t/run-tests 'nbb-tests)]
     (when (pos? (+ error fail))
