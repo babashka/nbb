@@ -1,4 +1,4 @@
-(ns axios.example
+(ns example
   (:require ["axios" :as axios]
             [promesa.core :as p]))
 
