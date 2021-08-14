@@ -32,18 +32,32 @@
 (declare load-file)
 (declare handle-libspecs)
 
+(def normalize-libname
+  {'clojure.pprint 'cljs.pprint})
+
 (defn load-module [m libname as refer rename libspecs]
   (-> (esm/dynamic-import m)
-      (.then (fn [_reagent]
-               (when as
-                 (sci/eval-form @sci-ctx (list 'alias (list 'quote as) (list 'quote libname))))
-               (when (seq refer)
-                 (sci/eval-form @sci-ctx
-                                (list 'clojure.core/refer
-                                      (list 'quote libname)
-                                      :only (list 'quote refer)
-                                      :rename (list 'quote rename))))
-               (handle-libspecs (next libspecs))))))
+      (.then (fn [_module]
+               (let [nlib (normalize-libname libname)]
+                 (when-not (= nlib libname)
+                   (when as
+                     (sci/eval-form @sci-ctx
+                                    (list 'alias
+                                          (list 'quote nlib)
+                                          (list 'quote libname)))))
+                 (let [libname (or nlib libname)]
+                   (when as
+                     (sci/eval-form @sci-ctx
+                                    (list 'alias
+                                          (list 'quote as)
+                                          (list 'quote libname))))
+                   (when (seq refer)
+                     (sci/eval-form @sci-ctx
+                                    (list 'clojure.core/refer
+                                          (list 'quote libname)
+                                          :only (list 'quote refer)
+                                          :rename (list 'quote rename)))))
+                 (handle-libspecs (next libspecs)))))))
 
 (defn handle-libspecs [libspecs]
   (if (seq libspecs)
@@ -62,7 +76,7 @@
         (load-module "./nbb_reagent.js" libname as refer rename libspecs)
         (promesa.core)
         (load-module "./nbb_promesa.js" libname as refer rename libspecs)
-        (cljs.pprint)
+        (cljs.pprint clojure.pprint)
         (load-module "./nbb_pprint.js" libname as refer rename libspecs)
         (if (string? libname)
           ;; TODO: parse properties

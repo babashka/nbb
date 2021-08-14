@@ -41,7 +41,10 @@
 
 (deftest pprint-test
   (is (= (str "(0 1 2 3 4 5 6 7 8 9)" nl)
-         (nbb "-e" "(require '[cljs.pprint :as pp]) (with-out-str (pp/pprint (range 10)))"))))
+         (nbb "-e" "(require '[cljs.pprint :as pp]) (with-out-str (pp/pprint (range 10)))")))
+  (testing "cljs.pprint = clojure.pprint"
+    (is (= (str "(0 1 2 3 4 5 6 7 8 9)" nl)
+           (nbb "-e" "(require '[clojure.pprint :as pp]) (with-out-str (pp/pprint (range 10)))")))))
 
 (defn main [& _]
   (let [{:keys [:error :fail]} (t/run-tests 'nbb-tests)]
