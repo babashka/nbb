@@ -140,11 +140,12 @@
   ;; the parsing is still very crude, we only support a subset of the ns form
   ;; and ignore everything but (:require clauses)
   (let [[_ns ns-name & ns-forms] ns-form
-        ns-obj (sci/eval-form @sci-ctx (list 'do (list 'ns ns-name) '*ns*))
-        require-forms (filter (fn [ns-form]
-                                (and (seq? ns-form)
-                                     (= :require (first ns-form))))
-                              ns-forms)
+        grouped (group-by (fn [ns-form]
+                            (and (seq? ns-form)
+                                 (= :require (first ns-form)))) ns-forms)
+        require-forms (get grouped true)
+        other-forms (get grouped false)
+        ns-obj (sci/eval-form @sci-ctx (list 'do (list* 'ns ns-name other-forms) '*ns*))
         libspecs (mapcat (fn [require-form]
                            (rest require-form))
                          require-forms)]

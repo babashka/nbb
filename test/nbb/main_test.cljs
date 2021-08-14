@@ -133,6 +133,13 @@
       (.then (fn [val]
                (is (= 2 val))))))
 
+(deftest-async gobject-get-exclude-test
+  (-> (nbb/load-string "(ns foo (:refer-clojure :exclude [get])
+                                (:require [goog.object :as gobj :refer [get]]))
+                        (get #js{:y 2} \"y\") ")
+      (.then (fn [val]
+               (is (= 2 val))))))
+
 (deftest-async with-out-str-test
   (-> (nbb/load-string "[(with-out-str (println :hello))
                          (with-out-str (prn :hello))
