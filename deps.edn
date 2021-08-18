@@ -9,6 +9,6 @@
         reagent/reagent {:mvn/version "1.1.0"}
         funcool/promesa {:mvn/version "6.0.2"}
         com.github.borkdude/sci
-        {:git/sha "a83009b81b68d60e0c1dd91f3a730e117599a122"}
-        #_{:local/root "/Users/borkdude/Dropbox/dev/clojure/babashka/sci"}
+        ;; {:git/sha "a83009b81b68d60e0c1dd91f3a730e117599a122"}
+        {:local/root "/Users/borkdude/Dropbox/dev/clojure/babashka/sci"}
         applied-science/js-interop {:mvn/version "0.2.11"}}}
