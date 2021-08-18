@@ -9,9 +9,10 @@
 
 (defn hello []
   (r/with-let [x (r/atom 0)
-               _ (js/setInterval #(swap! x inc) 1000)]
+               ]
     [:<>
      [:> Text {:color "green"} "Counting to 10: " @state]
-     [:> Text {:color "yellow"} "Seconds since launch: " @x]]))
+     [:> Text {:color "yellow"} "Seconds since launch: " @x]]
+    (finally (prn :the-end))))
 
 (render (r/as-element [hello]))

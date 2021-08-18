@@ -51,7 +51,7 @@
         res (gensym "res")]
     `(let [~v (reagent.ratom/with-let-values ~k)]
        ~(when asserting
-          `(when-some [c# reagent.ratom/*ratom-context*]
+          `(when-some [c# (reagent.ratom/-ratom-context)]
              (when (== (.-generation ~v) (.-ratomGeneration c#))
                (d/error "Warning: The same with-let is being used more "
                         "than once in the same reactive context."))
@@ -78,9 +78,15 @@
 
 (def rtmns (sci/create-ns 'reagent.ratom nil))
 
+(defn -ratom-context
+  "Read-only access to the ratom context."
+  []
+  ratom/*ratom-context*)
+
 (def reagent-ratom-namespace
   {'with-let-values (sci/copy-var ratom/with-let-values rtmns)
-   '*ratom-context* (sci/copy-var ratom/*ratom-context* rtmns)})
+   'reactive? (sci/copy-var ratom/reactive? rtmns)
+   '-ratom-context (sci/copy-var -ratom-context rtmns)})
 
 (def rdbgns (sci/create-ns 'reagent.debug nil))
 
