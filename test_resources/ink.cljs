@@ -8,8 +8,7 @@
   (js/setTimeout #(swap! state inc) (* n 500)))
 
 (defn hello []
-  (r/with-let [x (r/atom 0)
-               ]
+  (r/with-let [x (r/atom 0)]
     [:<>
      [:> Text {:color "green"} "Counting to 10: " @state]
      [:> Text {:color "yellow"} "Seconds since launch: " @x]]

@@ -1,8 +1,7 @@
 (ns nbb.reagent
   (:require [nbb.core :as nbb]
             [reagent.core :as r]
-            [reagent.debug :as d]
-            [reagent.dom :as rdom]
+            [reagent.debug :as d :refer-macros [dev?]]
             [reagent.ratom :as ratom]
             [sci.core :as sci]))
 
@@ -47,7 +46,7 @@
                              (when (nil? (.-destroy ~v))
                                (set! (.-destroy ~v) destroy#))
                              (destroy#)))))
-        asserting (if *assert* true false)
+        asserting (dev?) #_(if *assert* true false)
         res (gensym "res")]
     `(let [~v (reagent.ratom/with-let-values ~k)]
        ~(when asserting
@@ -69,7 +68,8 @@
 
 (def rdns (sci/create-ns 'reagent.dom nil))
 
-(def reagent-dom-namespace
+;; not needed for ink
+#_(def reagent-dom-namespace
   {'render (sci/copy-var rdom/render rdns)})
 
 (def rdsns (sci/create-ns 'reagent.dom.server nil))
@@ -112,6 +112,6 @@
   (nbb/register-plugin!
    ::reagent
    {:namespaces {'reagent.core reagent-namespace
-                 'reagent.dom reagent-dom-namespace
+                 ;; 'reagent.dom reagent-dom-namespace
                  'reagent.ratom reagent-ratom-namespace
                  'reagent.debug reagent-debug-namespace}}))

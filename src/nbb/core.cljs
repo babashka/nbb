@@ -73,7 +73,16 @@
       (case libname
         ;; built-ins
         (reagent.core reagent.dom reagent.dom.server)
-        (load-module "./nbb_reagent.js" libname as refer rename libspecs)
+        (let [internal-name (symbol "nbb.internal.react")]
+          (or
+           ;; skip loading if module was already loaded
+           (get @loaded-modules internal-name)
+           ;; else load module and register in loaded-modules under internal-name
+           (let [mod ((:require @ctx) "react")]
+             (swap! loaded-modules assoc internal-name mod)
+             (set! (.-nbb$internal$react goog/global) mod)
+             mod))
+          (load-module "./nbb_reagent.js" libname as refer rename libspecs))
         (promesa.core)
         (load-module "./nbb_promesa.js" libname as refer rename libspecs)
         (cljs.pprint clojure.pprint)
@@ -264,6 +273,7 @@
           :classes {'js universe :allow :all
                     'goog.object #js {:get gobj/get
                                       :set gobj/set
+                                      :getKeys gobj/getKeys
                                       :getValueByKeys gobj/getValueByKeys}
                     'goog.string #js {:StringBuffer gstr/StringBuffer}}
           :disable-arity-checks true}))

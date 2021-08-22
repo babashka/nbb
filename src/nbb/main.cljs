@@ -37,7 +37,10 @@
         script-path (when script-file (path/resolve script-file))
         require (if script-path
                   (createRequire script-path)
-                  (createRequire cwd))]
+                  ;; somehow creating a require with the current working dir
+                  ;; doesn't work correctly but from a file it does work, even
+                  ;; when that file doesn't exist
+                  (createRequire (path/resolve "script.cljs")))]
     (set! (.-require goog/global) require)
     (if (or script-path expr)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
