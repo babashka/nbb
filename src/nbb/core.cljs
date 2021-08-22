@@ -74,14 +74,16 @@
         ;; built-ins
         (reagent.core reagent.dom reagent.dom.server)
         (let [internal-name (symbol "nbb.internal.react")]
-          (or
-           ;; skip loading if module was already loaded
-           (get @loaded-modules internal-name)
-           ;; else load module and register in loaded-modules under internal-name
-           (let [mod ((:require @ctx) "react")]
-             (swap! loaded-modules assoc internal-name mod)
-             (set! (.-nbb$internal$react goog/global) mod)
-             mod))
+          (let [mod
+                ;; NOTE: react could already have been loaded by requiring it
+                ;; directly, in that case it's part of loaded-modules already
+                (or (get @loaded-modules internal-name)
+                        (let [mod ((:require @ctx) "react")]
+                          (swap! loaded-modules assoc internal-name mod)))]
+            ;; To make sure reagent sees the required react, we set it here Wwe
+            ;; could make reagent directly use loaded-modules via a global so we
+            ;; don't have to hardcode this.
+            (set! (.-nbb$internal$react goog/global) mod))
           (load-module "./nbb_reagent.js" libname as refer rename libspecs))
         (promesa.core)
         (load-module "./nbb_promesa.js" libname as refer rename libspecs)
