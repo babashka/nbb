@@ -78,8 +78,9 @@
                 ;; NOTE: react could already have been loaded by requiring it
                 ;; directly, in that case it's part of loaded-modules already
                 (or (get @loaded-modules internal-name)
-                        (let [mod ((:require @ctx) "react")]
-                          (swap! loaded-modules assoc internal-name mod)))]
+                    (let [mod ((:require @ctx) "react")]
+                      (swap! loaded-modules assoc internal-name mod)
+                      mod))]
             ;; To make sure reagent sees the required react, we set it here Wwe
             ;; could make reagent directly use loaded-modules via a global so we
             ;; don't have to hardcode this.
