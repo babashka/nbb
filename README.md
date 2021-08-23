@@ -154,10 +154,11 @@ use a globally installed `nbb` or use `$(npm bin)/nbb script.cljs` to bypass
 
 ## Dependencies
 
-### Optional npm deps
+### NPM dependencies
 
-Nbb depends on React to load the optional [Reagent](#reagent) module. To not
-download react when installing nbb, use `npm install nbb --no-optional`.
+Nbb does not depend on any NPM dependencies. All NPM libraries loaded by scripts
+are resolved relative to the script. When using the [Reagent](#reagent) module,
+React is resolved in the same way as any other NPM library.
 
 ### Classpath
 
