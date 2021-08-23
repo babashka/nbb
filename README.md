@@ -156,9 +156,9 @@ use a globally installed `nbb` or use `$(npm bin)/nbb script.cljs` to bypass
 
 ### NPM dependencies
 
-Nbb does not depend on any NPM dependencies. All NPM libraries loaded by scripts
-are resolved relative to the script. When using the [Reagent](#reagent) module,
-React is resolved in the same way as any other NPM library.
+Nbb does not depend on any NPM dependencies. All NPM libraries loaded by a
+script are resolved relative to that script. When using the [Reagent](#reagent)
+module, React is resolved in the same way as any other NPM library.
 
 ### Classpath
 
