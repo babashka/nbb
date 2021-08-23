@@ -1,30 +1,39 @@
 (ns nbb-tests
   (:require [babashka.classpath :as cp]
             [babashka.deps :as deps]
-            [babashka.process :refer [process]]
+            [babashka.process :refer [process check]]
+            [babashka.tasks :as tasks]
             [clojure.edn :as edn]
             [clojure.test :as t :refer [deftest is testing]]))
 
 (def nl (System/lineSeparator))
 
-(defn nbb* [& args]
-  (-> @(process (into ["node" "out/nbb_main.js" "--debug"] args) {:out :string
-                                                                  :err :inherit})
-      :out))
+(defn nbb* [x & xs]
+  (let [[opts args] (if (map? x)
+                      [x xs]
+                      [nil (cons x xs)])]
+    (-> (process (into ["node" "out/nbb_main.js" "--debug"] args) (merge {:out :string
+                                                                          :err :inherit}
+                                                                         opts))
+        check
+        :out)))
 
 (defn nbb [& args]
-  (edn/read-string (apply nbb* args)))
+  (let [res (apply nbb* args)]
+    (when (string? res)
+      (edn/read-string res))))
 
 (deftest expression-test
   (is (= 6 (nbb "-e" "(+ 1 2 3)")))
   (testing "nil doesn't print return value"
     (is (= (str "6" nl) (nbb* "-e" "(prn (+ 1 2 3))")))))
 
-(deftest reagent-test
-  (is (= [true true]
-         (testing "reagent works + refer and rename work on lazy loaded module"
-           (nbb "-e" "(require '[reagent.core :as r :refer [atom] :rename {atom ratom}])
-                    [(some? r/as-element) (some? ratom)]")))))
+(deftest ink-test
+  (tasks/shell {:dir "test-scripts/react-test"} "npm install")
+  (testing "react is loaded first, then reagent"
+    (nbb {:out :inherit} "test-scripts/react-test/ink-test.cljs"))
+  (testing "reagent is loaded first, then react"
+    (nbb {:out :inherit} "test-scripts/react-test/ink-test2.cljs")))
 
 (deftest promesa-test
   (is (= 2 (nbb "-e" "(require '[promesa.core :as p])
@@ -50,4 +59,3 @@
   (let [{:keys [:error :fail]} (t/run-tests 'nbb-tests)]
     (when (pos? (+ error fail))
       (throw (ex-info "Tests failed" {:babashka/exit 1})))))
-
