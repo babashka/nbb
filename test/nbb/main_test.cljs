@@ -7,7 +7,7 @@
   (:require-macros [nbb.test-macros :refer [deftest-async]]))
 
 (reset! nbb/ctx {:require js/require
-                 :classpath {:dirs ["."]}})
+                 :classpath {:dirs ["test-scripts"]}})
 
 ;; NOTE: CLJS only accepts one async + done per deftest
 ;; See https://clojurescript.org/tools/testing#async-testing.
@@ -44,13 +44,13 @@
       (.then (fn [ns-name]
                (is (= 'user ns-name))))
       (.then (fn [_]
-               (nbb/load-file "test_resources/script.cljs")))
+               (nbb/load-file "test-scripts/script.cljs")))
       (.catch (fn [err]
                 (println err (.-stack err))))
       (.then (fn [val]
                (is (= 6 val))))
       (.then (fn [_]
-               (nbb/load-string "(nbb.core/load-file \"test_resources/script.cljs\")")))
+               (nbb/load-string "(nbb.core/load-file \"test-scripts/script.cljs\")")))
       (.then (fn [val]
                (is (= 6 val))))))
 
@@ -59,7 +59,7 @@
 (deftest-async args-test
   {:before (set! *print-fn* (constantly nil))
    :after (set! *print-fn* pf)}
-  (-> (main-with-args ["test_resources/script.cljs"])
+  (-> (main-with-args ["test-scripts/script.cljs"])
       (.then (fn [res]
                (is (= 6 res))))
       (.then (fn [_]
@@ -67,28 +67,28 @@
       (.then (fn [res]
                (is (= 10 res))))
       (.then (fn [_]
-               (main-with-args["-e" "(nbb.core/load-file \"test_resources/script.cljs\")"])))
+               (main-with-args["-e" "(nbb.core/load-file \"test-scripts/script.cljs\")"])))
       (.then (fn [res]
                (is (= 6 res))))))
 
 (deftest-async load-file-test
-  (-> (main-with-args ["test_resources/load_file_test.cljs"])
+  (-> (main-with-args ["test-scripts/load_file_test.cljs"])
       (.then (fn [res]
                (let [f (:file res)]
                  (is (path/isAbsolute f))
-                 (is (str/ends-with? f "test_resources/loaded_by_load_file_test.cljs")))
+                 (is (str/ends-with? f "test-scripts/loaded_by_load_file_test.cljs")))
                (is (:loaded-by-load-file-test/loaded res))
                (is (= (:file res) (:file-via-dyn-var res)))
                (let [f (:load-file-test-file-dyn-var res)]
                  (is (path/isAbsolute f))
-                 (is (str/ends-with? f "test_resources/load_file_test.cljs" )))))))
+                 (is (str/ends-with? f "test-scripts/load_file_test.cljs" )))))))
 
 (deftest-async eval-string-test
   (-> (nbb/load-string "(+ 1 2 3)")
       (.then (fn [res]
                (is (= 6 res))))
       (.then (fn [_]
-               (main-with-args ["test_resources/plet.cljs"])))
+               (main-with-args ["test-scripts/plet.cljs"])))
       (.then (fn [res]
                (is (= [1 2 "<!DOCTYPE html><html" 1] res))))))
 
@@ -113,8 +113,8 @@
 (deftest-async require-namespace-from-file-test
   {:before (set! *print-fn* (constantly nil))
    :after (set! *print-fn* pf)}
-  (-> (main-with-args ["-e"
-                       "(require '[test-resources.script :as s :refer [script-fn] :rename {script-fn f}])
+  (-> (main-with-args ["--classpath" "test-scripts" "-e"
+                       "(require '[script :as s :refer [script-fn] :rename {script-fn f}])
                                [(s/script-fn) (f)]"])
       (.then (fn [res]
                (is (= [:hello :hello] res))))))

@@ -84,7 +84,7 @@
             ;; To make sure reagent sees the required react, we set it here Wwe
             ;; could make reagent directly use loaded-modules via a global so we
             ;; don't have to hardcode this.
-            (set! (.-nbb$internal$react goog/global) mod))
+            (set! ^js (.-nbb$internal$react goog/global) mod))
           (load-module "./nbb_reagent.js" libname as refer rename libspecs))
         (promesa.core)
         (load-module "./nbb_promesa.js" libname as refer rename libspecs)

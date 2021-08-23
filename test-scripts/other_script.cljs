@@ -1,4 +1,4 @@
-(ns test-resources.other-script)
+(ns other-script)
 
 (defn script-fn []
   :yolo)

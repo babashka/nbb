@@ -1,7 +1,7 @@
-(ns test-resources.script
+(ns script
   (:require ["fs" :as fs] ;; verify that required namespaces can in turn also load node modules
             [nbb.core] ;; built in namespace, continue processing libspecs, GH-36
-            [test-resources.other-script :as o :refer [another-fn] :rename {another-fn foo}]))
+            [other-script :as o :refer [another-fn] :rename {another-fn foo}]))
 
 (defn script-fn []
   (fs/existsSync ".")
