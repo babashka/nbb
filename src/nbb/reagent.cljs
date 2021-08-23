@@ -64,7 +64,8 @@
 (def reagent-namespace
   {'atom (sci/copy-var r/atom rns)
    'as-element (sci/copy-var r/as-element rns)
-   'with-let (sci/copy-var with-let rns)})
+   'with-let (sci/copy-var with-let rns)
+   'cursor (sci/copy-var r/cursor rns)})
 
 (def rdns (sci/create-ns 'reagent.dom nil))
 
