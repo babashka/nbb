@@ -1,13 +1,22 @@
 {:paths ["script"]
  :tasks
  {:requires ([babashka.fs :as fs])
+  :init (do (def ^:dynamic *test* (= "true" (System/getenv "NBB_TESTS")))
+            (defn wrap-tests [cmd]
+              (if *test*
+                (str cmd " --aliases :test --config-merge shadow-tests.edn")
+                cmd)))
   clean (fs/delete-tree "out")
-  compile (shell "npx shadow-cljs --force-spawn compile modules")
-  watch (do (shell "npx shadow-cljs --force-spawn watch modules"))
+
+  compile (shell (wrap-tests "npx shadow-cljs --force-spawn compile modules"))
+
+  watch (shell "npx shadow-cljs --force-spawn watch modules")
+
   run-tests (shell "node out/nbb_tests.js")
+
   release {:depends [clean]
            :task
-           (do (apply shell "npx shadow-cljs --force-spawn release modules" *command-line-args*)
+           (do (apply shell (wrap-tests "npx shadow-cljs --force-spawn release modules") *command-line-args*)
                (spit "out/nbb_core.js"
                      (clojure.string/replace (slurp "out/nbb_core.js") (re-pattern "self") "globalThis"))
                (spit "out/nbb_main.js"
@@ -15,5 +24,25 @@
                (shell "chmod +x out/nbb_main.js")
                (run! fs/delete (fs/glob "out" "**.map")))}
   run-integration-tests nbb-tests/main
-  publish {:depends [release]
-           :task (shell "npm publish")}}}
+
+  publish (shell "npm publish")
+
+  test-all {:doc "Runs all tests."
+            :task (binding [*test* true]
+                   (println "Testing optimizations :none")
+                   (run 'clean)
+                   (run 'compile)
+                   (run 'run-tests)
+                   (run 'run-integration-tests)
+                   (println "Testing optimizations :advanced")
+                   (run 'clean)
+                   (run 'release)
+                   (run 'run-tests)
+                   (run 'run-integration-tests))}
+
+  publish-all {:doc "Publishes to npm after tests pass."
+               :depends [test-all]
+               :task
+               (binding [*test* false]
+                 (run 'release)
+                 (run 'publish))}}}
