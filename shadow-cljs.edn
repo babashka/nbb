@@ -14,10 +14,12 @@
                      :nbb_promesa {:init-fn nbb.promesa/init
                                    :depends-on #{:nbb_core}}
                      :nbb_pprint {:init-fn nbb.pprint/init
-                                  :depends-on #{:nbb_core}}}
+                                  :depends-on #{:nbb_core}}
+                     :nbb_tests {:init-fn nbb.main-test/init
+                                 :depends-on #{:nbb_main}}}
                     :build-hooks [(shadow.cljs.build-report/hook
                                    {:output-to "report.html"})]}
-          :test {:target :node-test
+          #_#_:test {:target :node-test
                  :ns-regexp "-test$"
                  :output-to "target/test/test.cjs"
                  :autorun true}}}

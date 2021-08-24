@@ -35,6 +35,10 @@
   (testing "reagent is loaded first, then react"
     (nbb {:out :inherit} "test-scripts/react-test/ink-test2.cljs")))
 
+(deftest esm-libs-test
+  (tasks/shell {:dir "test-scripts/esm-test"} "npm install")
+  (nbb {:out :inherit} "test-scripts/esm-test/script.cljs"))
+
 (deftest promesa-test
   (is (= 2 (nbb "-e" "(require '[promesa.core :as p])
                       (p/let [x (js/Promise.resolve 1)] (+ x 1))"))))

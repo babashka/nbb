@@ -62,23 +62,26 @@ $ nbb -e '(+ 1 2 3)'
 And then install some other NPM libraries to use in the script. E.g.:
 
 ```
-$ npm install csv-parse
-$ npm install shelljs
+$ npm install csv-parse shelljs zx
 ```
 
 Create a script which uses the NPM libraries:
 
 ``` clojure
 (ns script
-  (:require ["csv-parse/lib/sync" :as csv-parse]
+  (:require ["csv-parse/lib/sync$default" :as csv-parse]
             ["fs" :as fs]
-            ["shelljs" :as sh]))
+            ["shelljs$default" :as sh]
+            ["zx$fs" :as zxfs]
+            [nbb.core :refer [*file*]]))
 
 (println (count (str (fs/readFileSync "script.cljs"))))
 
 (prn (sh/ls "."))
 
 (prn (csv-parse "foo,bar"))
+
+(prn (zxfs/existsSync *file*))
 ```
 
 Call the script:
@@ -88,6 +91,7 @@ $ nbb script.cljs
 264
 #js ["CHANGELOG.md" "README.md" "bb.edn" "deps.edn" "main.js" "node_modules" "out" "package-lock.json" "package.json" "shadow-cljs.edn" "src" "test.cljs"]
 #js [#js ["foo" "bar"]]
+true
 ```
 
 ## Macros

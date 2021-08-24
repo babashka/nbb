@@ -1,7 +1,7 @@
 (ns nbb.main-test
   (:require ["path" :as path]
             [clojure.string :as str]
-            [clojure.test :refer [deftest is testing]]
+            [clojure.test :as t :refer [deftest is testing]]
             [nbb.core :as nbb]
             [nbb.main :as main])
   (:require-macros [nbb.test-macros :refer [deftest-async]]))
@@ -147,3 +147,6 @@
       (.then (fn [val]
                (is (= [":hello\n" ":hello\n" ":hello"]
                       val))))))
+
+(defn init []
+  (t/run-tests *ns*))

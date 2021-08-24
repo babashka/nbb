@@ -2,10 +2,9 @@
  :tasks
  {:requires ([babashka.fs :as fs])
   clean (fs/delete-tree "out")
-  watch (do (shell "npx shadow-cljs --force-spawn watch modules"))
-  watch-tests (shell "npx shadow-cljs watch test")
-  run-tests (shell "npx shadow-cljs compile test")
   compile (shell "npx shadow-cljs --force-spawn compile modules")
+  watch (do (shell "npx shadow-cljs --force-spawn watch modules"))
+  run-tests (shell "node out/nbb_tests.js")
   release {:depends [clean]
            :task
            (do (apply shell "npx shadow-cljs --force-spawn release modules" *command-line-args*)
@@ -16,7 +15,5 @@
                (shell "chmod +x out/nbb_main.js")
                (run! fs/delete (fs/glob "out" "**.map")))}
   run-integration-tests nbb-tests/main
-  run (shell "out/nbb_main.js test.cljs")
   publish {:depends [release]
-           :task (do (shell "npm publish")
-                     (shell {:dir "reagent"} (shell "npm publish")))}}}
+           :task (shell "npm publish")}}}
