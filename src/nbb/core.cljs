@@ -92,30 +92,41 @@
         (load-module "./nbb_pprint.js" libname as refer rename libspecs)
         (if (string? libname)
           ;; TODO: parse properties
-          (let [[libname _properties] (str/split libname #"\\$")
+          (let [[libname properties] (str/split libname #"\$" 2)
+                properties (when properties (.split properties "."))
                 internal-name (symbol (str "nbb.internal." munged))
-                mod (or
-                     ;; skip loading if module was already loaded
-                     (get @loaded-modules internal-name)
-                     ;; else load module and register in loaded-modules under internal-name
-                     (let [mod ((:require @ctx) libname)]
-                       (swap! loaded-modules assoc internal-name mod)
-                       mod))]
-            (when as
-              (swap! sci-ctx sci/merge-opts {:classes {internal-name mod}})
-              ;; HACK, we register the alias as a reference to the class
-              ;; via :imports we should expose this functionality in SCI
-              ;; itself as this relies on the internal representation of
-              (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports as] internal-name))
-            (doseq [field refer]
-              (let [mod-field (gobj/get mod (str field))
-                    ;; different namespaces can have different mappings
-                    internal-subname (str internal-name "$" current-ns-str "$" field)]
-                (swap! sci-ctx sci/merge-opts {:classes {internal-subname mod-field}})
-                ;; Repeat hack from above
-                (let [field (get rename field field)]
-                  (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports field] internal-subname))))
-            (handle-libspecs (next libspecs)))
+                after-load (fn [mod]
+                             ;; TODO: skip swap! when module was already loaded
+                             (swap! loaded-modules assoc internal-name mod)
+                             (when as
+                               (swap! sci-ctx sci/merge-opts {:classes {internal-name mod}})
+                               ;; HACK, we register the alias as a reference to the class
+                               ;; via :imports we should expose this functionality in SCI
+                               ;; itself as this relies on the internal representation of
+                               (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports as] internal-name))
+                             (doseq [field refer]
+                               (let [mod-field (gobj/get mod (str field))
+                                     ;; different namespaces can have different mappings
+                                     internal-subname (str internal-name "$" current-ns-str "$" field)]
+                                 (swap! sci-ctx sci/merge-opts {:classes {internal-subname mod-field}})
+                                 ;; Repeat hack from above
+                                 (let [field (get rename field field)]
+                                   (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports field] internal-subname))))
+                             (handle-libspecs (next libspecs)))
+                mod (js/Promise.resolve
+                     (or
+                      ;; skip loading if module was already loaded
+                      (get @loaded-modules internal-name)
+                      ;; else load module and register in loaded-modules under internal-name
+                      (try (assoc 1 2)#_((:require @ctx) libname)
+                           (catch :default _err
+                             (esm/dynamic-import ((.-resolve (:require @ctx)) libname))))))]
+            (-> mod
+                (.then (fn [mod]
+                         (if properties
+                           (gobj/getValueByKeys mod properties)
+                           mod)))
+                (.then after-load)))
           ;; assume symbol
           (if (sci/eval-form @sci-ctx (list 'clojure.core/find-ns (list 'quote libname)))
             ;; built-in namespace
@@ -208,12 +219,12 @@
                 :else
                 (try
                   (eval-expr (sci/eval-form @sci-ctx next-val) reader)
-                     (catch :default e
-                       (js/Promise.reject e)))))
+                  (catch :default e
+                    (js/Promise.reject e)))))
         (try
           (eval-expr (sci/eval-form @sci-ctx next-val) reader)
-             (catch :default e
-               (js/Promise.reject e))))
+          (catch :default e
+            (js/Promise.reject e))))
       ;; wrap normal value in promise
       (js/Promise.resolve prev-val))))
 
@@ -233,10 +244,10 @@
   (js/Promise.
    (fn [resolve reject]
      (fs/readFile f
-               (fn [error contents]
-                 (if error
-                   (reject error)
-                   (resolve (str contents))))))))
+                  (fn [error contents]
+                    (if error
+                      (reject error)
+                      (resolve (str contents))))))))
 
 (defn load-file
   [f]

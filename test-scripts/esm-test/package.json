@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "csv-parse": "^4.16.0",
+    "shelljs": "^0.8.4",
+    "term-size": "^3.0.0"
+  }
+}
