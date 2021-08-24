@@ -1,5 +1,5 @@
 (ns example
-  (:require ["sqlite3" :as sqlite]))
+  (:require ["sqlite3$default" :as sqlite]))
 
 (def db (sqlite/Database. ":memory:"))
 

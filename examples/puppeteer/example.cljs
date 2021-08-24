@@ -1,6 +1,6 @@
 (ns example
   {:clj-kondo/config '{:lint-as {promesa.core/let clojure.core/let}}}
-  (:require ["puppeteer" :as puppeteer]
+  (:require ["puppeteer$default" :as puppeteer]
             [promesa.core :as p]))
 
 ;; This async code is much nicer with p/let:

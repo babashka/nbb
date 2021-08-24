@@ -1,5 +1,5 @@
 (ns example
-  (:require ["axios" :as axios]
+  (:require ["axios$default" :as axios]
             [promesa.core :as p]))
 
 (p/let [resp (axios/get "https://clojure.org")

@@ -1,5 +1,5 @@
 (ns example
-  (:require ["express" :as express]))
+  (:require ["express$default" :as express]))
 
 (def app (express))
 (def port 8092)
