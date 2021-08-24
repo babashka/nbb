@@ -96,7 +96,6 @@
                 properties (when properties (.split properties "."))
                 internal-name (symbol (str "nbb.internal." munged))
                 after-load (fn [mod]
-                             ;; TODO: skip swap! when module was already loaded
                              (swap! loaded-modules assoc internal-name mod)
                              (when as
                                (swap! sci-ctx sci/merge-opts {:classes {internal-name mod}})
@@ -118,9 +117,7 @@
                       ;; skip loading if module was already loaded
                       (get @loaded-modules internal-name)
                       ;; else load module and register in loaded-modules under internal-name
-                      (try (assoc 1 2)#_((:require @ctx) libname)
-                           (catch :default _err
-                             (esm/dynamic-import ((.-resolve (:require @ctx)) libname))))))]
+                      (esm/dynamic-import ((.-resolve (:require @ctx)) libname))))]
             (-> mod
                 (.then (fn [mod]
                          (if properties
