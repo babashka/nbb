@@ -7,7 +7,7 @@ version: 2.1
 workflows:
   ci:
     jobs:
-      - build:
+      - build
 
 jobs:
   build:
