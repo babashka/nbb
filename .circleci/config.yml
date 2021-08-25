@@ -9,10 +9,6 @@ workflows:
   ci:
     jobs:
       - test:
-          filters:
-            tags:
-              only: /.*/
-
       - deploy:
           requires:
            - test
