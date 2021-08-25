@@ -33,7 +33,7 @@ jobs:
       - run:
           name: Run Node tests
           command: |
-            bb test-all
+            bb ci:test
       - save_cache:
           paths:
             - ~/.m2
@@ -51,7 +51,13 @@ jobs:
           - v1-dependencies-{{ checksum "deps.edn" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
-      - run: .circleci/script/deploy
+      - run:
+          name: Install bb
+          command: |
+            curl -sLO https://raw.githubusercontent.com/babashka/babashka/master/install
+            chmod +x install
+            sudo ./install
+      - run: bb ci:publish
       - save_cache:
           paths:
             - ~/.m2
@@ -63,8 +69,9 @@ workflows:
     jobs:
       - node
       - deploy:
-          filters:
-            branches:
-              only: main
           requires:
             - node
+          filters:
+            branches:
+            tags:
+              only: /v.*/

@@ -27,8 +27,8 @@
 
   publish (shell "npm publish")
 
-  test-all {:doc "Runs all tests."
-            :task (binding [*test* true]
+  ci:test {:doc "Runs all tests in CI."
+           :task (binding [*test* true]
                    (println "Testing optimizations :none")
                    (run 'clean)
                    (run 'compile)
@@ -40,9 +40,9 @@
                    (run 'run-tests)
                    (run 'run-integration-tests))}
 
-  publish-all {:doc "Publishes to npm after tests pass."
-               :depends [test-all]
-               :task
-               (binding [*test* false]
-                 (run 'release)
-                 (run 'publish))}}}
+  ci:publish {:doc "Publishes to npm after tests pass."
+              :depends [ci:test]
+              :task
+              (binding [*test* false]
+                (run 'release)
+                (run 'publish))}}}
