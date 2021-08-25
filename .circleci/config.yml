@@ -3,6 +3,23 @@
 # Check https://circleci.com/docs/2.0/language-clojure/ for more details
 #
 version: 2.1
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /.*/
+
+      - deploy:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /^v.*/
+
 jobs:
   test:
     docker:
@@ -38,6 +55,7 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies-{{ checksum "deps.edn" }}
+
   deploy:
     docker:
       - image: circleci/clojure:openjdk-11-lein-2.9.3-buster-node
@@ -65,21 +83,3 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies-{{ checksum "deps.edn" }}
-
-workflows:
-  version: 2
-  ci:
-    jobs:
-      - test:
-          filters:
-            tags:
-              only: /^v.*/
-
-      - deploy:
-          requires:
-            - test
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
