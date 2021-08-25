@@ -70,6 +70,12 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
       - run:
+          name: Install Clojure
+          command: |
+            wget -nc https://download.clojure.org/install/linux-install-1.10.3.943.sh
+            chmod +x linux-install-1.10.3.943.sh
+            sudo ./linux-install-1.10.3.943.sh
+      - run:
           name: Install bb
           command: |
             curl -sLO https://raw.githubusercontent.com/babashka/babashka/master/install

@@ -1,6 +1,7 @@
 {:paths ["script"]
  :tasks
- {:requires ([babashka.fs :as fs])
+ {:requires ([babashka.fs :as fs]
+             [cheshire.core :as json])
   :init (do (def ^:dynamic *test* (= "true" (System/getenv "NBB_TESTS")))
             (defn wrap-tests [cmd]
               (if *test*
@@ -25,6 +26,11 @@
                (run! fs/delete (fs/glob "out" "**.map")))}
   run-integration-tests nbb-tests/main
 
+  bump-version (do (shell "npm version patch")
+                   (shell "git push")
+                   (shell "git push origin"
+                          (:version (json/parse-string (slurp "package.json") true))))
+
   publish (shell "npm publish")
 
   ci:test {:doc "Runs all tests in CI."
@@ -41,7 +47,6 @@
                    (run 'run-integration-tests))}
 
   ci:publish {:doc "Publishes to npm after tests pass."
-              :depends [ci:test]
               :task
               (binding [*test* false]
                 (run 'release)
