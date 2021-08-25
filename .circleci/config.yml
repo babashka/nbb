@@ -14,11 +14,6 @@ workflows:
       - deploy:
           requires:
            - test
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
 
 jobs:
   test:

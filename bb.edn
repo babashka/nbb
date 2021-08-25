@@ -1,7 +1,8 @@
 {:paths ["script"]
  :tasks
  {:requires ([babashka.fs :as fs]
-             [cheshire.core :as json])
+             [cheshire.core :as json]
+             [clojure.string :as str])
   :init (do (def ^:dynamic *test* (= "true" (System/getenv "NBB_TESTS")))
             (defn wrap-tests [cmd]
               (if *test*
@@ -32,6 +33,17 @@
 
   publish (shell "npm publish")
 
+  current-tag (->> (shell {:out :string} "git describe")
+                   :out
+                   str/trim
+                   (re-matches (re-pattern "^v\\d+\\.\\d+\\.\\d+$")))
+
+  current-branch (->> (shell {:out :string} "git branch --show-current")
+                      :out
+                      str/trim)
+
+  ci:is-release {:depends [current-tag current-branch]
+                 :task (and current-tag (= "main" current-branch))}
   ci:test {:doc "Runs all tests in CI."
            :task (binding [*test* true]
                    (println "Testing optimizations :none")
@@ -44,9 +56,12 @@
                    (run 'release)
                    (run 'run-tests)
                    (run 'run-integration-tests))}
-
   ci:publish {:doc "Publishes to npm after tests pass."
+              :depends [ci:is-release]
               :task
-              (binding [*test* false]
-                (run 'release)
-                (run 'publish))}}}
+              (if ci:is-release
+                (do (println "Releasing")
+                    (binding [*test* false]
+                      (run 'release)
+                      (run 'publish)))
+                (println "Skipping release."))}}}
