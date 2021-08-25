@@ -7,16 +7,10 @@ version: 2.1
 workflows:
   ci:
     jobs:
-      - test:
-          filters:
-            tags:
-              only: /.*/
-      - deploy:
-          requires:
-           - test
+      - build:
 
 jobs:
-  test:
+  build:
     docker:
       # specify the version you desire here
       - image: circleci/clojure:openjdk-11-lein-2.9.3-buster-node
