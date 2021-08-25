@@ -1,14 +1,13 @@
 {
   "name": "nbb",
-  "version": "0.0.50",
+  "version": "0.0.51",
   "type": "module",
   "main": "out/nbb_main.js",
   "bin": {
     "nbb": "./out/nbb_main.js"
   },
   "description": "Babashka-like tool for Node.js.",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "ink": "^3.0.9",
     "react": "^17.0.2",

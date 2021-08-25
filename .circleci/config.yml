@@ -4,7 +4,7 @@
 #
 version: 2.1
 jobs:
-  node:
+  test:
     docker:
       # specify the version you desire here
       - image: circleci/clojure:openjdk-11-lein-2.9.3-buster-node
@@ -40,7 +40,7 @@ jobs:
           key: v1-dependencies-{{ checksum "deps.edn" }}
   deploy:
     docker:
-      - image: circleci/clojure:openjdk-11-lein-2.9.3-buster
+      - image: circleci/clojure:openjdk-11-lein-2.9.3-buster-node
     working_directory: ~/repo
     environment:
       LEIN_ROOT: "true"
@@ -57,6 +57,9 @@ jobs:
             curl -sLO https://raw.githubusercontent.com/babashka/babashka/master/install
             chmod +x install
             sudo ./install
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
       - run: bb ci:publish
       - save_cache:
           paths:
@@ -67,11 +70,12 @@ workflows:
   version: 2
   ci:
     jobs:
-      - node
+      - test
       - deploy:
           requires:
-            - node
+            - test
           filters:
-            branches:
             tags:
-              only: /v.*/
+              only: /^v.*/
+            branches:
+              ignore: /.*/
