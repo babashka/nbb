@@ -8,7 +8,7 @@ workflows:
   version: 2
   ci:
     jobs:
-      - test:
+      - test
       - deploy:
           requires:
            - test
