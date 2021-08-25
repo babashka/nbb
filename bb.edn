@@ -29,7 +29,7 @@
   bump-version (do (shell "npm version patch")
                    (shell "git push")
                    (shell "git push origin"
-                          (:version (json/parse-string (slurp "package.json") true))))
+                          (str "v" (:version (json/parse-string (slurp "package.json") true)))))
 
   publish (shell "npm publish")
 
