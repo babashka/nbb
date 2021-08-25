@@ -1,6 +1,6 @@
 {
   "name": "nbb",
-  "version": "0.0.62",
+  "version": "0.0.63",
   "type": "module",
   "main": "out/nbb_main.js",
   "bin": {
