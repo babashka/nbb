@@ -14,8 +14,8 @@ workflows:
       #         only: /.*/
 
       - deploy:
-          requires:
-            - test
+#          requires:
+#            - test
           filters:
             tags:
               only: /^v.*/
