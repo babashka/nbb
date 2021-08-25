@@ -27,8 +27,7 @@
   run-integration-tests nbb-tests/main
 
   bump-version (do (shell "npm version patch")
-                   (shell "git push")
-                   (shell "git push origin"
+                   (shell "git push --atomic origin main"
                           (str "v" (:version (json/parse-string (slurp "package.json") true)))))
 
   publish (shell "npm publish")
