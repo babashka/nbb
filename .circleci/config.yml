@@ -8,14 +8,14 @@ workflows:
   version: 2
   ci:
     jobs:
-      # - test:
-      #     filters:
-      #       tags:
-      #         only: /.*/
+      - test:
+          filters:
+            tags:
+              only: /.*/
 
       - deploy:
-#          requires:
-#            - test
+          requires:
+           - test
           filters:
             tags:
               only: /^v.*/
