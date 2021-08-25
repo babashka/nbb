@@ -8,10 +8,10 @@ workflows:
   version: 2
   ci:
     jobs:
-      - test:
-          filters:
-            tags:
-              only: /.*/
+      # - test:
+      #     filters:
+      #       tags:
+      #         only: /.*/
 
       - deploy:
           requires:
@@ -83,7 +83,7 @@ jobs:
             sudo ./install
       - run:
           name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run: bb ci:publish
       - save_cache:
           paths:
