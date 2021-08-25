@@ -1,0 +1,70 @@
+# Clojure CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-clojure/ for more details
+#
+version: 2.1
+jobs:
+  node:
+    docker:
+      # specify the version you desire here
+      - image: circleci/clojure:openjdk-11-lein-2.9.3-buster-node
+    working_directory: ~/repo
+    environment:
+      LEIN_ROOT: "true"
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "deps.edn" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run:
+          name: Install Clojure
+          command: |
+            wget -nc https://download.clojure.org/install/linux-install-1.10.3.943.sh
+            chmod +x linux-install-1.10.3.943.sh
+            sudo ./linux-install-1.10.3.943.sh
+      - run:
+          name: Install bb
+          command: |
+            curl -sLO https://raw.githubusercontent.com/babashka/babashka/master/install
+            chmod +x install
+            ./install
+      - run:
+          name: Run Node tests
+          command: |
+            bb test-all
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "deps.edn" }}
+  deploy:
+    docker:
+      - image: circleci/clojure:openjdk-11-lein-2.9.3-buster
+    working_directory: ~/repo
+    environment:
+      LEIN_ROOT: "true"
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "deps.edn" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+      - run: .circleci/script/deploy
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "deps.edn" }}
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - node
+      - deploy:
+          filters:
+            branches:
+              only: main
+          requires:
+            - node
