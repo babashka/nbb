@@ -38,7 +38,7 @@
                    str/trim
                    (re-matches (re-pattern "^v\\d+\\.\\d+\\.\\d+$")))
 
-  current-branch (->> (shell {:out :string} "git branch --show-current")
+  current-branch (->> (shell {:out :string} "git rev-parse --abbrev-ref HEAD")
                       :out
                       str/trim)
 
