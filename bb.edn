@@ -3,6 +3,8 @@
  {:requires ([babashka.fs :as fs]
              [cheshire.core :as json]
              [clojure.string :as str])
+  ;; NOTE: we merge in extra config for testing. Another way to accomplish this is with
+  ;; https://shadow-cljs.github.io/docs/UsersGuide.html#build-target-defaults
   :init (do (def ^:dynamic *test* (= "true" (System/getenv "NBB_TESTS")))
             (defn wrap-tests [cmd]
               (if *test*
