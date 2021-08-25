@@ -39,6 +39,10 @@
   (tasks/shell {:dir "test-scripts/esm-test"} "npm install")
   (nbb {:out :inherit} "test-scripts/esm-test/script.cljs"))
 
+(deftest chalk-test
+  (tasks/shell {:dir "examples/chalk"} "npm install")
+  (nbb {:out :inherit} "examples/chalk/example.cljs"))
+
 (deftest promesa-test
   (is (= 2 (nbb "-e" "(require '[promesa.core :as p])
                       (p/let [x (js/Promise.resolve 1)] (+ x 1))"))))
