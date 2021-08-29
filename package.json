@@ -7,7 +7,6 @@
     "nbb": "./out/nbb_main.js"
   },
   "description": "Babashka-like tool for Node.js.",
-  "dependencies": {},
   "devDependencies": {
     "ink": "^3.0.9",
     "react": "^17.0.2",
