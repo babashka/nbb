@@ -234,7 +234,8 @@
 (defn load-string
   "Asynchronously parses and evaluates string s. Returns promise."
   [s]
-  (eval-string* s))
+  (with-async-bindings {warn-on-infer @warn-on-infer}
+    (eval-string* s)))
 
 (defn slurp
   "Asynchronously returns string from file f. Returns promise."

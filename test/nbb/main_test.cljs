@@ -149,7 +149,7 @@
                       val))))))
 
 (deftest-async no-op-vars
-  (-> (nbb/load-string "[*warn-on-infer*]")
+  (-> (nbb/load-string "[*warn-on-infer* (set! *warn-on-infer* true)]")
       (.then (fn [val]
                (is (vector? val))))))
 
