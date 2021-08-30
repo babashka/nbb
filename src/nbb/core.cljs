@@ -18,6 +18,7 @@
 (def cwd (.cwd js/process))
 
 (def command-line-args (sci/new-dynamic-var '*command-line-args* nil {:ns core-ns}))
+(def warn-on-infer     (sci/new-dynamic-var '*warn-on-infer* false {:ns core-ns}))
 
 (def ctx (atom {}))
 
@@ -275,6 +276,7 @@
                                       'print (sci/copy-var io/print core-ns)
                                       'println (sci/copy-var io/println core-ns)
                                       '*command-line-args* command-line-args
+                                      '*warn-on-infer* warn-on-infer
                                       'time (sci/copy-var time core-ns)
                                       'system-time (sci/copy-var system-time core-ns)}
                        'nbb.core {'load-string (sci/copy-var load-string nbb-ns)

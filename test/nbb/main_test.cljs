@@ -148,5 +148,10 @@
                (is (= [":hello\n" ":hello\n" ":hello"]
                       val))))))
 
+(deftest-async no-op-vars
+  (-> (nbb/load-string "[*warn-on-infer*]")
+      (.then (fn [val]
+               (is (vector? val))))))
+
 (defn init []
   (t/run-tests *ns*))
