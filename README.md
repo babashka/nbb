@@ -303,6 +303,8 @@ To build:
 - Clone and cd into this repo
 - `bb release`
 
+Run `bb tasks` for more project-related tasks.
+
 ## License
 
 Copyright © 2021 Michiel Borkent
