@@ -286,8 +286,8 @@ See [API](doc/api.md) documentation.
 ## Migrating to shadow-cljs
 
 See this
-[gist](https://gist.github.com/borkdude/7e548f06fbefeb210f3fcf14eef019e0) that
-shows how to convert an nbb script or project to
+[gist](https://gist.github.com/borkdude/7e548f06fbefeb210f3fcf14eef019e0) on how
+to convert an nbb script or project to
 [shadow-cljs](https://github.com/thheller/shadow-cljs).
 
 ## Build
