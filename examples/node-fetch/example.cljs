@@ -4,8 +4,7 @@
     [promesa.core :as p]
     ["fs" :refer [writeFileSync]]
     ["node-fetch$default" :as fetch]
-    ["uuid" :refer [v4] :rename {v4 uuid}]
-    ))
+    ["uuid" :refer [v4] :rename {v4 uuid}]))
 
 (defn parse-user
   [{:keys [email name]
@@ -16,8 +15,7 @@
    :email      email
    :full-name  (str (capitalize (:first name))
                     " "
-                    (capitalize (:last name)))
-   })
+                    (capitalize (:last name)))})
 
 (p/let [response (fetch "https://randomuser.me/api/?results=10")
         response (.json response)
