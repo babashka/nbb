@@ -13,6 +13,13 @@
                   str/lower-case
                   (str/starts-with? "win")))
 
+(def normalize
+  (if windows?
+    (fn [s] (if (string? s)
+              (str/replace s "\r\n" "\n")
+              s))
+    identity))
+
 (defn nbb* [x & xs]
   (let [[opts args] (if (map? x)
                       [x xs]
@@ -21,7 +28,8 @@
                                                                           :err :inherit}
                                                                          opts))
         check
-        :out)))
+        :out
+        normalize)))
 
 (defn nbb [& args]
   (let [res (apply nbb* args)]
