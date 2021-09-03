@@ -29,16 +29,16 @@ clone_script:
 - cmd: git submodule update --init --recursive
 
 install:
-  - ps: Install-Product node $env:nodejs_version
-  - npm install
-  - ps: >-
-      if (Test-Path('bb.exe')) {
-        return
-      } else {
-        (New-Object Net.WebClient).DownloadFile('https://github.com/borkdude/babashka/releases/download/v0.6.0/babashka-0.6.0-windows-amd64.zip', 'bb.zip')
-      }
-  - ps: >-
-      if (Test-Path('bb.exe')) { return } else { Expand-Archive bb.zip . }
+- ps: Install-Product node $env:nodejs_version
+- npm install
+- ps: >-
+    if (Test-Path('bb.exe')) {
+      return
+    } else {
+      (New-Object Net.WebClient).DownloadFile('https://github.com/borkdude/babashka/releases/download/v0.6.0/babashka-0.6.0-windows-amd64.zip', 'bb.zip')
+    }
+- ps: >-
+    if (Test-Path('bb.exe')) { return } else { Expand-Archive bb.zip . }
 
 test_script:
   - node --version
