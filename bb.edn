@@ -6,11 +6,18 @@
   ;; NOTE: we merge in extra config for testing. Another way to accomplish this is with
   ;; https://shadow-cljs.github.io/docs/UsersGuide.html#build-target-defaults
   :init (do (def ^:dynamic *test* (= "true" (System/getenv "NBB_TESTS")))
+            (def windows? (-> (System/getProperty "os.name")
+                              str/lower-case
+                              (str/starts-with? "win")))
             (when *test* (println "Compiling with tests."))
             (defn wrap-tests [cmd]
-              (if *test*
-                (str cmd " --aliases :test --config-merge shadow-tests.edn")
-                cmd)))
+              (let [cmd (if *test*
+                          (str cmd " --aliases :test --config-merge shadow-tests.edn")
+                          cmd)
+                    cmd (if windows?
+                          (str/replace cmd "npx" "npx.cmd")
+                          cmd)]
+                  cmd)))
   clean (fs/delete-tree "out")
 
   compile (shell (wrap-tests "npx shadow-cljs --force-spawn compile modules"))
