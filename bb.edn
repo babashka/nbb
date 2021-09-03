@@ -5,14 +5,17 @@
              [clojure.string :as str])
   ;; NOTE: we merge in extra config for testing. Another way to accomplish this is with
   ;; https://shadow-cljs.github.io/docs/UsersGuide.html#build-target-defaults
-  :init (do (def ^:dynamic *test* (= "true" (System/getenv "NBB_TESTS")))
+  :init (do (prn :dude)
+            (def ^:dynamic *test* (= "true" (System/getenv "NBB_TESTS")))
             (def windows? (-> (System/getProperty "os.name")
                               str/lower-case
                               (str/starts-with? "win")))
-            (when *test* (println "Compiling with tests."))
+            (when *test* (println "Tests are enabled.."))
             (defn wrap-cmd [cmd]
               (let [cmd (if *test*
-                          (str cmd " --aliases :test --config-merge shadow-tests.edn")
+                          (str (str/replace cmd
+                                            "-M" "-M:test")
+                               " --config-merge shadow-tests.edn")
                           cmd)
                     #_#_cmd (if windows?
                           (-> cmd
@@ -26,7 +29,7 @@
 
   watch (clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn watch modules"))
 
-  run-tests (shell (wrap-cmd "node out/nbb_tests.js"))
+  run-tests (shell "node out/nbb_tests.js")
 
   release {:depends [clean]
            :task
@@ -39,11 +42,11 @@
                (run! fs/delete (fs/glob "out" "**.map")))}
   run-integration-tests nbb-tests/main
 
-  bump-version (do (shell (wrap-cmd "npm version patch"))
+  bump-version (do (shell "npm version patch")
                    (shell "git push --atomic origin main"
                           (str "v" (:version (json/parse-string (slurp "package.json") true)))))
 
-  publish (shell (wrap-cmd "npm publish"))
+  publish (shell "npm publish")
 
   current-tag (->> (shell {:out :string} "git describe")
                    :out
