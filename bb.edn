@@ -10,25 +10,27 @@
                               str/lower-case
                               (str/starts-with? "win")))
             (when *test* (println "Compiling with tests."))
-            (defn wrap-tests [cmd]
+            (defn wrap-cmd [cmd]
               (let [cmd (if *test*
                           (str cmd " --aliases :test --config-merge shadow-tests.edn")
                           cmd)
-                    cmd (if windows?
-                          (str/replace cmd "npx" "npx.cmd")
+                    #_#_cmd (if windows?
+                          (-> cmd
+                              (str/replace "npm" "npm.cmd")
+                              (str/replace "node" "node.exe"))
                           cmd)]
                   cmd)))
   clean (fs/delete-tree "out")
 
-  compile (shell (wrap-tests "npx shadow-cljs --force-spawn compile modules"))
+  compile (clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn compile modules"))
 
-  watch (shell (wrap-tests "npx shadow-cljs --force-spawn watch modules"))
+  watch (clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn watch modules"))
 
-  run-tests (shell "node out/nbb_tests.js")
+  run-tests (shell (wrap-cmd "node out/nbb_tests.js"))
 
   release {:depends [clean]
            :task
-           (do (apply shell (wrap-tests "npx shadow-cljs --force-spawn release modules") *command-line-args*)
+           (do (apply clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn release modules") *command-line-args*)
                (spit "out/nbb_core.js"
                      (clojure.string/replace (slurp "out/nbb_core.js") (re-pattern "self") "globalThis"))
                (spit "out/nbb_main.js"
@@ -37,11 +39,11 @@
                (run! fs/delete (fs/glob "out" "**.map")))}
   run-integration-tests nbb-tests/main
 
-  bump-version (do (shell "npm version patch")
+  bump-version (do (shell (wrap-cmd "npm version patch"))
                    (shell "git push --atomic origin main"
                           (str "v" (:version (json/parse-string (slurp "package.json") true)))))
 
-  publish (shell "npm publish")
+  publish (shell (wrap-cmd "npm publish"))
 
   current-tag (->> (shell {:out :string} "git describe")
                    :out
