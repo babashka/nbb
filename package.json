@@ -2,7 +2,7 @@
   "name": "nbb",
   "version": "0.0.67",
   "type": "module",
-  "main": "out/nbb_main.js",
+  "main": "index.mjs",
   "bin": {
     "nbb": "./out/nbb_main.js"
   },

@@ -6,6 +6,7 @@
   ;; NOTE: we merge in extra config for testing. Another way to accomplish this is with
   ;; https://shadow-cljs.github.io/docs/UsersGuide.html#build-target-defaults
   :init (do (def ^:dynamic *test* (= "true" (System/getenv "NBB_TESTS")))
+            (when *test* (println "Compiling with tests."))
             (defn wrap-tests [cmd]
               (if *test*
                 (str cmd " --aliases :test --config-merge shadow-tests.edn")
@@ -14,7 +15,7 @@
 
   compile (shell (wrap-tests "npx shadow-cljs --force-spawn compile modules"))
 
-  watch (shell "npx shadow-cljs --force-spawn watch modules")
+  watch (shell (wrap-tests "npx shadow-cljs --force-spawn watch modules"))
 
   run-tests (shell "node out/nbb_tests.js")
 

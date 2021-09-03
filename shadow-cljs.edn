@@ -8,7 +8,10 @@
                     :modules
                     {:nbb_core {:init-fn nbb.core/init}
                      :nbb_main {:init-fn nbb.main/main
-                                :depends-on #{:nbb_core}}
+                                :depends-on #{:nbb_core :nbb_api}}
+                     :nbb_api {:exports {loadFile nbb.api/loadFile
+                                         loadString nbb.api/loadString}
+                               :depends-on #{:nbb_core}}
                      :nbb_reagent {:init-fn nbb.reagent/init
                                    :depends-on #{:nbb_core}}
                      :nbb_promesa {:init-fn nbb.promesa/init
