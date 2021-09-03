@@ -3,6 +3,7 @@
   (:require
    ["fs" :as fs]
    ["path" :as path]
+   ["url" :as url]
    [clojure.string :as str]
    [goog.object :as gobj]
    [goog.string :as gstr]
@@ -59,6 +60,9 @@
                                           :only (list 'quote refer)
                                           :rename (list 'quote rename)))))
                  (handle-libspecs (next libspecs)))))))
+
+(def windows?
+  (= "win32" js/process.platform))
 
 (defn handle-libspecs [libspecs]
   (if (seq libspecs)
@@ -118,7 +122,13 @@
                       ;; skip loading if module was already loaded
                       (get @loaded-modules internal-name)
                       ;; else load module and register in loaded-modules under internal-name
-                      (esm/dynamic-import ((.-resolve (:require @ctx)) libname))))]
+                      (esm/dynamic-import
+                       (let [path ((.-resolve (:require @ctx)) libname)
+                             ;; ensure URL on Windows
+                             path (if (and windows? (fs/existsSync path))
+                                    (str (url/pathToFileURL path))
+                                    path)]
+                         path))))]
             (-> mod
                 (.then (fn [mod]
                          (if properties
