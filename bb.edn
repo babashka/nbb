@@ -5,8 +5,7 @@
              [clojure.string :as str])
   ;; NOTE: we merge in extra config for testing. Another way to accomplish this is with
   ;; https://shadow-cljs.github.io/docs/UsersGuide.html#build-target-defaults
-  :init (do (prn :dude)
-            (def ^:dynamic *test* (= "true" (System/getenv "NBB_TESTS")))
+  :init (do (def ^:dynamic *test* (= "true" (System/getenv "NBB_TESTS")))
             (def windows? (-> (System/getProperty "os.name")
                               str/lower-case
                               (str/starts-with? "win")))
