@@ -63,6 +63,10 @@
     (is (= (str "(0 1 2 3 4 5 6 7 8 9)" nl)
            (nbb "-e" "(require '[clojure.pprint :as pp]) (with-out-str (pp/pprint (range 10)))")))))
 
+(deftest api-test
+  (tasks/shell {:dir "test-scripts/api-test"} "npm install")
+  (tasks/shell {:dir "test-scripts/api-test"} "node test.mjs"))
+
 (defn main [& _]
   (let [{:keys [:error :fail]} (t/run-tests 'nbb-tests)]
     (when (pos? (+ error fail))
