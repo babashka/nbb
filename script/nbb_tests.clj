@@ -4,9 +4,14 @@
             [babashka.process :refer [process check]]
             [babashka.tasks :as tasks]
             [clojure.edn :as edn]
+            [clojure.string :as str]
             [clojure.test :as t :refer [deftest is testing]]))
 
 (def nl (System/lineSeparator))
+
+(def windows? (-> (System/getProperty "os.name")
+                  str/lower-case
+                  (str/starts-with? "win")))
 
 (defn nbb* [x & xs]
   (let [[opts args] (if (map? x)
@@ -28,19 +33,24 @@
   (testing "nil doesn't print return value"
     (is (= (str "6" nl) (nbb* "-e" "(prn (+ 1 2 3))")))))
 
+(defn npm [cmd]
+  (str (if windows?
+        "npm.cmd" "npm")
+       " " cmd))
+
 (deftest ink-test
-  (tasks/shell {:dir "test-scripts/react-test"} "npm install")
+  (tasks/shell {:dir "test-scripts/react-test"} (npm "install"))
   (testing "react is loaded first, then reagent"
     (nbb {:out :inherit} "test-scripts/react-test/ink-test.cljs"))
   (testing "reagent is loaded first, then react"
     (nbb {:out :inherit} "test-scripts/react-test/ink-test2.cljs")))
 
 (deftest esm-libs-test
-  (tasks/shell {:dir "test-scripts/esm-test"} "npm install")
+  (tasks/shell {:dir "test-scripts/esm-test"} (npm "install"))
   (nbb {:out :inherit} "test-scripts/esm-test/script.cljs"))
 
 (deftest chalk-test
-  (tasks/shell {:dir "examples/chalk"} "npm install")
+  (tasks/shell {:dir "examples/chalk"} (npm "install"))
   (nbb {:out :inherit} "examples/chalk/example.cljs"))
 
 (deftest promesa-test
@@ -64,7 +74,7 @@
            (nbb "-e" "(require '[clojure.pprint :as pp]) (with-out-str (pp/pprint (range 10)))")))))
 
 (deftest api-test
-  (tasks/shell {:dir "test-scripts/api-test"} "npm install")
+  (tasks/shell {:dir "test-scripts/api-test"} (npm "install"))
   (tasks/shell {:dir "test-scripts/api-test"} "node test.mjs"))
 
 (defn main [& _]
