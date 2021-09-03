@@ -7,8 +7,6 @@
             [clojure.string :as str]
             [clojure.test :as t :refer [deftest is testing]]))
 
-(def nl (System/lineSeparator))
-
 (def windows? (-> (System/getProperty "os.name")
                   str/lower-case
                   (str/starts-with? "win")))
@@ -39,11 +37,11 @@
 (deftest expression-test
   (is (= 6 (nbb "-e" "(+ 1 2 3)")))
   (testing "nil doesn't print return value"
-    (is (= (str "6" nl) (nbb* "-e" "(prn (+ 1 2 3))")))))
+    (is (= (str "6\n") (nbb* "-e" "(prn (+ 1 2 3))")))))
 
 (defn npm [cmd]
   (str (if windows?
-        "npm.cmd" "npm")
+         "npm.cmd" "npm")
        " " cmd))
 
 (deftest ink-test
@@ -75,10 +73,10 @@
                 "(require '[honey.sql :as sql]) (sql/format {:select :foo :from :bar :where [:= :baz 2]})")))))
 
 (deftest pprint-test
-  (is (= (str "(0 1 2 3 4 5 6 7 8 9)" nl)
+  (is (= (str "(0 1 2 3 4 5 6 7 8 9)\n")
          (nbb "-e" "(require '[cljs.pprint :as pp]) (with-out-str (pp/pprint (range 10)))")))
   (testing "cljs.pprint = clojure.pprint"
-    (is (= (str "(0 1 2 3 4 5 6 7 8 9)" nl)
+    (is (= (str "(0 1 2 3 4 5 6 7 8 9)\n")
            (nbb "-e" "(require '[clojure.pprint :as pp]) (with-out-str (pp/pprint (range 10)))")))))
 
 (deftest api-test
