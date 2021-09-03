@@ -72,15 +72,18 @@
       (.then (fn [res]
                (is (= 6 res))))))
 
+(defn normalize-filename [s]
+  (str/replace s "\\" "/"))
+
 (deftest-async load-file-test
   (-> (main-with-args ["test-scripts/load_file_test.cljs"])
       (.then (fn [res]
-               (let [f (:file res)]
+               (let [f (normalize-filename (:file res))]
                  (is (path/isAbsolute f))
                  (is (str/ends-with? f "test-scripts/loaded_by_load_file_test.cljs")))
                (is (:loaded-by-load-file-test/loaded res))
                (is (= (:file res) (:file-via-dyn-var res)))
-               (let [f (:load-file-test-file-dyn-var res)]
+               (let [f (normalize-filename (:load-file-test-file-dyn-var res))]
                  (is (path/isAbsolute f))
                  (is (str/ends-with? f "test-scripts/load_file_test.cljs" )))))))
 

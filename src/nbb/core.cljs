@@ -61,10 +61,10 @@
                                           :rename (list 'quote rename)))))
                  (handle-libspecs (next libspecs)))))))
 
-(def windows?
+(def ^:private  windows?
   (= "win32" js/process.platform))
 
-(defn handle-libspecs [libspecs]
+(defn ^:private handle-libspecs [libspecs]
   (if (seq libspecs)
     (let [fst (first libspecs)
           [libname & opts] fst
