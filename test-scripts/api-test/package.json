@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "nbb": "file:../.."
+  }
+}

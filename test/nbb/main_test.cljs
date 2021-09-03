@@ -1,12 +1,13 @@
 (ns nbb.main-test
-  (:require ["path" :as path]
+  (:require ["module" :refer [createRequire]]
+            ["path" :as path]
             [clojure.string :as str]
             [clojure.test :as t :refer [deftest is testing]]
             [nbb.core :as nbb]
             [nbb.main :as main])
   (:require-macros [nbb.test-macros :refer [deftest-async]]))
 
-(reset! nbb/ctx {:require js/require
+(reset! nbb/ctx {:require (createRequire (path/resolve "script.cljs"))
                  :classpath {:dirs ["test-scripts"]}})
 
 ;; NOTE: CLJS only accepts one async + done per deftest

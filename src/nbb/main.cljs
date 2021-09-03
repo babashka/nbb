@@ -1,7 +1,7 @@
 (ns nbb.main
-  (:require ["module" :refer [createRequire]]
-            ["path" :as path]
+  (:require ["path" :as path]
             [clojure.string :as str]
+            [nbb.api :as api]
             [nbb.core :as nbb]
             [sci.core :as sci]))
 
@@ -33,24 +33,13 @@
         expr (:expr opts)
         classpath (:classpath opts)
         cwd (js/process.cwd)
-        classpath-dirs (cons cwd (str/split classpath (re-pattern path/delimiter)))
-        script-path (when script-file (path/resolve script-file))
-        require (if script-path
-                  (createRequire script-path)
-                  ;; somehow creating a require with the current working dir
-                  ;; doesn't work correctly but from a file it does work, even
-                  ;; when that file doesn't exist
-                  (createRequire (path/resolve "script.cljs")))]
-    (set! (.-require goog/global) require)
-    (if (or script-path expr)
+        classpath-dirs (cons cwd (str/split classpath (re-pattern path/delimiter)))]
+    (if (or script-file expr)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
-          (swap! nbb/ctx assoc
-                 :require require
-                 :classpath {:dirs classpath-dirs})
-          ;; (prn :script-dir script-dir)
-          (-> (if expr
-                (nbb/load-string expr)
-                (nbb/load-file script-path))
+          (swap! nbb/ctx assoc :classpath {:dirs classpath-dirs})
+          (-> (if script-file
+                (api/loadFile script-file)
+                (api/loadString expr))
               (.then (fn [val]
                        (when (and expr (some? val))
                          (prn val))
