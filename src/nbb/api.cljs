@@ -5,8 +5,9 @@
 
 (def create-require
   (or createRequire
-      (fn [_]
-        (throw (js/Error. "createRequire is not defined")))))
+      (fn [_script-path]
+        (fn [_]
+          (throw (js/Error. "createRequire is not defined, this is a no-op"))))))
 
 (defn loadFile [script]
   (let [script-path (path/resolve script)
