@@ -3,15 +3,20 @@
             ["path" :as path]
             [nbb.core :as nbb]))
 
+(def create-require
+  (or createRequire
+      (fn [_]
+        (throw (js/Error. "createRequire is not defined")))))
+
 (defn loadFile [script]
   (let [script-path (path/resolve script)
-        require (createRequire script-path)]
+        require (create-require script-path)]
     (set! (.-require goog/global) require)
     (swap! nbb/ctx assoc :require require)
     (nbb/load-file script-path)))
 
 (defn loadString [expr]
-  (let [require (createRequire (path/resolve "script.cljs"))]
+  (let [require (create-require (path/resolve "script.cljs"))]
     (set! (.-require goog/global) require)
     (swap! nbb/ctx assoc :require require)
     (nbb/load-string expr)))
