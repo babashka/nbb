@@ -8,3 +8,4 @@ out
 /report.html
 /target
 /.clj-kondo/.cache
+/.clj-kondo/rewrite-clj
