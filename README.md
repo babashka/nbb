@@ -71,27 +71,43 @@ Create a script which uses the NPM libraries:
 (ns script
   (:require ["csv-parse/lib/sync$default" :as csv-parse]
             ["fs" :as fs]
+            ["path" :as path]
             ["shelljs$default" :as sh]
+            ["term-size$default" :as term-size]
+            ["zx$default" :as zx]
             ["zx$fs" :as zxfs]
             [nbb.core :refer [*file*]]))
 
-(println (count (str (fs/readFileSync "script.cljs"))))
+(prn (path/resolve "."))
+
+(prn (term-size))
+
+(println (count (str (fs/readFileSync *file*))))
 
 (prn (sh/ls "."))
 
 (prn (csv-parse "foo,bar"))
 
 (prn (zxfs/existsSync *file*))
+
+(zx/$ #js ["ls"])
 ```
 
 Call the script:
 
 ```
 $ nbb script.cljs
-264
-#js ["CHANGELOG.md" "README.md" "bb.edn" "deps.edn" "main.js" "node_modules" "out" "package-lock.json" "package.json" "shadow-cljs.edn" "src" "test.cljs"]
+"/private/tmp/test-script"
+#js {:columns 216, :rows 47}
+510
+#js ["node_modules" "package-lock.json" "package.json" "script.cljs"]
 #js [#js ["foo" "bar"]]
 true
+$ ls
+node_modules
+package-lock.json
+package.json
+script.cljs
 ```
 
 ## Macros
