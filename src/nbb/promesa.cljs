@@ -37,7 +37,9 @@
 
 (def promesa-namespace
   {'do! (sci/copy-var do! pns)
-   'let (sci/copy-var let pns)})
+   'let (sci/copy-var let pns)
+   'all (sci/copy-var p/all pns)
+   'any (sci/copy-var p/any pns)})
 
 (def promesa-protocols-namespace
   {'-bind (sci/copy-var pt/-bind ptns)
