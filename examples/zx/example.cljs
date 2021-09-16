@@ -21,9 +21,9 @@
     {:stdout (str/trim (.-stdout res))}))
 
 (p/let [{branch :stdout} ($ {:verbose false} "git branch --show-current")
-        _ ($ "sleep 1; echo 1")
-        _ ($ "sleep 2; echo 2")
-        _ ($ "sleep 3; echo 3")]
+        _ (p/all [($ "sleep 1; echo 1")
+                  ($ "sleep 2; echo 2")
+                  ($ "sleep 3; echo 3")])]
   (println "The branch was" (pr-str branch)))
 
 ;; output:
