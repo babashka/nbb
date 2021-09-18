@@ -23,7 +23,8 @@
    'apply (sci/copy-var j/apply jns)
    'call-in (sci/copy-var j/call-in jns)
    'apply-in (sci/copy-var j/apply-in jns)
-   'obj (sci/copy-var j/obj jns)})
+   'obj (sci/copy-var j/obj jns)
+   #_#_'lit (sci/copy-var j/lit jns)})
 
 (defn init []
   (nbb/register-plugin!
