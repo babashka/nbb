@@ -62,32 +62,52 @@ $ nbb -e '(+ 1 2 3)'
 And then install some other NPM libraries to use in the script. E.g.:
 
 ```
-$ npm install csv-parse
-$ npm install shelljs
+$ npm install csv-parse shelljs zx
 ```
 
 Create a script which uses the NPM libraries:
 
 ``` clojure
 (ns script
-  (:require ["csv-parse/lib/sync" :as csv-parse]
+  (:require ["csv-parse/lib/sync$default" :as csv-parse]
             ["fs" :as fs]
-            ["shelljs" :as sh]))
+            ["path" :as path]
+            ["shelljs$default" :as sh]
+            ["term-size$default" :as term-size]
+            ["zx$default" :as zx]
+            ["zx$fs" :as zxfs]
+            [nbb.core :refer [*file*]]))
 
-(println (count (str (fs/readFileSync "script.cljs"))))
+(prn (path/resolve "."))
+
+(prn (term-size))
+
+(println (count (str (fs/readFileSync *file*))))
 
 (prn (sh/ls "."))
 
 (prn (csv-parse "foo,bar"))
+
+(prn (zxfs/existsSync *file*))
+
+(zx/$ #js ["ls"])
 ```
 
 Call the script:
 
 ```
 $ nbb script.cljs
-264
-#js ["CHANGELOG.md" "README.md" "bb.edn" "deps.edn" "main.js" "node_modules" "out" "package-lock.json" "package.json" "shadow-cljs.edn" "src" "test.cljs"]
+"/private/tmp/test-script"
+#js {:columns 216, :rows 47}
+510
+#js ["node_modules" "package-lock.json" "package.json" "script.cljs"]
 #js [#js ["foo" "bar"]]
+true
+$ ls
+node_modules
+package-lock.json
+package.json
+script.cljs
 ```
 
 ## Macros
@@ -154,10 +174,11 @@ use a globally installed `nbb` or use `$(npm bin)/nbb script.cljs` to bypass
 
 ## Dependencies
 
-### Optional npm deps
+### NPM dependencies
 
-Nbb depends on React to load the optional [Reagent](#reagent) module. To not
-download react when installing nbb, use `npm install nbb --no-optional`.
+Nbb does not depend on any NPM dependencies. All NPM libraries loaded by a
+script are resolved relative to that script. When using the [Reagent](#reagent)
+module, React is resolved in the same way as any other NPM library.
 
 ### Classpath
 
@@ -278,6 +299,13 @@ Also check out these projects built with nbb:
 
 See [API](doc/api.md) documentation.
 
+## Migrating to shadow-cljs
+
+See this
+[gist](https://gist.github.com/borkdude/7e548f06fbefeb210f3fcf14eef019e0) on how
+to convert an nbb script or project to
+[shadow-cljs](https://github.com/thheller/shadow-cljs).
+
 ## Build
 
 Prequisites:
@@ -290,6 +318,8 @@ To build:
 
 - Clone and cd into this repo
 - `bb release`
+
+Run `bb tasks` for more project-related tasks.
 
 ## License
 

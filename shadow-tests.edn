@@ -1,0 +1,3 @@
+{:compiler-options {:load-tests true}
+ :modules {:nbb_tests {:init-fn nbb.main-test/init
+                       :depends-on #{:nbb_main}}}}

@@ -1,14 +1,14 @@
 {:paths ["src"]
- :aliases {:test {:extra-paths ["test" "test-resources"]}}
+ :aliases {:test {:extra-paths ["test"]}}
  :deps {thheller/shadow-cljs {:mvn/version "2.15.3"}
         ;; reagent/reagent {:mvn/version "1.0.0"}
         cljsjs/react {:mvn/version "17.0.2-0"}
         cljsjs/react-dom {:mvn/version "17.0.2-0"}
         cljsjs/react-dom-server {:mvn/version "17.0.2-0"}
         io.nervous/cljs-nodejs-externs {:mvn/version "0.2.0"}
-        reagent/reagent {:mvn/version "1.1.0"}
+        reagent/reagent {:git/url "https://github.com/borkdude/nbb-reagent" :git/sha "cd105992851584d75acb5a5822c488b8ed79ae34"} #_{:local/root "../nbb-reagent"}
         funcool/promesa {:mvn/version "6.0.2"}
         com.github.borkdude/sci
-        {:git/sha "1607c691b75472f4eaa6d4165df7297138356fbf"}
+        {:git/sha "422bce7925b77cb4175e940d0d1d0f9439b46ad6"}
         #_{:local/root "/Users/borkdude/Dropbox/dev/clojure/babashka/sci"}
         applied-science/js-interop {:mvn/version "0.3.0"}}}

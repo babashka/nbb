@@ -1,0 +1,3 @@
+{:lint-as {reagent.core/with-let clojure.core/let
+           promesa.core/let clojure.core/let
+           nbb.test-macros/deftest-async clojure.test/deftest}}
