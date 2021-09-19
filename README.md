@@ -286,6 +286,26 @@ Doing stuff which takes a while
 
 Also see [API docs](api.md).
 
+## Js-interop
+
+Since nbb v0.0.75 [applied-science/js-interop](https://github.com/applied-science/js-interop) is available:
+
+``` clojure
+(ns example
+  (:require [applied-science.js-interop :as j]))
+
+(def o #js{:a 1 :b 2 :c 3})
+
+(j/select-keys o [:a :b]))
+```
+
+Most of this library is supported in nbb, except the following:
+
+- destructuring using `:syms`
+- property access using `.-x` notation. In nbb, you must use keywords.
+
+See the [example](examples/js-interop/example.cljs) of what is currently supported.
+
 ## Examples
 
 See the [examples](examples) directory for small examples.

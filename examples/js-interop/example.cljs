@@ -1,4 +1,4 @@
-(ns js-interop
+(ns example
   (:require [applied-science.js-interop :as j]))
 
 (def o #js{:x #js {:y 1 :someFn (fn [x] x)}
