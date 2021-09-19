@@ -17,6 +17,9 @@
                                    :depends-on #{:nbb_core}}
                      :nbb_promesa {:init-fn nbb.promesa/init
                                    :depends-on #{:nbb_core}}
+
+                     :nbb_js_interop {:init-fn nbb.js-interop/init
+                                      :depends-on #{:nbb_core}}
                      :nbb_pprint {:init-fn nbb.pprint/init
                                   :depends-on #{:nbb_core}}}
                     :build-hooks [(shadow.cljs.build-report/hook

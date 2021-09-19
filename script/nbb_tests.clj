@@ -83,6 +83,35 @@
   (tasks/shell {:dir "test-scripts/api-test"} (npm "install"))
   (tasks/shell {:dir "test-scripts/api-test"} "node test.mjs"))
 
+(defn normalize-js-interop-output
+  "Functions print differently in compile vs release."
+  [s]
+  (str/replace s #"object\[.*\]" "object[-]"))
+
+(def expected-js-interop-output (normalize-js-interop-output "#js {:y 1, :someFn #object[Function]}
+1
+#js {:a 1, :b 2, :c 3}
+#js {:y 1, :someFn #object[Function]}
+[:a 1 :b 2 :c 3]
+[1 2]
+[1 2 3]
+[1 2 3]
+#js {:x #js {:y 1, :someFn #object[Function]}, :a 2, :b 2, :c 3, :someFn #object[Function]}
+#js {:x #js {:y 100, :someFn #object[Function]}, :a 2, :b 2, :c 3, :someFn #object[Function]}
+#js {:x #js {:y 100, :someFn #object[Function]}, :a 3, :b 2, :c 3, :someFn #object[Function]}
+#js {:x #js {:y 110, :someFn #object[Function]}, :a 3, :b 2, :c 3, :someFn #object[Function]}
+42
+42
+42
+42
+#js {:a 1, :b 2}
+#js {:a 1, :b #js [2 3 4]}
+"))
+
+(deftest js-interop-test
+  (is (= expected-js-interop-output
+         (normalize-js-interop-output (nbb* "examples/js-interop/example.cljs")))))
+
 (defn main [& _]
   (let [{:keys [:error :fail]} (t/run-tests 'nbb-tests)]
     (when (pos? (+ error fail))
