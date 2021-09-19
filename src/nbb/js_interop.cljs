@@ -1,5 +1,5 @@
 (ns nbb.js-interop
-  (:refer-clojure :exclude [let fn defn])
+  (:refer-clojure :exclude [let fn defn spread])
   (:require
    [applied-science.js-interop :as j]
    [applied-science.js-interop.destructure :as d]
@@ -34,6 +34,68 @@
   [_ _ & args]
   (cons 'clojure.core/defn (d/destructure-fn-args args)))
 
+(c/defn litval* [v]
+  (if (keyword? v)
+    (cond->> (name v)
+      (namespace v)
+      (str (namespace v) "/"))
+    v))
+
+(declare lit*)
+
+(defn- spread
+  "For ~@spread values, returns the unwrapped value,
+   otherwise returns nil."
+  [x]
+  (when (and (seq? x)
+             (= 'clojure.core/unquote-splicing (first x)))
+    (second x)))
+
+(defn- tagged-sym [tag] (with-meta (gensym (name tag)) {:tag tag}))
+
+(c/defn lit*
+  "Recursively converts literal Clojure maps/vectors into JavaScript object/array expressions
+  Options map accepts a :keyfn for custom key conversions."
+  ([x]
+   (lit* nil x))
+  ([{:as opts
+     :keys [keyfn valfn env]
+     :or {keyfn identity
+          valfn litval*}} x]
+   (cond (map? x)
+         (list* 'applied-science.js-interop/obj
+                (reduce-kv #(conj %1 (keyfn %2) (lit* opts %3)) [] x))
+         (vector? x)
+         (if (some spread x)
+           (c/let [sym (tagged-sym 'js/Array)]
+             `(c/let [~sym (~'cljs.core/array)]
+                ;; handling the spread operator
+                ~@(for [x'
+                        ;; chunk array members into spreads & non-spreads,
+                        ;; so that sequential non-spreads can be lumped into
+                        ;; a single .push
+                        (->> (partition-by spread x)
+                             (mapcat (clojure.core/fn [x]
+                                       (if (spread (first x))
+                                         x
+                                         (list x)))))]
+                    (if-let [x' (spread x')]
+                      (if false
+                        ;; for now disable this optimization
+                        #_(and env (inf/tag-in? env '#{array} x'))
+                        `(.forEach ~x' (c/fn [x#] (.push ~sym x#)))
+                        `(doseq [x# ~(lit* x')] (.push ~sym x#)))
+                      `(.push ~sym ~@(map lit* x'))))
+                ~sym))
+           (list* 'cljs.core/array (mapv lit* x)))
+         :else (valfn x))))
+
+(c/defn ^:macro lit
+  "Recursively converts literal Clojure maps/vectors into JavaScript object/array expressions
+   (using j/obj and cljs.core/array)"
+  [_ &env form]
+  (lit* {:env &env} form))
+
 (def js-interop-namespace
   {'get (sci/copy-var j/get jns)
    'get-in (sci/copy-var j/get-in jns)
@@ -55,7 +117,7 @@
    'let (sci/copy-var let jns)
    'fn (sci/copy-var fn jns)
    'defn (sci/copy-var defn jns)
-   #_#_'lit (sci/copy-var j/lit jns)})
+   'lit (sci/copy-var lit jns)})
 
 (c/defn init []
   (nbb/register-plugin!

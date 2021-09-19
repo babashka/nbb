@@ -43,5 +43,4 @@
 
 ;; ;; Create
 (prn (j/obj :a 1 :b 2))
-;; currently not yet supported
-;; (prn (j/lit {:a 1 :b [2 3 4]}))
+(prn (j/lit {:a 1 :b [2 3 4]}))
