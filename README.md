@@ -294,9 +294,10 @@ Since nbb v0.0.75 [applied-science/js-interop](https://github.com/applied-scienc
 (ns example
   (:require [applied-science.js-interop :as j]))
 
-(def o #js{:a 1 :b 2 :c 3})
+(def o (j/lit {:a 1 :b 2 :c {:d 1}}))
 
-(j/select-keys o [:a :b]))
+(prn (j/select-keys o [:a :b])) ;; #js {:a 1, :b 2}
+(prn (j/get-in o [:c :d])) ;; 1
 ```
 
 Most of this library is supported in nbb, except the following:
