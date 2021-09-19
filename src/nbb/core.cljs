@@ -280,6 +280,13 @@
                          " msecs"))
      ret#))
 
+(defn ^:macro implements?* [_ _ psym x]
+  ;; hardcoded implementation of implements? for js-interop destructure which
+  ;; uses implements?
+  (case psym
+    cljs.core/ISeq (implements? ISeq x)
+    cljs.core/INamed (implements? INamed x)))
+
 (reset! sci-ctx
         (sci/init
          {:namespaces {'clojure.core {'*print-fn* io/print-fn
@@ -291,7 +298,8 @@
                                       '*command-line-args* command-line-args
                                       '*warn-on-infer* warn-on-infer
                                       'time (sci/copy-var time core-ns)
-                                      'system-time (sci/copy-var system-time core-ns)}
+                                      'system-time (sci/copy-var system-time core-ns)
+                                      'implements? (sci/copy-var implements?* core-ns)}
                        'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
                                   'slurp (sci/copy-var slurp nbb-ns)
                                   'load-file (sci/copy-var load-file nbb-ns)

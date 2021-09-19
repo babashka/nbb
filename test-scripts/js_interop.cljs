@@ -7,6 +7,7 @@
 
 ;; Read
 (prn (j/get o :x))
+;; currently not supported
 ;; (j/get o .-x "fallback-value")
 (prn (j/get-in o [:x :y]))
 (prn (j/select-keys o [:a :b :c]))
@@ -15,13 +16,19 @@
   (prn x))
 
 ;; Destructure
-;; (j/let [^:js {:keys [a b c]} o] ...)
-;; (j/fn [^:js [n1 n2]] ...)
-;; (j/defn my-fn [^:js {:syms [a b c]}])
+(prn (j/let [^:js {:keys [a b c]} o]
+       [:a a :b b :c c]))
+(def f (j/fn [^:js [n1 n2]] [n1 n2]))
+(prn (f #js [1 2]))
+(def g (j/fn [^:js {:keys [a b c]}] [a b c]))
+(prn (g o))
+(j/defn my-fn [^:js {:keys [a b c]}] [a b c])
+(prn (my-fn o))
 
 ;; Write
 (prn (j/assoc! o :a 1))
 (prn (j/assoc-in! o [:x :y] 100))
+;; currently not yet supported
 ;; (j/assoc-in! o [.-x .-y] 100)
 
 (prn (j/update! o :a inc))
@@ -36,4 +43,5 @@
 
 ;; ;; Create
 (prn (j/obj :a 1 :b 2))
-(prn (j/lit {:a 1 :b [2 3 4]}))
+;; currently not yet supported
+;; (prn (j/lit {:a 1 :b [2 3 4]}))
