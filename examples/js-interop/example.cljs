@@ -26,7 +26,7 @@
 (prn (my-fn o))
 
 ;; Write
-(prn (j/assoc! o :a 1))
+(prn (j/assoc! o :a 2))
 (prn (j/assoc-in! o [:x :y] 100))
 ;; currently not yet supported
 ;; (j/assoc-in! o [.-x .-y] 100)
