@@ -5,10 +5,10 @@
    ["path" :as path]
    ["url" :as url]
    [clojure.string :as str]
+   [goog.array :as garray]
    [goog.object :as gobj]
    [goog.string :as gstr]
    [nbb.common :refer [core-ns]]
-   [nbb.io :as io]
    [sci.core :as sci]
    [sci.impl.vars :as vars]
    [shadow.esm :as esm])
@@ -289,13 +289,7 @@
 
 (reset! sci-ctx
         (sci/init
-         {:namespaces {'clojure.core {'*print-fn* io/print-fn
-                                      '*print-newline* io/print-newline
-                                      'with-out-str (sci/copy-var io/with-out-str core-ns)
-                                      'prn (sci/copy-var io/prn core-ns)
-                                      'print (sci/copy-var io/print core-ns)
-                                      'println (sci/copy-var io/println core-ns)
-                                      '*command-line-args* command-line-args
+         {:namespaces {'clojure.core {'*command-line-args* command-line-args
                                       '*warn-on-infer* warn-on-infer
                                       'time (sci/copy-var time core-ns)
                                       'system-time (sci/copy-var system-time core-ns)
@@ -315,7 +309,9 @@
 
 (def ^:dynamic *file* sci/file) ;; make clj-kondo+lsp happy
 
-(defn init [])
+(defn init []
+  (enable-console-print!)
+  (sci/alter-var-root sci/print-fn (constantly *print-fn*)))
 
 ;;;; Scratch
 
