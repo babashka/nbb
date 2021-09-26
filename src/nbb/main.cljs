@@ -3,6 +3,7 @@
             [clojure.string :as str]
             [nbb.api :as api]
             [nbb.core :as nbb]
+            [nbb.error :as error]
             [sci.core :as sci]))
 
 (defn parse-args [args]
@@ -45,9 +46,8 @@
                          (prn val))
                        val))
               (.catch (fn [err]
-                        (when-let [st (sci/stacktrace err)]
-                          (run! #(.error js/console %) (sci/format-stacktrace st)))
-                        (.error js/console (str err))
+                        (error/error-handler err nil)
                         (when (:debug opts)
+                          (.error js/console (str err))
                           (throw err))))))
       (.error js/console "Usage: nbb <script> or nbb -e <expr>."))))
