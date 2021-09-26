@@ -45,6 +45,8 @@
                          (prn val))
                        val))
               (.catch (fn [err]
+                        (when-let [st (sci/stacktrace err)]
+                          (run! #(.error js/console %) (sci/format-stacktrace st)))
                         (.error js/console (str err))
                         (when (:debug opts)
                           (throw err))))))

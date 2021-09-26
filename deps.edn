@@ -9,6 +9,6 @@
         reagent/reagent {:git/url "https://github.com/borkdude/nbb-reagent" :git/sha "cd105992851584d75acb5a5822c488b8ed79ae34"} #_{:local/root "../nbb-reagent"}
         funcool/promesa {:mvn/version "6.0.2"}
         com.github.borkdude/sci
-        {:git/sha "cc0e78b003c3508b2ebef58fa49d4e8df3c1d443"}
+        {:git/sha "d2d2e788d0ac708278f9a7ac0f265ae653cddd3b"}
         #_{:local/root "/Users/borkdude/Dropbox/dev/clojure/babashka/sci"}
         applied-science/js-interop {:mvn/version "0.3.0"}}}
