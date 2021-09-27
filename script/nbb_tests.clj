@@ -123,10 +123,10 @@
     (is (str/includes? err "5: (assoc :x :y 1)"))
     (is (str/includes?
          err
-         "   ^--- No protocol method IAssociative.-assoc defined for type cljs.core/Keyword: :x"))
+         "   ^--- No protocol method IAssociative.-assoc defined"))
     (is (str/includes?
          err
-         "   ^--- No protocol method IAssociative.-assoc defined for type cljs.core/Keyword: :x"))
+         "   ^--- No protocol method IAssociative.-assoc defined"))
     (is (str/includes? err "clojure.core/assoc - <built-in>"))
     (is (str/includes? err "error.cljs:5:1"))))
 
