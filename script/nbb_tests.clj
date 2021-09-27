@@ -112,6 +112,24 @@
   (is (= expected-js-interop-output
          (normalize-js-interop-output (nbb* "examples/js-interop/example.cljs")))))
 
+
+(deftest error-test
+  (let [err (-> (process ["node" "out/nbb_main.js" "test-scripts/error.cljs"]
+                        {:out :string
+                         :err :string})
+                deref
+                :err
+                normalize)]
+    (is (str/includes? err "5: (assoc :x :y 1)"))
+    (is (str/includes?
+         err
+         "   ^--- No protocol method IAssociative.-assoc defined for type cljs.core/Keyword: :x"))
+    (is (str/includes?
+         err
+         "   ^--- No protocol method IAssociative.-assoc defined for type cljs.core/Keyword: :x"))
+    (is (str/includes? err "clojure.core/assoc - <built-in>"))
+    (is (str/includes? err "error.cljs:5:1"))))
+
 (defn main [& _]
   (let [{:keys [:error :fail]} (t/run-tests 'nbb-tests)]
     (when (pos? (+ error fail))

@@ -46,7 +46,7 @@
                          (prn val))
                        val))
               (.catch (fn [err]
-                        (error/error-handler err nil)
+                        (error/error-handler err opts)
                         (when (:debug opts)
                           (.error js/console (str err))
                           (throw err))))))

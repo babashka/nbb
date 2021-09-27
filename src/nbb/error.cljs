@@ -1,8 +1,10 @@
 (ns nbb.error
   {:no-doc true}
   (:refer-clojure :exclude [println])
-  (:require [clojure.string :as str]
-            [sci.core :as sci]))
+  (:require
+   ["fs" :as fs]
+   [clojure.string :as str]
+   [sci.core :as sci]))
 
 (defn println [& strs]
   (.error js/console (str/join " " strs)))
@@ -28,10 +30,14 @@
       (print "...\n")
       (run! #(print % "\n") snd))))
 
-(defn error-context [ex src-map]
+(defn read-maybe-file [file]
+  (when (fs/existsSync file)
+    (str (fs/readFileSync file))))
+
+(defn error-context [ex]
   (let [{:keys [:file :line :column]} (ex-data ex)]
     (when (and file line)
-      (when-let [content (get src-map file)]
+      (when-let [content (read-maybe-file file)]
         (let [matching-line (dec line)
               start-line (max (- matching-line 4) 0)
               end-line (+ matching-line 6)
@@ -50,10 +56,10 @@
               snippet-lines (map (fn [[idx line]]
                                    (if idx
                                      (let [line-number (inc idx)]
-                                       (str (.padStart (str line-number) max-size "0") "  " line))
+                                       (str (.padStart (str line-number ":") max-size "0") " " line))
                                      (str (str/join (repeat (+ 2 max-size) " ")) line)))
                                  snippet-lines)]
-          (str "\n" (str/join "\n" snippet-lines)))))))
+          (str/join "\n" snippet-lines))))))
 
 (defn right-pad [s n]
   (let [n (- n (count s))]
@@ -71,19 +77,20 @@
                        ;; print nil as nil
                        (prn v)))))))
 
-(defn error-handler [e src-map]
-  (let [d (ex-data e)
-        sci-error? (isa? (:type d) :sci/error)
-        stacktrace (sci/stacktrace e)]
-    (ruler "Nbb error")
+(defn error-handler [e opts]
+  (let [stacktrace (sci/stacktrace e)
+        d (ex-data e)
+        sci-error? (isa? (:type d) :sci/error)]
+    (ruler "Error")
     (when-let [name (.-name e)]
       (when-not (= "Error" name)
         (println "Type:    " name)))
     (when-let [m (.-message e)]
       (println (str "Message:  " m)))
-    (when-let [d (ex-data (ex-cause e) #_(.getCause e))]
-      (print (str "Data:     "))
-      (prn d))
+    (when (:debug opts)
+      (when-let [d (ex-data (ex-cause e) #_(.getCause e))]
+        (print (str "Data:     "))
+        (prn d)))
     (let [{:keys [:file :line :column]} d]
       (when line
         (println (str "Location: "
@@ -92,17 +99,19 @@
     (when-let [phase (:phase d)]
       (println "Phase:   " phase))
     (when-let [ec (when sci-error?
-                      (error-context e src-map))]
-        (ruler "Context")
-        (println ec))
-    (when-let [locals (not-empty (:locals d))]
-      (ruler "Locals")
-      (print-locals locals))
+                    (error-context e))]
+      (println)
+      (ruler "Context")
+      (println ec))
+    (when (:debug opts)
+      (when-let [locals (not-empty (:locals d))]
+        (ruler "Locals")
+        (print-locals locals)))
     (when sci-error?
       (when-let
           [st (let [st (with-out-str
                          (when stacktrace
-                           (print-stacktrace stacktrace src-map)))]
+                           (print-stacktrace stacktrace nil #_src-map)))]
                 (when-not (str/blank? st) st))]
         (println)
         (ruler "Stack trace")
