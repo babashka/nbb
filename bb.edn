@@ -31,6 +31,7 @@
   run-tests (shell "node out/nbb_tests.js")
 
   release {:depends [clean]
+           :doc "Compiles release build."
            :task
            (do (apply clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn release modules") *command-line-args*)
                (spit "out/nbb_core.js"
@@ -41,11 +42,11 @@
                (run! fs/delete (fs/glob "out" "**.map")))}
   run-integration-tests nbb-tests/main
 
-  bump-version (do (shell "npm version patch")
-                   (shell "git push --atomic origin main"
-                          (str "v" (:version (json/parse-string (slurp "package.json") true)))))
-
-  publish (shell "npm publish")
+  publish {:doc "Bumps version, pushes tag and lets CI publish to npm."
+           :task
+           (do (shell "npm version patch")
+               (shell "git push --atomic origin main"
+                      (str "v" (:version (json/parse-string (slurp "package.json") true)))))}
 
   current-tag (->> (shell {:out :string} "git describe")
                    :out
