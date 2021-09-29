@@ -159,10 +159,18 @@
   (debug "Connection accepted")
   (.setNoDelay ^node-net/Socket socket true)
   (let [handler (make-request-handler opts)
-        response-handler (make-reponse-handler socket)]
+        response-handler (make-reponse-handler socket)
+        pending (atom nil)]
     (.on ^node-net/Socket socket "data"
          (fn [data]
-           (let [[requests _] (decode-all data :keywordize-keys true)]
+           (let [data (if-let [p @pending]
+                        (let [s (str p data)]
+                          (reset! pending nil)
+                          s)
+                        data)
+                 [requests unprocessed] (decode-all data :keywordize-keys true)]
+             (when (not (str/blank? unprocessed))
+               (reset! pending unprocessed))
              (doseq [request requests]
                (handler request response-handler))))))
   (.on ^node-net/Socket socket "close"
