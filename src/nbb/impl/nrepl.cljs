@@ -67,15 +67,18 @@
 (defn the-sci-ns [ctx ns-sym]
   (sci/eval-form ctx (list 'clojure.core/the-ns (list 'quote ns-sym))))
 
+;; TODO: this should not be global
+(def last-ns (atom nil))
+
 (defn do-handle-eval [{:keys [ns code sci-last-error sci-ctx-atom load-file?] :as request} send-fn]
-  (let [prom (with-async-bindings
-               {sci/ns ns
-                sci/print-length @sci/print-length}
-               (nbb/load-string code))]
-    (-> prom
+  (with-async-bindings
+    {sci/ns ns
+     sci/print-length @sci/print-length}
+    (-> (nbb/eval-expr nil (sci/reader code))
         (.then (fn [v]
+                 (reset! last-ns @sci/ns)
                  (send-fn request {"value" (pr-str v)
-                                   "ns" (str ns)})
+                                   "ns" (str @sci/ns)})
                  (send-fn request {"status" ["done"]})))
         (.catch (fn [e]
                   (sci/alter-var-root sci-last-error (constantly e))
@@ -83,7 +86,7 @@
                     (when-let [message (or (:message data) (.-message e))]
                       (send-fn request {"err" message}))
                     (send-fn request {"ex" (str e)
-                                      "ns" (str (sci/eval-string* @sci-ctx-atom "*ns*"))
+                                      "ns" (str @sci/ns)
                                       "status" ["done"]}))))))
   #_(let [reader (sci/reader code)]
       (try
@@ -108,6 +111,7 @@
 (defn handle-eval [{:keys [ns sci-ctx-atom] :as request} send-fn]
   (do-handle-eval (assoc request :ns (or (when ns
                                            (the-sci-ns @sci-ctx-atom (symbol ns)))
+                                         @last-ns
                                          @sci/ns))
                   send-fn))
 
