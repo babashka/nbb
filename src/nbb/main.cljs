@@ -4,6 +4,7 @@
             [nbb.api :as api]
             [nbb.core :as nbb]
             [nbb.error :as error]
+            [nbb.impl.nrepl :as nrepl]
             [sci.core :as sci]))
 
 (defn parse-args [args]
@@ -20,6 +21,10 @@
                  (next nargs))
           "--debug" (recur (assoc opts :debug true)
                            nargs)
+          "nrepl-server" (recur (assoc opts :nrepl-server true)
+                                nargs)
+          "--port" (recur (assoc opts :port (first nargs))
+                          (next nargs))
           ;; default
           (if (not (:expr args))
             ;; when not expression, this argument is interpreted as file
@@ -30,17 +35,23 @@
 (defn main []
   (let [[_ _ & args] js/process.argv
         opts (parse-args args)
+        _ (prn opts)
         script-file (:script opts)
         expr (:expr opts)
         classpath (:classpath opts)
         cwd (js/process.cwd)
-        classpath-dirs (cons cwd (str/split classpath (re-pattern path/delimiter)))]
-    (if (or script-file expr)
+        classpath-dirs (cons cwd (str/split classpath (re-pattern path/delimiter)))
+        nrepl-server (:nrepl-server opts)]
+    (if (or script-file expr nrepl-server)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
           (swap! nbb/ctx assoc :classpath {:dirs classpath-dirs})
-          (-> (if script-file
-                (api/loadFile script-file)
-                (api/loadString expr))
+          (-> (cond script-file
+                    (api/loadFile script-file)
+                    expr
+                    (api/loadString expr)
+                    (:nrepl-server opts)
+                    (js/Promise.resolve (nrepl/start-server {:port (:port opts)
+                                                             :ctx @nbb/ctx})))
               (.then (fn [val]
                        (when (and expr (some? val))
                          (prn val))

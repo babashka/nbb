@@ -1,7 +1,7 @@
 {:deps true
  :builds {:modules {:js-options {:keep-as-import #{"fs" "module" "path"
                                                    "react" "react-dom"
-                                                   "url"}}
+                                                   "url" "net"}}
                     :compiler-options {:infer-externs :auto}
                     :target :esm
                     :runtime :node
