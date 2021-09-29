@@ -23,8 +23,9 @@
                            nargs)
           "nrepl-server" (recur (assoc opts :nrepl-server true)
                                 nargs)
-          "--port" (recur (assoc opts :port (first nargs))
-                          (next nargs))
+          (":port" "--port")
+          (recur (assoc opts :port (first nargs))
+                 (next nargs))
           ;; default
           (if (not (:expr args))
             ;; when not expression, this argument is interpreted as file
