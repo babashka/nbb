@@ -16,7 +16,7 @@
 
 (defn loadFile [script]
   (let [script-path (path/resolve script)]
-    (init-require script)
+    (init-require script-path)
     (nbb/load-file script-path)))
 
 (defn loadString [expr]

@@ -35,7 +35,6 @@
 (defn main []
   (let [[_ _ & args] js/process.argv
         opts (parse-args args)
-        _ (prn opts)
         script-file (:script opts)
         expr (:expr opts)
         classpath (:classpath opts)
