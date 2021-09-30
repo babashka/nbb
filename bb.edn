@@ -71,12 +71,12 @@
                    (run 'release)
                    (run 'run-tests)
                    (run 'run-integration-tests))}
-  ci:publish {:doc "Publishes to npm after tests pass."
+  ci:publish {:doc "Publishes release build to npm"
               :depends [ci:is-release]
               :task
               (if ci:is-release
                 (do (println "Releasing")
                     (binding [*test* false]
                       (run 'release)
-                      (run 'publish)))
+                      (shell "npm publish")))
                 (println "Skipping release."))}}}
