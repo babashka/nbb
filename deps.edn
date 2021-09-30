@@ -8,7 +8,6 @@
         io.nervous/cljs-nodejs-externs {:mvn/version "0.2.0"}
         reagent/reagent {:git/url "https://github.com/borkdude/nbb-reagent" :git/sha "cd105992851584d75acb5a5822c488b8ed79ae34"} #_{:local/root "../nbb-reagent"}
         funcool/promesa {:mvn/version "6.0.2"}
-        com.github.borkdude/sci
-        {:git/sha "a0dd7fa2a087ed1f524fd22cb73139f571ff469d"}
-        #_{:local/root "/Users/borkdude/Dropbox/dev/clojure/babashka/sci"}
-        applied-science/js-interop {:mvn/version "0.3.0"}}}
+        applied-science/js-interop {:mvn/version "0.3.0"}
+        borkdude/sci {:git/url "https://github.com/borkdude/sci"
+                      :git/sha "1b75f7734fc121eef7a1893489a0ef1661653559"}}}
