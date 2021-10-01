@@ -1,7 +1,7 @@
 {:deps true
  :builds {:modules {:js-options {:keep-as-import #{"fs" "module" "path"
                                                    "react" "react-dom"
-                                                   "url"}}
+                                                   "url" "net"}}
                     :compiler-options {:infer-externs :auto}
                     :target :esm
                     :runtime :node
@@ -21,6 +21,8 @@
                      :nbb_js_interop {:init-fn nbb.js-interop/init
                                       :depends-on #{:nbb_core}}
                      :nbb_pprint {:init-fn nbb.pprint/init
-                                  :depends-on #{:nbb_core}}}
+                                  :depends-on #{:nbb_core}}
+                     :nbb_nrepl_server {:init-fn nbb.impl.nrepl-server/init
+                                        :depends-on #{:nbb_core :nbb_api}}}
                     :build-hooks [(shadow.cljs.build-report/hook
                                    {:output-to "report.html"})]}}}

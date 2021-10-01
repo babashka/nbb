@@ -5,7 +5,6 @@
    ["path" :as path]
    ["url" :as url]
    [clojure.string :as str]
-   [goog.array :as garray]
    [goog.object :as gobj]
    [goog.string :as gstr]
    [nbb.common :refer [core-ns]]
@@ -13,6 +12,8 @@
    [sci.impl.vars :as vars]
    [shadow.esm :as esm])
   (:require-macros [nbb.macros :refer [with-async-bindings]]))
+
+(def opts (atom nil))
 
 (def universe goog/global)
 

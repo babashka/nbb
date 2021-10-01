@@ -9,16 +9,16 @@
         (fn [_]
           (throw (js/Error. "createRequire is not defined, this is a no-op"))))))
 
-(defn loadFile [script]
-  (let [script-path (path/resolve script)
-        require (create-require script-path)]
+(defn init-require [path]
+  (let [require (create-require path)]
     (set! (.-require goog/global) require)
-    (swap! nbb/ctx assoc :require require)
+    (swap! nbb/ctx assoc :require require)))
+
+(defn loadFile [script]
+  (let [script-path (path/resolve script)]
+    (init-require script-path)
     (nbb/load-file script-path)))
 
 (defn loadString [expr]
-  (let [require (create-require (path/resolve "script.cljs"))]
-    (set! (.-require goog/global) require)
-    (swap! nbb/ctx assoc :require require)
-    (nbb/load-string expr)))
-
+  (init-require (path/resolve "script.cljs"))
+  (nbb/load-string expr))
