@@ -68,7 +68,8 @@
 (defn ^:private handle-libspecs [libspecs]
   (if (seq libspecs)
     (let [fst (first libspecs)
-          [libname & opts] fst
+          [libname & opts] (if (symbol? fst)
+                             [fst] fst)
           opts (apply hash-map opts)
           as (:as opts)
           refer (:refer opts)

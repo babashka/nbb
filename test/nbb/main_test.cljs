@@ -31,6 +31,11 @@
   (is (= {:script "foo.cljs", :args '("1" "2" "3")} (main/parse-args ["foo.cljs" "1" "2" "3"])))
   (is (= {:classpath "src", :script "foo.cljs", :args nil} (main/parse-args ["--classpath" "src" "foo.cljs"]))))
 
+(deftest-async simple-require-test
+  (-> (nbb/load-string "(ns foo (:require clojure.set)) (some? clojure.set/union)")
+      (.then (fn [v]
+               (is (true? v))))))
+
 (deftest-async load-string-file-test
   (-> (nbb/load-string "(ns foo) (defn foo [] (+ 1 2 3)) (ns-name *ns*)")
       (.then (fn [ns-name]
