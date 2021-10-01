@@ -32,7 +32,8 @@
   (is (= {:classpath "src", :script "foo.cljs", :args nil} (main/parse-args ["--classpath" "src" "foo.cljs"]))))
 
 (deftest-async simple-require-test
-  (-> (nbb/load-string "(ns foo (:require clojure.set)) (some? clojure.set/union)")
+  (-> (nbb/load-string "(ns foo (:require cljs.core clojure.set))
+                        (and (some? cljs.core/inc) (some? clojure.set/union))")
       (.then (fn [v]
                (is (true? v))))))
 

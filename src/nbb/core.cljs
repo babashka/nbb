@@ -297,6 +297,8 @@
                                       'system-time (sci/copy-var system-time core-ns)
                                       'implements? (sci/copy-var implements?* core-ns)
                                       'array (sci/copy-var array core-ns)}
+                       ;; fixes (require 'cljs.core)
+                       'cljs.core {}
                        'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
                                   'slurp (sci/copy-var slurp nbb-ns)
                                   'load-file (sci/copy-var load-file nbb-ns)
