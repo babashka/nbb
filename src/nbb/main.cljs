@@ -4,8 +4,8 @@
             [nbb.api :as api]
             [nbb.core :as nbb]
             [nbb.error :as error]
-            [nbb.impl.nrepl :as nrepl]
-            [sci.core :as sci]))
+            [sci.core :as sci]
+            [shadow.esm :as esm]))
 
 (defn parse-args [args]
   (loop [opts {}
@@ -42,6 +42,7 @@
         cwd (js/process.cwd)
         classpath-dirs (cons cwd (str/split classpath (re-pattern path/delimiter)))
         nrepl-server (:nrepl-server opts)]
+    (reset! nbb/opts opts)
     (if (or script-file expr nrepl-server)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
           (swap! nbb/ctx assoc :classpath {:dirs classpath-dirs})
@@ -50,8 +51,7 @@
                     expr
                     (api/loadString expr)
                     (:nrepl-server opts)
-                    (js/Promise.resolve (nrepl/start-server {:port (:port opts)
-                                                             :ctx @nbb/ctx})))
+                    (esm/dynamic-import "./nbb_nrepl_server.js"))
               (.then (fn [val]
                        (when (and expr (some? val))
                          (prn val))
