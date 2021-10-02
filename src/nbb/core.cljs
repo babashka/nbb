@@ -300,8 +300,9 @@
                        ;; fixes (require 'cljs.core)
                        'cljs.core {}
                        'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
-                                  'slurp (sci/copy-var slurp nbb-ns)
                                   'load-file (sci/copy-var load-file nbb-ns)
+                                  'alter-var-root (sci/copy-var sci/alter-var-root nbb-ns)
+                                  'slurp (sci/copy-var slurp nbb-ns)
                                   '*file* sci/file}}
           :classes {'js universe :allow :all
                     'goog.object #js {:get gobj/get

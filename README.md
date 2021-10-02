@@ -331,7 +331,7 @@ and evaluate expressions.
 
 In Calva connect to the REPL with:
 
-- Calva: Connect to a Running REPL not in Project > ClojureScript nREPL server
+- Connect to a Running REPL Server not in Project > ClojureScript nREPL server
 
 ### CIDER
 
