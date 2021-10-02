@@ -5,7 +5,8 @@
             [babashka.tasks :as tasks]
             [clojure.edn :as edn]
             [clojure.string :as str]
-            [clojure.test :as t :refer [deftest is testing]]))
+            [clojure.test :as t :refer [deftest is testing]]
+            [nbb-nrepl-tests]))
 
 (def windows? (-> (System/getProperty "os.name")
                   str/lower-case
@@ -131,6 +132,6 @@
     (is (str/includes? err "error.cljs:5:1"))))
 
 (defn main [& _]
-  (let [{:keys [:error :fail]} (t/run-tests 'nbb-tests)]
+  (let [{:keys [:error :fail]} (t/run-tests 'nbb-tests 'nbb-nrepl-tests)]
     (when (pos? (+ error fail))
       (throw (ex-info "Tests failed" {:babashka/exit 1})))))

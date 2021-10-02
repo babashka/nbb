@@ -70,10 +70,13 @@
 ;; TODO: this should not be global
 (def last-ns (atom nil))
 
-(defn do-handle-eval [{:keys [ns code sci-last-error sci-ctx-atom load-file?] :as request} send-fn]
+(defn do-handle-eval [{:keys [ns code sci-last-error _sci-ctx-atom _load-file?] :as request} send-fn]
   (with-async-bindings
     {sci/ns ns
-     sci/print-length @sci/print-length}
+     sci/print-length @sci/print-length
+     sci/print-newline true
+     sci/print-fn (fn [s]
+                    (send-fn request {"out" s}))}
     (-> (nbb/eval-expr nil (sci/reader code))
         (.then (fn [v]
                  (reset! last-ns @sci/ns)
@@ -84,7 +87,7 @@
                   (sci/alter-var-root sci-last-error (constantly e))
                   (let [data (ex-data e)]
                     (when-let [message (or (:message data) (.-message e))]
-                      (send-fn request {"err" message}))
+                      (send-fn request {"err" (str message "\n")}))
                     (send-fn request {"ex" (str e)
                                       "ns" (str @sci/ns)
                                       "status" ["done"]}))))))
