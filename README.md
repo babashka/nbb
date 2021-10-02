@@ -327,18 +327,16 @@ $ lein repl :connect 1337
 
 and evaluate expressions.
 
-Not all editors are able to connect to an nREPL server that is JS-based rather
-than JVM-based. In the meantime there are workarounds available for the
-following editors:
-
 ### Calva
 
-A workaround can be found
-[here](https://github.com/BetterThanTomorrow/calva/issues/1308#issuecomment-932721149).
+In Calva connect to the REPL with:
+
+- Calva: Connect to a Running REPL not in Project > ClojureScript nREPL server
 
 ### CIDER
 
-A workaround can be found [here](https://github.com/clojure-emacs/cider/issues/3061).
+Currently CIDER needs the following
+[workaround](https://github.com/clojure-emacs/cider/issues/3061).
 
 ## Examples
 
