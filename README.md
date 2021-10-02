@@ -307,6 +307,39 @@ Most of this library is supported in nbb, except the following:
 
 See the [example](examples/js-interop/example.cljs) of what is currently supported.
 
+## nREPL
+
+The nREPL server probably still has rough edges. Please report issues
+[here](https://github.com/borkdude/nbb/issues).
+
+
+An nREPL server can be started with:
+
+``` shell
+$ nbb nrepl-server :port 1337
+```
+
+After that you can connect using an nREPL client:
+
+``` clojure
+$ lein repl :connect 1337
+```
+
+and evaluate expressions.
+
+Not all editors are able to connect to an nREPL server that is JS-based rather
+than JVM-based. In the meantime there are workarounds available for the
+following editors:
+
+### Calva
+
+A workaround can be found
+[here](https://github.com/BetterThanTomorrow/calva/issues/1308#issuecomment-932721149).
+
+### CIDER
+
+A workaround can be found [here](https://github.com/clojure-emacs/cider/issues/3061).
+
 ## Examples
 
 See the [examples](examples) directory for small examples.
