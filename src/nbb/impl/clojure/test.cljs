@@ -352,9 +352,8 @@
    'is' call 'report' to indicate results.  The argument given to
    'report' will be a map with a :type key."
     :dynamic true}
-  report-impl (fn [m] [(:reporter (get-current-env)) (:type m)]))
-
-(defmethod report-impl :default [m])
+  report-impl (fn [m]
+                [(:reporter (get-current-env)) (:type m)]))
 
 (def report (sci/copy-var report-impl tns))
 
@@ -367,7 +366,6 @@
     (println "  actual:" (formatter-fn (:actual m)))))
 
 (defmethod report-impl [::default :fail] [m]
-  (prn ::dude)
   (inc-report-counter! :fail)
   (println "\nFAIL in" (testing-vars-str m))
   (when (seq (:testing-contexts (get-current-env)))
@@ -389,7 +387,7 @@
   (println (:fail m) "failures," (:error m) "errors."))
 
 (defmethod report-impl [::default :begin-test-ns] [m]
-  (println "\nTesting" (sci/ns-name (:ns m))))
+  (println "\nTesting" (:ns m)))
 
 ;; Ignore these message types:
 (defmethod report-impl [::default :end-test-ns] [m])
@@ -445,12 +443,11 @@
      :line (.-lineNumber exception)}))
 
 (defn do-report [m]
-  (prn m)
   (let [m (case (:type m)
             :fail (merge (file-and-line (js/Error.) 4) m)
             :error (merge (file-and-line (:actual m) 0) m)
             m)]
-    (report m)))
+    (report-impl m)))
 
 #_(defn do-report
   "Add file and line information to a test result and call report.
@@ -635,7 +632,7 @@
 (defn ^:macro try-expr
   "Used by the 'is' macro to catch unexpected exceptions.
   You don't call this."
-  [_ _ msg form]
+  [_ &env msg form]
   (let [{:keys [file line end-line column end-column]} (meta form)]
     `(try
        ~(assert-expr &env msg form)
@@ -840,9 +837,7 @@
     (let [obj (f)]
       (if (async? obj)
         (obj (let [d (delay
-                       (do
-                         (prn :running-rest)
-                         (run-block (rest fns))))]
+                       (run-block (rest fns)))]
                (fn []
                  (if (realized? d)
                    (println "WARNING: Async test called done more than one time.")
@@ -1061,7 +1056,7 @@
       (do-report {:type :begin-test-ns, :ns form})
       ;; If the namespace has a test-ns-hook function, call that:
       (if-let [v  false #_(ana-api/ns-resolve ns 'test-ns-hook)]
-        `(~(symbol (name ns) "test-ns-hook"))
+        nil #_`(~(symbol (name ns) "test-ns-hook"))
         ;; Otherwise, just test every var in the namespace.
         (block (test-all-vars-block form))))
     (fn []
@@ -1116,7 +1111,7 @@
   ([env-or-ns & namespaces]
    (run-block (apply run-tests-block env-or-ns namespaces))))
 
-(defn run-all-tests
+#_(defn run-all-tests
   "Runs all tests in all namespaces; prints results.
   Optional argument is a regular expression; only namespaces with
   names matching the regular expression (with re-matches) will be

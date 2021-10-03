@@ -4,12 +4,6 @@
    [nbb.impl.clojure.test :as t]
    [sci.core :as sci]))
 
-(def ctx sci-ctx)
-
-(defn contextualize [f]
-  (fn [& args]
-    (apply f @ctx args)))
-
 (def tns t/tns)
 
 (defn new-var [var-sym f]
@@ -61,8 +55,8 @@
    ;; TODO:
    ;;'test-ns (new-var 'test-ns (contextualize t/test-ns))
    ;; running tests: high level
-   'run-tests (new-var 'run-tests (contextualize t/run-tests))
-   'run-all-tests (new-var 'run-all-tests (contextualize t/run-all-tests))
+   'run-tests (sci/copy-var t/run-tests tns)
+   ;; 'run-all-tests (sci/copy-var t/run-all-tests tns)
    'successful? (sci/copy-var t/successful? tns)})
 
 (defn init []
