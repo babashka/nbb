@@ -32,11 +32,7 @@ jobs:
       - run:
           name: Run Node tests
           command: |
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-            nvm install 16
-            npm upgrade -g npm
+            sudo npm upgrade -g npm
             bb ci:test
       - run:
           name: Authenticate with registry
