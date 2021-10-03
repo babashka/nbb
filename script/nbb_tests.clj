@@ -45,13 +45,11 @@
          "npm.cmd" "npm")
        " " cmd))
 
-(deftest reagent-dom-server-test
+(deftest react-and-ink-test
+  (tasks/shell {:dir "test-scripts/react-test"} (npm "install"))
   (is (= "<div><a>1</a></div>"
          (nbb "-e" "(require '[reagent.dom.server :as srv])
-                    (srv/render-to-static-markup [:div [:a 1]])"))))
-
-(deftest ink-test
-  (tasks/shell {:dir "test-scripts/react-test"} (npm "install"))
+                    (srv/render-to-static-markup [:div [:a 1]])")))
   (testing "react is loaded first, then reagent"
     (nbb {:out :inherit} "test-scripts/react-test/ink-test.cljs"))
   (testing "reagent is loaded first, then react"
