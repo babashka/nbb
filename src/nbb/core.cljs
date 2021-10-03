@@ -119,6 +119,8 @@
         (load-module "./nbb_js_interop.js" libname as refer rename libspecs)
         (cljs.pprint clojure.pprint)
         (load-module "./nbb_pprint.js" libname as refer rename libspecs)
+        (cljs.test clojure.test)
+        (load-module "./nbb_test.js" libname as refer rename libspecs)
         (if (string? libname)
           ;; TODO: parse properties
           (let [[libname properties] (str/split libname #"\$" 2)

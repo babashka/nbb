@@ -4,7 +4,8 @@
             [clojure.string :as str]
             [clojure.test :as t :refer [deftest is testing]]
             [nbb.core :as nbb]
-            [nbb.main :as main])
+            [nbb.main :as main]
+            [nbb.test-test])
   (:require-macros [nbb.test-macros :refer [deftest-async]]))
 
 (reset! nbb/ctx {:require (createRequire (path/resolve "script.cljs"))
@@ -164,4 +165,4 @@
                (is (vector? val))))))
 
 (defn init []
-  (t/run-tests *ns*))
+  (t/run-tests 'nbb.main-test 'nbb.test-test))
