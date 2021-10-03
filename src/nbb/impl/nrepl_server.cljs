@@ -77,11 +77,12 @@
      sci/print-newline true
      sci/print-fn (fn [s]
                     (send-fn request {"out" s}))}
-    (-> (nbb/eval-expr nil (sci/reader code))
+    (-> (nbb/eval-expr nil (sci/reader code) {:wrap vector})
         (.then (fn [v]
-                 (reset! last-ns @sci/ns)
-                 (send-fn request {"value" (pr-str v)
-                                   "ns" (str @sci/ns)})
+                 (let [v (first v)]
+                   (reset! last-ns @sci/ns)
+                   (send-fn request {"value" (pr-str v)
+                                     "ns" (str @sci/ns)}))
                  (send-fn request {"status" ["done"]})))
         (.catch (fn [e]
                   (sci/alter-var-root sci-last-error (constantly e))
