@@ -32,7 +32,6 @@ jobs:
       - run:
           name: Run Node tests
           command: |
-            npm upgrade -g npm
             bb ci:test
       - run:
           name: Authenticate with registry
