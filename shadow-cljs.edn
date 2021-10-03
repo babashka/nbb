@@ -27,6 +27,8 @@
     :nbb_pprint {:init-fn nbb.pprint/init
                  :depends-on #{:nbb_core}}
     :nbb_nrepl_server {:init-fn nbb.impl.nrepl-server/init
-                       :depends-on #{:nbb_core :nbb_api}}}
+                       :depends-on #{:nbb_core :nbb_api}}
+    :nbb_test {:init-fn nbb.impl.test/init
+               :depends-on #{:nbb_core}}}
    :build-hooks [(shadow.cljs.build-report/hook
                   {:output-to "report.html"})]}}}
