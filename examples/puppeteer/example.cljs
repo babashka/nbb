@@ -7,8 +7,7 @@
    [promesa.core :as p]))
 
 (deftest browser-test
-  (async
-   done
+  (async done
    (p/let [browser (.launch puppeteer)
            page (.newPage browser)
            _ (.goto page "https://clojure.org")
