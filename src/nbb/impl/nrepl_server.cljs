@@ -205,11 +205,12 @@
     ;; Expose "app" key under js/app in the repl
     (.listen server
              port
+             "127.0.0.1" ;; default for now
              (fn []
-               (let [port (-> server (.address) .-port)]
-                 (info "nRepl server started on port %d . nrepl-cljs-sci version %s"
-                       port
-                       "TODO")
+               (let [addr (-> server (.address))
+                     port (-> addr .-port)
+                     host (-> addr .-address)]
+                 (println (str "nREPL server started on port " port " on host " host " - nrepl://" host ":" port))
                  (try
                    (.writeFileSync fs ".nrepl-port" (str port))
                    (catch :default e
