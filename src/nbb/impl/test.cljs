@@ -17,6 +17,8 @@
 
 (def clojure-test-namespace
   {:obj tns
+   'async (sci/copy-var t/async tns)
+   '-async-test (sci/copy-var t/-async-test tns)
    '*load-tests* t/load-tests
    '*stack-trace-depth* t/stack-trace-depth
    '*report-counters* t/report-counters
@@ -27,7 +29,7 @@
    ;; 'file-position t/file-position
    'testing-vars-str (sci/copy-var t/testing-vars-str tns)
    'testing-contexts-str (sci/copy-var t/testing-contexts-str tns)
-   'inc-report-counter (sci/copy-var t/inc-report-counter tns)
+   'inc-report-counter! (sci/copy-var t/inc-report-counter! tns)
    'report t/report
    'do-report (sci/copy-var t/do-report tns)
    ;; assertion utilities
@@ -52,9 +54,12 @@
    'join-fixtures (sci/copy-var t/join-fixtures tns)
    ;; running tests: low level
    'test-var t/test-var
-   'test-vars (sci/copy-var t/test-vars tns)
-   'test-all-vars (new-var 'test-all-vars (contextualize t/test-all-vars))
-   'test-ns (new-var 'test-ns (contextualize t/test-ns))
+   ;; TODO:
+   ;; 'test-vars (sci/copy-var t/test-vars tns)
+   ;; TODO:
+   ;;'test-all-vars (new-var 'test-all-vars (contextualize t/test-all-vars))
+   ;; TODO:
+   ;;'test-ns (new-var 'test-ns (contextualize t/test-ns))
    ;; running tests: high level
    'run-tests (new-var 'run-tests (contextualize t/run-tests))
    'run-all-tests (new-var 'run-all-tests (contextualize t/run-all-tests))

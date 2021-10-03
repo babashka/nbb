@@ -233,14 +233,14 @@
 "}
     nbb.impl.clojure.test
   (:refer-clojure :exclude [println])
-  (:require [nbb.core :refer [sci-ctx]]
-            #_[clojure.template :as temp]
+  (:require #_[clojure.template :as temp]
+            [clojure.string :as str]
+            [nbb.core :refer [sci-ctx]]
             [sci.core :as sci]
             [sci.impl.io :refer [println]]
             [sci.impl.namespaces :as sci-namespaces]
             [sci.impl.resolve :as resolve]
-            [sci.impl.vars :as vars]
-            )
+            [sci.impl.vars :as vars])
   (:require-macros [nbb.impl.clojure.test :refer [with-test-out-internal]]))
 
 ;; TODO: go through https://github.com/clojure/clojurescript/blob/r1.10.879-6-gaec9f0c5/src/main/cljs/cljs/test.cljc for compatibility
@@ -283,107 +283,187 @@
 
 ;;; UTILITIES FOR REPORTING FUNCTIONS
 
+;; =============================================================================
+;; Default Reporting
+
+(defn empty-env
+  "Generates a testing environment with a reporter.
+   (empty-env) - uses the :cljs.test/default reporter.
+   (empty-env :cljs.test/pprint) - pretty prints all data structures.
+   (empty-env reporter) - uses a reporter of your choosing.
+   To create your own reporter see cljs.test/report"
+  ([] (empty-env ::default))
+  ([reporter]
+   (cond-> {:report-counters {:test 0 :pass 0 :fail 0 :error 0}
+            :testing-vars ()
+            :testing-contexts ()
+            :formatter pr-str
+            :reporter reporter}
+     (= ::pprint reporter) (assoc :reporter ::default
+                                  :formatter prn #_pprint/pprint))))
+
+(def ^:dynamic *current-env* nil)
+
+(defn get-current-env []
+  (or *current-env* (empty-env)))
+
+(defn update-current-env! [ks f & args]
+  (set! *current-env* (apply update-in (get-current-env) ks f args)))
+
+(defn set-env! [new-env]
+  (set! *current-env* new-env))
+
+(defn clear-env! []
+  (set! *current-env* nil))
+
+(defn get-and-clear-env!
+  "Like get-current-env, but cleans env before returning."
+  []
+  (let [env (get-current-env)]
+    (clear-env!)
+    env))
+
 (defn testing-vars-str
   "Returns a string representation of the current test.  Renders names
   in *testing-vars* as a list, then the source file and line of
   current assertion."
-  {:added "1.1"}
   [m]
-  (let [{:keys [:file :line]} (meta (first @testing-vars))]
+  (let [{:keys [file line column]} m]
     (str
-     ;; Uncomment to include namespace in failure report:
-     ;;(ns-name (:ns (meta (first *testing-vars*)))) "/ "
-     (reverse (map #(:name (meta %)) @testing-vars))
-     " (" file ":" line ")")))
+     (reverse (map #(:name (meta %)) (:testing-vars (get-current-env))))
+     " (" file ":" line (when column (str ":" column)) ")")))
 
 (defn testing-contexts-str
   "Returns a string representation of the current test context. Joins
   strings in *testing-contexts* with spaces."
-  {:added "1.1"}
   []
-  (apply str (interpose " " (reverse @testing-contexts))))
+  (apply str (interpose " " (reverse (:testing-contexts (get-current-env))))))
 
-(defn inc-report-counter
+(defn inc-report-counter!
   "Increments the named counter in *report-counters*, a ref to a map.
   Does nothing if *report-counters* is nil."
-  {:added "1.1"}
   [name]
-  (when @report-counters
-    (swap! @report-counters update-in [name] (fnil inc 0))))
-
-;;; TEST RESULT REPORTING
+  (when (:report-counters (get-current-env))
+    (update-current-env! [:report-counters name] (fnil inc 0))))
 
 (defmulti
   ^{:doc "Generic reporting function, may be overridden to plug in
    different report formats (e.g., TAP, JUnit).  Assertions such as
    'is' call 'report' to indicate results.  The argument given to
-   'report' will be a map with a :type key.  See the documentation at
-   the top of test_is.clj for more information on the types of
-   arguments for 'report'."
-    :dynamic true
-    :added "1.1"}
-  report-impl :type)
+   'report' will be a map with a :type key."
+    :dynamic true}
+  report-impl (fn [m] [(:reporter (get-current-env)) (:type m)]))
+
+(defmethod report-impl :default [m])
 
 (def report (sci/copy-var report-impl tns))
 
-(defn do-report
+(defmethod report-impl [::default :pass] [m]
+  (inc-report-counter! :pass))
+
+(defn- print-comparison [m]
+  (let [formatter-fn (or (:formatter (get-current-env)) pr-str)]
+    (println "expected:" (formatter-fn (:expected m)))
+    (println "  actual:" (formatter-fn (:actual m)))))
+
+(defmethod report-impl [::default :fail] [m]
+  (prn ::dude)
+  (inc-report-counter! :fail)
+  (println "\nFAIL in" (testing-vars-str m))
+  (when (seq (:testing-contexts (get-current-env)))
+    (println (testing-contexts-str)))
+  (when-let [message (:message m)] (println message))
+  (print-comparison m))
+
+(defmethod report-impl [::default :error] [m]
+  (inc-report-counter! :error)
+  (println "\nERROR in" (testing-vars-str m))
+  (when (seq (:testing-contexts (get-current-env)))
+    (println (testing-contexts-str)))
+  (when-let [message (:message m)] (println message))
+  (print-comparison m))
+
+(defmethod report-impl [::default :summary] [m]
+  (println "\nRan" (:test m) "tests containing"
+           (+ (:pass m) (:fail m) (:error m)) "assertions.")
+  (println (:fail m) "failures," (:error m) "errors."))
+
+(defmethod report-impl [::default :begin-test-ns] [m]
+  (println "\nTesting" (sci/ns-name (:ns m))))
+
+;; Ignore these message types:
+(defmethod report-impl [::default :end-test-ns] [m])
+(defmethod report-impl [::default :begin-test-var] [m]
+  #_(println ":begin-test-var" (testing-vars-str m)))
+(defmethod report-impl [::default :end-test-var] [m])
+(defmethod report-impl [::default :end-run-tests] [m])
+(defmethod report-impl [::default :end-test-all-vars] [m])
+(defmethod report-impl [::default :end-test-vars] [m])
+
+;;; TEST RESULT REPORTING
+
+(defn js-filename [stack-element]
+  #_(let [output-dir "out"
+        output-dir (cond-> output-dir
+                     (not (str/ends-with? output-dir "/"))
+                     (str "/"))]
+    (-> (.split stack-element output-dir)
+        last
+        (.split ":")
+        first)))
+
+(defn mapped-line-and-column [filename line column]
+  (let [default [filename line column]]
+    (if-let [source-map (:source-map (get-current-env))]
+      ;; source maps are 0 indexed for lines
+      (if-let [columns (get-in source-map [filename (dec line)])]
+        (vec
+         (map
+          ;; source maps are 0 indexed for columns
+          ;; multiple segments may exist at column
+          ;; just take first
+          (first
+           (if-let [mapping (get columns (dec column))]
+             mapping
+             (second (first columns))))
+          [:source :line :col]))
+        default)
+      default)))
+
+(defn file-and-line [exception depth]
+  ;; TODO: flesh out
+  (if-let [stack-element (and (string? (.-stack exception))
+                              (some-> (.-stack exception)
+                                      str/split-lines
+                                      (get depth)
+                                      str/trim))]
+    (let [fname "todo" #_(js-filename stack-element)
+          [line column] nil #_(js-line-and-column stack-element)
+          [fname line column] (mapped-line-and-column fname line column)]
+      {:file fname :line line :column column})
+    {:file (.-fileName exception)
+     :line (.-lineNumber exception)}))
+
+(defn do-report [m]
+  (prn m)
+  (let [m (case (:type m)
+            :fail (merge (file-and-line (js/Error.) 4) m)
+            :error (merge (file-and-line (:actual m) 0) m)
+            m)]
+    (report m)))
+
+#_(defn do-report
   "Add file and line information to a test result and call report.
    If you are writing a custom assert-expr method, call this function
    to pass test results to report."
   {:added "1.2"}
   [m]
-  (report
+  (report-impl
    (case
        (:type m)
      :fail m
      :error m
      m)))
-
-(defmethod report-impl :default [m]
-  (with-test-out-internal (prn m)))
-
-(defmethod report-impl :pass [m]
-  (with-test-out-internal (inc-report-counter :pass)))
-
-(defmethod report-impl :fail [m]
-  (with-test-out-internal
-    (inc-report-counter :fail)
-    (println "\nFAIL in" (testing-vars-str m))
-    (when (seq @testing-contexts) (println (testing-contexts-str)))
-    (when-let [message (:message m)] (println message))
-    (println "expected:" (pr-str (:expected m)))
-    (println "  actual:" (pr-str (:actual m)))))
-
-(defmethod report-impl :error [m]
-  (with-test-out-internal
-    (inc-report-counter :error)
-    (println "\nERROR in" (testing-vars-str m))
-    (when (seq @testing-contexts) (println (testing-contexts-str)))
-    (when-let [message (:message m)] (println message))
-    (println "expected:" (pr-str (:expected m)))
-    (print "  actual: ")
-    (let [actual (:actual m)]
-      (if (instance? js/Error actual)
-        ;; TODO: stack
-        (prn actual @stack-trace-depth)
-        (prn actual)))))
-
-(defmethod report-impl :summary [m]
-  (with-test-out-internal
-    (println "\nRan" (:test m) "tests containing"
-             (+ (:pass m) (:fail m) (:error m)) "assertions.")
-    (println (:fail m) "failures," (:error m) "errors.")))
-
-(defmethod report-impl :begin-test-ns [m]
-  (with-test-out-internal
-    (println "\nTesting" (sci-namespaces/sci-ns-name (:ns m)))))
-
-;; Ignore these message types:
-(defmethod report-impl :end-test-ns [m])
-(defmethod report-impl :begin-test-var [m])
-(defmethod report-impl :end-test-var [m])
-
-
 
 ;;; UTILITIES FOR ASSERTIONS
 
@@ -454,39 +534,63 @@
 ;; macro.  These define different kinds of tests, based on the first
 ;; symbol in the test expression.
 
-(defmulti assert-expr
-  (fn [_msg form]
+(defmulti assert-expr 
+  (fn [_menv _msg form]
     (cond
       (nil? form) :always-fail
       (seq? form) (first form)
       :else :default)))
 
-(defmethod assert-expr :always-fail [msg form]
+(defmethod assert-expr :always-fail [_menv msg form]
   ;; nil test: always fail
-  `(clojure.test/do-report {:type :fail, :message ~msg
-                            :file clojure.core/*file*
-                            :line ~(:line (meta form))}))
+  (let [{:keys [file line end-line column end-column]} (meta form)]
+    `(clojure.test/report {:type :fail, :message ~msg
+                           :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column})))
 
-(defmethod assert-expr :default [msg form]
-  (if (and (sequential? form) (function? (first form)))
+(defmethod assert-expr :default [_menv msg form]
+  (if (and (sequential? form)
+           (function? #_menv (first form)))
     (assert-predicate msg form)
     (assert-any msg form)))
 
-(defmethod assert-expr 'instance? [msg form]
+(defmethod assert-expr 'instance? [_menv msg form]
   ;; Test if x is an instance of y.
-  `(let [klass# ~(nth form 1)
-         object# ~(nth form 2)]
-     (let [result# (instance? klass# object#)]
-       (if result#
-         (clojure.test/do-report {:type :pass, :message ~msg,
-                                  :expected '~form, :actual (class object#)})
-         (clojure.test/do-report {:type :fail, :message ~msg,
-                                  :file clojure.core/*file*
-                                  :line ~(:line (meta form))
-                                  :expected '~form, :actual (class object#)}))
-       result#)))
+  (let [{:keys [file line end-line column end-column]} (meta form)]
+    `(let [klass# ~(nth form 1)
+           object# ~(nth form 2)]
+       (let [result# (instance? klass# object#)]
+         (if result#
+           (clojure.test/report
+            {:type :pass, :message ~msg,
+             :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column
+             :expected '~form, :actual (type object#)})
+           (clojure.test/report
+            {:type :fail, :message ~msg,
+             :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column
+             :expected '~form, :actual (type object#)}))
+         result#))))
 
-(defmethod assert-expr 'thrown? [msg form]
+(defmethod assert-expr 'thrown? [_menv msg form]
+  ;; (is (thrown? c expr))
+  ;; Asserts that evaluating expr throws an exception of class c.
+  ;; Returns the exception thrown.
+  (let [{:keys [file line end-line column end-column]} (meta form)
+        klass (second form)
+        body (nthnext form 2)]
+    `(try
+       ~@body
+       (clojure.test/report
+        {:type :fail, :message ~msg,
+         :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column
+         :expected '~form, :actual nil})
+       (catch ~klass e#
+         (clojure.test/report
+          {:type :pass, :message ~msg,
+           :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column
+           :expected '~form, :actual e#})
+         e#))))
+
+#_(defmethod assert-expr 'thrown? [msg form]
   ;; (is (thrown? c expr))
   ;; Asserts that evaluating expr throws an exception of class c.
   ;; Returns the exception thrown.
@@ -502,29 +606,47 @@
                                      :expected '~form, :actual e#})
             e#))))
 
-(defmethod assert-expr 'thrown-with-msg? [msg form]
+(defmethod assert-expr 'thrown-with-msg? [menv msg form]
   ;; (is (thrown-with-msg? c re expr))
   ;; Asserts that evaluating expr throws an exception of class c.
   ;; Also asserts that the message string of the exception matches
   ;; (with re-find) the regular expression re.
-  (let [klass (nth form 1)
+  (let [{:keys [file line end-line column end-column]} (meta form)
+        klass (nth form 1)
         re (nth form 2)
         body (nthnext form 3)]
-    `(try ~@body
-          (clojure.test/do-report {:type :fail, :message ~msg, :expected '~form, :actual nil})
-          (catch ~klass e#
-            (let [m# (.getMessage e#)]
-              (if (re-find ~re m#)
-                (clojure.test/do-report {:type :pass, :message ~msg,
-                                         :expected '~form, :actual e#})
-                (clojure.test/do-report {:file clojure.core/*file*
-                                         :line ~(:line (meta form))
-                                         :type :fail, :message ~msg,
-                                         :expected '~form, :actual e#})))
-            e#))))
-
+    `(try
+       ~@body
+       (clojure.test/report {:type :fail, :message ~msg, :expected '~form, :actual nil
+                :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column})
+       (catch ~klass e#
+         (let [m# (.-message e#)]
+           (if (re-find ~re m#)
+             (clojure.test/report
+              {:type :pass, :message ~msg,
+               :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column
+               :expected '~form, :actual e#})
+             (clojure.test/report
+              {:type :fail, :message ~msg,
+               :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column
+               :expected '~form, :actual e#}))
+           e#)))))
 
 (defn ^:macro try-expr
+  "Used by the 'is' macro to catch unexpected exceptions.
+  You don't call this."
+  [_ _ msg form]
+  (let [{:keys [file line end-line column end-column]} (meta form)]
+    `(try
+       ~(assert-expr &env msg form)
+       (catch :default t#
+         (clojure.test/report
+          {:type :error, :message ~msg,
+           :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column
+           :expected '~form, :actual t#})))))
+
+
+#_(defn ^:macro try-expr
   "Used by the 'is' macro to catch unexpected exceptions.
   You don't call this."
   {:added "1.1"}
@@ -696,28 +818,171 @@
   (reduce compose-fixtures default-fixture fixtures))
 
 
+;; =============================================================================
+;; Async
 
+(defprotocol IAsyncTest
+  "Marker protocol denoting CPS function to begin asynchronous
+  testing.")
+
+(defn async?
+  "Returns whether x implements IAsyncTest."
+  [x]
+  (satisfies? IAsyncTest x))
+
+(defn run-block
+  "Invoke all functions in fns with no arguments. A fn can optionally
+  return
+  an async test - is invoked with a continuation running left fns
+  a seq of fns tagged per block - are invoked immediately after fn"
+  [fns]
+  (when-first [f fns]
+    (let [obj (f)]
+      (if (async? obj)
+        (obj (let [d (delay
+                       (do
+                         (prn :running-rest)
+                         (run-block (rest fns))))]
+               (fn []
+                 (if (realized? d)
+                   (println "WARNING: Async test called done more than one time.")
+                   @d))))
+        (recur (cond->> (rest fns)
+                 (::block? (meta obj)) (concat obj)))))))
+
+(defn block
+  "Tag a seq of fns to be picked up by run-block as injected
+  continuation.  See run-block."
+  [fns]
+  (some-> fns
+          (vary-meta assoc ::block? true)))
+
+(defn ^:macro async
+  "Wraps body as a CPS function that can be returned from a test to
+  continue asynchronously.  Binds done to a function that must be
+  invoked once and from an async context after any assertions.
+  (deftest example-with-timeout
+    (async done
+      (js/setTimeout (fn []
+                       ;; make assertions in async context...
+                       (done) ;; ...then call done
+                       )
+                     0)))"
+  [_ _ done & body]
+  `(clojure.test/-async-test
+    (fn [_# ~done] ~@body)))
+
+(defn -async-test
+  [f]
+  (reify
+    IAsyncTest
+    cljs.core/IFn
+    (-invoke [_ x]
+      (f _ x))))
 
 ;;; RUNNING TESTS: LOW-LEVEL FUNCTIONS
 
+(defn- test-var-block*
+  [v t]
+  {:pre [(vars/var? v)]}
+  [(fn []
+     (update-current-env! [:testing-vars] conj v)
+     (update-current-env! [:report-counters :test] inc)
+     (do-report {:type :begin-test-var :var v})
+     (try
+       (t)
+       (catch :default e
+         (case e
+           ::async-disabled (throw "Async tests require fixtures to be specified as maps.  Testing aborted.")
+           (do-report
+            {:type :error
+             :message "Uncaught exception, not in assertion."
+             :expected nil
+             :actual e})))))
+   (fn []
+     (do-report {:type :end-test-var :var v})
+     (update-current-env! [:testing-vars] rest))])
+
+(defn test-var-block
+  "Like test-var, but returns a block for further composition and
+  later execution."
+  [v]
+  (if-let [t (:test (meta v))]
+    (test-var-block* v t)))
+
 (defn test-var-impl
   "If v has a function in its :test metadata, calls that function,
-  with *testing-vars* bound to (conj *testing-vars* v)."
-  {:dynamic true, :added "1.1"}
+  add v to :testing-vars property of env."
   [v]
-  (when-let [t (:test (meta v))]
-    (sci/binding [testing-vars (conj @testing-vars v)]
-      (do-report {:type :begin-test-var, :var v})
-      (inc-report-counter :test)
-      (try (t)
-           (catch :default e
-             (do-report {:type :error, :message "Uncaught exception, not in assertion."
-                         :expected nil, :actual e})))
-      (do-report {:type :end-test-var, :var v}))))
+  (run-block (test-var-block v)))
 
 (def test-var (sci/copy-var test-var-impl tns))
 
-(defn test-vars
+(defn- execution-strategy [once each]
+  (letfn [(fixtures-type [coll]
+            (cond
+              (empty? coll) :none
+              (every? map? coll) :map
+              (every? fn? coll) :fn))
+          (fixtures-types []
+            (->> (map fixtures-type [once each])
+                 (remove #{:none})
+                 (distinct)))]
+    (let [[type :as types] (fixtures-types)]
+      (assert (not-any? nil? types)
+              "Fixtures may not be of mixed types")
+      (assert (> 2 (count types))
+              "fixtures specified in :once and :each must be of the same type")
+      ({:map :async :fn :sync} type :async))))
+
+(defn- wrap-map-fixtures
+  "Wraps block in map-fixtures."
+  [map-fixtures block]
+  (concat (keep :before map-fixtures)
+          block
+          (reverse (keep :after map-fixtures))))
+
+(defn- disable-async [f]
+  (fn []
+    (let [obj (f)]
+      (when (async? obj)
+        (throw ::async-disabled))
+      obj)))
+
+(defn test-vars-block
+  "Like test-vars, but returns a block for further composition and
+  later execution."
+  [vars]
+  (map
+   (fn [[ns vars]]
+     (fn []
+       (block
+        (let [env (get-current-env)
+              once-fixtures (get-in env [:once-fixtures ns])
+              each-fixtures (get-in env [:each-fixtures ns])]
+          (case (execution-strategy once-fixtures each-fixtures)
+            :async
+            (->> vars
+                 (filter (comp :test meta))
+                 (mapcat (comp (partial wrap-map-fixtures each-fixtures)
+                               test-var-block))
+                 (wrap-map-fixtures once-fixtures))
+            :sync
+            (let [each-fixture-fn (join-fixtures each-fixtures)]
+              [(fn []
+                 ((join-fixtures once-fixtures)
+                  (fn []
+                    (doseq [v vars]
+                      (when-let [t (:test (meta v))]
+                        ;; (alter-meta! v update :test disable-async)
+                        (each-fixture-fn
+                         (fn []
+                           ;; (test-var v)
+                           (run-block
+                            (test-var-block* v (disable-async t))))))))))]))))))
+   (group-by (comp :ns meta) vars)))
+
+#_(defn test-vars
   "Groups vars by their namespace and runs test-vars on them with
    appropriate fixtures applied."
   {:added "1.6"}
@@ -735,13 +1000,13 @@
              (each-fixture-fn (fn [] (test-var ;; this calls the sci var which can be rebound
                                       v))))))))))
 
-(defn test-all-vars
+#_(defn test-all-vars
   "Calls test-vars on every var interned in the namespace, with fixtures."
   {:added "1.1"}
   [ctx ns]
   (test-vars (vals (sci-namespaces/sci-ns-interns ctx ns))))
 
-(defn test-ns
+#_(defn test-ns
   "If the namespace defines a function named test-ns-hook, calls that.
   Otherwise, calls test-all-vars on the namespace.  'ns' is a
   namespace object or a symbol.
@@ -763,21 +1028,93 @@
       (do-report {:type :end-test-ns, :ns ns-obj}))
     @@report-counters))
 
+(defn test-all-vars-block
+  ([ns]
+   (let [env (get-current-env)]
+     (concat
+      [(fn []
+         (when (nil? env)
+           (set-env! (empty-env)))
+         (when false #_(ana-api/ns-resolve ns 'cljs-test-once-fixtures)
+               #_`(update-current-env! [:once-fixtures] assoc '~ns
+                                       ~(symbol (name ns) "cljs-test-once-fixtures")))
+         (when false #_(ana-api/ns-resolve ns 'cljs-test-each-fixtures)
+               (update-current-env! [:each-fixtures] assoc '~ns
+                                    ~(symbol (name ns) "cljs-test-each-fixtures"))))]
+      (test-vars-block
+       (let [vars (vals (sci-namespaces/sci-ns-interns @ctx ns))
+             tests (filter (fn [var] (:test (meta var))) vars)
+             sorted (sort-by (fn [var] (:line (meta var))) tests)]
+         sorted))
+      [(fn []
+         (when (nil? env)
+           (clear-env!)))]))))
 
+(defn test-ns-block
+  "Like test-ns, but returns a block for further composition and
+  later execution.  Does not clear the current env."
+  ([env form]
+   #_(assert (and (= quote 'quote) (symbol? ns)) "Argument to test-ns must be a quoted symbol")
+   #_(assert (ana-api/find-ns ns) (str "Namespace " ns " does not exist"))
+   [(fn []
+      (set-env! env)
+      (do-report {:type :begin-test-ns, :ns form})
+      ;; If the namespace has a test-ns-hook function, call that:
+      (if-let [v  false #_(ana-api/ns-resolve ns 'test-ns-hook)]
+        `(~(symbol (name ns) "test-ns-hook"))
+        ;; Otherwise, just test every var in the namespace.
+        (block (test-all-vars-block form))))
+    (fn []
+      (do-report {:type :end-test-ns, :ns form}))]))
 
 ;;; RUNNING TESTS: HIGH-LEVEL FUNCTIONS
 
+(defn run-tests-block
+  "Like test-vars, but returns a block for further composition and
+  later execution."
+  [env-or-ns & namespaces]
+  #_(assert (every?
+             (fn [[quote ns]] (and (= quote 'quote) (symbol? ns)))
+             namespaces)
+            "All arguments to run-tests must be quoted symbols")
+  (let [is-ns (not (map? env-or-ns))
+        env (if is-ns
+              (empty-env)
+              env-or-ns)
+        summary (cljs.core/volatile!
+                 {:test 0 :pass 0 :fail 0 :error 0
+                  :type :summary})]
+    (concat (mapcat
+             (fn [ns]
+               (concat (test-ns-block env ns)
+                       [(fn []
+                          (cljs.core/vswap!
+                           summary
+                           (partial merge-with +)
+                           (:report-counters
+                            (get-and-clear-env!))))]))
+             (if is-ns
+               (concat [env-or-ns] namespaces)
+               namespaces))
+            [(fn []
+               (set-env! env)
+               (do-report (deref summary))
+               (report (assoc (deref summary) :type :end-run-tests))
+               (clear-env!))])))
+
 (defn run-tests
   "Runs all tests in the given namespaces; prints results.
-  Defaults to current namespace if none given.  Returns a map
-  summarizing test results."
-  {:added "1.1"}
-  ([ctx] (run-tests ctx @vars/current-ns))
-  ([ctx & namespaces]
-   (let [summary (assoc (apply merge-with + (map #(test-ns ctx %) namespaces))
-                        :type :summary)]
-     (do-report summary)
-     summary)))
+  Defaults to current namespace if none given. Does not return a meaningful
+  value due to the possiblity of asynchronous execution. To detect test
+  completion add a :end-run-tests method case to the cljs.test/report
+  multimethod."
+  ([] (run-tests (empty-env) (vars/getName @sci/ns)))
+  ([env-or-ns]
+   (if (map? env-or-ns)
+     (run-tests env-or-ns (vars/getName @sci/ns))
+     (run-tests (empty-env) env-or-ns)))
+  ([env-or-ns & namespaces]
+   (run-block (apply run-tests-block env-or-ns namespaces))))
 
 (defn run-all-tests
   "Runs all tests in all namespaces; prints results.
