@@ -61,11 +61,11 @@
                  :task (and current-tag (= "main" current-branch))}
   ci:test {:doc "Runs all tests in CI."
            :task (binding [*test* true]
-                   (println "Testing optimizations :none")
-                   (run 'clean)
-                   (run 'compile)
-                   (run 'run-tests)
-                   (run 'run-integration-tests)
+                   ;; (println "Testing optimizations :none")
+                   ;; (run 'clean)
+                   ;; (run 'compile)
+                   ;; (run 'run-tests)
+                   ;; (run 'run-integration-tests)
                    (println "Testing optimizations :advanced")
                    (run 'clean)
                    (run 'release)

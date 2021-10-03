@@ -6,7 +6,8 @@
         cljsjs/react-dom {:mvn/version "17.0.2-0"}
         cljsjs/react-dom-server {:mvn/version "17.0.2-0"}
         io.nervous/cljs-nodejs-externs {:mvn/version "0.2.0"}
-        reagent/reagent {:git/url "https://github.com/borkdude/nbb-reagent" :git/sha "cd105992851584d75acb5a5822c488b8ed79ae34"} #_{:local/root "../nbb-reagent"}
+        reagent/reagent {:git/url "https://github.com/borkdude/nbb-reagent"
+                         :git/sha "01b2b9a38a6c5c4b2ea3fd0a9e038d9551299665"} #_{:local/root "../nbb-reagent"}
         funcool/promesa {:mvn/version "6.0.2"}
         applied-science/js-interop {:mvn/version "0.3.0"}
         borkdude/sci {:git/url "https://github.com/borkdude/sci"

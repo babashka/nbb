@@ -10,6 +10,8 @@ useRef
 useEffect
 memo
 Fragment
+renderToString
+renderToStaticMarkup
 # with-let macro in SCI
 generation
 ratomGeneration

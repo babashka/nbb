@@ -1,9 +1,10 @@
 (ns nbb.reagent
-  (:require [nbb.core :as nbb]
-            [reagent.core :as r]
-            [reagent.debug :as d :refer-macros [dev?]]
-            [reagent.ratom :as ratom]
-            [sci.core :as sci]))
+  (:require
+   [nbb.core :as nbb]
+   [reagent.core :as r]
+   [reagent.debug :as d :refer-macros [dev?]]
+   [reagent.ratom :as ratom]
+   [sci.core :as sci]))
 
 ;; The with-let macro from reagent.core. The only change is that the
 ;; interop/unchecked-aget+set were replaced by aget and aset.
@@ -41,11 +42,11 @@
                             [body nil]))
         add-destroy (when destroy
                       (list
-                        `(let [destroy# ~destroy]
-                           (if (reagent.ratom/reactive?)
-                             (when (nil? (.-destroy ~v))
-                               (set! (.-destroy ~v) destroy#))
-                             (destroy#)))))
+                       `(let [destroy# ~destroy]
+                          (if (reagent.ratom/reactive?)
+                            (when (nil? (.-destroy ~v))
+                              (set! (.-destroy ~v) destroy#))
+                            (destroy#)))))
         asserting (dev?) #_(if *assert* true false)
         res (gensym "res")]
     `(let [~v (reagent.ratom/with-let-values ~k)]
@@ -66,16 +67,6 @@
    'as-element (sci/copy-var r/as-element rns)
    'with-let (sci/copy-var with-let rns)
    'cursor (sci/copy-var r/cursor rns)})
-
-(def rdns (sci/create-ns 'reagent.dom nil))
-
-;; not needed for ink
-#_(def reagent-dom-namespace
-  {'render (sci/copy-var rdom/render rdns)})
-
-(def rdsns (sci/create-ns 'reagent.dom.server nil))
-
-(def rins (sci/create-ns 'reagent.interop nil))
 
 (def rtmns (sci/create-ns 'reagent.ratom nil))
 
@@ -113,6 +104,5 @@
   (nbb/register-plugin!
    ::reagent
    {:namespaces {'reagent.core reagent-namespace
-                 ;; 'reagent.dom reagent-dom-namespace
                  'reagent.ratom reagent-ratom-namespace
                  'reagent.debug reagent-debug-namespace}}))
