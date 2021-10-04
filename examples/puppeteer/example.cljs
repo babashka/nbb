@@ -7,10 +7,10 @@
    [clojure.test :as t :refer [deftest is async]]
    [promesa.core :as p]))
 
-(defn sleep [ms]
-  (js/Promise.
-   (fn [resolve]
-     (js/setTimeout. #(resolve) ms))))
+(def continue (atom nil))
+(defn pause []
+  (js/Promise. (fn [resolve]
+                (reset! continue resolve))))
 
 (deftest browser-test
   (async done
@@ -20,7 +20,11 @@
            _ (-> (.screenshot page #js{:path "screenshot.png"})
                  (.catch #(js/console.log %)))
            content (.content page)
-           _ (sleep 1000)]
+           ;; uncomment to save content to variable for inspection
+           ;; _ (def c content)
+           ;; uncomment to pause execution to inspect state in browser
+           ;; _ (pause)
+           ]
      (is (str/includes? content "clojure"))
      (.close browser)
      (done))))
@@ -31,22 +35,10 @@
 
 (comment
 
-  (defmacro defp [binding expr]
-    `(-> ~expr (.then (fn [val]
-                        (def ~binding val)
-                        val))))
-  (p/do!
-
-   ;; eval these one by one or the entire p/do! at once to await each successive step
-   ;; and inspect the variables
-
-   (defp browser (.launch puppeteer #js {:headless false}))
-   (defp page (.newPage browser))
-   (.goto page "https://www.clojure.org")
-   (defp content (.content page))
-   content
-   (.close browser)
-
-   )
+  (browser-test)
+  ;; evaluate to continue after pause
+  (@continue)
+  ;; inspect content captured during test
+  (subs c 0 10)
 
   )
