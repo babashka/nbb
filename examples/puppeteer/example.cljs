@@ -39,12 +39,14 @@
 
    ;; eval these one by one or the entire p/do! at once to await each successive step
    ;; and inspect the variables
-   
+
    (defp browser (.launch puppeteer #js {:headless false}))
    (defp page (.newPage browser))
    (.goto page "https://www.clojure.org")
    (defp content (.content page))
    content
-   (.close browser))
-  
-  ,)
+   (.close browser)
+
+   )
+
+  )
