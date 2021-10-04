@@ -164,5 +164,10 @@
       (.then (fn [val]
                (is (vector? val))))))
 
+(deftest-async reader-conditional
+  (-> (nbb/load-string "#?(:org.babashka/nbb 1 :cljs 2)")
+      (.then (fn [val]
+               (is (= 1 val))))))
+
 (defn init []
   (t/run-tests 'nbb.main-test 'nbb.test-test))

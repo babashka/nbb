@@ -307,6 +307,16 @@ Most of this library is supported in nbb, except the following:
 
 See the [example](examples/js-interop/example.cljs) of what is currently supported.
 
+## Reader conditionals
+
+Nbb supports the following reader conditional features: `:org.babashka/nbb` and
+`:cljs` in that order of priority:
+
+``` clojure
+#?(:org.babaskha/nbb 1 :cljs 2) ;;=> 1
+#?(:cljs 2 :org.babaskha/nbb 1) ;;=> 2
+```
+
 ## nREPL
 
 The nREPL server probably still has rough edges. Please report issues
@@ -337,6 +347,10 @@ In Calva connect to the REPL with:
 
 Currently CIDER needs the following
 [workaround](https://github.com/clojure-emacs/cider/issues/3061).
+
+### Vim Iced
+
+See [this](https://twitter.com/uochan/status/1444417505506721793) tweet.
 
 ## Examples
 

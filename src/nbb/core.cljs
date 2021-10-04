@@ -235,7 +235,8 @@
   ([prev-val reader] (eval-expr prev-val reader nil))
   ([prev-val reader opts]
    (let [next-val (try
-                    (sci/parse-next @sci-ctx reader {:features #{:cljs}})
+                    (sci/parse-next @sci-ctx reader {:features #{:org.babashka/nbb
+                                                                 :cljs}})
                     (catch :default e
                       (js/Promise.reject e)))]
      (if-not (= :sci.core/eof next-val)
