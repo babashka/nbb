@@ -8,7 +8,7 @@
    [promesa.core :as p]))
 
 (defn sleep [ms]
-  (js/Promise. 
+  (js/Promise.
    (fn [resolve]
      (js/setTimeout. #(resolve) ms))))
 
