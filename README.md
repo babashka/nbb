@@ -110,6 +110,20 @@ package.json
 script.cljs
 ```
 
+## What does $default mean?
+
+The `:default foo` syntax is shadow-cljs only and not supported by vanilla CLJS
+(and nbb doesn't support it either). The `$default` syntax is a recent addition
+to CLJS and should work in shadow-cljs too: this is why nbb supports it too.
+
+See
+[here](https://clojurescript.org/news/2021-04-06-release#_library_property_namespaces)
+for more infor on that syntax.
+
+Nbb implements `:require` via dynamic import (`import()` in JS). This is why you
+need to add `$default` to imports when you want to import the default object
+from a module.
+
 ## Macros
 
 Nbb has first class support for macros: you can define them right inside your `.cljs` file, like you are used to from JVM Clojure. Consider the `plet` macro to make working with promises more palatable:
