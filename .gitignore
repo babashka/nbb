@@ -7,5 +7,6 @@ out
 .rebel_readline_history
 /report.html
 /target
-/.clj-kondo/.cache
-/.clj-kondo/rewrite-clj
+**/.clj-kondo/.cache
+**/.clj-kondo/rewrite-clj
+**/.calva
