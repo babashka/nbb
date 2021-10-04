@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "argparse": "^2.0.1"
+  }
+}
