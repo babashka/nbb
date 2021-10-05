@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@react-pdf/renderer": "^1.6.17"
+  }
+}

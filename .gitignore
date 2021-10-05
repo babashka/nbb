@@ -10,3 +10,4 @@ out
 **/.clj-kondo/.cache
 **/.clj-kondo/rewrite-clj
 **/.calva
+example.pdf
