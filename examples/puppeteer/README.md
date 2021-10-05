@@ -12,9 +12,8 @@ To see it in action, watch [this](https://twitter.com/borkdude/status/1444960498
 
 ## Playwright
 
-To see a similar example for [Playwright](https://playwright.dev/), which allows cross-browser testing,
-
-see the [Playwright example](../playwright).
+To see a similar example for [Playwright](https://playwright.dev/), which allows
+cross-browser testing, see the [Playwright example](../playwright).
 
 ## Develop
 
