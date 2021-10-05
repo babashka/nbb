@@ -39,6 +39,16 @@
   ;; evaluate to continue after pause
   (@continue)
   ;; inspect content captured during test
-  (subs c 0 10)
+  ;; (subs c 0 10)
+
+  (defmacro defp
+    "Define var when promise is resolved"
+    [binding expr]
+    `(-> ~expr (.then (fn [val]
+                        (def ~binding val)))))
+
+  (defp browser (.launch puppeteer #js {:headless false}))
+  (defp page (.newPage browser))
+  (.goto page "https://clojure.org")
 
   )
