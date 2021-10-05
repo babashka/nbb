@@ -1,4 +1,4 @@
-# Puppeteer example
+# Playwright example
 
 ## Run example
 
@@ -11,7 +11,7 @@
 To develop you can start `nbb nrepl-server` and connect from your [favorite
 editor](https://github.com/borkdude/nbb#nrepl).
 
-The following macro is quite helpful for repl development.
+The following macro is quite helpful for REPL development:
 
 ``` clojures
 (defmacro defp
@@ -21,7 +21,7 @@ The following macro is quite helpful for repl development.
                         (def ~binding val)))))
 ```
 
-And you can use it like this
+You can use it like this:
 
 ``` clojure
 (require '["playwright$default" :as pw]
