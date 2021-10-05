@@ -263,7 +263,9 @@ $ npm install ink
 
 <img src="img/ink.gif"/>
 
-## Promesa
+## Working with promises
+
+### Promesa
 
 Working with callbacks and promises can become tedious. Since nbb v0.0.36 the
 `promesa.core` namespace is included with the `let` and `do!` macros. An example:
@@ -299,6 +301,21 @@ Doing stuff which takes a while
 ```
 
 Also see [API docs](api.md).
+
+### REPL
+
+In the REPL it can be convenient to bind the resolved value of promises to a
+var. You can do that like this:
+
+``` clojure
+(defmacro defp [binding expr]
+  `(-> ~expr (.then (fn [val]
+                     (def ~binding val)))))
+
+(defp browser (.launch puppeteer #js {:headless false}))
+(defp page (.newPage browser))
+(.goto page "https://clojure.org")
+```
 
 ## Js-interop
 
