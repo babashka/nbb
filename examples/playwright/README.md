@@ -3,7 +3,7 @@
 ## Run example
 
 - Run `npm install` to install
-[playwright](https://playwright.dev/).
+[Playwright](https://playwright.dev/).
 - Then run `nbb example.cljs` to execute the script.
 
 ## Develop
@@ -13,7 +13,7 @@ editor](https://github.com/borkdude/nbb#nrepl).
 
 The following macro is quite helpful for REPL development:
 
-``` clojures
+``` clojure
 (defmacro defp
     "Define var when promise is resolved"
     [binding expr]
