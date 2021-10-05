@@ -7,7 +7,7 @@
    [clojure.test :as t :refer [deftest is async]]
    [promesa.core :as p]))
 
-(def browser-type pw/chromium) ;; or pw/firefox
+(def browser-type pw/firefox) ;; or pw/chromium
 
 (def continue (atom nil))
 (defn pause []
