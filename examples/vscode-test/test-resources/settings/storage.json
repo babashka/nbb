@@ -1,0 +1,19 @@
+{
+    "telemetry.machineId": "a55c4591cb56b38cc5e1dba31b68e1137b0da69557523c3f39f451b2fc98d2b2",
+    "openedPathsList": {
+        "entries": []
+    },
+    "windowsState": {
+        "lastActiveWindow": {
+            "backupPath": "/Users/borkdude/Dropbox/dev/clojure/nbb/examples/vscode-test/test-resources/settings/Backups/1633535460382",
+            "uiState": {
+                "mode": 1,
+                "x": 0,
+                "y": 25,
+                "width": 1680,
+                "height": 1025
+            }
+        },
+        "openedWindows": []
+    }
+}
