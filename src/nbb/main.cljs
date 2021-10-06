@@ -63,8 +63,9 @@
                         (throw (js/Error. (ex-message err)))))))
       (.error js/console "Usage: nbb <script> or nbb -e <expr>."))))
 
+;; needed on node 14 which is used in CI
 (js/process.on
- "uncaughtException"
+ "unhandledRejection"
  (fn [err]
    (.error js/console (ex-message err))
    (js/process.exit 1)))

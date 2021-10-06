@@ -138,7 +138,7 @@
 
 (deftest exit-code-test
   (is (not
-       (zero? (-> (nbb** {:err :string} "-e" "printt")
+       (zero? (-> (nbb** "-e" "printt")
                   deref
                   :exit)))))
 
@@ -156,9 +156,11 @@
           (when-let [o (:only opts)]
             (let [o (symbol o)]
               (if (qualified-symbol? o)
-                (binding [t/*report-counters* (atom t/*initial-report-counters*)]
-                  (t/test-var (resolve o))
-                  @t/*report-counters*)
+                (do
+                  (println "Testing" o)
+                  (binding [t/*report-counters* (atom t/*initial-report-counters*)]
+                    (t/test-var (resolve o))
+                    @t/*report-counters*))
                 (t/run-tests o)))))]
     (when (pos? (+ error fail))
       (throw (ex-info "Tests failed" {:babashka/exit 1})))))
