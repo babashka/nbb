@@ -160,6 +160,5 @@
                   (t/test-var (resolve o))
                   @t/*report-counters*)
                 (t/run-tests o)))))]
-    (prn error)
     (when (pos? (+ error fail))
       (throw (ex-info "Tests failed" {:babashka/exit 1})))))

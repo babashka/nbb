@@ -62,3 +62,9 @@
                           (.error js/console (str err)))
                         (throw (js/Error. (ex-message err)))))))
       (.error js/console "Usage: nbb <script> or nbb -e <expr>."))))
+
+(js/process.on
+ "uncaughtException"
+ (fn [err]
+   (.error js/console (ex-message err))
+   (js/process.exit 1)))
