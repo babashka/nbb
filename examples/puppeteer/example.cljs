@@ -50,5 +50,5 @@
   (defp browser (.launch puppeteer #js {:headless false}))
   (defp page (.newPage browser))
   (.goto page "https://clojure.org")
-
+  (.close browser)
   )

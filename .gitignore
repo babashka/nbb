@@ -11,3 +11,5 @@ out
 **/.clj-kondo/rewrite-clj
 **/.calva
 example.pdf
+./.vscode-test
+.vscode-test

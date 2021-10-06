@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "vscode-test": "^1.6.1"
+  }
+}
