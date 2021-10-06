@@ -60,13 +60,11 @@
                         (error/error-handler err opts)
                         (when (:debug opts)
                           (.error js/console (str err)))
-                        (.error js/console "caught")
                         (throw (js/Error. (ex-message err)))))))
       (.error js/console "Usage: nbb <script> or nbb -e <expr>."))))
 
 (js/process.on
- "uncaughtException"
+ "unhandledRejection"
  (fn [err]
-   (.error js/console "yyyyoooolo")
    (.error js/console (ex-message err))
    (js/process.exit 1)))
