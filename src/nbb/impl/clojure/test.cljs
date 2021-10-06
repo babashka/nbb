@@ -292,14 +292,14 @@
    (empty-env :cljs.test/pprint) - pretty prints all data structures.
    (empty-env reporter) - uses a reporter of your choosing.
    To create your own reporter see cljs.test/report"
-  ([] (empty-env ::default))
+  ([] (empty-env :cljs.test/default))
   ([reporter]
    (cond-> {:report-counters {:test 0 :pass 0 :fail 0 :error 0}
             :testing-vars ()
             :testing-contexts ()
             :formatter pr-str
             :reporter reporter}
-     (= ::pprint reporter) (assoc :reporter ::default
+     (= :cljs.test/pprint reporter) (assoc :reporter :cljs.test/default
                                   :formatter prn #_pprint/pprint))))
 
 (def ^:dynamic *current-env* nil)
@@ -357,7 +357,7 @@
 
 (def report (sci/copy-var report-impl tns))
 
-(defmethod report-impl [::default :pass] [m]
+(defmethod report-impl [:cljs.test/default :pass] [m]
   (inc-report-counter! :pass))
 
 (defn- print-comparison [m]
@@ -365,7 +365,7 @@
     (println "expected:" (formatter-fn (:expected m)))
     (println "  actual:" (formatter-fn (:actual m)))))
 
-(defmethod report-impl [::default :fail] [m]
+(defmethod report-impl [:cljs.test/default :fail] [m]
   (inc-report-counter! :fail)
   (println "\nFAIL in" (testing-vars-str m))
   (when (seq (:testing-contexts (get-current-env)))
@@ -373,7 +373,7 @@
   (when-let [message (:message m)] (println message))
   (print-comparison m))
 
-(defmethod report-impl [::default :error] [m]
+(defmethod report-impl [:cljs.test/default :error] [m]
   (inc-report-counter! :error)
   (println "\nERROR in" (testing-vars-str m))
   (when (seq (:testing-contexts (get-current-env)))
@@ -381,22 +381,22 @@
   (when-let [message (:message m)] (println message))
   (print-comparison m))
 
-(defmethod report-impl [::default :summary] [m]
+(defmethod report-impl [:cljs.test/default :summary] [m]
   (println "\nRan" (:test m) "tests containing"
            (+ (:pass m) (:fail m) (:error m)) "assertions.")
   (println (:fail m) "failures," (:error m) "errors."))
 
-(defmethod report-impl [::default :begin-test-ns] [m]
+(defmethod report-impl [:cljs.test/default :begin-test-ns] [m]
   (println "\nTesting" (:ns m)))
 
 ;; Ignore these message types:
-(defmethod report-impl [::default :end-test-ns] [m])
-(defmethod report-impl [::default :begin-test-var] [m]
+(defmethod report-impl [:cljs.test/default :end-test-ns] [m])
+(defmethod report-impl [:cljs.test/default :begin-test-var] [m]
   #_(println ":begin-test-var" (testing-vars-str m)))
-(defmethod report-impl [::default :end-test-var] [m])
-(defmethod report-impl [::default :end-run-tests] [m])
-(defmethod report-impl [::default :end-test-all-vars] [m])
-(defmethod report-impl [::default :end-test-vars] [m])
+(defmethod report-impl [:cljs.test/default :end-test-var] [m])
+(defmethod report-impl [:cljs.test/default :end-run-tests] [m])
+(defmethod report-impl [:cljs.test/default :end-test-all-vars] [m])
+(defmethod report-impl [:cljs.test/default :end-test-vars] [m])
 
 ;;; TEST RESULT REPORTING
 
@@ -789,10 +789,10 @@
   (fn [fixture-type & args] fixture-type))
 
 (defmethod use-fixtures :each [fixture-type & args]
-  (add-ns-meta ::each-fixtures args))
+  (add-ns-meta :cljs.test/each-fixtures args))
 
 (defmethod use-fixtures :once [fixture-type & args]
-  (add-ns-meta ::once-fixtures args))
+  (add-ns-meta :cljs.test/once-fixtures args))
 
 (defn- default-fixture
   "The default, empty, fixture function.  Just calls its argument."
@@ -843,14 +843,14 @@
                    (println "WARNING: Async test called done more than one time.")
                    @d))))
         (recur (cond->> (rest fns)
-                 (::block? (meta obj)) (concat obj)))))))
+                 (:cljs.test/block? (meta obj)) (concat obj)))))))
 
 (defn block
   "Tag a seq of fns to be picked up by run-block as injected
   continuation.  See run-block."
   [fns]
   (some-> fns
-          (vary-meta assoc ::block? true)))
+          (vary-meta assoc :cljs.test/block? true)))
 
 (defn ^:macro async
   "Wraps body as a CPS function that can be returned from a test to
@@ -888,7 +888,7 @@
        (t)
        (catch :default e
          (case e
-           ::async-disabled (throw "Async tests require fixtures to be specified as maps.  Testing aborted.")
+           :cljs.test/async-disabled (throw "Async tests require fixtures to be specified as maps.  Testing aborted.")
            (do-report
             {:type :error
              :message "Uncaught exception, not in assertion."
@@ -941,7 +941,7 @@
   (fn []
     (let [obj (f)]
       (when (async? obj)
-        (throw ::async-disabled))
+        (throw :cljs.test/async-disabled))
       obj)))
 
 (defn test-vars-block
