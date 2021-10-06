@@ -68,4 +68,4 @@
  "unhandledRejection"
  (fn [err]
    (.error js/console (ex-message err))
-   (js/process.exit 1)))
+   (set! (.-exitCode  js/process) 1)))
