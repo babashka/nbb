@@ -19,16 +19,20 @@
               s))
     identity))
 
-(defn nbb* [x & xs]
+(defn nbb** [x & xs]
   (let [[opts args] (if (map? x)
                       [x xs]
                       [nil (cons x xs)])]
-    (-> (process (into ["node" "out/nbb_main.js" "--debug"] args) (merge {:out :string
-                                                                          :err :inherit}
-                                                                         opts))
-        check
-        :out
-        normalize)))
+    (-> (process (into ["node" "out/nbb_main.js"] args)
+                 (merge {:out :string
+                         :err :inherit}
+                        opts)))))
+
+(defn nbb* [& xs]
+  (-> (apply nbb** xs)
+      check
+      :out
+      normalize))
 
 (defn nbb [& args]
   (let [res (apply nbb* args)]
@@ -132,7 +136,30 @@
     (is (str/includes? err "clojure.core/assoc - <built-in>"))
     (is (str/includes? err "error.cljs:5:1"))))
 
-(defn main [& _]
-  (let [{:keys [:error :fail]} (t/run-tests 'nbb-tests 'nbb-nrepl-tests)]
+(deftest exit-code-test
+  (is (not
+       (zero? (-> (nbb** {:err :string} "-e" "printt")
+                  deref
+                  :exit)))))
+
+(defn parse-opts [opts]
+  (let [[cmds opts] (split-with #(not (str/starts-with? % ":")) opts)]
+    (into {:cmds cmds}
+          (for [[arg-name arg-val] (partition 2 opts)]
+            [(keyword (subs arg-name 1)) arg-val]))))
+
+(defn main [& args]
+  (let [opts (parse-opts args)
+        {:keys [error fail]}
+        (if (empty? (dissoc opts :cmds))
+          (t/run-tests 'nbb-tests 'nbb-nrepl-tests)
+          (when-let [o (:only opts)]
+            (let [o (symbol o)]
+              (if (qualified-symbol? o)
+                (binding [t/*report-counters* (atom t/*initial-report-counters*)]
+                  (t/test-var (resolve o))
+                  @t/*report-counters*)
+                (t/run-tests o)))))]
+    (prn error)
     (when (pos? (+ error fail))
       (throw (ex-info "Tests failed" {:babashka/exit 1})))))
