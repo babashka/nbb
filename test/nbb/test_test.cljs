@@ -17,6 +17,17 @@
         (.then (fn [_]
                  (is (str/includes? @output "expected: (= 1 2)  actual: (not (= 1 2))")))))))
 
+(deftest-async are-test
+  (let [output (atom "")]
+    (-> (with-async-bindings
+          {sci/print-fn (fn [s]
+                          (swap! output str s))}
+          (nbb/load-string "
+    (ns foo-are (:require [clojure.test :as t :refer [deftest is are testing]]))
+    (t/deftest foo (t/are [x] (= x 2) 1 2 3)) (t/run-tests 'foo-are)"))
+        (.then (fn [_]
+                 (is (str/includes? @output "expected: (= 3 2)  actual: (not (= 3 2))")))))))
+
 (deftest async-test-test
   (async done
          (let [output (atom "")

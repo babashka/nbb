@@ -703,7 +703,7 @@
        (and (pos? (count argv))
             (pos? (count args))
             (zero? (mod (count args) (count argv)))))
-    nil #_`(temp/do-template ~argv (clojure.test/is ~expr) ~@args)
+    `(clojure.template/do-template ~argv (clojure.test/is ~expr) ~@args)
     (throw (js/Error. "The number of args doesn't match are's argv."))))
 
 (defn ^:macro testing
