@@ -11,4 +11,4 @@
         funcool/promesa {:mvn/version "6.0.2"}
         applied-science/js-interop {:mvn/version "0.3.0"}
         borkdude/sci {:git/url "https://github.com/borkdude/sci"
-                      :git/sha "1b75f7734fc121eef7a1893489a0ef1661653559"}}}
+                      :git/sha "20616983a8be69f2c28c4ef453e7a4eb644a12ee"}}}
