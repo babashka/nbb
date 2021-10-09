@@ -1,0 +1,4 @@
+{:deps {org.clojure/clojurescript {:mvn/version "1.10.879"}
+        chr15m/sitefox {:git/url "https://github.com/chr15m/sitefox"
+                        :git/sha "4bdb9120743b13417400cc9fa2d58e89b3659491"
+                        :exclusions [thheller/shadow-cljs]}}}
