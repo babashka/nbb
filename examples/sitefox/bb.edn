@@ -1,4 +1,5 @@
 {:tasks
- {fox {:requires ([babashka.classpath :as cp])
-       :task (let [cp "node_modules/@chr15m/sitefox/src"]
-               (shell "nbb" "-cp" cp "webserver.cljs"))}}}
+ {:init (do
+          (def cp "node_modules/@chr15m/sitefox/src"))
+  fox {:task (shell "nbb" "-cp" cp "webserver.cljs")}
+  dev {:task (shell "nbb" "-cp" cp "nrepl-server")}}}
