@@ -1,7 +1,6 @@
 {
   "dependencies": {
-    "@chr15m/sitefox": "https://github.com/chr15m/sitefox#4bdb9120743b13417400cc9fa2d58e89b3659491",
-    "@seanforfield/honeysql": "https://github.com/seancorfield/honeysql"
+    "@chr15m/sitefox": "https://github.com/chr15m/sitefox#4bdb9120743b13417400cc9fa2d58e89b3659491"
   },
   "scripts": {"fox": "nbb -cp node_modules/@chr15m/sitefox/src webserver.cljs"}
 }
