@@ -383,13 +383,16 @@ Currently CIDER needs the following
 
 See [this](https://twitter.com/uochan/status/1444417505506721793) tweet.
 
-## Examples
+## Projects using nbb
 
-See the [examples](examples) directory for small examples.
-
-Also check out these projects built with nbb:
+The following projects are using nbb or are supporting it as a development platform:
 
 - [c64core](https://github.com/chr15m/c64core): retrocompute aesthetics twitter bot
+- [sitefox](https://github.com/chr15m/sitefox)
+
+## Examples
+
+- See the [examples](examples) directory for small examples.
 - [gallery.cljs](https://gist.github.com/borkdude/05c4f4ce81a988f90917dc295d8f306e): script to download walpapers from [windowsonearth.org](https://www.windowsonearth.org).
 - [nbb-action-example](https://github.com/borkdude/nbb-action-example): example
   of a Github action built with nbb.

@@ -1,5 +1,5 @@
 {:tasks
  {:init (do
-          (def cp "node_modules/@chr15m/sitefox/src"))
+          [(def cp "node_modules/@chr15m/sitefox/src")])
   fox {:task (shell "nbb" "-cp" cp "webserver.cljs")}
   dev {:task (shell "nbb" "-cp" cp "nrepl-server")}}}
