@@ -13,5 +13,3 @@
 
 (p/let [strs (get-text "pdf-test.pdf")]
   (println strs))
-
-
