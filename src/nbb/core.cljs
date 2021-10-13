@@ -148,18 +148,18 @@
                       ;; skip loading if module was already loaded
                       (get @loaded-modules internal-name)
                       ;; else load module and register in loaded-modules under internal-name
-                      (esm/dynamic-import
-                       (let [path ((.-resolve (:require @ctx)) libname)
-                             ;; ensure URL on Windows
-                             path (if (and windows? (fs/existsSync path))
-                                    (str (url/pathToFileURL path))
-                                    path)]
-                         path))))]
+                      (-> (esm/dynamic-import
+                           (let [path ((.-resolve (:require @ctx)) libname)
+                                 ;; ensure URL on Windows
+                                 path (if (and windows? (fs/existsSync path))
+                                        (str (url/pathToFileURL path))
+                                        path)]
+                             path))
+                          (.then (fn [mod]
+                                   (if properties
+                                     (gobj/getValueByKeys mod properties)
+                                     mod))))))]
             (-> mod
-                (.then (fn [mod]
-                         (if properties
-                           (gobj/getValueByKeys mod properties)
-                           mod)))
                 (.then after-load)))
           ;; assume symbol
           (if (sci/eval-form @sci-ctx (list 'clojure.core/find-ns (list 'quote libname)))

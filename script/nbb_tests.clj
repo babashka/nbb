@@ -8,6 +8,10 @@
             [clojure.test :as t :refer [deftest is testing]]
             [nbb-nrepl-tests]))
 
+(defmethod clojure.test/report :begin-test-var [m]
+  (println "===" (-> m :var meta :name))
+  (println))
+
 (def windows? (-> (System/getProperty "os.name")
                   str/lower-case
                   (str/starts-with? "win")))
@@ -60,6 +64,11 @@
 (deftest esm-libs-test
   (tasks/shell {:dir "test-scripts/esm-test"} (npm "install"))
   (nbb {:out :inherit} "test-scripts/esm-test/script.cljs"))
+
+(deftest issue-80-test
+  (testing "ns form can be evaluated multiple times"
+    (tasks/shell {:dir "test-scripts/issue-80"} (npm "install"))
+    (nbb {:out :inherit} "test-scripts/issue-80/script.cljs")))
 
 (deftest chalk-test
   (tasks/shell {:dir "examples/chalk"} (npm "install"))

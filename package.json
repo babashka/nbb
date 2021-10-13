@@ -23,5 +23,6 @@
     "README.md",
     "img",
     "out"
-  ]
+  ],
+  "dependencies": {}
 }
