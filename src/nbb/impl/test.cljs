@@ -1,6 +1,6 @@
 (ns nbb.impl.test
   (:require
-   [nbb.core :as nbb :refer [sci-ctx]]
+   [nbb.core :as nbb]
    [nbb.impl.clojure.test :as t]
    [sci.core :as sci]))
 

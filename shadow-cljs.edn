@@ -9,8 +9,10 @@
    :output-dir "out"
    :modules
    {:nbb_core {:init-fn nbb.core/init}
+    :nbb_impl_main {:init-fn nbb.impl.main/init
+                    :depends-on #{:nbb_core :nbb_api}}
     :nbb_main {:init-fn nbb.main/main
-               :depends-on #{:nbb_core :nbb_api}}
+               :depends-on #{:nbb_impl_main :nbb_core :nbb_api}}
     :nbb_api {:exports {loadFile nbb.api/loadFile
                         loadString nbb.api/loadString}
               :depends-on #{:nbb_core}}

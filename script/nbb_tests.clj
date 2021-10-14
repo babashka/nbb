@@ -6,6 +6,7 @@
             [clojure.edn :as edn]
             [clojure.string :as str]
             [clojure.test :as t :refer [deftest is testing]]
+            [nbb-console-repl-tests]
             [nbb-nrepl-tests]))
 
 (defmethod clojure.test/report :begin-test-var [m]
@@ -161,7 +162,7 @@
   (let [opts (parse-opts args)
         {:keys [error fail]}
         (if (empty? (dissoc opts :cmds))
-          (t/run-tests 'nbb-tests 'nbb-nrepl-tests)
+          (t/run-tests 'nbb-tests 'nbb-nrepl-tests 'nbb-console-repl-tests)
           (when-let [o (:only opts)]
             (let [o (symbol o)]
               (if (qualified-symbol? o)

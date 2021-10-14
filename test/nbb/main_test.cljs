@@ -4,11 +4,11 @@
             [clojure.string :as str]
             [clojure.test :as t :refer [deftest is testing]]
             [nbb.core :as nbb]
-            [nbb.main :as main]
+            [nbb.impl.main :as main]
             [nbb.test-test])
   (:require-macros [nbb.test-macros :refer [deftest-async]]))
 
-(defmethod cljs.test/report [:default :begin-test-var] [m]
+(defmethod t/report [:cljs.test/default :begin-test-var] [m]
   (println "===" (-> m :var meta :name))
   (println))
 
