@@ -4,6 +4,7 @@
             [nbb.api :as api]
             [nbb.core :as nbb]
             [nbb.error :as error]
+            [nbb.impl.common :as common]
             [sci.core :as sci]
             [shadow.esm :as esm]))
 
@@ -23,9 +24,13 @@
                            nargs)
           "nrepl-server" (recur (assoc opts :nrepl-server true)
                                 nargs)
+          "socket-repl" (recur (assoc opts :socket-repl true)
+                               nargs)
           (":port" "--port")
           (recur (assoc opts :port (first nargs))
                  (next nargs))
+          "repl" (recur (assoc opts :repl true)
+                        nargs)
           ;; default
           (if (not (:expr args))
             ;; when not expression, this argument is interpreted as file
@@ -36,13 +41,15 @@
 (defn main []
   (let [[_ _ & args] js/process.argv
         opts (parse-args args)
+        _ (reset! common/opts opts)
         script-file (:script opts)
         expr (:expr opts)
         classpath (:classpath opts)
         cwd (js/process.cwd)
         classpath-dirs (cons cwd (str/split classpath (re-pattern path/delimiter)))
         nrepl-server (:nrepl-server opts)
-        console-repl? (empty? (:args opts))]
+        console-repl? (or (:repl opts)
+                          (empty? (:args opts)))]
     (reset! nbb/opts opts)
     (if (or script-file expr nrepl-server console-repl?)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
@@ -54,7 +61,7 @@
                     (:nrepl-server opts)
                     (esm/dynamic-import "./nbb_nrepl_server.js")
                     console-repl?
-                    (esm/dynamic-import "./nbb_console_repl.js"))
+                    (esm/dynamic-import "./nbb_repl.js"))
               (.then (fn [val]
                        (when (and expr (some? val))
                          (prn val))

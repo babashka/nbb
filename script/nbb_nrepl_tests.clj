@@ -3,8 +3,8 @@
    [babashka.process :refer [process]]
    [babashka.wait :refer [wait-for-port]]
    [bencode.core :as bencode]
-   [clojure.test :as t :refer [deftest is testing]]
-   [clojure.string :as str])
+   [clojure.string :as str]
+   [clojure.test :as t :refer [deftest is testing]])
   (:import [java.net Socket]))
 
 
