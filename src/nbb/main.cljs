@@ -41,9 +41,10 @@
         classpath (:classpath opts)
         cwd (js/process.cwd)
         classpath-dirs (cons cwd (str/split classpath (re-pattern path/delimiter)))
-        nrepl-server (:nrepl-server opts)]
+        nrepl-server (:nrepl-server opts)
+        console-repl? (empty? (:args opts))]
     (reset! nbb/opts opts)
-    (if (or script-file expr nrepl-server)
+    (if (or script-file expr nrepl-server console-repl?)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
           (swap! nbb/ctx assoc :classpath {:dirs classpath-dirs})
           (-> (cond script-file
@@ -51,7 +52,9 @@
                     expr
                     (api/loadString expr)
                     (:nrepl-server opts)
-                    (esm/dynamic-import "./nbb_nrepl_server.js"))
+                    (esm/dynamic-import "./nbb_nrepl_server.js")
+                    console-repl?
+                    (esm/dynamic-import "./nbb_console_repl.js"))
               (.then (fn [val]
                        (when (and expr (some? val))
                          (prn val))
