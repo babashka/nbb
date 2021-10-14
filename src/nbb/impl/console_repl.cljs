@@ -1,10 +1,12 @@
 (ns nbb.impl.console-repl
   (:require
+   ["path" :as path]
    ["readline" :as readline]
    [clojure.string :as str]
    [nbb.api :as api]
    [nbb.core :as nbb]
-   [sci.core :as sci]))
+   [sci.core :as sci])
+  (:require-macros [nbb.macros :as macros]))
 
 (defn create-rl []
   (.createInterface
@@ -16,28 +18,32 @@
 
 (declare input-loop)
 
-(defn on-line [rl]
+(def last-ns (atom @sci/ns))
+
+(defn on-line [^js rl]
   (.on rl "line" (fn [input]
-                   (let [rdr (sci/reader (str @pending input))
-                         next-val (try (sci/parse-next @nbb/sci-ctx rdr)
-                                       (catch :default e
-                                         (let [m (ex-message e)]
-                                           (if (str/includes? m "EOF while reading")
-                                             ::eof-while-reading
-                                             (throw e)))))]
-                     (if (= ::eof-while-reading next-val)
-                       (swap! pending str input "\n")
-                       (do
-                         (reset! pending "")
-                         
-                         (.close rl)
-                         (input-loop)))))))
+                   (-> (macros/with-async-bindings {sci/ns @last-ns}
+                         (-> (nbb/eval-expr nil (sci/reader (str @pending input)))
+                             (.then (fn [v]
+                                      [v (sci/eval-form @nbb/sci-ctx '*ns*)]))))
+                       (.then (fn [[val ns]]
+                                (reset! pending "")
+                                (reset! last-ns ns)
+                                (.close rl)
+                                (prn val)
+                                (input-loop)))
+                       (.catch (fn [e]
+                                 (let [m (ex-message e)]
+                                   (if (str/includes? m "EOF while reading")
+                                     (swap! pending str input "\n")
+                                     (throw e)))))))))
 
 (defn input-loop []
   (let [rl (create-rl)
-        _ (on-line rl)]
+        _ (on-line rl)
+        _ (.setPrompt rl (str @last-ns "> "))]
     (.prompt rl)))
 
 (defn init []
-  (prn :hello)
+  (api/init-require (path/resolve "script.cljs"))
   (input-loop))

@@ -8,6 +8,10 @@
             [nbb.test-test])
   (:require-macros [nbb.test-macros :refer [deftest-async]]))
 
+(defmethod cljs.test/report [:default :begin-test-var] [m]
+  (println "===" (-> m :var meta :name))
+  (println))
+
 (reset! nbb/ctx {:require (createRequire (path/resolve "script.cljs"))
                  :classpath {:dirs ["test-scripts"]}})
 
