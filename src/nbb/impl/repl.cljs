@@ -16,7 +16,8 @@
                  :output js/process.stdout}))
 
 
-(def pending (atom ""))
+(def pending-input (atom ""))
+(def pending-forms (atom ""))
 
 (declare input-loop)
 
@@ -24,23 +25,51 @@
 
 (defn input-handler
   [socket rl input]
-  (-> (macros/with-async-bindings {sci/ns @last-ns}
-        (-> (nbb/eval-expr nil (sci/reader (str @pending input)) {:wrap vector})
-            (.then (fn [v]
-                     [(first v) (sci/eval-form @nbb/sci-ctx '*ns*)]))))
-      (.then (fn [[val ns]]
-               (reset! pending "")
-               (reset! last-ns ns)
-               (.close rl)
-               (if socket
-                 (.write socket (prn-str val))
-                 (prn val))
-               (input-loop socket)))
-      (.catch (fn [e]
-                (let [m (ex-message e)]
-                  (if (str/includes? m "EOF while reading")
-                    (swap! pending str input "\n")
-                    (throw e)))))))
+  (swap! pending-input str input "\n")
+  (when-not (str/blank? @pending-input)
+    (let [rdr (sci/reader @pending-input)
+          the-val (try (nbb/parse-next rdr)
+                       (catch :default e
+                         (if (str/includes? (ex-message e) "EOF while reading")
+                           ::eof-while-reading
+                           (throw e))))]
+      (when-not (= ::eof-while-reading the-val)
+        (let [line (sci/get-line-number rdr)
+              col (sci/get-column-number rdr)
+              lines (str/split-lines @pending-input)
+              [line & lines] (drop (dec line) lines)
+              edited (subs line col)]
+          (reset! pending-input "")
+          (reset! pending-forms (str/join "\n" (cons edited lines))))
+        (when-not (= :sci.core/eof the-val)
+          (macros/with-async-bindings {sci/ns @last-ns}
+            ;; (prn :pending @pending)
+            (-> (nbb/eval-expr nil nil
+                               {:wrap vector
+                                ;; TODO this is a huge workaround
+                                ;; we should instead re-organize the code in nbb.core
+                                :parse-fn (let [realized? (atom false)]
+                                            (fn [_]
+                                              (if-not @realized?
+                                                (do
+                                                  (reset! realized? true)
+                                                  the-val)
+                                                :sci.core/eof)))})
+                (.then (fn [v]
+                         (let [[val ns]
+                               [(first v) (sci/eval-form @nbb/sci-ctx '*ns*)]]
+                           (reset! last-ns ns)
+                           (.close rl)
+                           (if socket
+                             (.write socket (prn-str val))
+                             (prn val))
+                           (let [pendingf @pending-forms]
+                             (if-not (str/blank? pendingf)
+                               (do (reset! pending-forms "")
+                                   (input-handler socket rl pendingf))
+                               (input-loop socket))))))
+                (.catch (fn [err]
+                          (prn (str err)))))))))))
 
 (defn on-line [^js rl socket]
   (.on rl "line" #(input-handler socket rl %)))

@@ -230,42 +230,49 @@
         libspecs (mapv #(sci/eval-form @sci-ctx %) args)]
     (handle-libspecs libspecs)))
 
+(defn parse-next [reader]
+  (sci/parse-next @sci-ctx reader
+                  {:features #{:org.babashka/nbb
+                               :cljs}}))
+
 (defn eval-expr
   "Evaluates top level forms asynchronously. Returns promise of last value."
   ([prev-val reader] (eval-expr prev-val reader nil))
   ([prev-val reader opts]
-   (let [next-val (try
-                    (sci/parse-next @sci-ctx reader {:features #{:org.babashka/nbb
-                                                                 :cljs}})
-                    (catch :default e
-                      (js/Promise.reject e)))]
-     (if-not (= :sci.core/eof next-val)
-       (if (seq? next-val)
-         (let [fst (first next-val)]
-           (cond (= 'ns fst)
-                 ;; async
-                 (.then (eval-ns-form next-val)
-                        (fn [ns-obj]
-                          (eval-expr ns-obj reader opts)))
-                 (= 'require fst)
-                 ;; async
-                 (.then (eval-require next-val)
-                        (fn [_]
-                          (eval-expr nil reader opts)))
-                 :else
-                 (try
-                   (eval-expr (sci/eval-form @sci-ctx next-val) reader opts)
-                   (catch :default e
-                     (js/Promise.reject e)))))
-         (try
-           (eval-expr (sci/eval-form @sci-ctx next-val) reader opts)
-           (catch :default e
-             (js/Promise.reject e))))
-       ;; wrap normal value in promise
-       (js/Promise.resolve
-        (let [wrap (or (:wrap opts)
-                       identity)]
-          (wrap prev-val)))))))
+   (let [next-val (try (if-let [parse-fn (:parse-fn opts)]
+                         (parse-fn reader)
+                         (parse-next reader))
+                       (catch :default e
+                         (js/Promise.reject e)))]
+     (if (instance? js/Promise next-val)
+       next-val
+       (if-not (= :sci.core/eof next-val)
+         (if (seq? next-val)
+           (let [fst (first next-val)]
+             (cond (= 'ns fst)
+                   ;; async
+                   (.then (eval-ns-form next-val)
+                          (fn [ns-obj]
+                            (eval-expr ns-obj reader opts)))
+                   (= 'require fst)
+                   ;; async
+                   (.then (eval-require next-val)
+                          (fn [_]
+                            (eval-expr nil reader opts)))
+                   :else
+                   (try
+                     (eval-expr (sci/eval-form @sci-ctx next-val) reader opts)
+                     (catch :default e
+                       (js/Promise.reject e)))))
+           (try
+             (eval-expr (sci/eval-form @sci-ctx next-val) reader opts)
+             (catch :default e
+               (js/Promise.reject e))))
+         ;; wrap normal value in promise
+         (js/Promise.resolve
+          (let [wrap (or (:wrap opts)
+                         identity)]
+            (wrap prev-val))))))))
 
 (defn eval-string* [s]
   (with-async-bindings {sci/ns @sci/ns}
