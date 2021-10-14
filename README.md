@@ -348,7 +348,17 @@ Nbb supports the following reader conditional features: `:org.babashka/nbb` and
 #?(:cljs 2 :org.babaskha/nbb 1) ;;=> 2
 ```
 
-## nREPL
+## REPL
+
+### Socket REPL
+
+To start a socket server REPL, run:
+
+``` clojure
+$ nbb socket-repl :port 1337
+```
+
+### nREPL
 
 The nREPL server probably still has rough edges. Please report issues
 [here](https://github.com/borkdude/nbb/issues).
@@ -368,18 +378,18 @@ $ lein repl :connect 1337
 
 and evaluate expressions.
 
-### Calva
+#### Calva
 
 In Calva connect to the REPL with:
 
 - Connect to a Running REPL Server not in Project > ClojureScript nREPL server
 
-### CIDER
+#### CIDER
 
 Currently CIDER needs the following
 [workaround](https://github.com/clojure-emacs/cider/issues/3061).
 
-### Vim Iced
+#### Vim Iced
 
 See [this](https://twitter.com/uochan/status/1444417505506721793) tweet.
 
