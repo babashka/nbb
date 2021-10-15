@@ -32,8 +32,10 @@
   (shell {:dir "examples/handlebars"} "npm install")
   (is (str/includes? (:out (repl (slurp "examples/handlebars/example.cljs") "examples/handlebars"))
                      "Hello world!"))
-  (testing "Recover from error"
-    (is (str/includes? (:out (repl "1\n x\n (+ 1 2 3)")) "6"))))
+  (testing "Recover from run-time error"
+    (is (str/includes? (:out (repl "1\n x\n (+ 1 2 3)")) "6")))
+  (testing "Recover from reader error"
+    (is (str/includes? (:out (repl "/x \n (+ 1 2 3)")) "6"))))
 
 (defn socket-repl
   ([input] (socket-repl input nil))
