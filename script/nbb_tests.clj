@@ -7,18 +7,15 @@
             [clojure.string :as str]
             [clojure.test :as t :refer [deftest is testing]]
             [nbb-nrepl-tests]
-            [nbb-repl-tests]))
+            [nbb-repl-tests]
+            [test-utils :as tu]))
 
 (defmethod clojure.test/report :begin-test-var [m]
   (println "===" (-> m :var meta :name))
   (println))
 
-(def windows? (-> (System/getProperty "os.name")
-                  str/lower-case
-                  (str/starts-with? "win")))
-
 (def normalize
-  (if windows?
+  (if tu/windows?
     (fn [s] (if (string? s)
               (str/replace s "\r\n" "\n")
               s))

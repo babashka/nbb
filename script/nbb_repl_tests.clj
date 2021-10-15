@@ -6,7 +6,8 @@
    [babashka.wait :refer [wait-for-port]]
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [clojure.test :as t :refer [deftest is testing]])
+   [clojure.test :as t :refer [deftest is testing]]
+   [test-utils :as tu])
   (:import [java.net Socket]))
 
 (defn repl
@@ -29,9 +30,10 @@
   (is (str/includes?
        (:out (repl "(js/Promise.resolve 10)"))
        "Promise"))
-  (shell {:dir "examples/handlebars"} "npm install")
-  (is (str/includes? (:out (repl (slurp "examples/handlebars/example.cljs")
-                                 (str (fs/absolutize "examples/handlebars"))))
+  (shell {:dir "examples/handlebars"} (if tu/windows?
+                                        "npm.cmd install"
+                                        "npm install"))
+  (is (str/includes? (:out (repl (slurp "examples/handlebars/example.cljs") "examples/handlebars"))
                      "Hello world!"))
   (testing "Recover from run-time error"
     (is (str/includes? (:out (repl "1\n x\n (+ 1 2 3)")) "6")))
