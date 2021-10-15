@@ -31,7 +31,7 @@
        "Promise"))
   (shell {:dir "examples/handlebars"} "npm install")
   (is (str/includes? (:out (repl (slurp "examples/handlebars/example.cljs")
-                                 (fs/absolutize "examples/handlebars")))
+                                 (str (fs/absolutize "examples/handlebars"))))
                      "Hello world!"))
   (testing "Recover from run-time error"
     (is (str/includes? (:out (repl "1\n x\n (+ 1 2 3)")) "6")))
