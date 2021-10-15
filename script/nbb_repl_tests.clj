@@ -1,18 +1,23 @@
 (ns nbb-repl-tests
   (:require
+   [babashka.fs :as fs]
    [babashka.process :as p :refer [process]]
+   [babashka.tasks :refer [shell]]
    [babashka.wait :refer [wait-for-port]]
    [clojure.java.io :as io]
    [clojure.string :as str]
    [clojure.test :as t :refer [deftest is]])
   (:import [java.net Socket]))
 
-(defn repl [input]
-  (-> (process ["node" "out/nbb_main.js"]
-               {:out :string
-                :in input
-                :err :inherit})
-      p/check))
+(defn repl
+  ([input] (repl input nil))
+  ([input dir]
+   (-> (process ["node" (str (fs/absolutize "out/nbb_main.js"))]
+                {:dir (or dir ".")
+                 :out :string
+                 :in input
+                 :err :inherit})
+       p/check)))
 
 (deftest repl-test
   (is (str/includes? (:out (repl "(+ 1 2 3)")) "6\n"))
@@ -23,13 +28,18 @@
        "true\n"))
   (is (str/includes?
        (:out (repl "(js/Promise.resolve 10)"))
-       "Promise")))
+       "Promise"))
+  (shell {:dir "examples/handlebars"} "npm install")
+  (is (str/includes? (:out (repl (slurp "examples/handlebars/example.cljs") "examples/handlebars"))
+                     "Hello world!")))
 
 (defn socket-repl
   ([input] (socket-repl input nil))
-  ([input match]
+  ([input match] (socket-repl input match nil))
+  ([input match dir]
    (let [p (process ["node" "out/nbb_main.js" "socket-repl" ":port" "1337"]
-                    {:inherit true})]
+                    {:inherit true
+                     :dir (or dir ".")})]
      (wait-for-port "localhost" 1337)
      (with-open [socket (Socket. "127.0.0.1" 1337)
                  in (.getInputStream socket)

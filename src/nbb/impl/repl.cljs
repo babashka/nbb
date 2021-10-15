@@ -17,59 +17,66 @@
 
 
 (def pending-input (atom ""))
-(def pending-forms (atom ""))
 
 (declare input-loop)
 
 (def last-ns (atom @sci/ns))
 
-(defn input-handler
-  [socket rl input]
-  (swap! pending-input str input "\n")
-  (when-not (str/blank? @pending-input)
+(def in-progress (atom false))
+
+(defn eval-next [socket rl]
+  (when-not (or @in-progress (str/blank? @pending-input))
+    (reset! in-progress true)
     (let [rdr (sci/reader @pending-input)
           the-val (try (nbb/parse-next rdr)
                        (catch :default e
                          (if (str/includes? (ex-message e) "EOF while reading")
                            ::eof-while-reading
                            (throw e))))]
-      (when-not (= ::eof-while-reading the-val)
-        (let [line (sci/get-line-number rdr)
-              col (sci/get-column-number rdr)
-              lines (str/split-lines @pending-input)
-              [line & lines] (drop (dec line) lines)
-              edited (subs line col)]
-          (reset! pending-input "")
-          (reset! pending-forms (str/join "\n" (cons edited lines))))
-        (when-not (= :sci.core/eof the-val)
-          (macros/with-async-bindings {sci/ns @last-ns}
-            ;; (prn :pending @pending)
-            (-> (nbb/eval-expr nil nil
-                               {:wrap vector
-                                ;; TODO this is a huge workaround
-                                ;; we should instead re-organize the code in nbb.core
-                                :parse-fn (let [realized? (atom false)]
-                                            (fn [_]
-                                              (if-not @realized?
-                                                (do
-                                                  (reset! realized? true)
-                                                  the-val)
-                                                :sci.core/eof)))})
-                (.then (fn [v]
-                         (let [[val ns]
-                               [(first v) (sci/eval-form @nbb/sci-ctx '*ns*)]]
-                           (reset! last-ns ns)
-                           (.close rl)
-                           (if socket
-                             (.write socket (prn-str val))
-                             (prn val))
-                           (let [pendingf @pending-forms]
-                             (if-not (str/blank? pendingf)
-                               (do (reset! pending-forms "")
-                                   (input-handler socket rl pendingf))
-                               (input-loop socket))))))
-                (.catch (fn [err]
-                          (prn (str err)))))))))))
+      (if-not (= ::eof-while-reading the-val)
+        (do (let [line (sci/get-line-number rdr)
+                  col (sci/get-column-number rdr)
+                  lines (str/split-lines @pending-input)
+                  [line & lines] (drop (dec line) lines)
+                  edited (when line (subs line col))]
+              (reset! pending-input (str/join "\n" (cons edited lines))))
+            (if-not (= :sci.core/eof the-val)
+              (macros/with-async-bindings {sci/ns @last-ns}
+                ;; (prn :pending @pending)
+                (-> (nbb/eval-expr nil nil
+                                   {:wrap vector
+                                    ;; TODO this is a huge workaround
+                                    ;; we should instead re-organize the code in nbb.core
+                                    :parse-fn (let [realized? (atom false)]
+                                                (fn [_]
+                                                  (if-not @realized?
+                                                    (do
+                                                      (reset! realized? true)
+                                                      the-val)
+                                                    :sci.core/eof)))})
+                    (.then (fn [v]
+                             (let [[val ns]
+                                   [(first v) (sci/eval-form @nbb/sci-ctx '*ns*)]]
+                               (reset! last-ns ns)
+                               (if socket
+                                 (.write socket (prn-str val))
+                                 (prn val))
+                               (reset! in-progress false)
+                               (.setPrompt rl (str @last-ns "=> "))
+                               (.prompt rl)
+                               (let [pending @pending-input]
+                                 (when-not (str/blank? pending)
+                                   (eval-next socket rl)
+                                   (reset! in-progress false))))))
+                    (.catch (fn [err]
+                              (prn (str err))))))
+              (reset! in-progress false)))
+        ;; more input expected
+        (reset! in-progress false)))))
+
+(defn input-handler [socket rl input]
+  (swap! pending-input str input "\n")
+  (eval-next socket rl))
 
 (defn on-line [^js rl socket]
   (.on rl "line" #(input-handler socket rl %)))
