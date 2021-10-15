@@ -18,11 +18,18 @@
 
 (def pending-input (atom ""))
 
-(declare input-loop)
+(declare input-loop eval-next)
 
 (def last-ns (atom @sci/ns))
 
 (def in-progress (atom false))
+
+(defn continue [rl socket]
+  (reset! in-progress false)
+  (.setPrompt rl (str @last-ns "=> "))
+  (.prompt rl)
+  (when-not (str/blank? @pending-input)
+    (eval-next socket rl)))
 
 (defn eval-next [socket rl]
   (when-not (or @in-progress (str/blank? @pending-input))
@@ -61,15 +68,10 @@
                                (if socket
                                  (.write socket (prn-str val))
                                  (prn val))
-                               (reset! in-progress false)
-                               (.setPrompt rl (str @last-ns "=> "))
-                               (.prompt rl)
-                               (let [pending @pending-input]
-                                 (when-not (str/blank? pending)
-                                   (eval-next socket rl)
-                                   (reset! in-progress false))))))
+                               (continue rl socket))))
                     (.catch (fn [err]
-                              (prn (str err))))))
+                              (prn (str err))
+                              (continue rl socket)))))
               (reset! in-progress false)))
         ;; more input expected
         (reset! in-progress false)))))
