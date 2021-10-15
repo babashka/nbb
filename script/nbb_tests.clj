@@ -8,14 +8,14 @@
             [clojure.test :as t :refer [deftest is testing]]
             [nbb-nrepl-tests]
             [nbb-repl-tests]
-            [test-utils :as tu]))
+            [test-utils :as tu :refer [windows?]]))
 
 (defmethod clojure.test/report :begin-test-var [m]
   (println "===" (-> m :var meta :name))
   (println))
 
 (def normalize
-  (if tu/windows?
+  (if windows?
     (fn [s] (if (string? s)
               (str/replace s "\r\n" "\n")
               s))
