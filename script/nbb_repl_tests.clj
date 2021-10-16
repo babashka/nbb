@@ -11,17 +11,19 @@
   (:import [java.net Socket]))
 
 (defn repl-process
-  [input dir]
+  [input dir opts]
   (process ["node" (str (fs/absolutize "out/nbb_main.js"))]
-           {:dir (or dir ".")
-            :out :string
-            :in input
-            :err :inherit}))
+           (merge {:dir (or dir ".")
+                   :out :string
+                   :in input
+                   :err :inherit}
+                  opts)))
 
 (defn repl
   ([input] (repl input nil))
-  ([input dir]
-   (-> (repl-process input dir)
+  ([input dir] (repl input dir nil))
+  ([input dir opts]
+   (-> (repl-process input dir opts)
        p/check)))
 
 (deftest repl-test
@@ -43,12 +45,15 @@
     (is (str/includes? (:out (repl "1\n x\n (+ 1 2 3)")) "6")))
   (testing "Recover from reader error"
     (is (str/includes? (:out (repl "/x \n (+ 1 2 3)")) "6")))
-  (let [rp (repl-process "(range) (+ 1 2 3)" nil)
+  (let [temp-file (fs/file (fs/temp-dir) "interrupt.txt")
+        _ (spit temp-file "") ;; ensure exists
+        rp (repl-process ":yes (range) (+ 1 2 3)" nil {:out temp-file})
         pid (.pid (:proc rp))]
-    ;; is there a better way?
-    (Thread/sleep 1000)
+    (while (not (str/includes? (slurp temp-file) ":yes"))
+      (Thread/sleep 10))
     (shell (str "kill -SIGINT " pid))
-    (let [out (:out (deref rp))]
+    (deref rp)
+    (let [out (slurp temp-file)]
       (is (str/includes? out "interrupted"))
       (is (str/includes? out "6")))))
 

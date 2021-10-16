@@ -40,11 +40,10 @@
         edited (when line (subs line col))]
     (reset! pending-input (str/join "\n" (cons edited lines)))))
 
-(def tty js/process.stdout.isTTY)
+(def tty (and js/process.stdout.isTTY
+              js/process.stdin.setRawMode))
 
 (def contextify-binding (js/process.binding "contextify"))
-
-;; TODO: I'm not sure if we need the watch dog stuff
 
 (defn eval-expr [socket f]
   (let [ctx #js {:f f}
