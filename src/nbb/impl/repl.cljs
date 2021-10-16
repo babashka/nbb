@@ -40,7 +40,24 @@
         edited (when line (subs line col))]
     (reset! pending-input (str/join "\n" (cons edited lines)))))
 
+(def contextify-binding (js/process.binding "contextify"))
+
+(defn eval-expr [f]
+  (let [ctx #js {:f f}
+        _ (.createContext vm ctx)]
+    ;; (prn :wd (.startSigintWatchdog (js/process.binding "contextify")))
+    (try
+      (.setRawMode js/process.stdin false)
+      (.runInContext vm "f()" ctx #js {:displayErrors true
+                                       :timeout 30000
+                                       :breakOnSigint true
+                                       :microtaskMode "afterEvaluate"})
+         (catch :default e
+           (prn e)
+           (js/Promise.resolve [10])))))
+
 (defn eval-next [socket rl]
+  (prn :eval-next)
   (when-not (or @in-progress (str/blank? @pending-input))
     (reset! in-progress true)
     (let [rdr (sci/reader @pending-input)
@@ -61,18 +78,22 @@
                 (if-not (= :sci.core/eof the-val)
                   (macros/with-async-bindings {sci/ns @last-ns}
                     ;; (prn :pending @pending)
-                    (-> (nbb/eval-expr nil nil
-                                       {:wrap vector
-                                        ;; TODO this is a huge workaround
-                                        ;; we should instead re-organize the code in nbb.core
-                                        :parse-fn (let [realized? (atom false)]
-                                                    (fn [_]
-                                                      (if-not @realized?
-                                                        (do
-                                                          (reset! realized? true)
-                                                          the-val)
-                                                        :sci.core/eof)))})
+                    (prn :pause (.pause rl))
+                    (-> (eval-expr #(nbb/eval-expr nil nil
+                                                  {:wrap vector
+                                                   ;; TODO this is a huge workaround
+                                                   ;; we should instead re-organize the code in nbb.core
+                                                   :parse-fn (let [realized? (atom false)]
+                                                               (fn [_]
+                                                                 (if-not @realized?
+                                                                   (do
+                                                                     (reset! realized? true)
+                                                                     the-val)
+                                                                   :sci.core/eof)))}))
                         (.then (fn [v]
+                                 (.setRawMode js/process.stdin true)
+                                 (prn :resume (.resume rl))
+                                 (prn :v v)
                                  (let [[val ns]
                                        [(first v) (sci/eval-form @nbb/sci-ctx '*ns*)]]
                                    (reset! last-ns ns)
@@ -117,10 +138,8 @@
   (api/init-require (path/resolve "script.cljs"))
   (prn js/process.pid)
   (.on js/process "SIGINT" (fn [] (prn :sigint)))
-  ;; (.setRawMode js/process.stdin true)
-  (let [contextify-binding (js/process.binding "contextify")
-        ctx #js {:input_loop input-loop}
-        _ (.createContext vm ctx)]
+  (.setRawMode js/process.stdin true)
+  (let []
     (if-let [port (:port @common/opts)]
       (let [srv (net/createServer
                  (fn [socket]
@@ -132,7 +151,4 @@
                          host (-> addr .-address)]
                      (println (str "Socket REPL listening on port "
                                    port " on host " host))))))
-      (do (prn :wd (.startSigintWatchdog contextify-binding))
-          (prn :ctx (.runInContext vm "while (true) {}" ctx #js {:displayErrors true
-                                                                 :timeout 30000
-                                                                 :breakOnSigint true}))))))
+      (input-loop nil))))
