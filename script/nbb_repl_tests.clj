@@ -45,17 +45,19 @@
     (is (str/includes? (:out (repl "1\n x\n (+ 1 2 3)")) "6")))
   (testing "Recover from reader error"
     (is (str/includes? (:out (repl "/x \n (+ 1 2 3)")) "6")))
-  (let [temp-file (fs/file (fs/temp-dir) "interrupt.txt")
-        _ (spit temp-file "") ;; ensure exists
-        rp (repl-process ":yes (range) (+ 1 2 3)" nil {:out temp-file})
-        pid (.pid (:proc rp))]
-    (while (not (str/includes? (slurp temp-file) ":yes"))
-      (Thread/sleep 10))
-    (shell (str "kill -SIGINT " pid))
-    (deref rp)
-    (let [out (slurp temp-file)]
-      (is (str/includes? out "interrupted"))
-      (is (str/includes? out "6")))))
+  (testing "SIGINT interrupts eval"
+    (when-not tu/windows?
+      (let [temp-file (fs/file (fs/temp-dir) "interrupt.txt")
+            _ (spit temp-file "") ;; ensure exists
+            rp (repl-process ":yes (range) (+ 1 2 3)" nil {:out temp-file})
+            pid (.pid (:proc rp))]
+        (while (not (str/includes? (slurp temp-file) ":yes"))
+          (Thread/sleep 10))
+        (shell (str "kill -SIGINT " pid))
+        (deref rp)
+        (let [out (slurp temp-file)]
+          (is (str/includes? out "interrupted"))
+          (is (str/includes? out "6")))))))
 
 (defn socket-repl
   ([input] (socket-repl input nil))
