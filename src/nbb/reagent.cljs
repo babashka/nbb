@@ -62,9 +62,6 @@
 
 (def rns (sci/create-ns 'reagent.core nil))
 
-(defn r-create-class [spec]
-  (reagent.core/create-class spec))
-
 (def reagent-namespace
   {'atom (sci/copy-var r/atom rns)
    'as-element (sci/copy-var r/as-element rns)
