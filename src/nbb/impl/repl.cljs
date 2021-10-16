@@ -72,11 +72,10 @@
           (.finally (fn []
                       (when (and tty (not socket))
                         (.setRawMode js/process.stdin true)))))
-      (catch :default _e
-        (prn "error" _e)
+      (catch :default e
         (when (and tty (not socket))
           (.setRawMode js/process.stdin true))
-        (js/Promise.resolve nil)))))
+        (js/Promise.reject e)))))
 
 (defn eval-next [socket rl]
   (when-not (or @in-progress (str/blank? @pending-input))
