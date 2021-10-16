@@ -3,6 +3,7 @@
    ["net" :as net]
    ["path" :as path]
    ["readline" :as readline]
+   ["vm" :as vm]
    [clojure.string :as str]
    [nbb.api :as api]
    [nbb.core :as nbb]
@@ -26,7 +27,7 @@
 
 (defn continue [rl socket]
   (reset! in-progress false)
-  (.setPrompt rl (str @last-ns "=> "))
+  (.setPrompt ^js rl (str @last-ns "=> "))
   (.prompt rl)
   (when-not (str/blank? @pending-input)
     (eval-next socket rl)))
@@ -96,7 +97,7 @@
    readline #js {:input socket
                  :output socket}))
 
-(defn input-loop [socket]
+(defn ^:export input-loop [socket]
   (let [rl (if socket
              (create-socket-rl socket)
              (create-rl))
@@ -114,15 +115,24 @@
 
 (defn init []
   (api/init-require (path/resolve "script.cljs"))
-  (if-let [port (:port @common/opts)]
-    (let [srv (net/createServer
-               (fn [socket]
-                 (on-connect socket)))]
-      (.listen srv port "127.0.0.1"
-               (fn []
-                 (let [addr (-> srv (.address))
-                       port (-> addr .-port)
-                       host (-> addr .-address)]
-                   (println (str "Socket REPL listening on port "
-                                 port " on host " host))))))
-    (input-loop nil)))
+  (prn js/process.pid)
+  (.on js/process "SIGINT" (fn [] (prn :sigint)))
+  ;; (.setRawMode js/process.stdin true)
+  (let [contextify-binding (js/process.binding "contextify")
+        ctx #js {:input_loop input-loop}
+        _ (.createContext vm ctx)]
+    (if-let [port (:port @common/opts)]
+      (let [srv (net/createServer
+                 (fn [socket]
+                   (on-connect socket)))]
+        (.listen srv port "127.0.0.1"
+                 (fn []
+                   (let [addr (-> srv (.address))
+                         port (-> addr .-port)
+                         host (-> addr .-address)]
+                     (println (str "Socket REPL listening on port "
+                                   port " on host " host))))))
+      (do (prn :wd (.startSigintWatchdog contextify-binding))
+          (prn :ctx (.runInContext vm "while (true) {}" ctx #js {:displayErrors true
+                                                                 :timeout 30000
+                                                                 :breakOnSigint true}))))))
