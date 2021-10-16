@@ -60,10 +60,12 @@
                                     #js {:displayErrors true
                                          ;; :timeout 1000
                                          :breakOnSigint true
-                                         :microtaskMode "afterEvaluate"})))))
+                                         :microtaskMode "afterEvaluate"}))))
+          (.finally (fn []
+                      (.setRawMode js/process.stdin true))))
          (catch :default _e
-           (prn "error")
-           (js/Promise.resolve [10])))))
+           (prn "error" _e)
+           (js/Promise.resolve nil)))))
 
 (defn eval-next [socket rl]
   (when-not (or @in-progress (str/blank? @pending-input))
@@ -98,7 +100,6 @@
                                                                      the-val)
                                                                    :sci.core/eof)))}))
                         (.then (fn [v]
-                                 (.setRawMode js/process.stdin true)
                                  (let [[val ns]
                                        [(first v) (sci/eval-form @nbb/sci-ctx '*ns*)]]
                                    (reset! last-ns ns)
