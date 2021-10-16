@@ -10,14 +10,20 @@
    [test-utils :as tu])
   (:import [java.net Socket]))
 
+(defn repl-process
+  [input dir opts]
+  (process ["node" (str (fs/absolutize "out/nbb_main.js"))]
+           (merge {:dir (or dir ".")
+                   :out :string
+                   :in input
+                   :err :inherit}
+                  opts)))
+
 (defn repl
   ([input] (repl input nil))
-  ([input dir]
-   (-> (process ["node" (str (fs/absolutize "out/nbb_main.js"))]
-                {:dir (or dir ".")
-                 :out :string
-                 :in input
-                 :err :inherit})
+  ([input dir] (repl input dir nil))
+  ([input dir opts]
+   (-> (repl-process input dir opts)
        p/check)))
 
 (deftest repl-test
@@ -38,7 +44,20 @@
   (testing "Recover from run-time error"
     (is (str/includes? (:out (repl "1\n x\n (+ 1 2 3)")) "6")))
   (testing "Recover from reader error"
-    (is (str/includes? (:out (repl "/x \n (+ 1 2 3)")) "6"))))
+    (is (str/includes? (:out (repl "/x \n (+ 1 2 3)")) "6")))
+  (testing "SIGINT interrupts eval"
+    (when-not tu/windows?
+      (let [temp-file (fs/file (fs/temp-dir) "interrupt.txt")
+            _ (spit temp-file "") ;; ensure exists
+            rp (repl-process ":yes (range) (+ 1 2 3)" nil {:out temp-file})
+            pid (.pid (:proc rp))]
+        (while (not (str/includes? (slurp temp-file) ":yes"))
+          (Thread/sleep 10))
+        (shell (str "kill -SIGINT " pid))
+        (deref rp)
+        (let [out (slurp temp-file)]
+          (is (str/includes? out "interrupted"))
+          (is (str/includes? out "6")))))))
 
 (defn socket-repl
   ([input] (socket-repl input nil))

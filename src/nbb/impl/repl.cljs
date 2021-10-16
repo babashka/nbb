@@ -3,6 +3,7 @@
    ["net" :as net]
    ["path" :as path]
    ["readline" :as readline]
+   ["vm" :as vm]
    [clojure.string :as str]
    [nbb.api :as api]
    [nbb.core :as nbb]
@@ -26,7 +27,7 @@
 
 (defn continue [rl socket]
   (reset! in-progress false)
-  (.setPrompt rl (str @last-ns "=> "))
+  (.setPrompt ^js rl (str @last-ns "=> "))
   (.prompt rl)
   (when-not (str/blank? @pending-input)
     (eval-next socket rl)))
@@ -38,6 +39,42 @@
         [line & lines] (drop (dec line) lines)
         edited (when line (subs line col))]
     (reset! pending-input (str/join "\n" (cons edited lines)))))
+
+(def tty (and js/process.stdout.isTTY
+              js/process.stdin.setRawMode))
+
+(def contextify-binding (js/process.binding "contextify"))
+
+(defn eval-expr [socket f]
+  (let [ctx #js {:f f}
+        _ (.createContext vm ctx)]
+    (try
+      (when (and tty (not socket))
+        (.setRawMode js/process.stdin false))
+      (-> (.runInContext vm "f()" ctx
+                         #js {:displayErrors true
+                              ;; :timeout 1000
+                              :breakOnSigint true
+                              :microtaskMode "afterEvaluate"})
+          (.then (fn [wrapper]
+                   (let [ctx #js {:f (if socket (fn [] wrapper)
+                                         (fn []
+                                           (let [v (first wrapper)]
+                                             (prn v)
+                                             wrapper)))}
+                         _ (.createContext vm ctx)]
+                     (.runInContext vm "f()" ctx
+                                    #js {:displayErrors true
+                                         ;; :timeout 1000
+                                         :breakOnSigint true
+                                         :microtaskMode "afterEvaluate"}))))
+          (.finally (fn []
+                      (when (and tty (not socket))
+                        (.setRawMode js/process.stdin true)))))
+      (catch :default e
+        (when (and tty (not socket))
+          (.setRawMode js/process.stdin true))
+        (js/Promise.reject e)))))
 
 (defn eval-next [socket rl]
   (when-not (or @in-progress (str/blank? @pending-input))
@@ -60,24 +97,26 @@
                 (if-not (= :sci.core/eof the-val)
                   (macros/with-async-bindings {sci/ns @last-ns}
                     ;; (prn :pending @pending)
-                    (-> (nbb/eval-expr nil nil
-                                       {:wrap vector
-                                        ;; TODO this is a huge workaround
-                                        ;; we should instead re-organize the code in nbb.core
-                                        :parse-fn (let [realized? (atom false)]
-                                                    (fn [_]
-                                                      (if-not @realized?
-                                                        (do
-                                                          (reset! realized? true)
-                                                          the-val)
-                                                        :sci.core/eof)))})
+                    (-> (eval-expr
+                         socket
+                         #(nbb/eval-expr nil nil
+                                         {:wrap vector
+                                          ;; TODO this is a huge workaround
+                                          ;; we should instead re-organize the code in nbb.core
+                                          :parse-fn (let [realized? (atom false)]
+                                                      (fn [_]
+                                                        (if-not @realized?
+                                                          (do
+                                                            (reset! realized? true)
+                                                            the-val)
+                                                          :sci.core/eof)))}))
                         (.then (fn [v]
                                  (let [[val ns]
                                        [(first v) (sci/eval-form @nbb/sci-ctx '*ns*)]]
                                    (reset! last-ns ns)
-                                   (if socket
+                                   (when socket
                                      (.write socket (prn-str val))
-                                     (prn val))
+                                     #_(prn val))
                                    (continue rl socket))))
                         (.catch (fn [err]
                                   (prn (str err))
@@ -96,7 +135,7 @@
    readline #js {:input socket
                  :output socket}))
 
-(defn input-loop [socket]
+(defn ^:export input-loop [socket]
   (let [rl (if socket
              (create-socket-rl socket)
              (create-rl))
@@ -114,8 +153,11 @@
 
 (defn init []
   (api/init-require (path/resolve "script.cljs"))
-  (if-let [port (:port @common/opts)]
-    (let [srv (net/createServer
+  ;; (prn js/process.pid)
+  (if (:socket-repl @common/opts)
+    (let [port (or (:port @common/opts)
+                   0)
+          srv (net/createServer
                (fn [socket]
                  (on-connect socket)))]
       (.listen srv port "127.0.0.1"
@@ -125,4 +167,5 @@
                        host (-> addr .-address)]
                    (println (str "Socket REPL listening on port "
                                  port " on host " host))))))
-    (input-loop nil)))
+    (do (when tty (.setRawMode js/process.stdin true))
+        (input-loop nil))))
