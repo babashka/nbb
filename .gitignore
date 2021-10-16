@@ -11,3 +11,4 @@ out
 **/.clj-kondo/rewrite-clj
 **/.calva
 example.pdf
+*/**/package-lock.json

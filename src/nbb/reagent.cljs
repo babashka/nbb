@@ -70,7 +70,8 @@
    'as-element (sci/copy-var r/as-element rns)
    'with-let (sci/copy-var with-let rns)
    'cursor (sci/copy-var r/cursor rns)
-   'create-class (sci/copy-var r-create-class rns)})
+   'create-class (sci/copy-var r/create-class rns)
+   'create-compiler (sci/copy-var r/create-compiler rns)})
 
 (def rtmns (sci/create-ns 'reagent.ratom nil))
 

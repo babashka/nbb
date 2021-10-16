@@ -58,7 +58,8 @@
     (nbb {:out :inherit} "test-scripts/react-test/ink-test.cljs"))
   (testing "reagent is loaded first, then react"
     (nbb {:out :inherit} "test-scripts/react-test/ink-test2.cljs"))
-  (is (= "<div data-reactroot=\"\"><p>Hi</p></div>" (nbb "test-scripts/react-test/create-class-test.cljs"))))
+  (is (= "<div data-reactroot=\"\"><p>Hi</p></div>"
+         (nbb "test-scripts/react-test/create-class-test.cljs"))))
 
 (deftest esm-libs-test
   (tasks/shell {:dir "test-scripts/esm-test"} (npm "install"))

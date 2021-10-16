@@ -2,6 +2,8 @@
   (:require [reagent.core :as r]
             [reagent.dom.server :as srv]))
 
+(def compiler (r/create-compiler {:function-components true}))
+
 (defn err-boundary
   [& _children]
   (let [err-state (r/atom nil)]
@@ -12,6 +14,7 @@
                          (if (nil? @err-state)
                            (into [:<>] children)
                            (let [[_ info] @err-state]
-                             [:p "Oops! Something bad happened : " info])))})))
+                             [:p "Oops! Something bad happened : " info])))}
+      compiler)))
 
 (prn (srv/render-to-string (r/as-element [:div [err-boundary [:p "Hi"]]])))
