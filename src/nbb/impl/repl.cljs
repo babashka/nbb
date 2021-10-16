@@ -72,11 +72,11 @@
                                          :microtaskMode "afterEvaluate"}))))
           (.finally (fn []
                       (when tty
-                        (prn :raw-mode true)
                         (.setRawMode js/process.stdin true)))))
       (catch :default _e
         (prn "error" _e)
-        (.setRawMode js/process.stdin true)
+        (when tty
+          (.setRawMode js/process.stdin true))
         (js/Promise.resolve nil)))))
 
 (defn eval-next [socket rl]
