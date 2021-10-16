@@ -42,11 +42,17 @@
 
 (def tty js/process.stdout.isTTY)
 
+(def contextify-binding (js/process.binding "contextify"))
+
+;; TODO: I'm not sure if we need the watch dog stuff
+
 (defn eval-expr [socket f]
   (let [ctx #js {:f f}
         _ (.createContext vm ctx)]
     (try
-      (when tty (.setRawMode js/process.stdin false))
+      (when tty
+        (.setRawMode js/process.stdin false)
+        #_(prn :start (.startSigintWatchdog contextify-binding)))
       (-> (.runInContext vm "f()" ctx
                          #js {:displayErrors true
                               ;; :timeout 1000
@@ -65,9 +71,12 @@
                                          :breakOnSigint true
                                          :microtaskMode "afterEvaluate"}))))
           (.finally (fn []
-                      (when tty (.setRawMode js/process.stdin true)))))
+                      (when tty
+                        (prn :raw-mode true)
+                        (.setRawMode js/process.stdin true)))))
       (catch :default _e
         (prn "error" _e)
+        (.setRawMode js/process.stdin true)
         (js/Promise.resolve nil)))))
 
 (defn eval-next [socket rl]
