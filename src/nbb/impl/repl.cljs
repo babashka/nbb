@@ -50,16 +50,15 @@
   (let [ctx #js {:f f}
         _ (.createContext vm ctx)]
     (try
-      (when tty
-        (.setRawMode js/process.stdin false)
-        #_(prn :start (.startSigintWatchdog contextify-binding)))
+      (when (and tty (not socket))
+        (.setRawMode js/process.stdin false))
       (-> (.runInContext vm "f()" ctx
                          #js {:displayErrors true
                               ;; :timeout 1000
                               :breakOnSigint true
                               :microtaskMode "afterEvaluate"})
           (.then (fn [wrapper]
-                   (let [ctx #js {:f (if socket identity
+                   (let [ctx #js {:f (if socket (fn [] wrapper)
                                          (fn []
                                            (let [v (first wrapper)]
                                              (prn v)
@@ -71,11 +70,11 @@
                                          :breakOnSigint true
                                          :microtaskMode "afterEvaluate"}))))
           (.finally (fn []
-                      (when tty
+                      (when (and tty (not socket))
                         (.setRawMode js/process.stdin true)))))
       (catch :default _e
         (prn "error" _e)
-        (when tty
+        (when (and tty (not socket))
           (.setRawMode js/process.stdin true))
         (js/Promise.resolve nil)))))
 
@@ -157,9 +156,10 @@
 (defn init []
   (api/init-require (path/resolve "script.cljs"))
   ;; (prn js/process.pid)
-  (.setRawMode js/process.stdin true)
-  (if-let [port (:port @common/opts)]
-    (let [srv (net/createServer
+  (if (:socket-repl @common/opts)
+    (let [port (or (:port @common/opts)
+                   0)
+          srv (net/createServer
                (fn [socket]
                  (on-connect socket)))]
       (.listen srv port "127.0.0.1"
@@ -169,4 +169,5 @@
                        host (-> addr .-address)]
                    (println (str "Socket REPL listening on port "
                                  port " on host " host))))))
-    (input-loop nil)))
+    (do (when tty (.setRawMode js/process.stdin true))
+        (input-loop nil))))

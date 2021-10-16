@@ -10,14 +10,18 @@
    [test-utils :as tu])
   (:import [java.net Socket]))
 
+(defn repl-process
+  [input dir]
+  (process ["node" (str (fs/absolutize "out/nbb_main.js"))]
+           {:dir (or dir ".")
+            :out :string
+            :in input
+            :err :inherit}))
+
 (defn repl
   ([input] (repl input nil))
   ([input dir]
-   (-> (process ["node" (str (fs/absolutize "out/nbb_main.js"))]
-                {:dir (or dir ".")
-                 :out :string
-                 :in input
-                 :err :inherit})
+   (-> (repl-process input dir)
        p/check)))
 
 (deftest repl-test
@@ -38,7 +42,15 @@
   (testing "Recover from run-time error"
     (is (str/includes? (:out (repl "1\n x\n (+ 1 2 3)")) "6")))
   (testing "Recover from reader error"
-    (is (str/includes? (:out (repl "/x \n (+ 1 2 3)")) "6"))))
+    (is (str/includes? (:out (repl "/x \n (+ 1 2 3)")) "6")))
+  (let [rp (repl-process "(range) (+ 1 2 3)" nil)
+        pid (.pid (:proc rp))]
+    ;; is there a better way?
+    (Thread/sleep 1000)
+    (shell (str "kill -SIGINT " pid))
+    (let [out (:out (deref rp))]
+      (is (str/includes? out "interrupted"))
+      (is (str/includes? out "6")))))
 
 (defn socket-repl
   ([input] (socket-repl input nil))
