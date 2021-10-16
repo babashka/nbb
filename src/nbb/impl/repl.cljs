@@ -40,24 +40,32 @@
         edited (when line (subs line col))]
     (reset! pending-input (str/join "\n" (cons edited lines)))))
 
-(def contextify-binding (js/process.binding "contextify"))
-
 (defn eval-expr [f]
   (let [ctx #js {:f f}
         _ (.createContext vm ctx)]
-    ;; (prn :wd (.startSigintWatchdog (js/process.binding "contextify")))
     (try
       (.setRawMode js/process.stdin false)
-      (.runInContext vm "f()" ctx #js {:displayErrors true
-                                       :timeout 30000
-                                       :breakOnSigint true
-                                       :microtaskMode "afterEvaluate"})
-         (catch :default e
-           (prn e)
+      (-> (.runInContext vm "f()" ctx
+                         #js {:displayErrors true
+                              ;; :timeout 1000
+                              :breakOnSigint true
+                              :microtaskMode "afterEvaluate"})
+          (.then (fn [wrapper]
+                   (let [ctx #js {:f (fn []
+                                       (let [v (first wrapper)]
+                                         (prn v)
+                                         wrapper))}
+                         _ (.createContext vm ctx)]
+                     (.runInContext vm "f()" ctx
+                                    #js {:displayErrors true
+                                         ;; :timeout 1000
+                                         :breakOnSigint true
+                                         :microtaskMode "afterEvaluate"})))))
+         (catch :default _e
+           (prn "error")
            (js/Promise.resolve [10])))))
 
 (defn eval-next [socket rl]
-  (prn :eval-next)
   (when-not (or @in-progress (str/blank? @pending-input))
     (reset! in-progress true)
     (let [rdr (sci/reader @pending-input)
@@ -78,7 +86,6 @@
                 (if-not (= :sci.core/eof the-val)
                   (macros/with-async-bindings {sci/ns @last-ns}
                     ;; (prn :pending @pending)
-                    (prn :pause (.pause rl))
                     (-> (eval-expr #(nbb/eval-expr nil nil
                                                   {:wrap vector
                                                    ;; TODO this is a huge workaround
@@ -92,14 +99,12 @@
                                                                    :sci.core/eof)))}))
                         (.then (fn [v]
                                  (.setRawMode js/process.stdin true)
-                                 (prn :resume (.resume rl))
-                                 (prn :v v)
                                  (let [[val ns]
                                        [(first v) (sci/eval-form @nbb/sci-ctx '*ns*)]]
                                    (reset! last-ns ns)
                                    (if socket
                                      (.write socket (prn-str val))
-                                     (prn val))
+                                     #_(prn val))
                                    (continue rl socket))))
                         (.catch (fn [err]
                                   (prn (str err))
@@ -137,18 +142,17 @@
 (defn init []
   (api/init-require (path/resolve "script.cljs"))
   (prn js/process.pid)
-  (.on js/process "SIGINT" (fn [] (prn :sigint)))
+  ;; (.on js/process "SIGINT" (fn [] (prn :sigint)))
   (.setRawMode js/process.stdin true)
-  (let []
-    (if-let [port (:port @common/opts)]
-      (let [srv (net/createServer
-                 (fn [socket]
-                   (on-connect socket)))]
-        (.listen srv port "127.0.0.1"
-                 (fn []
-                   (let [addr (-> srv (.address))
-                         port (-> addr .-port)
-                         host (-> addr .-address)]
-                     (println (str "Socket REPL listening on port "
-                                   port " on host " host))))))
-      (input-loop nil))))
+  (if-let [port (:port @common/opts)]
+    (let [srv (net/createServer
+               (fn [socket]
+                 (on-connect socket)))]
+      (.listen srv port "127.0.0.1"
+               (fn []
+                 (let [addr (-> srv (.address))
+                       port (-> addr .-port)
+                       host (-> addr .-address)]
+                   (println (str "Socket REPL listening on port "
+                                 port " on host " host))))))
+    (input-loop nil)))
