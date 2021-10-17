@@ -411,6 +411,12 @@ The following projects are using nbb or are supporting it as a development platf
 
 See [API](doc/api.md) documentation.
 
+## Articles
+
+- [Prerendering React in ClojureScript
+  land](https://www.arthurbrrs.me/prerendering-react-clojurescript-land.html) by
+  Arthur Barroso
+
 ## Migrating to shadow-cljs
 
 See this
