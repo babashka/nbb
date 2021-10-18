@@ -350,12 +350,43 @@ Nbb supports the following reader conditional features: `:org.babashka/nbb` and
 
 ## REPL
 
+### Console REPL
+
+To start a console REPL, simply run `nbb`.
+
 ### Socket REPL
 
 To start a socket server REPL, run:
 
 ``` clojure
 $ nbb socket-repl :port 1337
+```
+
+### REPL API
+
+Nbb exposes the `nbb.repl` namespace to programmatically start a REPL. See
+[API](#API) for more info. An example:
+
+``` clojure
+(ns example
+  (:require [nbb.repl :as repl]
+            [promesa.core :as p]))
+
+(defn available-in-repl [] :yolo)
+
+(p/do!
+ (repl/repl)
+ ;; type (available-in-repl) in the REPL and it will return :yolo
+ (println "The end"))
+```
+
+The `repl` function returns a promise. The `promesa.core/do!` macro waits for the REPL to finish and after that `"The end"` is printed:
+
+``` clojure
+$ nbb example.cljs
+example=> (available-in-repl)
+:yolo
+example=> The end
 ```
 
 ### nREPL

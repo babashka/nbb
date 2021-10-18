@@ -135,12 +135,13 @@
    readline #js {:input socket
                  :output socket}))
 
-(defn ^:export input-loop [socket]
+(defn input-loop [socket resolve]
   (let [rl (if socket
              (create-socket-rl socket)
              (create-rl))
         _ (on-line rl socket)
-        _ (.setPrompt rl (str @last-ns "=> "))]
+        _ (.setPrompt rl (str @last-ns "=> "))
+        _ (.on rl "close" resolve)]
     (.prompt rl)))
 
 (defn on-connect [socket]
@@ -151,21 +152,36 @@
        (fn [_had-error?]
          (println "Client closed connection."))))
 
+(def rns (sci/create-ns 'nbb.repl nil))
+
+(defn socket-repl
+  ([] (socket-repl nil))
+  ([opts]
+   (let [port (or (:port opts)
+                  0)
+         srv (net/createServer
+              (fn [socket]
+                (on-connect socket)))]
+     (.listen srv port "127.0.0.1"
+              (fn []
+                (let [addr (-> srv (.address))
+                      port (-> addr .-port)
+                      host (-> addr .-address)]
+                  (println (str "Socket REPL listening on port "
+                                port " on host " host))))))))
+
+(defn repl
+  ([] (repl nil))
+  ([_opts]
+   (when tty (.setRawMode js/process.stdin true))
+   (js/Promise. (fn [resolve]
+                  (input-loop nil resolve)))))
+
+(def repl-namespace
+  {'repl (sci/copy-var repl rns)
+   'socket-repl (sci/copy-var socket-repl rns)})
+
 (defn init []
-  (api/init-require (path/resolve "script.cljs"))
-  ;; (prn js/process.pid)
-  (if (:socket-repl @common/opts)
-    (let [port (or (:port @common/opts)
-                   0)
-          srv (net/createServer
-               (fn [socket]
-                 (on-connect socket)))]
-      (.listen srv port "127.0.0.1"
-               (fn []
-                 (let [addr (-> srv (.address))
-                       port (-> addr .-port)
-                       host (-> addr .-address)]
-                   (println (str "Socket REPL listening on port "
-                                 port " on host " host))))))
-    (do (when tty (.setRawMode js/process.stdin true))
-        (input-loop nil))))
+  (nbb/register-plugin!
+   :nbb.repl
+   {:namespaces {'nbb.repl repl-namespace}}))

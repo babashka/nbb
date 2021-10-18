@@ -48,10 +48,13 @@
         cwd (js/process.cwd)
         classpath-dirs (cons cwd (str/split classpath (re-pattern path/delimiter)))
         nrepl-server (:nrepl-server opts)
-        console-repl? (or (:repl opts)
-                          (empty? (:args opts)))]
+        repl? (or (:repl opts)
+                  (:socket-repl opts)
+                  ;; TODO: better handling of detecting invocation without subtask
+                  (empty? (dissoc opts :expr :classpath :debug)))]
     (reset! nbb/opts opts)
-    (if (or script-file expr nrepl-server console-repl?)
+    (when repl? (api/init-require (path/resolve "script.cljs")))
+    (if (or script-file expr nrepl-server repl?)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
           (swap! nbb/ctx assoc :classpath {:dirs classpath-dirs})
           (-> (cond script-file
@@ -60,8 +63,17 @@
                     (api/loadString expr)
                     (:nrepl-server opts)
                     (esm/dynamic-import "./nbb_nrepl_server.js")
-                    console-repl?
-                    (esm/dynamic-import "./nbb_repl.js"))
+                    (and repl? (:socket-repl opts))
+                    (-> (esm/dynamic-import "./nbb_repl.js")
+                        (.then (fn [_mod]
+                                 ((-> nbb/sci-ctx deref :env deref
+                                      :namespaces (get 'nbb.repl) (get 'socket-repl))
+                                  {:port (:port opts)}))))
+                    repl?
+                    (-> (esm/dynamic-import "./nbb_repl.js")
+                        (.then (fn [_mod]
+                                 ((-> nbb/sci-ctx deref :env deref
+                                      :namespaces (get 'nbb.repl) (get 'repl)))))))
               (.then (fn [val]
                        (when (and expr (some? val))
                          (prn val))

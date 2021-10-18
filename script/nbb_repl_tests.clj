@@ -12,7 +12,7 @@
 
 (defn repl-process
   [input dir opts]
-  (process ["node" (str (fs/absolutize "out/nbb_main.js"))]
+  (process (into ["node" (str (fs/absolutize "out/nbb_main.js"))] (:cmd opts))
            (merge {:dir (or dir ".")
                    :out :string
                    :in input
@@ -39,7 +39,8 @@
   (shell {:dir "examples/handlebars"} (if tu/windows?
                                         "npm.cmd install"
                                         "npm install"))
-  (is (str/includes? (:out (repl (slurp "examples/handlebars/example.cljs") "examples/handlebars"))
+  (is (str/includes? (:out (repl (slurp "examples/handlebars/example.cljs")
+                                 "examples/handlebars"))
                      "Hello world!"))
   (testing "Recover from run-time error"
     (is (str/includes? (:out (repl "1\n x\n (+ 1 2 3)")) "6")))
@@ -57,15 +58,31 @@
         (deref rp)
         (let [out (slurp temp-file)]
           (is (str/includes? out "interrupted"))
-          (is (str/includes? out "6")))))))
+          (is (str/includes? out "6"))))))
+  (testing "launch REPL in script"
+    (let [out (-> (repl-process "(+ 1 2 3)" "."
+                                {:cmd ["-e" "
+(require '[promesa.core :as p])
+(require '[nbb.repl :as repl])
+(defn end [] (prn :the-end))
+(p/let [_ (repl/repl)]
+  (end))"]})
+  deref
+  :out)]
+      (is (str/includes? out "6"))
+      (is (str/includes? out ":the-end")))))
 
 (defn socket-repl
   ([input] (socket-repl input nil))
   ([input match] (socket-repl input match nil))
-  ([input match dir]
-   (let [p (process ["node" "out/nbb_main.js" "socket-repl" ":port" "1337"]
-                    {:inherit true
-                     :dir (or dir ".")})]
+  ([input match dir] (socket-repl input match dir nil))
+  ([input match dir opts]
+   (let [p (process (into ["node" "out/nbb_main.js"]
+                          (or (:cmd opts)
+                              ["socket-repl" ":port" "1337"]))
+                    (merge {:inherit true
+                            :dir (or dir ".")}
+                           opts))]
      (wait-for-port "localhost" 1337)
      (with-open [socket (Socket. "127.0.0.1" 1337)
                  in (.getInputStream socket)
@@ -85,8 +102,7 @@
                      (read-line)))]
          (binding [*out* (io/writer os)]
            (println "(js/process.exit 0)"))
-         (p/check p)
-         {:out (str res "\n")})))))
+         {:out (str res "\n" (:out (deref p)))})))))
 
 (deftest socket-repl-test
   (is (str/includes? (:out (socket-repl "(+ 1 2 3)")) "6\n"))
@@ -98,7 +114,19 @@
        "true\n"))
   (is (str/includes?
        (:out (socket-repl "(js/Promise.resolve 10)"))
-       "Promise")))
+       "Promise"))
+  (testing "launch socket REPL in script"
+    (let [out (-> (socket-repl "(+ 1 2 3)" "6" "."
+                               {:out :string
+                                :cmd ["-e" "
+(require '[promesa.core :as p])
+(require '[nbb.repl :as repl])
+(defn end [] (prn :the-end))
+(p/let [_ (repl/socket-repl {:port 1337})]
+  (end))"]})
+                  :out)]
+      (is (str/includes? out "6"))
+      (is (str/includes? out ":the-end")))))
 
 (defn -main [& _]
   (let [{:keys [:error :fail]} (t/run-tests 'nbb-repl-tests)]
