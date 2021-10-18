@@ -365,7 +365,7 @@ $ nbb socket-repl :port 1337
 ### REPL API
 
 Nbb exposes the `nbb.repl` namespace to programmatically start a REPL. See
-[API](#API) for more info. An example:
+[API](doc/api.md#nbbrepl) for more info. An example:
 
 ``` clojure
 (ns example
