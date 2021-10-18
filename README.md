@@ -389,6 +389,17 @@ example=> (available-in-repl)
 example=> The end
 ```
 
+To launch a REPL from a Node.js script, you can use `loadString` or `loadFile`:
+
+``` javascript
+import { loadString } from 'nbb'
+await loadString(`
+(require '[nbb.repl :refer [repl]])
+(repl)
+`)
+console.log('The end!')
+```
+
 ### nREPL
 
 The nREPL server probably still has rough edges. Please report issues
