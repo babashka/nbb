@@ -22,7 +22,7 @@ In addition to `clojure.core`, `clojure.set`, `clojure.edn`, `clojure.string`,
 
 ## Promesa
 
-See [promesa docs](https://cljdoc.org/d/funcool/promesa/6.0.2/doc/user-guide).]
+See [promesa docs](https://cljdoc.org/d/funcool/promesa/6.0.2/doc/user-guide).
 
 ### promesa.core
 
