@@ -400,6 +400,13 @@ await loadString(`
 console.log('The end!')
 ```
 
+``` clojure
+$ node repl.mjs
+user=> (+ 1 2 3)
+6
+user=> The end!
+```
+
 ### nREPL
 
 The nREPL server probably still has rough edges. Please report issues
