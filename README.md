@@ -1,4 +1,4 @@
-# Nbb
+<img src="logo/nbb-with-name.svg" width="882px">
 
 Not [babashka](https://babashka.org/). Node.js babashka!?
 
