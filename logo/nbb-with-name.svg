@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="279.22012"
    height="548.36157"
    viewBox="0 0 932.00005 1829.5644"
@@ -15,10 +7,18 @@
    version="1.1"
    id="svg884"
    sodipodi:docname="nbb-with-name.svg"
-   inkscape:version="1.0.2 (e86c870879, 2021-01-15, custom)"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
    inkscape:export-filename="C:\Users\parse\OneDrive\Pictures\SVGs\nbb-with-name.png"
    inkscape:export-xdpi="300"
-   inkscape:export-ydpi="300">
+   inkscape:export-ydpi="300"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <metadata
      id="metadata888">
     <rdf:RDF>
@@ -27,7 +27,6 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -40,18 +39,19 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="3200"
-     inkscape:window-height="1721"
+     inkscape:window-width="3840"
+     inkscape:window-height="2084"
      id="namedview886"
      showgrid="false"
-     inkscape:zoom="0.3543084"
-     inkscape:cx="100.4681"
-     inkscape:cy="22.629356"
-     inkscape:window-x="1911"
-     inkscape:window-y="-9"
+     inkscape:zoom="16.034168"
+     inkscape:cx="83.976918"
+     inkscape:cy="182.64122"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg884"
-     inkscape:document-rotation="0" />
+     inkscape:document-rotation="0"
+     inkscape:pagecheckerboard="0" />
   <path
      fill-rule="evenodd"
      clip-rule="evenodd"
@@ -59,17 +59,16 @@
      fill="url(#paint0_linear)"
      id="path833"
      style="opacity:1;fill:url(#linearGradient955);fill-opacity:1;stroke-width:0.99663;stroke-miterlimit:4;stroke-dasharray:none" />
-  <circle
-     cx="465.5"
-     cy="739.22961"
-     fill="white"
-     id="circle835"
-     r="311.5"
-     style="fill:#ffffff;fill-opacity:1" />
   <path
-     d="m 193.3346,601.23347 c 184.5,13 293.5,-32 369,-143.5 0,0 -145.5,-49 -234,0 -88.2,48.834 -135,143.5 -135,143.5 z"
+     id="circle835"
+     style="fill:#ffffff"
+     d="m 777,739.22961 c -10e-6,172.0367 -139.4633,311.49999 -311.5,311.49999 -172.0367,0 -311.5,-139.46329 -311.5,-311.49999 0,-86.01835 43.21978,-161.79392 99.59019,-218.16433 56.37041,-56.37041 125.89146,-93.33567 211.90981,-93.33567 172.0367,0 311.5,139.4633 311.5,311.5 z"
+     sodipodi:nodetypes="ssssss" />
+  <path
+     d="m 193.3346,601.23347 c 184.5,13 293.5,-32 369,-143.5 0,0 -98.72826,-51.22389 -229.26253,7.52241 C 241.13673,506.63091 193.3346,601.23347 193.3346,601.23347 Z"
      fill="#b4b4b4"
-     id="path837" />
+     id="path837"
+     sodipodi:nodetypes="ccsc" />
   <path
      d="m 711,578.7296 c -74,-8 -140,-32 -171.5,-122.5 0,0 65.43,14.935 131.5,75.114 68.62,62.5 40,47.386 40,47.386 z"
      fill="#b4b4b4"
@@ -79,12 +78,8 @@
      fill="#000000"
      id="path843" />
   <path
-     d="m 81.12,645.7296 c 0,-22.091 17.91,-40 40,-40 h 284.9 c 24.18,0 42.83,21.292 39.65,45.264 l -24.76,186.5 c -2.64,19.882 -19.6,34.736 -39.65,34.736 H 121.12 c -22.09,0 -40,-17.909 -40,-40 z"
-     fill="#000000"
-     id="path845" />
-  <path
      sodipodi:type="star"
-     style="fill:none;fill-opacity:1;stroke:#0a0000;stroke-width:45.7773;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;stop-color:#000000"
+     style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:45.7773;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;stop-color:#000000"
      id="path890"
      sodipodi:sides="6"
      sodipodi:cx="467.89734"
@@ -99,6 +94,10 @@
      d="m 750.44469,903.81601 c -9.82484,16.99118 -263.13572,163.01729 -282.76293,163.00429 -19.62721,-0.013 -272.74497,-146.37354 -282.54735,-163.37768 -9.80238,-17.00415 -9.60925,-309.39086 0.21558,-326.38204 9.82483,-16.99118 263.13571,-163.01729 282.76293,-163.00433 19.62721,0.013 272.74497,146.37357 282.54734,163.37772 9.80238,17.00415 9.60926,309.39086 -0.21557,326.38204 z"
      inkscape:transform-center-x="42.04665"
      inkscape:transform-center-y="-18.510492" />
+  <path
+     d="m 81.12,645.7296 c 0,-22.091 17.91,-40 40,-40 h 284.9 c 24.18,0 42.83,21.292 39.65,45.264 l -24.76,186.5 c -2.64,19.882 -19.6,34.736 -39.65,34.736 H 121.12 c -22.09,0 -40,-17.909 -40,-40 z"
+     fill="#000000"
+     id="path845" />
   <path
      d="m 199.1,828.2796 v -16.5 h -5.55 c -3.6,0 -6,-2.55 -7.2,-6.3 l -22.8,-68.7 c -1.5,-4.35 -3.3,-7.5 -5.7,-9.9 -4.5,-4.65 -10.35,-6.15 -16.95,-6.15 h -7.2 v 17.25 h 4.8 c 4.05,0 7.2,1.5 8.55,6.3 l 3.15,11.1 -28.2,72.9 h 20.55 l 16.95,-48 9,28.95 c 3.45,11.25 9.3,19.05 22.5,19.05 z"
      fill="#ffffff"
@@ -178,12 +177,12 @@
   <text
      xml:space="preserve"
      id="text1308"
-     style="font-style:normal;font-weight:normal;font-size:133.515px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect1310);fill:#000000;fill-opacity:1;stroke:none;"
+     style="font-style:normal;font-weight:normal;font-size:133.515px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect1310);fill:#000000;fill-opacity:1;stroke:none"
      transform="translate(0,0.19898823)" />
   <text
      xml:space="preserve"
      id="text1314"
-     style="font-style:normal;font-weight:normal;font-size:133.515px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect1316);fill:#000000;fill-opacity:1;stroke:none;"
+     style="font-style:normal;font-weight:normal;font-size:133.515px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect1316);fill:#000000;fill-opacity:1;stroke:none"
      transform="translate(0,0.19898823)" />
   <g
      id="g1472"
