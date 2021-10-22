@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "dockerode": "^3.3.1"
+  }
+}
