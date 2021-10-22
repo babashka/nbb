@@ -488,6 +488,10 @@ To build:
 
 Run `bb tasks` for more project-related tasks.
 
+## Credits
+
+- Original babashka logo by Nikita Prokopov. Node.js modifications by MnRa.
+
 ## License
 
 Copyright © 2021 Michiel Borkent
