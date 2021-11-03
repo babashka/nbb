@@ -62,7 +62,7 @@ $ nbb -e '(+ 1 2 3)'
 And then install some other NPM libraries to use in the script. E.g.:
 
 ```
-$ npm install csv-parse shelljs zx
+$ npm install csv-parse shelljs term-size zx
 ```
 
 Create a script which uses the NPM libraries:
