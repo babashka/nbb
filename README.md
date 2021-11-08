@@ -449,6 +449,7 @@ The following projects are using nbb or are supporting it as a development platf
 - [c64core](https://github.com/chr15m/c64core): retrocompute aesthetics twitter bot.
 - [sitefox](https://github.com/chr15m/sitefox): Node.js + CLJS backend web framework.
 - [unminify](https://github.com/xfthhxk/unminify): unminifies JS stacktrace errors.
+- [lambda-adapter](https://github.com/vharmain/nbb-lambda-adapter): a lambda adapter for nbb.
 
 ## Examples
 
