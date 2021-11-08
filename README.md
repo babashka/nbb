@@ -446,8 +446,9 @@ See [this](https://twitter.com/uochan/status/1444417505506721793) tweet.
 
 The following projects are using nbb or are supporting it as a development platform:
 
-- [c64core](https://github.com/chr15m/c64core): retrocompute aesthetics twitter bot
-- [sitefox](https://github.com/chr15m/sitefox)
+- [c64core](https://github.com/chr15m/c64core): retrocompute aesthetics twitter bot.
+- [sitefox](https://github.com/chr15m/sitefox): Node.js + CLJS backend web framework.
+- [unminify](https://github.com/xfthhxk/unminify): unminifies JS stacktrace errors.
 
 ## Examples
 
