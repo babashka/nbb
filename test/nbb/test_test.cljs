@@ -80,3 +80,46 @@
              (.then (fn [m]
                       (is (= {:test 1, :pass 0, :fail 1, :error 0, :type :end-run-tests} m))
                       (done))))))
+
+(deftest use-fixtures-test
+  (async done
+         (-> (with-async-bindings
+               {sci/print-fn (fn [_])}
+               (nbb/load-string "
+(ns foo3 (:require [clojure.test :as t :refer [deftest test-vars async is testing use-fixtures]]))
+
+(def state (atom []))
+
+(use-fixtures :once
+    {:before
+     (fn []
+       (swap! state conj :once-before))
+     :after
+     (fn []
+       (swap! state conj :once-after))})
+
+(use-fixtures :each
+    {:before
+     (fn []
+       (swap! state conj :each-before))
+     :after
+     (fn []
+       (swap! state conj :each-after))})
+
+(deftest foo)
+(deftest bar)
+
+(test-vars [#'foo3/foo #'foo3/bar])
+
+(swap! state conj :after-test-vars)
+
+(t/run-tests 'foo3)
+
+@state
+"))
+             (.then
+              (fn [m]
+                (is (= [:once-before :each-before :each-after :each-before :each-after :once-after
+                        :after-test-vars
+                        :once-before :each-before :each-after :each-before :each-after :once-after] m))
+                (done))))))

@@ -48,8 +48,8 @@
    'join-fixtures (sci/copy-var t/join-fixtures tns)
    ;; running tests: low level
    'test-var t/test-var
-   ;; TODO:
-   ;; 'test-vars (sci/copy-var t/test-vars tns)
+   'test-vars (sci/copy-var t/test-vars tns)
+   'get-current-env (sci/copy-var t/get-current-env tns)
    ;; TODO:
    ;;'test-all-vars (new-var 'test-all-vars (contextualize t/test-all-vars))
    ;; TODO:

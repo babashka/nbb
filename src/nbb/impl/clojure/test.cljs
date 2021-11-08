@@ -357,7 +357,7 @@
 
 (def report (sci/copy-var report-impl tns))
 
-(defmethod report-impl [:cljs.test/default :pass] [m]
+(defmethod report-impl [:cljs.test/default :pass] [_m]
   (inc-report-counter! :pass))
 
 (defn- print-comparison [m]
@@ -772,27 +772,6 @@
 
 ;;; DEFINING FIXTURES
 
-(def ^:private ns->fixtures (atom {}))
-
-(defn- add-ns-meta
-  "Adds elements in coll to the current namespace metadata as the
-  value of key."
-  {:added "1.1"}
-  [key coll]
-  (swap! ns->fixtures assoc-in [(sci-namespaces/sci-ns-name @vars/current-ns) key] coll))
-
-(defmulti use-fixtures
-  "Wrap test runs in a fixture function to perform setup and
-  teardown. Using a fixture-type of :each wraps every test
-  individually, while :once wraps the whole run in a single function."
-  {:added "1.1"}
-  (fn [fixture-type & args] fixture-type))
-
-(defmethod use-fixtures :each [fixture-type & args]
-  (add-ns-meta :cljs.test/each-fixtures args))
-
-(defmethod use-fixtures :once [fixture-type & args]
-  (add-ns-meta :cljs.test/once-fixtures args))
 
 (defn- default-fixture
   "The default, empty, fixture function.  Just calls its argument."
@@ -814,6 +793,29 @@
   [fixtures]
   (reduce compose-fixtures default-fixture fixtures))
 
+(defn- execution-strategy [once each]
+  (letfn [(fixtures-type [coll]
+            (cond
+              (empty? coll) :none
+              (every? map? coll) :map
+              (every? fn? coll) :fn))
+          (fixtures-types []
+            (->> (map fixtures-type [once each])
+                 (remove #{:none})
+                 (distinct)))]
+    (let [[type :as types] (fixtures-types)]
+      (assert (not-any? nil? types)
+              "Fixtures may not be of mixed types")
+      (assert (> 2 (count types))
+              "fixtures specified in :once and :each must be of the same type")
+      ({:map :async :fn :sync} type :async))))
+
+(defn- wrap-map-fixtures
+  "Wraps block in map-fixtures."
+  [map-fixtures block]
+  (concat (keep :before map-fixtures)
+          block
+          (reverse (keep :after map-fixtures))))
 
 ;; =============================================================================
 ;; Async
@@ -913,30 +915,6 @@
 
 (def test-var (sci/copy-var test-var-impl tns))
 
-(defn- execution-strategy [once each]
-  (letfn [(fixtures-type [coll]
-            (cond
-              (empty? coll) :none
-              (every? map? coll) :map
-              (every? fn? coll) :fn))
-          (fixtures-types []
-            (->> (map fixtures-type [once each])
-                 (remove #{:none})
-                 (distinct)))]
-    (let [[type :as types] (fixtures-types)]
-      (assert (not-any? nil? types)
-              "Fixtures may not be of mixed types")
-      (assert (> 2 (count types))
-              "fixtures specified in :once and :each must be of the same type")
-      ({:map :async :fn :sync} type :async))))
-
-(defn- wrap-map-fixtures
-  "Wraps block in map-fixtures."
-  [map-fixtures block]
-  (concat (keep :before map-fixtures)
-          block
-          (reverse (keep :after map-fixtures))))
-
 (defn- disable-async [f]
   (fn []
     (let [obj (f)]
@@ -951,91 +929,63 @@
   (map
    (fn [[ns vars]]
      (fn []
-       (block
-        (let [env (get-current-env)
-              once-fixtures (get-in env [:once-fixtures ns])
-              each-fixtures (get-in env [:each-fixtures ns])]
-          (case (execution-strategy once-fixtures each-fixtures)
-            :async
-            (->> vars
-                 (filter (comp :test meta))
-                 (mapcat (comp (partial wrap-map-fixtures each-fixtures)
-                               test-var-block))
-                 (wrap-map-fixtures once-fixtures))
-            :sync
-            (let [each-fixture-fn (join-fixtures each-fixtures)]
-              [(fn []
-                 ((join-fixtures once-fixtures)
-                  (fn []
-                    (doseq [v vars]
-                      (when-let [t (:test (meta v))]
-                        ;; (alter-meta! v update :test disable-async)
-                        (each-fixture-fn
-                         (fn []
-                           ;; (test-var v)
-                           (run-block
-                            (test-var-block* v (disable-async t))))))))))]))))))
+       (let [ns (symbol (str ns))
+             ni (sci-namespaces/sci-ns-interns @ctx ns)
+             _ (when-let [fs (get ni 'cljs-test-once-fixtures)]
+                 (update-current-env! [:once-fixtures] assoc ns
+                                      @fs))
+             _ (when-let [fs (get ni 'cljs-test-each-fixtures)]
+                 (update-current-env! [:each-fixtures] assoc ns
+                                      @fs))]
+         (block
+          (let [env (get-current-env)
+                once-fixtures (get-in env [:once-fixtures (symbol (str ns))])
+                each-fixtures (get-in env [:each-fixtures (symbol (str ns))])]
+            (case (execution-strategy once-fixtures each-fixtures)
+              :async
+              (->> vars
+                   (filter (comp :test meta))
+                   (mapcat (comp (partial wrap-map-fixtures each-fixtures)
+                                 test-var-block))
+                   (wrap-map-fixtures once-fixtures))
+              :sync
+              (let [each-fixture-fn (join-fixtures each-fixtures)]
+                [(fn []
+                   ((join-fixtures once-fixtures)
+                    (fn []
+                      (doseq [v vars]
+                        (when-let [t (:test (meta v))]
+                          ;; (alter-meta! v update :test disable-async)
+                          (each-fixture-fn
+                           (fn []
+                             ;; (test-var v)
+                             (run-block
+                              (test-var-block* v (disable-async t))))))))))])))))))
    (group-by (comp :ns meta) vars)))
 
-#_(defn test-vars
+(defn test-vars
   "Groups vars by their namespace and runs test-vars on them with
-   appropriate fixtures applied."
-  {:added "1.6"}
+  appropriate fixtures assuming they are present in the current
+  testing environment."
   [vars]
-  (doseq [[ns vars] (group-by (comp :ns meta) vars)
-          :when ns]
-    (let [ns-name (sci-namespaces/sci-ns-name ns)
-          fixtures (get @ns->fixtures ns-name)
-          once-fixture-fn (join-fixtures (::once-fixtures fixtures))
-          each-fixture-fn (join-fixtures (::each-fixtures fixtures))]
-      (once-fixture-fn
-       (fn []
-         (doseq [v vars]
-           (when (:test (meta v))
-             (each-fixture-fn (fn [] (test-var ;; this calls the sci var which can be rebound
-                                      v))))))))))
-
-#_(defn test-all-vars
-  "Calls test-vars on every var interned in the namespace, with fixtures."
-  {:added "1.1"}
-  [ctx ns]
-  (test-vars (vals (sci-namespaces/sci-ns-interns ctx ns))))
-
-#_(defn test-ns
-  "If the namespace defines a function named test-ns-hook, calls that.
-  Otherwise, calls test-all-vars on the namespace.  'ns' is a
-  namespace object or a symbol.
-
-  Internally binds *report-counters* to a ref initialized to
-  *initial-report-counters*.  Returns the final, dereferenced state of
-  *report-counters*."
-  {:added "1.1"}
-  [ctx ns]
-  (sci/binding [report-counters (atom @initial-report-counters)]
-    (let [ns-obj (sci-namespaces/sci-the-ns ctx ns)]
-      (do-report {:type :begin-test-ns, :ns ns-obj})
-      ;; If the namespace has a test-ns-hook function, call that:
-      (let [ns-sym (sci-namespaces/sci-ns-name ns-obj)]
-        (if-let [v (get-in @(:env ctx) [:namespaces ns-sym 'test-ns-hook])]
-          (@v)
-          ;; Otherwise, just test every var in the namespace.
-          (test-all-vars ctx ns-obj)))
-      (do-report {:type :end-test-ns, :ns ns-obj}))
-    @@report-counters))
+  (run-block (concat (test-vars-block vars)
+                     [(fn []
+                        (report {:type :end-test-vars :vars vars}))])))
 
 (defn test-all-vars-block
   ([ns]
-   (let [env (get-current-env)]
+   (let [env (get-current-env)
+         ni (sci-namespaces/sci-ns-interns @ctx ns)]
      (concat
       [(fn []
          (when (nil? env)
            (set-env! (empty-env)))
-         (when false #_(ana-api/ns-resolve ns 'cljs-test-once-fixtures)
-               #_`(update-current-env! [:once-fixtures] assoc '~ns
-                                       ~(symbol (name ns) "cljs-test-once-fixtures")))
-         (when false #_(ana-api/ns-resolve ns 'cljs-test-each-fixtures)
-               (update-current-env! [:each-fixtures] assoc '~ns
-                                    ~(symbol (name ns) "cljs-test-each-fixtures"))))]
+         (when-let [fs (get ni 'cljs-test-once-fixtures)]
+           (update-current-env! [:once-fixtures] assoc ns
+                                @fs))
+         (when-let [fs (get ni 'cljs-test-each-fixtures)]
+           (update-current-env! [:each-fixtures] assoc ns
+                                @fs)))]
       (test-vars-block
        (let [vars (vals (sci-namespaces/sci-ns-interns @ctx ns))
              tests (filter (fn [var] (:test (meta var))) vars)
@@ -1111,16 +1061,17 @@
   ([env-or-ns & namespaces]
    (run-block (apply run-tests-block env-or-ns namespaces))))
 
-#_(defn run-all-tests
-  "Runs all tests in all namespaces; prints results.
-  Optional argument is a regular expression; only namespaces with
-  names matching the regular expression (with re-matches) will be
-  tested."
-  {:added "1.1"}
-  ([ctx] (apply run-tests ctx (sci-namespaces/sci-all-ns ctx)))
-  ([ctx re] (apply run-tests ctx
-                   (filter #(re-matches re (name (sci-namespaces/sci-ns-name %)))
-                           (sci-namespaces/sci-all-ns ctx)))))
+(defn ^:macro use-fixtures [_ _ type & fns]
+  (condp = type
+    :once
+    `(def ~'cljs-test-once-fixtures
+       [~@fns])
+    :each
+    `(def ~'cljs-test-each-fixtures
+       [~@fns])
+    :else
+    (throw
+     (js/Error. "First argument to cljs.test/use-fixtures must be :once or :each"))))
 
 (defn successful?
   "Returns true if the given test summary indicates all tests
