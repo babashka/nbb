@@ -27,7 +27,7 @@ ES6 module.
 The `index.mjs` file is a small wrapper that sets up the classpath for nbb to
 the `src` directory relative to the wrapper:
 
-``` json
+``` javascript
 #!/usr/bin/env node
 
 import { addClassPath, loadFile } from 'nbb';
@@ -42,7 +42,7 @@ await loadFile(resolve(__dirname, 'src/print_cli_args/core.cljs'));
 
 Finally, in `src/print_cli_args/core.cljs` we write the CLJS code:
 
-``` json
+``` clojure
 (ns print-cli-args.core
   (:require [clojure.string :as str]))
 
@@ -75,4 +75,3 @@ $ npm install -g print-cli-args
 $ print-cli-args 1 2 3
 
 ```
-
