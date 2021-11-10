@@ -74,5 +74,5 @@ or:
 ``` shell
 $ npm install -g print-cli-args
 $ print-cli-args 1 2 3
-
+Your command line arguments: 1 2 3
 ```
