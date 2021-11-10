@@ -25,7 +25,8 @@ important to use `.mjs` rather than `.js` so Node.js recognizes the file as an
 ES6 module.
 
 The `index.mjs` file is a small wrapper that sets up the classpath for nbb to
-the `src` directory relative to the wrapper:
+the `src` directory relative to the wrapper using `addClassPath`. It also calls
+the initial CLJS file using `loadFile`.
 
 ``` javascript
 #!/usr/bin/env node
