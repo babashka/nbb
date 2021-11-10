@@ -475,6 +475,10 @@ See this
 to convert an nbb script or project to
 [shadow-cljs](https://github.com/thheller/shadow-cljs).
 
+## Publishing an nbb project to npm
+
+See [Publishing an nbb project to npm](examples/publish/README.md)
+
 ## Build
 
 Prequisites:

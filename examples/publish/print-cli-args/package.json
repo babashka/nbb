@@ -1,0 +1,10 @@
+{
+  "name": "print-cli-args",
+  "version": "0.0.2",
+  "dependencies": {
+    "nbb": "0.0.109"
+  },
+  "bin": {
+    "print-cli-args": "index.mjs"
+  }
+}
