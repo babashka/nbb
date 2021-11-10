@@ -61,7 +61,7 @@ from anywhere on your system.
 When everything looks good, it's time to `npm publish` so everyone can enjoy
 your new CLI.
 
-The code for this example CLI is in `examples/publish`. You can run this example from npm using:
+After you have done so, you can run this example from npm using:
 
 ``` shell
 $ npx print-cli-args 1 2 3

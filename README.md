@@ -477,7 +477,7 @@ to convert an nbb script or project to
 
 ## Publishing an nbb project to npm
 
-See [Publishing an nbb project to npm](examples/publish/README.md)
+See [Publishing an nbb project to npm](doc/publish/README.md)
 
 ## Build
 
