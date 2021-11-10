@@ -3,6 +3,7 @@
             ["path" :as path]
             [clojure.string :as str]
             [clojure.test :as t :refer [deftest is testing]]
+            [nbb.classpath :as cp]
             [nbb.core :as nbb]
             [nbb.impl.main :as main]
             [nbb.test-test])
@@ -12,8 +13,8 @@
   (println "===" (-> m :var meta :name))
   (println))
 
-(reset! nbb/ctx {:require (createRequire (path/resolve "script.cljs"))
-                 :classpath {:dirs ["test-scripts"]}})
+(cp/add-classpath "test-scripts")
+(reset! nbb/ctx {:require (createRequire (path/resolve "script.cljs"))})
 
 ;; NOTE: CLJS only accepts one async + done per deftest
 ;; See https://clojurescript.org/tools/testing#async-testing.

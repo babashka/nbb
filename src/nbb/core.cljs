@@ -7,6 +7,7 @@
    [clojure.string :as str]
    [goog.object :as gobj]
    [goog.string :as gstr]
+   [nbb.classpath :as cp]
    [nbb.common :refer [core-ns]]
    [sci.core :as sci]
    [sci.impl.vars :as vars]
@@ -170,7 +171,7 @@
                 (handle-libspecs (next libspecs)))
             (let [file (str/replace (str munged) #"\." "/")
                   files [(str file ".cljs") (str file ".cljc")]
-                  dirs (-> @ctx :classpath :dirs)
+                  dirs @cp/classpath-entries
                   the-file (reduce (fn [_ dir]
                                      (some (fn [f]
                                              (let [f (path/resolve dir f)]
@@ -325,6 +326,8 @@
     cljs.core/ISeq (implements? ISeq x)
     cljs.core/INamed (implements? INamed x)))
 
+(def cp-ns (sci/create-ns 'nbb.classpath nil))
+
 (reset! sci-ctx
         (sci/init
          {:namespaces {'clojure.core {'*command-line-args* command-line-args
@@ -339,7 +342,9 @@
                                   'load-file (sci/copy-var load-file nbb-ns)
                                   'alter-var-root (sci/copy-var sci/alter-var-root nbb-ns)
                                   'slurp (sci/copy-var slurp nbb-ns)
-                                  '*file* sci/file}}
+                                  '*file* sci/file}
+                       'nbb.classpath {'add-classpath (sci/copy-var cp/add-classpath cp-ns)
+                                       'get-classpath (sci/copy-var cp/get-classpath cp-ns)}}
           :classes {'js universe :allow :all
                     'goog.object #js {:get gobj/get
                                       :set gobj/set

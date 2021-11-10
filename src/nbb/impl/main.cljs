@@ -2,6 +2,7 @@
   (:require ["path" :as path]
             [clojure.string :as str]
             [nbb.api :as api]
+            [nbb.classpath :as cp]
             [nbb.core :as nbb]
             [nbb.error :as error]
             [nbb.impl.common :as common]
@@ -46,7 +47,8 @@
         expr (:expr opts)
         classpath (:classpath opts)
         cwd (js/process.cwd)
-        classpath-dirs (cons cwd (str/split classpath (re-pattern path/delimiter)))
+        _ (do (cp/add-classpath cwd)
+              (when classpath (cp/add-classpath classpath)))
         nrepl-server (:nrepl-server opts)
         repl? (or (:repl opts)
                   (:socket-repl opts)
@@ -56,7 +58,6 @@
     (when repl? (api/init-require (path/resolve "script.cljs")))
     (if (or script-file expr nrepl-server repl?)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
-          (swap! nbb/ctx assoc :classpath {:dirs classpath-dirs})
           (-> (cond script-file
                     (api/loadFile script-file)
                     expr

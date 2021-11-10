@@ -1,6 +1,7 @@
 (ns nbb.api
   (:require ["module" :refer [createRequire]]
             ["path" :as path]
+            [nbb.classpath :as cp]
             [nbb.core :as nbb]))
 
 (def create-require
@@ -22,3 +23,9 @@
 (defn loadString [expr]
   (init-require (path/resolve "script.cljs"))
   (nbb/load-string expr))
+
+(defn addClassPath [cp]
+  (cp/add-classpath cp))
+
+(defn getClassPath []
+  (cp/get-classpath))

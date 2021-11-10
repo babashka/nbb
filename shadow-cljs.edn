@@ -14,7 +14,9 @@
     :nbb_main {:init-fn nbb.main/main
                :depends-on #{:nbb_impl_main :nbb_core :nbb_api}}
     :nbb_api {:exports {loadFile nbb.api/loadFile
-                        loadString nbb.api/loadString}
+                        loadString nbb.api/loadString
+                        getClassPath nbb.api/getClassPath
+                        addClassPath nbb.api/addClassPath}
               :depends-on #{:nbb_core}}
     :nbb_reagent {:init-fn nbb.reagent/init
                   :depends-on #{:nbb_core}}
