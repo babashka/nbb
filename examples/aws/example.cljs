@@ -1,5 +1,5 @@
 (ns example
-  (:require ["@aws-sdk/client-s3" :refer [S3Client ListBucketsCommand ]]
+  (:require ["@aws-sdk/client-s3" :refer [S3Client ListBucketsCommand]]
             [promesa.core :as p]))
 
 (p/let [client (new S3Client #js {:region "eu-west-1"})
