@@ -5,6 +5,7 @@
    ["path" :as path]
    ["url" :as url]
    [clojure.string :as str]
+   [goog.math :as gmath]
    [goog.object :as gobj]
    [goog.string :as gstr]
    [nbb.classpath :as cp]
@@ -335,7 +336,14 @@
                                       'time (sci/copy-var time core-ns)
                                       'system-time (sci/copy-var system-time core-ns)
                                       'implements? (sci/copy-var implements?* core-ns)
-                                      'array (sci/copy-var array core-ns)}
+                                      'array (sci/copy-var array core-ns)
+                                      'random-uuid (sci/copy-var random-uuid core-ns)
+                                      'Cons Cons
+                                      'IndexedSeq IndexedSeq
+                                      'PersistentVector PersistentVector
+                                      'LazySeq LazySeq
+                                      'List List
+                                      'Range Range}
                        ;; fixes (require 'cljs.core)
                        'cljs.core {}
                        'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
@@ -344,13 +352,21 @@
                                   'slurp (sci/copy-var slurp nbb-ns)
                                   '*file* sci/file}
                        'nbb.classpath {'add-classpath (sci/copy-var cp/add-classpath cp-ns)
-                                       'get-classpath (sci/copy-var cp/get-classpath cp-ns)}}
+                                       'get-classpath (sci/copy-var cp/get-classpath cp-ns)}
+                       'taoensso.timbre {}
+                       }
           :classes {'js universe :allow :all
+                    'goog #js {:typeOf goog/typeOf}
                     'goog.object #js {:get gobj/get
                                       :set gobj/set
                                       :getKeys gobj/getKeys
                                       :getValueByKeys gobj/getValueByKeys}
-                    'goog.string #js {:StringBuffer gstr/StringBuffer}}
+                    'goog.array #js {}
+                    'goog.string #js {:StringBuffer gstr/StringBuffer}
+                    'goog.math.Integer gmath/Integer
+                    'goog.math.Long gmath/Long
+                    'Math js/Math
+                    }
           :disable-arity-checks true}))
 
 (def ^:dynamic *file* sci/file) ;; make clj-kondo+lsp happy
