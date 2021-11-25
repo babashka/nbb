@@ -24,7 +24,7 @@ The following macro is quite helpful for REPL development:
 You can use it like this:
 
 ``` clojure
-(require '["playwright$default" :as pw]
+(require '["playwright$default" :as pw])
 (defp browser (.launch pw/chromium #js {:headless false}))
 (defp context (.newContext browser))
 (defp page (.newPage context))
