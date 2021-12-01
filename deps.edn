@@ -10,5 +10,5 @@
                          :git/sha "01b2b9a38a6c5c4b2ea3fd0a9e038d9551299665"} #_{:local/root "../nbb-reagent"}
         funcool/promesa {:mvn/version "6.0.2"}
         applied-science/js-interop {:mvn/version "0.3.0"}
-        borkdude/sci {:git/url "https://github.com/borkdude/sci"
-                      :git/sha "20616983a8be69f2c28c4ef453e7a4eb644a12ee"}}}
+        babashka/sci {:git/url "https://github.com/babashka/sci"
+                      :git/sha "e047baa73a6579b94febca6a579b0fa1b6ab5e71"}}}
