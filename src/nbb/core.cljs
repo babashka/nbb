@@ -335,7 +335,11 @@
                                       'time (sci/copy-var time core-ns)
                                       'system-time (sci/copy-var system-time core-ns)
                                       'implements? (sci/copy-var implements?* core-ns)
-                                      'array (sci/copy-var array core-ns)}
+                                      'array (sci/copy-var array core-ns)
+                                      'tap> (sci/copy-var tap> core-ns)
+                                      'add-tap (sci/copy-var add-tap core-ns)
+                                      'remove-tap (sci/copy-var remove-tap core-ns)
+                                      }
                        ;; fixes (require 'cljs.core)
                        'cljs.core {}
                        'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
