@@ -300,7 +300,7 @@ Doing stuff which takes a while
 3
 ```
 
-Also see [API docs](api.md).
+Also see [API docs](doc/api.md#promesa).
 
 ### REPL
 
