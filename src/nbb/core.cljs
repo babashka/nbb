@@ -354,7 +354,8 @@
                                       :set gobj/set
                                       :getKeys gobj/getKeys
                                       :getValueByKeys gobj/getValueByKeys}
-                    'goog.string #js {:StringBuffer gstr/StringBuffer}}
+                    'goog.string #js {:StringBuffer gstr/StringBuffer}
+                    'Math js/Math}
           :disable-arity-checks true}))
 
 (def ^:dynamic *file* sci/file) ;; make clj-kondo+lsp happy
