@@ -123,3 +123,37 @@
                         :after-test-vars
                         :once-before :each-before :each-after :each-before :each-after :once-after] m))
                 (done))))))
+
+(deftest report-binding-test
+  (async done
+         (-> (with-async-bindings
+               {sci/print-fn (fn [_])}
+               (nbb/load-string "
+(ns foo4
+  (:require [clojure.test :as t :refer [report]]))
+
+(def state (atom []))
+
+(defmulti mine :type)
+
+(defmethod mine :summary [_]
+  (swap! state conj :summary))
+
+(defmethod mine :default [_]
+  (swap! state conj :default))
+
+(defmethod mine :end-run-tests [_]
+  (swap! state conj :end-run-tests))
+
+(t/deftest hello
+  (t/is (= 1 2)))
+
+(binding [report mine]
+  (t/run-tests 'foo4))
+
+@state
+"))
+             (.then
+              (fn [m]
+                (is (= [:default :default :default :default :default :summary :end-run-tests] m))
+                (done))))))

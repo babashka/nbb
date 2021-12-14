@@ -447,7 +447,7 @@
             :fail (merge (file-and-line (js/Error.) 4) m)
             :error (merge (file-and-line (:actual m) 0) m)
             m)]
-    (report-impl m)))
+    (report m)))
 
 #_(defn do-report
   "Add file and line information to a test result and call report.
