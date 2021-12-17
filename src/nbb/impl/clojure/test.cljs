@@ -501,7 +501,7 @@
            result# (apply ~pred values#)]
        (if result#
          (clojure.test/do-report {:type :pass, :message ~msg,
-                                  :expected '~form, :actual (cons ~pred values#)})
+                                  :expected '~form, :actual (cons '~pred values#)})
          (clojure.test/do-report {:type :fail, :message ~msg,
                                   :file clojure.core/*file*
                                   :line ~(:line (meta form))
