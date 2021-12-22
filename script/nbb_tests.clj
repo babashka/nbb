@@ -98,12 +98,12 @@
   (tasks/shell {:dir "test-scripts/api-test"} (npm "install"))
   (tasks/shell {:dir "test-scripts/api-test"} "node test.mjs"))
 
-(defn normalize-js-interop-output
+(defn normalize-interop-output
   "Functions print differently in compile vs release."
   [s]
   (str/replace s #"object\[.*\]" "object[-]"))
 
-(def expected-js-interop-output (normalize-js-interop-output "#js {:y 1, :someFn #object[Function]}
+(def expected-js-interop-output (normalize-interop-output "#js {:y 1, :someFn #object[Function]}
 1
 #js {:a 1, :b 2, :c 3}
 #js {:y 1, :someFn #object[Function]}
@@ -125,8 +125,26 @@
 
 (deftest js-interop-test
   (is (= expected-js-interop-output
-         (normalize-js-interop-output (nbb* "examples/js-interop/example.cljs")))))
+         (normalize-interop-output (nbb* "examples/js-interop/example.cljs")))))
 
+(def expected-cljs-bean-output (normalize-interop-output "{:y 1, :someFn #object[-]}
+1
+{:a 1, :b 2, :c 3}
+{:y 1, :someFn #object[-]}
+[:a 1 :b 2 :c 3]
+{:x {:y 1, :someFn #object[-]}
+{:x {:y 100, :someFn #object[-]}
+{:x {:y 1, :someFn #object[-]}
+{:x {:y 11, :someFn #object[-]}
+42
+42
+42
+42
+"))
+
+(deftest cljs-bean-test
+  (is (= expected-cljs-bean-output
+         (normalize-interop-output (nbb* "examples/cljs-bean/example.cljs")))))
 
 (deftest error-test
   (let [err (-> (process ["node" "out/nbb_main.js" "test-scripts/error.cljs"]
