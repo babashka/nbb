@@ -12,7 +12,9 @@
    [sci.core :as sci]
    [sci.impl.vars :as vars]
    [shadow.esm :as esm])
-  (:require-macros [nbb.macros :refer [with-async-bindings]]))
+  (:require-macros [nbb.macros
+                    :as macros
+                    :refer [with-async-bindings]]))
 
 (def opts (atom nil))
 
@@ -328,6 +330,9 @@
 
 (def cp-ns (sci/create-ns 'nbb.classpath nil))
 
+(defn version []
+  (macros/get-in-package-json :version))
+
 (reset! sci-ctx
         (sci/init
          {:namespaces {'clojure.core {'*command-line-args* command-line-args
@@ -346,7 +351,8 @@
                                   'load-file (sci/copy-var load-file nbb-ns)
                                   'alter-var-root (sci/copy-var sci/alter-var-root nbb-ns)
                                   'slurp (sci/copy-var slurp nbb-ns)
-                                  '*file* sci/file}
+                                  '*file* sci/file
+                                  'version (sci/copy-var version nbb-ns)}
                        'nbb.classpath {'add-classpath (sci/copy-var cp/add-classpath cp-ns)
                                        'get-classpath (sci/copy-var cp/get-classpath cp-ns)}}
           :classes {'js universe :allow :all

@@ -16,7 +16,8 @@
     :nbb_api {:exports {loadFile nbb.api/loadFile
                         loadString nbb.api/loadString
                         getClassPath nbb.api/getClassPath
-                        addClassPath nbb.api/addClassPath}
+                        addClassPath nbb.api/addClassPath
+                        version nbb.api/version}
               :depends-on #{:nbb_core}}
     :nbb_reagent {:init-fn nbb.reagent/init
                   :depends-on #{:nbb_core}}
@@ -36,4 +37,6 @@
     :nbb_test {:init-fn nbb.impl.test/init
                :depends-on #{:nbb_core}}}
    :build-hooks [(shadow.cljs.build-report/hook
-                  {:output-to "report.html"})]}}}
+                  {:output-to "report.html"})
+                 (nbb.impl.shadow-hooks/hook
+                      {})]}}}

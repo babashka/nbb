@@ -29,3 +29,6 @@
 
 (defn getClassPath []
   (cp/get-classpath))
+
+(defn version []
+  (nbb/version))

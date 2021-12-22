@@ -30,6 +30,7 @@
       (let [farg (first args)
             nargs (next args)]
         (case farg
+          ("--help" "-h") (assoc opts :help true)
           "-e" (recur (assoc opts :expr (first nargs))
                       (next nargs))
           ("-m" "--main")
@@ -57,6 +58,32 @@
             (throw (ex-info (str "Unrecognized options:"  args) {})))))
       opts)))
 
+(defn print-help []
+  (println "Nbb version:" (nbb/version))
+  (println "
+Help:
+
+ -h / --help: prints this help text and exit.
+
+Global options:
+
+ --debug: print additional debug info.
+ -cp / --classpath: set the classpath.
+
+Evaluation:
+
+ -e: execute expression.
+ -m / --main: execute main function.
+
+REPL:
+
+ repl: start console REPL.
+ nrepl-server: start nrepl server. [1]
+ socket-repl: start socket repl server. [1]
+
+ 1: Provide :port <port> to specify port.
+"))
+
 (defn main []
   (let [[_ _ & args] js/process.argv
         opts (parse-args args)
@@ -72,6 +99,9 @@
                   (:socket-repl opts)
                   ;; TODO: better handling of detecting invocation without subtask
                   (empty? (dissoc opts :expr :classpath :debug)))]
+    (when (:help opts)
+      (print-help)
+      (js/process.exit 0))
     (reset! nbb/opts opts)
     (when repl? (api/init-require (path/resolve "script.cljs")))
     (if (or script-file expr nrepl-server repl?)

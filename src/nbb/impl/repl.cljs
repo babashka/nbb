@@ -1,13 +1,10 @@
 (ns nbb.impl.repl
   (:require
    ["net" :as net]
-   ["path" :as path]
    ["readline" :as readline]
    ["vm" :as vm]
    [clojure.string :as str]
-   [nbb.api :as api]
    [nbb.core :as nbb]
-   [nbb.impl.common :as common]
    [sci.core :as sci])
   (:require-macros [nbb.macros :as macros]))
 
@@ -15,7 +12,6 @@
   (.createInterface
    readline #js {:input js/process.stdin
                  :output js/process.stdout}))
-
 
 (def pending-input (atom ""))
 
