@@ -35,7 +35,9 @@
   (is (= {:expr "(+ 1 2 3)"} (main/parse-args ["-e" "(+ 1 2 3)"])))
   (is (= {:script "foo.cljs", :args nil} (main/parse-args ["foo.cljs"])))
   (is (= {:script "foo.cljs", :args '("1" "2" "3")} (main/parse-args ["foo.cljs" "1" "2" "3"])))
-  (is (= {:classpath "src", :script "foo.cljs", :args nil} (main/parse-args ["--classpath" "src" "foo.cljs"]))))
+  (is (= {:classpath "src", :script "foo.cljs", :args nil} (main/parse-args ["--classpath" "src" "foo.cljs"])))
+  (is (= {:expr "(require 'foo) (apply foo/-main *command-line-args*)", :args '("1" "2" "3")}
+         (main/parse-args ["-m" "foo" "1" "2" "3"]))))
 
 (deftest-async simple-require-test
   (-> (nbb/load-string "(ns foo (:require cljs.core clojure.set))
@@ -83,6 +85,13 @@
                (main-with-args["-e" "(nbb.core/load-file \"test-scripts/script.cljs\")"])))
       (.then (fn [res]
                (is (= 6 res))))))
+
+(deftest-async main-test
+  {:before (set! *print-fn* (constantly nil))
+   :after (set! *print-fn* pf)}
+  (-> (main-with-args ["-m" "clojure.core/str" "1" "2" "3"])
+      (.then (fn [res]
+               (is (= "123" res))))))
 
 (defn normalize-filename [s]
   (str/replace s "\\" "/"))
