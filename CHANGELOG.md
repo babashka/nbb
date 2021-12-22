@@ -2,6 +2,12 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.1.0
+
+- Add [cljs-bean](https://github.com/mfikes/cljs-bean) to ease JS interop
+- Add `--help` option to print help text
+- Add `--main` option to invoke main function
+
 ## 0.0.117
 
 - Support binding `clojure.test/report` [#106](https://github.com/babashka/nbb/issues/106)
