@@ -317,6 +317,12 @@ var. You can do that like this:
 (.goto page "https://clojure.org")
 ```
 
+## Cljs-bean
+
+Since nbb v0.1.0 [cljs-bean](https://github.com/mfikes/cljs-bean) is available.
+
+See the [example](examples/cljs-bean/example.cljs) for an example.
+
 ## Js-interop
 
 Since nbb v0.0.75 [applied-science/js-interop](https://github.com/applied-science/js-interop) is available:

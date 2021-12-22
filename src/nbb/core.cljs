@@ -120,6 +120,8 @@
         (load-module "./nbb_promesa.js" libname as refer rename libspecs)
         (applied-science.js-interop)
         (load-module "./nbb_js_interop.js" libname as refer rename libspecs)
+        (cljs-bean.core)
+        (load-module "./nbb_cljs_bean.js" libname as refer rename libspecs)
         (cljs.pprint clojure.pprint)
         (load-module "./nbb_pprint.js" libname as refer rename libspecs)
         (cljs.test clojure.test)
