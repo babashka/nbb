@@ -1,11 +1,11 @@
 (ns nbb.api
-  (:require ["module" :refer [createRequire]]
-            ["path" :as path]
+  (:require #_["module" :refer [createRequire]]
+            #_["path" :as path]
             [nbb.classpath :as cp]
             [nbb.core :as nbb]))
 
 (def create-require
-  (or createRequire
+  #_(or createRequire
       (fn [_script-path]
         (fn [_]
           (throw (js/Error. "createRequire is not defined, this is a no-op"))))))
@@ -16,12 +16,12 @@
     (swap! nbb/ctx assoc :require require)))
 
 (defn loadFile [script]
-  (let [script-path (path/resolve script)]
+  #_(let [script-path (path/resolve script)]
     (init-require script-path)
     (nbb/load-file script-path)))
 
 (defn loadString [expr]
-  (init-require (path/resolve "script.cljs"))
+  #_(init-require (path/resolve "script.cljs"))
   (nbb/load-string expr))
 
 (defn addClassPath [cp]

@@ -2,7 +2,7 @@
   {:no-doc true}
   (:refer-clojure :exclude [println])
   (:require
-   ["fs" :as fs]
+   #_["fs" :as fs]
    [clojure.string :as str]
    [sci.core :as sci]))
 
@@ -31,7 +31,7 @@
       (run! #(print % "\n") snd))))
 
 (defn read-maybe-file [file]
-  (when (fs/existsSync file)
+  #_(when (fs/existsSync file)
     (str (fs/readFileSync file))))
 
 (defn error-context [ex]

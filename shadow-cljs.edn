@@ -19,27 +19,29 @@
                         addClassPath nbb.api/addClassPath
                         version nbb.api/version}
               :depends-on #{:nbb_core}}
-    :nbb_reagent {:init-fn nbb.reagent/init
-                  :depends-on #{:nbb_core}}
-    :nbb_reagent_dom_server {:init-fn nbb.impl.reagent.dom.server/init
-                             :depends-on #{:nbb_core :nbb_reagent}}
-    :nbb_promesa {:init-fn nbb.promesa/init
-                  :depends-on #{:nbb_core}}
+    ;; :nbb_reagent {:init-fn nbb.reagent/init
+    ;;               :depends-on #{:nbb_core}}
+    ;; :nbb_reagent_dom_server {:init-fn nbb.impl.reagent.dom.server/init
+    ;;                          :depends-on #{:nbb_core :nbb_reagent}}
+    ;; :nbb_promesa {:init-fn nbb.promesa/init
+    ;;               :depends-on #{:nbb_core}}
 
-    :nbb_js_interop {:init-fn nbb.js-interop/init
-                     :depends-on #{:nbb_core}}
+    ;; :nbb_js_interop {:init-fn nbb.js-interop/init
+    ;;                  :depends-on #{:nbb_core}}
 
-    :nbb_cljs_bean {:init-fn nbb.impl.cljs-bean/init
-                    :depends-on #{:nbb_core}}
+    ;; :nbb_cljs_bean {:init-fn nbb.impl.cljs-bean/init
+    ;;                 :depends-on #{:nbb_core}}
 
-    :nbb_pprint {:init-fn nbb.pprint/init
-                 :depends-on #{:nbb_core}}
-    :nbb_nrepl_server {:init-fn nbb.impl.nrepl-server/init
-                       :depends-on #{:nbb_core :nbb_api}}
-    :nbb_repl {:init-fn nbb.impl.repl/init
-               :depends-on #{:nbb_core :nbb_api}}
-    :nbb_test {:init-fn nbb.impl.test/init
-               :depends-on #{:nbb_core}}}
+    ;; :nbb_pprint {:init-fn nbb.pprint/init
+    ;;              :depends-on #{:nbb_core}}
+    ;; :nbb_nrepl_server {:init-fn nbb.impl.nrepl-server/init
+    ;;                    :depends-on #{:nbb_core :nbb_api}}
+    ;; :nbb_repl {:init-fn nbb.impl.repl/init
+    ;;            :depends-on #{:nbb_core :nbb_api}}
+    ;; :nbb_test {:init-fn nbb.impl.test/init
+    ;;            :depends-on #{:nbb_core}}
+
+    }
    :build-hooks [(shadow.cljs.build-report/hook
                   {:output-to "report.html"})
                  (nbb.impl.shadow-hooks/hook

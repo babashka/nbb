@@ -5,7 +5,7 @@
   (main/main))
 
 ;; needed on node 14 which is used in CI
-(js/process.on
+#_(js/process.on
  "unhandledRejection"
  (fn [err]
    (.error js/console (ex-message err))

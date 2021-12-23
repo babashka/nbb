@@ -1,5 +1,5 @@
 (ns nbb.impl.main
-  (:require ["path" :as path]
+  (:require #_["path" :as path]
             [clojure.string :as str]
             [nbb.api :as api]
             [nbb.classpath :as cp]
@@ -85,7 +85,8 @@ REPL:
 "))
 
 (defn main []
-  (let [[_ _ & args] js/process.argv
+  (prn (sci/eval-string "(+ 1 2 3)"))
+  #_(let [[_ _ & args] js/process.argv
         opts (parse-args args)
         _ (reset! common/opts opts)
         script-file (:script opts)
@@ -103,7 +104,7 @@ REPL:
       (print-help)
       (js/process.exit 0))
     (reset! nbb/opts opts)
-    (when repl? (api/init-require (path/resolve "script.cljs")))
+    ;; (when repl? (api/init-require (path/resolve "script.cljs")))
     (if (or script-file expr nrepl-server repl?)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
           (-> (cond script-file

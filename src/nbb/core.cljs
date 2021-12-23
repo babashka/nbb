@@ -1,9 +1,9 @@
 (ns nbb.core
   (:refer-clojure :exclude [load-file time])
   (:require
-   ["fs" :as fs]
-   ["path" :as path]
-   ["url" :as url]
+   #_["fs" :as fs]
+   #_["path" :as path]
+   #_["url" :as url]
    [clojure.string :as str]
    [goog.object :as gobj]
    [goog.string :as gstr]
@@ -20,7 +20,7 @@
 
 (def universe goog/global)
 
-(def cwd (.cwd js/process))
+#_(def cwd (.cwd js/process))
 
 (def command-line-args (sci/new-dynamic-var '*command-line-args* nil {:ns core-ns}))
 (def warn-on-infer     (sci/new-dynamic-var '*warn-on-infer* false {:ns core-ns}))
@@ -66,7 +66,7 @@
                  (handle-libspecs (next libspecs)))))))
 
 (def ^:private  windows?
-  (= "win32" js/process.platform))
+  #_(= "win32" js/process.platform))
 
 (defn load-react []
   (let [internal-name (symbol "nbb.internal.react")
@@ -83,7 +83,7 @@
     (set! ^js (.-nbb$internal$react goog/global) mod)))
 
 (defn ^:private handle-libspecs [libspecs]
-  (if (seq libspecs)
+  #_(if (seq libspecs)
     (let [fst (first libspecs)
           [libname & opts] (if (symbol? fst)
                              [fst] fst)
@@ -297,7 +297,7 @@
   [f]
   (js/Promise.
    (fn [resolve reject]
-     (fs/readFile f
+     #_(fs/readFile f
                   (fn [error contents]
                     (if error
                       (reject error)
@@ -305,7 +305,7 @@
 
 (defn load-file
   [f]
-  (with-async-bindings {sci/file (path/resolve f)}
+  #_(with-async-bindings {sci/file (path/resolve f)}
     (-> (slurp f)
         (.then (fn [source]
                  (load-string source))))))
