@@ -350,8 +350,8 @@ Nbb supports the following reader conditional features: `:org.babashka/nbb` and
 `:cljs` in that order of priority:
 
 ``` clojure
-#?(:org.babaskha/nbb 1 :cljs 2) ;;=> 1
-#?(:cljs 2 :org.babaskha/nbb 1) ;;=> 2
+#?(:org.babashka/nbb 1 :cljs 2) ;;=> 1
+#?(:cljs 2 :org.babashka/nbb 1) ;;=> 2
 ```
 
 ## REPL
