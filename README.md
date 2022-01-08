@@ -455,7 +455,7 @@ The following projects are using nbb or are supporting it as a development platf
 - [c64core](https://github.com/chr15m/c64core): retrocompute aesthetics twitter bot.
 - [sitefox](https://github.com/chr15m/sitefox): Node.js + CLJS backend web framework.
 - [unminify](https://github.com/xfthhxk/unminify): unminifies JS stacktrace errors.
-- [lambda-adapter](https://github.com/vharmain/nbb-lambda-adapter): a lambda adapter for nbb.
+- [nbb-serverless-example](https://github.com/vharmain/nbb-serverless-example): AWS serverless example using nbb
 
 ## Examples
 
@@ -473,6 +473,8 @@ See [API](doc/api.md) documentation.
 - [Prerendering React in ClojureScript
   land](https://www.arthurbrrs.me/prerendering-react-clojurescript-land.html) by
   Arthur Barroso
+- [Creating an AWS Lambda function with
+  nbb](https://blog.michielborkent.nl/aws-lambda-nbb.html) by Michiel Borkent
 
 ## Migrating to shadow-cljs
 
