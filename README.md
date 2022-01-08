@@ -24,7 +24,7 @@ Additional goals and features are:
 ## Community
 
 - Submit bugs at [Github Issues](https://github.com/borkdude/nbb/issues).
-- Join [Github Discussions](https://github.com/borkdude/nbb/discussions/categories) for proposing ideas, show and tell and Q&A.
+- Join [Github Discussions](https://github.com/borkdude/nbb/discussions) for proposing ideas, show and tell and Q&A.
 -  Join the [channel](https://app.slack.com/client/T03RZGPFR/C029PTWD3HR) on Clojurians Slack.
 - Follow news or tweet using the Twitter hashtag
   [#nbbjs](https://twitter.com/hashtag/nbbjs?f=live).
