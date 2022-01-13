@@ -2,6 +2,11 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.1.1
+
+- Fix #115: Missing `cljs.core` functions: `array?`, `object?`, `js-delete`, `undefined?`
+- Fix #114: When non-Error values are thrown they aren't be caught by `:default`
+
 ## 0.1.0
 
 - Add [cljs-bean](https://github.com/mfikes/cljs-bean) to ease JS interop
