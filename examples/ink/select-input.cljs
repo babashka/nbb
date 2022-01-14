@@ -8,15 +8,15 @@
                      {:label "Second"
                       :value "second"}]))
 
-(def ink-state (volatile! nil))
+(declare ink-state)
 
 (defn handle-select [i]
-  ((.-clear @ink-state))
-  ((.-unmount @ink-state))
+  ((.-clear ink-state))
+  ((.-unmount ink-state))
   (js/console.log i)
   (js/process.exit 0))
 
 (defn select []
   [:> SelectInput {:items items :onSelect handle-select}])
 
-(vreset! ink-state (render (r/as-element [select])))
+(def ink-state (render (r/as-element [select])))
