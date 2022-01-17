@@ -67,7 +67,7 @@ $ npm install csv-parse shelljs term-size zx
 
 Create a script which uses the NPM libraries:
 
-``` clojur
+``` clojure
 (ns script
   (:require ["csv-parse/sync$default" :as csv]
             ["fs" :as fs]
