@@ -237,5 +237,18 @@
             (when (fs/existsSync ".nrepl-port")
               (fs/unlinkSync ".nrepl-port")))))
 
-(defn init []
-  (start-server @nbb/opts))
+(defn
+  init
+  []
+  (let [eval-require (fn
+                       [ns-form]
+                       (when ns-form
+                         (nbb/eval-require
+                          (list
+                           'quote
+                           (list 'quote ns-form)))))
+        [ns1 ns2] nbb/repl-requires]
+    (->
+     (eval-require ns1)
+     (.then (fn [] (eval-require ns2)))
+     (.then (fn [] (start-server @nbb/opts))))))

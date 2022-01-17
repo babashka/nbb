@@ -170,6 +170,8 @@
   ([] (repl nil))
   ([_opts]
    (when tty (.setRawMode js/process.stdin true))
+   (doseq [form nbb/repl-requires]
+     (nbb/eval-require (list 'quote (list 'quote form))))
    (js/Promise. (fn [resolve]
                   (input-loop nil resolve)))))
 
