@@ -242,11 +242,10 @@
   []
   (let [eval-require (fn
                        [ns-form]
-                       (when ns-form
-                         (nbb/eval-require
-                          (list
-                           'quote
-                           (list 'quote ns-form)))))
+                       (nbb/eval-require
+                        (list
+                         'quote
+                         (list 'quote ns-form))))
         [ns1 ns2] nbb/repl-requires]
     (->
      (eval-require ns1)
