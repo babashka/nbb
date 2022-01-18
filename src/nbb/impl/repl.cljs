@@ -170,8 +170,19 @@
   ([] (repl nil))
   ([_opts]
    (when tty (.setRawMode js/process.stdin true))
-   (js/Promise. (fn [resolve]
-                  (input-loop nil resolve)))))
+   (let [eval-require (fn
+                        [ns-form]
+                        (nbb/eval-require
+                         (list
+                          'quote
+                          (list 'quote ns-form))))
+         [ns1 ns2] nbb/repl-requires]
+     (->
+      (eval-require ns1)
+      (.then (fn [] (eval-require ns2)))
+      (.then (fn []
+               (js/Promise. (fn [resolve]
+                              (input-loop nil resolve)))))))))
 
 (def repl-namespace
   {'repl (sci/copy-var repl rns)

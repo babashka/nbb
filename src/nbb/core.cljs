@@ -18,6 +18,10 @@
 
 (def opts (atom nil))
 
+(def repl-requires
+  '[[clojure.repl :refer [apropos source dir doc find-doc]]
+    [clojure.pprint :refer [pprint]]])
+
 (def universe goog/global)
 
 (def cwd (.cwd js/process))
@@ -347,6 +351,11 @@
                                       'add-tap (sci/copy-var add-tap core-ns)
                                       'remove-tap (sci/copy-var remove-tap core-ns)
                                       }
+
+                       'clojure.main {'repl-requires (sci/copy-var
+                                                      repl-requires
+                                                      (sci/create-ns 'clojure.main))}
+
                        ;; fixes (require 'cljs.core)
                        'cljs.core {}
                        'nbb.core {'load-string (sci/copy-var load-string nbb-ns)

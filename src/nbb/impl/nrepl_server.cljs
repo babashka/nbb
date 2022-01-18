@@ -6,6 +6,7 @@
    ["path" :as path]
    [clojure.string :as str]
    [nbb.api :as api]
+   [nbb.classpath :as cp]
    [nbb.core :as nbb]
    [nbb.impl.bencode :refer [encode decode-all]]
    [sci.core :as sci])
@@ -126,6 +127,14 @@
 (defn handle-close [request send-fn]
   (send-fn request {"status" ["done"]}))
 
+(defn
+  handle-classpath [request send-fn]
+  (send-fn
+   request
+   {"status" ["done"]
+    "classpath"
+    (cp/split-classpath (cp/get-classpath))}))
+
 (defn handle-load-file [{:keys [file] :as request} send-fn]
   (do-handle-eval (assoc request
                          :code file
@@ -139,6 +148,7 @@
    :describe handle-describe
    :clone handle-clone
    :close handle-close
+   :classpath handle-classpath
    :load-file handle-load-file})
 
 (defn handle-request [{:keys [op] :as request} send-fn]
@@ -227,5 +237,17 @@
             (when (fs/existsSync ".nrepl-port")
               (fs/unlinkSync ".nrepl-port")))))
 
-(defn init []
-  (start-server @nbb/opts))
+(defn
+  init
+  []
+  (let [eval-require (fn
+                       [ns-form]
+                       (nbb/eval-require
+                        (list
+                         'quote
+                         (list 'quote ns-form))))
+        [ns1 ns2] nbb/repl-requires]
+    (->
+     (eval-require ns1)
+     (.then (fn [] (eval-require ns2)))
+     (.then (fn [] (start-server @nbb/opts))))))
