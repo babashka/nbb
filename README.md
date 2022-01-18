@@ -487,6 +487,8 @@ to convert an nbb script or project to
 
 See [Publishing an nbb project to npm](doc/publish/README.md)
 
+## [Develop](doc/dev.md)
+
 ## Build
 
 Prequisites:
