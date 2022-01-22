@@ -28,7 +28,7 @@
 
   watch (clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn watch modules"))
 
-  run-tests (shell "node out/nbb_tests.js")
+  run-tests (shell "node out/nbb_test.js")
 
   release {:depends [clean]
            :doc "Compiles release build."
