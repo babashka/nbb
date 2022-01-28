@@ -102,6 +102,57 @@
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (new-id!)}))))
 
+(deftest doc-test
+  (swap! port inc)
+  (nrepl-server)
+  (wait-for-port "localhost" @port)
+  (with-open [socket (Socket. "127.0.0.1" @port)
+              in (.getInputStream socket)
+              in (java.io.PushbackInputStream. in)
+              os (.getOutputStream socket)]
+    (bencode/write-bencode os {"op" "clone"})
+    (let [session (:new-session (read-msg (bencode/read-bencode in)))
+          id (atom 0)
+          new-id! #(swap! id inc)]
+      (testing "doc"
+        (bencode/write-bencode os
+                               {"op" "eval" "code" "(doc ==)"
+                                "session" session "id" (new-id!)})
+        (let [msg (read-reply in session @id)
+              v (:out msg)
+              _ (is (= "-------------------------" v))
+              msg (read-reply in session @id)
+              v (:out msg)
+              _ (is (= "\n" v))
+              msg (read-reply in session @id)
+              v (:out msg)
+              _ (is (= "clojure.core/==" v))
+              msg (read-reply in session @id)
+              v (:out msg)
+              _ (is (= "\n" v))
+              msg (read-reply in session @id)
+              v (:out msg)
+              _ (is (= "([x] [x y] [x y & more])" v))
+              msg (read-reply in session @id)
+              v (:out msg)
+              _ (is (= "\n" v))
+              msg (read-reply in session @id)
+              v (:out msg)
+              _ (is (= (str "  Returns non-nil if nums all have the equivalent"
+                            "\n  value, otherwise false. Behavior on non nums is"
+                            "\n  undefined.") v))
+              msg (read-reply in session @id)
+              v (:out msg)
+              _ (is (= "\n" v))
+              msg (read-reply in session @id)
+              v (:value msg)
+              _ (is (= "nil" v))
+              msg (read-reply in session @id)
+              status (:status msg)
+              _ (is (= ["done"] status))]))
+      (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
+                                 "session" session "id" (new-id!)}))))
+
 (defn -main [& _]
   (let [{:keys [:error :fail]} (t/run-tests 'nbb-nrepl-tests)]
     (when (pos? (+ error fail))
