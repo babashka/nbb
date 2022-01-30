@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.1.2
+
+- Bump SCI and cljs-bean
+
 ## 0.1.1
 
 - Fix [#115](https://github.com/babashka/nbb/issues/115): Missing `cljs.core` functions: `array?`, `object?`, `js-delete`, `undefined?`
