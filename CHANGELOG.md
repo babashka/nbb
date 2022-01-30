@@ -5,6 +5,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 ## 0.1.2
 
 - Bump SCI and cljs-bean
+- CIDER improvements ([@benjamin-asdf](https://github.com/benjamin-asdf))
 
 ## 0.1.1
 
