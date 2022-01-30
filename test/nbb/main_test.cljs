@@ -45,6 +45,11 @@
       (.then (fn [v]
                (is (true? v))))))
 
+(deftest-async as-alias
+  (-> (nbb/load-string "(require '[rando.ns :as-alias dude]) ::dude/foo")
+      (.then (fn [v]
+               (is (= :rando.ns/foo v))))))
+
 (deftest-async load-string-file-test
   (-> (nbb/load-string "(ns foo) (defn foo [] (+ 1 2 3)) (ns-name *ns*)")
       (.then (fn [ns-name]

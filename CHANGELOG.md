@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.1.3
+
+- Support `:as-alias`
+
 ## 0.1.2
 
 - Bump SCI and cljs-bean
