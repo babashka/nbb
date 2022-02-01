@@ -470,11 +470,12 @@ See [API](doc/api.md) documentation.
 
 ## Articles
 
+- [Serverless site analytics with Clojure nbb and AWS](https://www.loop-code-recur.io/simple-site-analytics-with-serverless-clojure)
+- [Creating an AWS Lambda function with
+  nbb](https://blog.michielborkent.nl/aws-lambda-nbb.html) by Michiel Borkent
 - [Prerendering React in ClojureScript
   land](https://www.arthurbrrs.me/prerendering-react-clojurescript-land.html) by
   Arthur Barroso
-- [Creating an AWS Lambda function with
-  nbb](https://blog.michielborkent.nl/aws-lambda-nbb.html) by Michiel Borkent
 
 ## Migrating to shadow-cljs
 
