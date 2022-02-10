@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "dependencies": {
+    "nbb": "^0.1.5"
+  }
+}
