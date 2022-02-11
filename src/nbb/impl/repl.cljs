@@ -5,6 +5,7 @@
    ["vm" :as vm]
    [clojure.string :as str]
    [nbb.core :as nbb]
+   [nbb.api :as api]
    [sci.core :as sci])
   (:require-macros [nbb.macros :as macros]))
 
@@ -177,6 +178,7 @@
                           'quote
                           (list 'quote ns-form))))
          [ns1 ns2] nbb/repl-requires]
+     (println (str "Welcome to nbb v" (api/version) "."))
      (->
       (eval-require ns1)
       (.then (fn [] (eval-require ns2)))
