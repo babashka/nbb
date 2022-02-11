@@ -2,13 +2,17 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## Unreleased
+
+- Show nbb version at REPL startup ([@prestancedesign](https://github.com/prestancedesign))
+
 ## 0.1.5
 
 - Fix: use `Reflect.construct` to fix interop with Graal Node.js
 
 ## 0.1.4
 
-- Fix #118: Use `Reflect.apply` to fix interop with Graal Node.js
+- Fix [#118](https://github.com/babashka/nbb/issues/118): Use `Reflect.apply` to fix interop with Graal Node.js
 
 ## 0.1.3
 

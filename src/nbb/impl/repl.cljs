@@ -178,7 +178,7 @@
                           'quote
                           (list 'quote ns-form))))
          [ns1 ns2] nbb/repl-requires]
-     (println (str "Welcome to nbb v" (api/version) "."))
+     (println (str "Welcome to nbb v" (api/version) "!"))
      (->
       (eval-require ns1)
       (.then (fn [] (eval-require ns2)))
