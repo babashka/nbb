@@ -5,8 +5,8 @@
    ["vm" :as vm]
    [clojure.string :as str]
    [nbb.core :as nbb]
-   [sci.core :as sci]
-   [nbb.api :as api])
+   [nbb.api :as api]
+   [sci.core :as sci])
   (:require-macros [nbb.macros :as macros]))
 
 (defn create-rl []
