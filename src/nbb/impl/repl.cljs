@@ -178,6 +178,7 @@
                           'quote
                           (list 'quote ns-form))))
          [ns1 ns2] nbb/repl-requires]
+     (println (str "Welcome to nbb v" (api/version) "."))
      (->
       (eval-require ns1)
       (.then (fn [] (eval-require ns2)))
@@ -190,7 +191,6 @@
    'socket-repl (sci/copy-var socket-repl rns)})
 
 (defn init []
-  (println (str "Welcome to nbb v" (api/version) "."))
   (nbb/register-plugin!
    :nbb.repl
    {:namespaces {'nbb.repl repl-namespace}}))
