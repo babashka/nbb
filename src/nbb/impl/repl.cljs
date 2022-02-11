@@ -5,7 +5,8 @@
    ["vm" :as vm]
    [clojure.string :as str]
    [nbb.core :as nbb]
-   [sci.core :as sci])
+   [sci.core :as sci]
+   [nbb.api :as api])
   (:require-macros [nbb.macros :as macros]))
 
 (defn create-rl []
@@ -189,6 +190,7 @@
    'socket-repl (sci/copy-var socket-repl rns)})
 
 (defn init []
+  (println (str "Welcome to nbb v" (api/version) "."))
   (nbb/register-plugin!
    :nbb.repl
    {:namespaces {'nbb.repl repl-namespace}}))
