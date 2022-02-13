@@ -55,7 +55,10 @@
    'chain   (sci/copy-var p/chain pns)
    'catch   (sci/copy-var p/catch pns)
    'finally (sci/copy-var p/finally pns)
-   'race    (sci/copy-var p/race pns)})
+   'race    (sci/copy-var p/race pns)
+   '->      (sci/copy-var p/-> pns)
+   '->>     (sci/copy-var p/->> pns)
+   'as->    (sci/copy-var p/as-> pns)})
 
 (def promesa-protocols-namespace
   {'-bind (sci/copy-var pt/-bind ptns)
@@ -66,4 +69,3 @@
    ::promesa
    {:namespaces {'promesa.core promesa-namespace
                  'promesa.protocols promesa-protocols-namespace}}))
-
