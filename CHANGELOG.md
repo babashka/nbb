@@ -2,9 +2,11 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## Unreleased
+## 0.1.6
 
 - Show nbb version at REPL startup ([@prestancedesign](https://github.com/prestancedesign))
+- Bump promesa with new `->` and `->>` macros ([@prestancedesign](https://github.com/prestancedesign))
+- Bump SCI with performance improvements (4x) for loops
 
 ## 0.1.5
 
