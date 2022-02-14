@@ -1,10 +1,10 @@
 (ns example
   (:require
-    [clojure.string :refer [capitalize]]
-    [promesa.core :as p]
-    ["fs" :refer [writeFileSync]]
-    ["node-fetch$default" :as fetch]
-    ["uuid" :refer [v4] :rename {v4 uuid}]))
+   [clojure.string :refer [capitalize]]
+   [promesa.core :as p]
+   ["fs" :refer [writeFileSync]]
+   ["node-fetch$default" :as fetch]
+   ["uuid" :refer [v4] :rename {v4 uuid}]))
 
 (defn parse-user
   [{:keys [email name]
@@ -17,9 +17,10 @@
                     " "
                     (capitalize (:last name)))})
 
-(p/let [response (fetch "https://randomuser.me/api/?results=10")
-        response (.json response)
-        results (:results (js->clj response :keywordize-keys true))]
+(p/let [results (p/-> (fetch "https://randomuser.me/api/?results=10")
+                      .json
+                      .-results
+                      (js->clj :keywordize-keys true))]
   (writeFileSync
-    "randomUsers.edn"
-    (pr-str (mapv parse-user results))))
+   "randomUsers.edn"
+   (pr-str (mapv parse-user results))))
