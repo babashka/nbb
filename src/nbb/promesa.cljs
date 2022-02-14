@@ -1,8 +1,8 @@
 (ns nbb.promesa
   (:refer-clojure :exclude [delay spread promise
                             await map mapcat run!
-                            future let loop recur])
-  (:require #_[clojure.core :as c]
+                            future let loop recur -> ->>])
+  (:require [clojure.core :as c]
             [nbb.core :as nbb]
             [promesa.core :as p]
             [promesa.protocols :as pt]
@@ -30,10 +30,46 @@
   promises on the bindings."
   [_ _ bindings & body]
   `(pt/-bind nil (fn [_#]
-                   ~(->> (reverse (partition 2 bindings))
-                         (reduce (fn [acc [l r]]
-                                   `(pt/-bind ~r (fn [~l] ~acc)))
-                                  `(promesa.core/do! ~@body))))))
+                   ~(c/->> (reverse (partition 2 bindings))
+                           (reduce (fn [acc [l r]]
+                                     `(pt/-bind ~r (fn [~l] ~acc)))
+                                   `(promesa.core/do! ~@body))))))
+
+(defn ^:macro ->
+  "Like the clojure.core/->, but it will handle promises in values
+  and make sure the next form gets the value realized instead of
+  the promise. Example using to fetch data in the browser with CLJS:
+  Example:
+  (p/-> (js/fetch #js {...}) ; returns a promise
+        .-body)
+  The result of a thread is a promise that will resolve to the
+  end of the thread chain."
+  [_ _ x & forms]
+  (c/let [fns (mapv (fn [arg]
+                      (c/let [[f & args] (if (sequential? arg)
+                                           arg
+                                           (list arg))]
+                        `(fn [p#] (~f p# ~@args)))) forms)]
+    `(p/chain (p/promise ~x) ~@fns)))
+
+(defn ^:macro ->>
+  "Like the clojure.core/->>, but it will handle promises in values
+  and make sure the next form gets the value realized instead of
+  the promise. Example using to fetch data in the browser with CLJS:
+  Example:
+  (p/->> (js/fetch #js {...}) ; returns a promise
+         .-body
+         read-string
+         (mapv inc)
+  The result of a thread is a promise that will resolve to the
+  end of the thread chain."
+  [_ _ x & forms]
+  (c/let [fns (mapv (fn [arg]
+                      (c/let [[f & args] (if (sequential? arg)
+                                           arg
+                                           (list arg))]
+                        `(fn [p#] (~f ~@args p#)))) forms)]
+    `(p/chain (p/promise ~x) ~@fns)))
 
 (def promesa-namespace
   {'do! (sci/copy-var do! pns)
@@ -56,9 +92,8 @@
    'catch   (sci/copy-var p/catch pns)
    'finally (sci/copy-var p/finally pns)
    'race    (sci/copy-var p/race pns)
-   '->      (sci/copy-var p/-> pns)
-   '->>     (sci/copy-var p/->> pns)
-   'as->    (sci/copy-var p/as-> pns)})
+   '->      (sci/copy-var -> pns)
+   '->>      (sci/copy-var ->> pns)})
 
 (def promesa-protocols-namespace
   {'-bind (sci/copy-var pt/-bind ptns)
