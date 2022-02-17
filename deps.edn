@@ -11,5 +11,6 @@
         funcool/promesa {:mvn/version "6.1.434"}
         applied-science/js-interop {:mvn/version "0.3.1"}
         cljs-bean/cljs-bean {:mvn/version "1.8.0"}
-        org.babashka/sci {:git/url "https://github.com/babashka/sci"
-                          :git/sha "cbdf0ce72204535d73c5974784712c1f7dcaf883"}}}
+        org.babashka/sci #_{:local/root "../babashka/sci"}
+        {:git/url "https://github.com/babashka/sci"
+         :git/sha "dfec1fd06d2b0744f25c9f7e5c56c70131d11186"}}}
