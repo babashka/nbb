@@ -2,6 +2,12 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.1.7
+
+- Fix bug: allow arbitrary expression in class position in `new`
+- Bump SCI
+- Bump promesa for built-in clj-kondo config
+
 ## 0.1.6
 
 - Show nbb version at REPL startup ([@prestancedesign](https://github.com/prestancedesign))
