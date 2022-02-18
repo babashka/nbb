@@ -19,8 +19,6 @@
    '*initial-report-counters* t/initial-report-counters
    '*testing-vars* t/testing-vars
    '*testing-contexts* t/testing-contexts
-   ;; 'with-test-out (macrofy @#'t/with-test-out)
-   ;; 'file-position t/file-position
    'testing-vars-str (sci/copy-var t/testing-vars-str tns)
    'testing-contexts-str (sci/copy-var t/testing-contexts-str tns)
    'inc-report-counter! (sci/copy-var t/inc-report-counter! tns)
