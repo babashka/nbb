@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.1.8
+
+- Fix bug: allow arbitrary expression in class position in `new` (part 2)
+
 ## 0.1.7
 
 - Fix bug: allow arbitrary expression in class position in `new`
