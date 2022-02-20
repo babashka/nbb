@@ -1,5 +1,7 @@
 # Creating a standalone executable with caxa
 
+## Packaging an nbb project
+
 This document provides an example of how to create a standalone executable from
 an nbb project with [caxa](https://github.com/leafac/caxa).
 
@@ -21,3 +23,19 @@ Your command line arguments: 1 2 3
 ```
 
 That's it!
+
+## Packaging nbb itself
+
+You can also package nbb itself as a standalone executable:
+
+```
+$ npx caxa --input . --output nbb-standalone \
+  -- "{{caxa}}/node_modules/.bin/node" "{{caxa}}/node_modules/.bin/nbb"
+$ ./nbb-standalone -e '(+ 1 2 3)'
+6
+$ ./nbb-standalone
+Welcome to nbb v0.1.8!
+user=>
+```
+
+Cool, isn't it?
