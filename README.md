@@ -489,6 +489,10 @@ to convert an nbb script or project to
 
 See [Publishing an nbb project to npm](doc/publish/README.md)
 
+## Creating a standalone executable with caxa
+
+See [Creating a standalone executable with caxa](doc/caxa/README.md)
+
 ## [Develop](doc/dev.md)
 
 ## Build

@@ -12,3 +12,4 @@ out
 **/.calva
 example.pdf
 */**/package-lock.json
+print-cli-args/print-cli-args
