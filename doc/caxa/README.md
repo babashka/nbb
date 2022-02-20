@@ -38,4 +38,4 @@ Welcome to nbb v0.1.8!
 user=>
 ```
 
-Cool, isn't it?
+That wasn't too bad, was it?
