@@ -5,10 +5,12 @@
 This document provides an example of how to create a standalone executable from
 an nbb project with [caxa](https://github.com/leafac/caxa).
 
-In `print-cli-args` is a small project which prints CLI arguments. Normally you would invoke this with:
+The `print-cli-args` directory contains a small project which prints CLI
+arguments. Normally you would invoke this with:
 
 ```
 $ nbb -cp src -m print-cli-args.core 1 2 3
+Your command line arguments: (1 2 3)
 ```
 
 Let's turn that project into a standalone executable. Execute this from the
