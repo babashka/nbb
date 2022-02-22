@@ -92,6 +92,7 @@
    'catch   (sci/copy-var p/catch pns)
    'finally (sci/copy-var p/finally pns)
    'race    (sci/copy-var p/race pns)
+   'run!    (sci/copy-var p/run! pns)
    '->      (sci/copy-var -> pns)
    '->>      (sci/copy-var ->> pns)})
 

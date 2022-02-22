@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## Unreleased
+
+- Fix #135: expose `promesa/run!`
+
 ## 0.1.8
 
 - Fix bug: allow arbitrary expression in class position in `new` (part 2)
