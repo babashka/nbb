@@ -2,9 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## Unreleased
+## 0.1.9
 
-- Fix #135: expose `promesa/run!`
+- Fix [#135](https://github.com/babashka/nbb/issues/135): expose `promesa/run!`
+- Fix [#131](https://github.com/babashka/nbb/issues/131): delayed printing in nREPL
 
 ## 0.1.8
 
