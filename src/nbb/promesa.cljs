@@ -85,6 +85,7 @@
    'resolved? (sci/copy-var p/resolved? pns)
    'rejected? (sci/copy-var p/rejected? pns)
    'pending? (sci/copy-var p/pending? pns)
+   'delay (sci/copy-var p/delay pns)
    'done?    (sci/copy-var p/done? pns)
    'wrap    (sci/copy-var p/wrap pns)
    'then    (sci/copy-var p/then pns)

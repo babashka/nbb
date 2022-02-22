@@ -75,9 +75,12 @@
   (with-async-bindings
     {sci/ns ns
      sci/print-length @sci/print-length
-     sci/print-newline true
-     sci/print-fn (fn [s]
-                    (send-fn request {"out" s}))}
+     sci/print-newline true}
+    ;; we alter-var-root this because the print-fn may go out of scope in case
+    ;; of returned delays
+    (sci/alter-var-root sci/print-fn (constantly
+                                      (fn [s]
+                                        (send-fn request {"out" s}))))
     (-> (nbb/eval-expr nil (sci/reader code) {:wrap vector})
         (.then (fn [v]
                  (let [v (first v)]
@@ -92,26 +95,7 @@
                       (send-fn request {"err" (str message "\n")}))
                     (send-fn request {"ex" (str e)
                                       "ns" (str @sci/ns)
-                                      "status" ["done"]}))))))
-  #_(let [reader (sci/reader code)]
-      (try
-        (loop [next-val (sci/parse-next @sci-ctx-atom reader)]
-          (when-not (= :sci.core/eof next-val)
-            (let[result (sci/eval-form @sci-ctx-atom next-val)
-                 ns (sci/eval-string* @sci-ctx-atom "*ns*")]
-              (when-not load-file?
-                (send-fn request {"value" (pr-str result)
-                                  "ns" (str ns)}))
-              (recur (sci/parse-next @sci-ctx-atom reader)))))
-        (send-fn request {"status" ["done"]})
-        (catch :default e
-          (sci/alter-var-root sci-last-error (constantly e))
-          (let [data (ex-data e)]
-            (when-let [message (or (:message data) (.-message e))]
-              (send-fn request {"err" message}))
-            (send-fn request {"ex" (str e)
-                              "ns" (str (sci/eval-string* @sci-ctx-atom "*ns*"))
-                              "status" ["done"]}))))))
+                                      "status" ["done"]})))))))
 
 (defn handle-eval [{:keys [ns sci-ctx-atom] :as request} send-fn]
   (do-handle-eval (assoc request :ns (or (when ns
