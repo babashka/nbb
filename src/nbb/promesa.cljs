@@ -1,7 +1,8 @@
 (ns nbb.promesa
   (:refer-clojure :exclude [delay spread promise
                             await map mapcat run!
-                            future let loop recur -> ->>])
+                            future let loop recur -> ->>
+                            with-redefs])
   (:require [clojure.core :as c]
             [nbb.core :as nbb]
             [promesa.core :as p]
@@ -75,6 +76,32 @@
                         `(fn [p#] (~f ~@args p#)))) forms)]
     `(p/chain (p/promise ~x) ~@fns)))
 
+(defn ^:macro with-redefs
+  "Like clojure.core/with-redefs, but it will handle promises in
+  body and wait until they resolve or reject before restoring the
+  bindings. Useful for mocking async APIs.
+  Example:
+  (defn async-func [] (p/delay 1000 :slow-original))
+  (p/with-redefs [async-func (fn [] (p/resolved :fast-mock))]
+    (async-func))
+  The result is a promise that will resolve to the last body form and
+  upon resolving restores the bindings to their original values."
+  [_ _ bindings & body]
+  (c/let [names (take-nth 2 bindings)
+          vals (take-nth 2 (drop 1 bindings))
+          orig-val-syms (c/map (comp gensym #(str % "-orig-val__") name) names)
+          temp-val-syms (c/map (comp gensym #(str % "-temp-val__") name) names)
+          binds (c/map vector names temp-val-syms)
+          resets (reverse (c/map vector names orig-val-syms))
+          bind-value (fn [[k v]] (println k v) (list 'set! k v))]
+    `(c/let [~@(c/interleave orig-val-syms names)
+             ~@(c/interleave temp-val-syms vals)]
+       ~@(c/map bind-value binds)
+       #_(p/-> (p/do! ~@body)
+             (p/finally
+               (fn []
+                 ~@(c/map bind-value resets)))))))
+
 (def promesa-namespace
   {'do! (sci/copy-var do! pns)
    'let (sci/copy-var let pns)
@@ -99,7 +126,8 @@
    'race    (sci/copy-var p/race pns)
    'run!    (sci/copy-var p/run! pns)
    '->      (sci/copy-var -> pns)
-   '->>      (sci/copy-var ->> pns)})
+   '->>      (sci/copy-var ->> pns)
+   'with-redefs (sci/copy-var with-redefs pns)})
 
 (def promesa-protocols-namespace
   {'-bind (sci/copy-var pt/-bind ptns)
