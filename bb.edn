@@ -26,8 +26,7 @@
          (println "Starting shadow-cljs in watch mode.")
          (println "Run node out/nbb_main.js to test nbb")
          (println "Run bb run-tests to run the tests")
-         (apply clojure {:extra-env {"PATH" (str "script" fs/path-separator (System/getenv "PATH"))}}
-                (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn watch modules")
+         (apply clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn watch modules")
                 *command-line-args*))}
 
   run-tests (shell "node out/nbb_tests.js")
