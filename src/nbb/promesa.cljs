@@ -93,11 +93,13 @@
           temp-val-syms (c/map (comp gensym #(str % "-temp-val__") name) names)
           binds (c/map vector names temp-val-syms)
           resets (reverse (c/map vector names orig-val-syms))
-          bind-value (fn [[k v]] (println k v) (list 'set! k v))]
+          bind-value (fn [[k v]]
+                       (list 'clojure.core/alter-var-root (list 'var k)
+                             (list 'clojure.core/constantly v)))]
     `(c/let [~@(c/interleave orig-val-syms names)
              ~@(c/interleave temp-val-syms vals)]
        ~@(c/map bind-value binds)
-       #_(p/-> (p/do! ~@body)
+       (p/-> (p/do! ~@body)
              (p/finally
                (fn []
                  ~@(c/map bind-value resets)))))))
