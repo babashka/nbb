@@ -42,7 +42,7 @@ the project to see which tasks are relevant.
 
 ## Develop
 
-Run the `bb watch` task to start compilation in development mode and to start a watcher to compile changes.
+Run the `bb dev` task to start compilation in development mode and to start a watcher to compile changes.
 Then run `node out/nbb_main.js <args>` to test the compiled nbb.
 
 ## Test
