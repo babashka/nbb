@@ -3,8 +3,7 @@
  {:requires ([babashka.fs :as fs]
              [cheshire.core :as json]
              [clojure.string :as str])
-  ;; NOTE: we merge in extra config for testing. Another way to accomplish this is with
-  ;; https://shadow-cljs.github.io/docs/UsersGuide.html#build-target-defaults
+
   :init (do (def ^:dynamic *test* (= "true" (System/getenv "NBB_TESTS")))
             (def windows? (-> (System/getProperty "os.name")
                               str/lower-case
@@ -15,32 +14,36 @@
                           (str (str/replace cmd
                                             "-M" "-M:test")
                                " --config-merge shadow-tests.edn")
-                          cmd)
-                    #_#_cmd (if windows?
-                          (-> cmd
-                              (str/replace "npm" "npm.cmd")
-                              (str/replace "node" "node.exe"))
                           cmd)]
-                  cmd)))
+                cmd)))
   clean (fs/delete-tree "out")
 
   compile (clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn compile modules"))
 
-  watch (clojure {:extra-env {"PATH" (str "script" fs/path-separator (System/getenv "PATH"))}}
-                 (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn watch modules"))
+  dev {:doc "Run shadow in watch mode with tests enabled."
+       :task
+       (binding [*test* true]
+         (println "Starting shadow-cljs in watch mode.")
+         (println "Run node out/nbb_main.js to test nbb")
+         (println "Run bb run-tests to run the tests")
+         (apply clojure {:extra-env {"PATH" (str "script" fs/path-separator (System/getenv "PATH"))}}
+                (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn watch modules")
+                *command-line-args*))}
 
   run-tests (shell "node out/nbb_tests.js")
 
   release {:depends [clean]
            :doc "Compiles release build."
            :task
-           (do (apply clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn release modules") *command-line-args*)
+           (do (apply clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn release modules")
+                      *command-line-args*)
                (spit "out/nbb_core.js"
                      (clojure.string/replace (slurp "out/nbb_core.js") (re-pattern "self") "globalThis"))
                (spit "out/nbb_main.js"
                      (str "#!/usr/bin/env node\n\n" (slurp "out/nbb_main.js")))
                (shell "chmod +x out/nbb_main.js")
                (run! fs/delete (fs/glob "out" "**.map")))}
+
   run-integration-tests nbb-tests/main
 
   publish {:doc "Bumps version, pushes tag and lets CI publish to npm."
@@ -62,11 +65,6 @@
                  :task (and current-tag (= "main" current-branch))}
   ci:test {:doc "Runs all tests in CI."
            :task (binding [*test* true]
-                   ;; (println "Testing optimizations :none")
-                   ;; (run 'clean)
-                   ;; (run 'compile)
-                   ;; (run 'run-tests)
-                   ;; (run 'run-integration-tests)
                    (println "Testing optimizations :advanced")
                    (run 'clean)
                    (run 'release)
