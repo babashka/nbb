@@ -60,7 +60,7 @@
                       :out
                       str/trim)
 
-  ci:is-release {:depends [current-tag current-branch]
+  ci:is-release true #_{:depends [current-tag current-branch]
                  :task (and current-tag (= "main" current-branch))}
   ci:test {:doc "Runs all tests in CI."
            :task (binding [*test* true]
