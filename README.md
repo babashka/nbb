@@ -4,9 +4,10 @@ Not [babashka](https://babashka.org/). Node.js babashka!?
 
 Ad-hoc CLJS scripting on Node.js.
 
-## Status
+## Try it out
 
-Experimental. Please report issues [here](https://github.com/borkdude/nbb/issues).
+Run `npx nbb` to run nbb on your own machine, or try it in a browser on
+[Repl.it](https://replit.com/@eccentric-j/Node-Babashka-With-Redefs-Examples#src/cli/core.cljs)!
 
 ## Goals and features
 
