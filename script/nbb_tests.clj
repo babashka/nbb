@@ -74,9 +74,24 @@
   (tasks/shell {:dir "examples/chalk"} (npm "install"))
   (nbb {:out :inherit} "examples/chalk/example.cljs"))
 
+(defn make-prog [exprs]
+  (str/join "\n" (map pr-str exprs)))
+
 (deftest promesa-test
   (is (= 2 (nbb "-e" "(require '[promesa.core :as p])
-                      (p/let [x (js/Promise.resolve 1)] (+ x 1))"))))
+                      (p/let [x (js/Promise.resolve 1)] (+ x 1))")))
+  (is (= [:bar :foo]
+         (nbb "-e"
+              (make-prog
+               '[(require '[promesa.core :as p])
+                 (def result (atom []))
+                 (defn foo [] :foo)
+                 (->
+                  (p/do!
+                   (p/with-redefs [foo (fn [] :bar)]
+                     (swap! result conj (foo)))
+                   (swap! result conj (foo))
+                   @result))])))))
 
 (deftest classpath-test
   (let [deps '{com.github.seancorfield/honeysql {:git/tag "v2.0.0-rc5" :git/sha "01c3a55"}}
@@ -148,8 +163,8 @@
 
 (deftest error-test
   (let [err (-> (process ["node" "out/nbb_main.js" "test-scripts/error.cljs"]
-                        {:out :string
-                         :err :string})
+                         {:out :string
+                          :err :string})
                 deref
                 :err
                 normalize)]
