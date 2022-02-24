@@ -7,7 +7,7 @@ Ad-hoc CLJS scripting on Node.js.
 ## Try it out
 
 Run `npx nbb` to run nbb on your own machine, or try it in a browser on
-[Repl.it](https://replit.com/@eccentric-j/Node-Babashka-With-Redefs-Examples#src/cli/core.cljs)!
+[Replit](https://replit.com/@eccentric-j/Node-Babashka-With-Redefs-Examples#src/cli/core.cljs)!
 
 ## Goals and features
 
