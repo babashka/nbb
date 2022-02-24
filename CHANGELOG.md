@@ -2,6 +2,11 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## Next
+
+- Bump promesa for built-in clj-kondo config and with-redefs macro.
+
+
 ## 0.1.9
 
 - Fix [#135](https://github.com/babashka/nbb/issues/135): expose `promesa/run!`

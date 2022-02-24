@@ -16,24 +16,28 @@
   to the last expression. Always awaiting the result of each
   expression."
   [_ _ & exprs]
-  `(pt/-bind nil (fn [_#]
-                   ~(condp = (count exprs)
-                      0 `(pt/-promise nil)
-                      1 `(pt/-promise ~(first exprs))
-                      (reduce (fn [acc e]
-                                `(pt/-bind ~e (fn [_#] ~acc)))
-                              `(pt/-promise ~(last exprs))
-                              (reverse (butlast exprs)))))))
+  `(pt/-bind
+    (pt/-promise nil)
+    (fn [_#]
+      ~(condp = (count exprs)
+         0 `(pt/-promise nil)
+         1 `(pt/-promise ~(first exprs))
+         (reduce (fn [acc e]
+                   `(pt/-bind (pt/-promise ~e) (fn [_#] ~acc)))
+                 `(pt/-promise ~(last exprs))
+                 (reverse (butlast exprs)))))))
 
 (defn ^:macro let
   "A `let` alternative that always returns promise and waits for all the
   promises on the bindings."
   [_ _ bindings & body]
-  `(pt/-bind nil (fn [_#]
-                   ~(c/->> (reverse (partition 2 bindings))
-                           (reduce (fn [acc [l r]]
-                                     `(pt/-bind ~r (fn [~l] ~acc)))
-                                   `(promesa.core/do! ~@body))))))
+  `(pt/-bind
+    (pt/-promise nil)
+    (fn [_#]
+      ~(c/->> (reverse (partition 2 bindings))
+              (reduce (fn [acc [l r]]
+                        `(pt/-bind (pt/-promise ~r) (fn [~l] ~acc)))
+                      `(promesa.core/do! ~@body))))))
 
 (defn ^:macro ->
   "Like the clojure.core/->, but it will handle promises in values
