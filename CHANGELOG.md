@@ -2,10 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## Next
+## 0.2.0
 
-- Bump promesa for built-in clj-kondo config and with-redefs macro.
-
+- Bump promesa for built-in clj-kondo config and `with-redefs` macro ([@niwinz](https://github.com/niwinz))
+- Include new `with-redefs` macro ([@eccentric-j](https://github.com/eccentric-j))
 
 ## 0.1.9
 
