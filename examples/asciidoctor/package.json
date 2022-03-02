@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "asciidoctor": "^2.2.6",
+    "nbb": "^0.2.0"
+  }
+}
