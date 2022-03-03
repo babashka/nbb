@@ -19,14 +19,14 @@
                         addClassPath nbb.api/addClassPath
                         version nbb.api/version}
               :depends-on #{:nbb_core}}
-    :nbb_reagent {:init-fn nbb.reagent/init
+    :nbb_reagent {:init-fn nbb.impl.reagent/init
                   :depends-on #{:nbb_core}}
     :nbb_reagent_dom_server {:init-fn nbb.impl.reagent.dom.server/init
                              :depends-on #{:nbb_core :nbb_reagent}}
-    :nbb_promesa {:init-fn nbb.promesa/init
+    :nbb_promesa {:init-fn nbb.impl.promesa/init
                   :depends-on #{:nbb_core}}
 
-    :nbb_js_interop {:init-fn nbb.js-interop/init
+    :nbb_js_interop {:init-fn nbb.impl.js-interop/init
                      :depends-on #{:nbb_core}}
 
     :nbb_cljs_bean {:init-fn nbb.impl.cljs-bean/init
