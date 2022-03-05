@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.2.1
+
+- Bump SCI: drop location metadata from symbols, except top level
+
 ## 0.2.0
 
 - Bump promesa for built-in clj-kondo config and `with-redefs` macro ([@niwinz](https://github.com/niwinz))
