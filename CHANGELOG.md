@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.2.2
+
+- Update SCI configs with `promesa/do` + `promesa/create`
+
 ## 0.2.1
 
 - Bump SCI: drop location metadata from symbols, except top level
