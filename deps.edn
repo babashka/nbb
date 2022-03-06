@@ -18,4 +18,4 @@
          :git/sha "02aa3b22b792cd987a08ca55cdebdf21842284ac"}
         org.babashka/sci-configs
         {:git/url "https://github.com/babashka/sci-configs"
-         :git/sha "73c7b8bbe0f1823b058935eba198aa2390875f73"}}}
+         :git/sha "94df466a34bf7648aa870e906ee1b4c40edb52d5"}}}
