@@ -16,6 +16,11 @@
                     :as macros
                     :refer [with-async-bindings]]))
 
+(deftype AwaitPromiseResult [p])
+
+(defn await [p]
+  (->AwaitPromiseResult p))
+
 (def opts (atom nil))
 
 (def repl-requires
@@ -275,10 +280,23 @@
                           (fn [_]
                             (eval-expr nil reader opts)))
                    :else
-                   (try
-                     (eval-expr (sci/eval-form @sci-ctx next-val) reader opts)
-                     (catch :default e
-                       (js/Promise.reject e)))))
+                   (try (let [next-val (sci/eval-form @sci-ctx next-val)]
+                          (cond
+                            (instance? sci.impl.vars/SciVar next-val)
+                            (let [v (deref next-val)]
+                              (if (instance? AwaitPromiseResult v)
+                                (-> (.then (.-p v)
+                                           (fn [v]
+                                             (sci/alter-var-root next-val (constantly v))
+                                             (eval-expr next-val reader opts))))
+                                (eval-expr next-val reader opts)))
+                            (instance? AwaitPromiseResult next-val)
+                            (.then (.-p next-val)
+                                   (fn [v]
+                                     (eval-expr v reader opts)))
+                            :else (eval-expr next-val reader opts)))
+                        (catch :default e
+                          (js/Promise.reject e)))))
            (try
              (eval-expr (sci/eval-form @sci-ctx next-val) reader opts)
              (catch :default e
@@ -367,7 +385,8 @@
                                   'alter-var-root (sci/copy-var sci/alter-var-root nbb-ns)
                                   'slurp (sci/copy-var slurp nbb-ns)
                                   '*file* sci/file
-                                  'version (sci/copy-var version nbb-ns)}
+                                  'version (sci/copy-var version nbb-ns)
+                                  'await (sci/copy-var await nbb-ns)}
                        'nbb.classpath {'add-classpath (sci/copy-var cp/add-classpath cp-ns)
                                        'get-classpath (sci/copy-var cp/get-classpath cp-ns)}}
           :classes {'js universe :allow :all
