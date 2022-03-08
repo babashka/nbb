@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.2.3
+
+- feat [#142](https://github.com/babashka/nbb/issues/142): experimental nbb.core/await
+
 ## 0.2.2
 
 - Update SCI configs with `promesa/do` + `promesa/create`
