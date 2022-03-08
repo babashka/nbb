@@ -18,7 +18,10 @@
 
 (deftype AwaitPromiseResult [p])
 
+(def await-counter 0)
+
 (defn await [p]
+  (set! await-counter (inc await-counter))
   (->AwaitPromiseResult p))
 
 (def opts (atom nil))
@@ -280,21 +283,33 @@
                           (fn [_]
                             (eval-expr nil reader opts)))
                    :else
-                   (try (let [next-val (sci/eval-form @sci-ctx next-val)]
-                          (cond
-                            (instance? sci.impl.vars/SciVar next-val)
-                            (let [v (deref next-val)]
-                              (if (instance? AwaitPromiseResult v)
-                                (-> (.then (.-p v)
-                                           (fn [v]
-                                             (sci/alter-var-root next-val (constantly v))
-                                             (eval-expr next-val reader opts))))
-                                (eval-expr next-val reader opts)))
-                            (instance? AwaitPromiseResult next-val)
-                            (.then (.-p next-val)
-                                   (fn [v]
-                                     (eval-expr v reader opts)))
-                            :else (eval-expr next-val reader opts)))
+                   (try (let [pre-await await-counter
+                              next-val (sci/eval-form @sci-ctx next-val)
+                              post-await await-counter]
+                          (if (= pre-await post-await)
+                            (eval-expr next-val reader opts)
+                            (cond
+                              (instance? sci.impl.vars/SciVar next-val)
+                              (let [v (deref next-val)]
+                                (if (instance? AwaitPromiseResult v)
+                                  (let [x (.-p v)]
+                                    (if (instance? js/Promise x)
+                                      (.then x
+                                             (fn [v]
+                                               (sci/alter-var-root next-val (constantly v))
+                                               (eval-expr next-val reader opts)))
+                                      (do
+                                        (sci/alter-var-root next-val (constantly x))
+                                        (eval-expr next-val reader opts))))
+                                  (throw (ex-info "Non-top-level usage of await!" {}))))
+                              (instance? AwaitPromiseResult next-val)
+                              (let [x (.-p next-val)]
+                                (if (instance? js/Promise x)
+                                  (.then x
+                                         (fn [v]
+                                           (eval-expr v reader opts)))
+                                  (eval-expr x reader opts)))
+                              :else (throw (ex-info "Non-top-level usage of await!" {})))))
                         (catch :default e
                           (js/Promise.reject e)))))
            (try
