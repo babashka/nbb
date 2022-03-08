@@ -16,6 +16,14 @@
                     :as macros
                     :refer [with-async-bindings]]))
 
+(deftype AwaitPromiseResult [p])
+
+(def await-counter 0)
+
+(defn await [p]
+  (set! await-counter (inc await-counter))
+  (->AwaitPromiseResult p))
+
 (def opts (atom nil))
 
 (def repl-requires
@@ -275,10 +283,35 @@
                           (fn [_]
                             (eval-expr nil reader opts)))
                    :else
-                   (try
-                     (eval-expr (sci/eval-form @sci-ctx next-val) reader opts)
-                     (catch :default e
-                       (js/Promise.reject e)))))
+                   (try (let [pre-await await-counter
+                              next-val (sci/eval-form @sci-ctx next-val)
+                              post-await await-counter]
+                          (if (= pre-await post-await)
+                            (eval-expr next-val reader opts)
+                            (cond
+                              (instance? sci.impl.vars/SciVar next-val)
+                              (let [v (deref next-val)]
+                                (if (instance? AwaitPromiseResult v)
+                                  (let [x (.-p v)]
+                                    (if (instance? js/Promise x)
+                                      (.then x
+                                             (fn [v]
+                                               (sci/alter-var-root next-val (constantly v))
+                                               (eval-expr next-val reader opts)))
+                                      (do
+                                        (sci/alter-var-root next-val (constantly x))
+                                        (eval-expr next-val reader opts))))
+                                  (throw (ex-info "Non-top-level usage of await!" {}))))
+                              (instance? AwaitPromiseResult next-val)
+                              (let [x (.-p next-val)]
+                                (if (instance? js/Promise x)
+                                  (.then x
+                                         (fn [v]
+                                           (eval-expr v reader opts)))
+                                  (eval-expr x reader opts)))
+                              :else (throw (ex-info "Non-top-level usage of await!" {})))))
+                        (catch :default e
+                          (js/Promise.reject e)))))
            (try
              (eval-expr (sci/eval-form @sci-ctx next-val) reader opts)
              (catch :default e
@@ -367,7 +400,8 @@
                                   'alter-var-root (sci/copy-var sci/alter-var-root nbb-ns)
                                   'slurp (sci/copy-var slurp nbb-ns)
                                   '*file* sci/file
-                                  'version (sci/copy-var version nbb-ns)}
+                                  'version (sci/copy-var version nbb-ns)
+                                  'await (sci/copy-var await nbb-ns)}
                        'nbb.classpath {'add-classpath (sci/copy-var cp/add-classpath cp-ns)
                                        'get-classpath (sci/copy-var cp/get-classpath cp-ns)}}
           :classes {'js universe :allow :all
