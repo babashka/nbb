@@ -29,7 +29,7 @@
                     (set! (.-argv js/process) old-args))))))
 
 (defn main-with-args [args]
-  (with-args args #(main/main)))
+  (with-args args main/main))
 
 (deftest parse-args-test
   (is (= {:expr "(+ 1 2 3)"} (main/parse-args ["-e" "(+ 1 2 3)"])))
@@ -44,6 +44,13 @@
                         (and (some? cljs.core/inc) (some? clojure.set/union))")
       (.then (fn [v]
                (is (true? v))))))
+
+(deftest-async dynamic-require-test
+  (-> (nbb/load-string "(when (odd? 3)
+                          (require '[promesa.core :as p]))
+                        (p/do (p/delay 20) :hello)")
+      (.then (fn [v]
+               (is (= :hello v))))))
 
 (deftest-async as-alias
   (-> (nbb/load-string "(require '[rando.ns :as-alias dude]) ::dude/foo")
@@ -178,15 +185,34 @@
                (is (= [":hello\n" ":hello\n" ":hello"]
                       val))))))
 
-(deftest-async no-op-vars
+(deftest-async no-op-vars-test
   (-> (nbb/load-string "[*warn-on-infer* (set! *warn-on-infer* true)]")
       (.then (fn [val]
                (is (vector? val))))))
 
-(deftest-async reader-conditional
+(deftest-async reader-conditional-test
   (-> (nbb/load-string "#?(:org.babashka/nbb 1 :cljs 2)")
       (.then (fn [val]
                (is (= 1 val))))))
+
+(deftest-async def-await-test
+  (-> (nbb/load-string
+       (pr-str '(do (require '[nbb.core :refer [await]])
+                    (require '[promesa.core :as p])
+                    (def x (await (p/do (p/delay 100) :hello)))
+                    (= x :hello))))
+      (.then (fn [val]
+               (is (true? val))))))
+
+(deftest-async await-test
+  (-> (nbb/load-string
+       (pr-str '(do (require '[nbb.core :refer [await]])
+                    (require '[promesa.core :as p])
+                    (def x (atom nil))
+                    (await (p/do (p/delay 100) (reset! x :foo)))
+                    (= :foo @x))))
+      (.then (fn [val]
+               (is (true? val))))))
 
 (defn init []
   (t/run-tests 'nbb.main-test 'nbb.test-test))

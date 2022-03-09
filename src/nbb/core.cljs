@@ -16,13 +16,18 @@
                     :as macros
                     :refer [with-async-bindings]]))
 
-(deftype AwaitPromiseResult [p])
-
 (def await-counter 0)
 
 (defn await [p]
-  (set! await-counter (inc await-counter))
-  (->AwaitPromiseResult p))
+  (if (instance? js/Promise p)
+    (do (set! await-counter (inc await-counter))
+        (set! (.-__nbb_await_promise_result ^js p) true)
+        p)
+    p))
+
+(defn await? [p]
+  (and (instance? js/Promise p)
+       (.-__nbb_await_promise_result ^js p)))
 
 (def opts (atom nil))
 
@@ -94,6 +99,8 @@
     ;; don't have to hardcode this.
     (set! ^js (.-nbb$internal$react goog/global) mod)))
 
+(declare old-require)
+
 (defn ^:private handle-libspecs [libspecs]
   (if (seq libspecs)
     (let [fst (first libspecs)
@@ -108,7 +115,7 @@
           current-ns-str (str @sci/ns)
           current-ns (symbol current-ns-str)]
       (if as-alias
-        (do (sci/eval-form @sci-ctx (list 'require (list 'quote fst)))
+        (do (old-require fst)
             (handle-libspecs (next libspecs)))
         (case libname
           ;; built-ins
@@ -187,7 +194,7 @@
             ;; assume symbol
             (if (sci/eval-form @sci-ctx (list 'clojure.core/find-ns (list 'quote libname)))
               ;; built-in namespace
-              (do (sci/eval-form @sci-ctx (list 'require (list 'quote fst)))
+              (do (old-require fst)
                   (handle-libspecs (next libspecs)))
               (let [file (str/replace (str munged) #"\." "/")
                     files [(str file ".cljs") (str file ".cljc")]
@@ -258,9 +265,46 @@
                   {:features #{:org.babashka/nbb
                                :cljs}}))
 
-(defn eval-expr
+(declare eval-next)
+
+(defn eval-seq [reader form opts]
+  (let [fst (first form)]
+    (cond (= 'do fst)
+          (reduce (fn [acc form]
+                    (.then acc (fn [_]
+                                 (eval-seq reader form opts))))
+                  (js/Promise.resolve nil)
+                  (rest form))
+          (= 'ns fst)
+          (.then (eval-ns-form form)
+                 (fn [ns-obj]
+                   (eval-next ns-obj reader opts)))
+          :else
+          (try (let [pre-await await-counter
+                     next-val (sci/eval-form @sci-ctx form)
+                     post-await await-counter]
+                 (if (= pre-await post-await)
+                   (eval-next next-val reader opts)
+                   (cond
+                     (instance? sci.impl.vars/SciVar next-val)
+                     (let [v (deref next-val)]
+                       (if (await? v)
+                         (.then v
+                                (fn [v]
+                                  (sci/alter-var-root next-val (constantly v))
+                                  (eval-next next-val reader opts)))
+                         (eval-next next-val reader opts)))
+                     (await? next-val)
+                     (.then next-val
+                            (fn [v]
+                              (eval-next v reader opts)))
+                     :else (eval-next next-val reader opts))))
+               (catch :default e
+                 (js/Promise.reject e))))))
+
+(defn eval-next
   "Evaluates top level forms asynchronously. Returns promise of last value."
-  ([prev-val reader] (eval-expr prev-val reader nil))
+  ([prev-val reader] (eval-next prev-val reader nil))
   ([prev-val reader opts]
    (let [next-val (try (if-let [parse-fn (:parse-fn opts)]
                          (parse-fn reader)
@@ -269,51 +313,11 @@
                          (js/Promise.reject e)))]
      (if (instance? js/Promise next-val)
        next-val
-       (if-not (= :sci.core/eof next-val)
+       (if (not= :sci.core/eof next-val)
          (if (seq? next-val)
-           (let [fst (first next-val)]
-             (cond (= 'ns fst)
-                   ;; async
-                   (.then (eval-ns-form next-val)
-                          (fn [ns-obj]
-                            (eval-expr ns-obj reader opts)))
-                   (= 'require fst)
-                   ;; async
-                   (.then (eval-require next-val)
-                          (fn [_]
-                            (eval-expr nil reader opts)))
-                   :else
-                   (try (let [pre-await await-counter
-                              next-val (sci/eval-form @sci-ctx next-val)
-                              post-await await-counter]
-                          (if (= pre-await post-await)
-                            (eval-expr next-val reader opts)
-                            (cond
-                              (instance? sci.impl.vars/SciVar next-val)
-                              (let [v (deref next-val)]
-                                (if (instance? AwaitPromiseResult v)
-                                  (let [x (.-p v)]
-                                    (if (instance? js/Promise x)
-                                      (.then x
-                                             (fn [v]
-                                               (sci/alter-var-root next-val (constantly v))
-                                               (eval-expr next-val reader opts)))
-                                      (do
-                                        (sci/alter-var-root next-val (constantly x))
-                                        (eval-expr next-val reader opts))))
-                                  (throw (ex-info "Non-top-level usage of await!" {}))))
-                              (instance? AwaitPromiseResult next-val)
-                              (let [x (.-p next-val)]
-                                (if (instance? js/Promise x)
-                                  (.then x
-                                         (fn [v]
-                                           (eval-expr v reader opts)))
-                                  (eval-expr x reader opts)))
-                              :else (throw (ex-info "Non-top-level usage of await!" {})))))
-                        (catch :default e
-                          (js/Promise.reject e)))))
+           (eval-seq reader next-val opts)
            (try
-             (eval-expr (sci/eval-form @sci-ctx next-val) reader opts)
+             (eval-next (sci/eval-form @sci-ctx next-val) reader opts)
              (catch :default e
                (js/Promise.reject e))))
          ;; wrap normal value in promise
@@ -325,7 +329,7 @@
 (defn eval-string* [s]
   (with-async-bindings {sci/ns @sci/ns}
     (let [reader (sci/reader s)]
-      (eval-expr nil reader))))
+      (eval-next nil reader))))
 
 (defn load-string
   "Asynchronously parses and evaluates string s. Returns promise."
@@ -348,8 +352,7 @@
   [f]
   (with-async-bindings {sci/file (path/resolve f)}
     (-> (slurp f)
-        (.then (fn [source]
-                 (load-string source))))))
+        (.then load-string))))
 
 (defn register-plugin! [_plug-in-name sci-opts]
   (swap! sci-ctx sci/merge-opts sci-opts))
@@ -386,8 +389,7 @@
                                       'array (sci/copy-var array core-ns)
                                       'tap> (sci/copy-var tap> core-ns)
                                       'add-tap (sci/copy-var add-tap core-ns)
-                                      'remove-tap (sci/copy-var remove-tap core-ns)
-                                      }
+                                      'remove-tap (sci/copy-var remove-tap core-ns)}
 
                        'clojure.main {'repl-requires (sci/copy-var
                                                       repl-requires
@@ -412,6 +414,13 @@
                     'goog.string #js {:StringBuffer gstr/StringBuffer}
                     'Math js/Math}
           :disable-arity-checks true}))
+
+(def old-require (sci/eval-form @sci-ctx 'require))
+
+(swap! (:env @sci-ctx) assoc-in
+       [:namespaces 'clojure.core 'require]
+       (fn [& args] (await (.then (handle-libspecs args)
+                                  (fn [_])))))
 
 (def ^:dynamic *file* sci/file) ;; make clj-kondo+lsp happy
 

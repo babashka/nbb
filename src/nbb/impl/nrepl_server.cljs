@@ -81,7 +81,7 @@
     (sci/alter-var-root sci/print-fn (constantly
                                       (fn [s]
                                         (send-fn request {"out" s}))))
-    (-> (nbb/eval-expr nil (sci/reader code) {:wrap vector})
+    (-> (nbb/eval-next nil (sci/reader code) {:wrap vector})
         (.then (fn [v]
                  (let [v (first v)]
                    (reset! last-ns @sci/ns)
