@@ -16,13 +16,18 @@
                     :as macros
                     :refer [with-async-bindings]]))
 
-(deftype AwaitPromiseResult [p])
-
 (def await-counter 0)
 
 (defn await [p]
-  (set! await-counter (inc await-counter))
-  (->AwaitPromiseResult p))
+  (if (instance? js/Promise p)
+    (do (set! await-counter (inc await-counter))
+        (set! (.-__nbb_await_promise_result ^js p) true)
+        p)
+    p))
+
+(defn await? [p]
+  (and (instance? js/Promise p)
+       (.-__nbb_await_promise_result ^js p)))
 
 (def opts (atom nil))
 
@@ -94,6 +99,8 @@
     ;; don't have to hardcode this.
     (set! ^js (.-nbb$internal$react goog/global) mod)))
 
+(declare old-require)
+
 (defn ^:private handle-libspecs [libspecs]
   (if (seq libspecs)
     (let [fst (first libspecs)
@@ -108,7 +115,7 @@
           current-ns-str (str @sci/ns)
           current-ns (symbol current-ns-str)]
       (if as-alias
-        (do (sci/eval-form @sci-ctx (list 'require (list 'quote fst)))
+        (do (old-require fst)
             (handle-libspecs (next libspecs)))
         (case libname
           ;; built-ins
@@ -187,7 +194,7 @@
             ;; assume symbol
             (if (sci/eval-form @sci-ctx (list 'clojure.core/find-ns (list 'quote libname)))
               ;; built-in namespace
-              (do (sci/eval-form @sci-ctx (list 'require (list 'quote fst)))
+              (do (old-require fst)
                   (handle-libspecs (next libspecs)))
               (let [file (str/replace (str munged) #"\." "/")
                     files [(str file ".cljs") (str file ".cljc")]
@@ -277,7 +284,7 @@
                    (.then (eval-ns-form next-val)
                           (fn [ns-obj]
                             (eval-expr ns-obj reader opts)))
-                   (= 'require fst)
+                   #_#_(= 'require fst)
                    ;; async
                    (.then (eval-require next-val)
                           (fn [_]
@@ -291,24 +298,16 @@
                             (cond
                               (instance? sci.impl.vars/SciVar next-val)
                               (let [v (deref next-val)]
-                                (if (instance? AwaitPromiseResult v)
-                                  (let [x (.-p v)]
-                                    (if (instance? js/Promise x)
-                                      (.then x
-                                             (fn [v]
-                                               (sci/alter-var-root next-val (constantly v))
-                                               (eval-expr next-val reader opts)))
-                                      (do
-                                        (sci/alter-var-root next-val (constantly x))
-                                        (eval-expr next-val reader opts))))
-                                  (throw (ex-info "Non-top-level usage of await!" {}))))
-                              (instance? AwaitPromiseResult next-val)
-                              (let [x (.-p next-val)]
-                                (if (instance? js/Promise x)
-                                  (.then x
+                                (if (await? v)
+                                  (.then v
                                          (fn [v]
-                                           (eval-expr v reader opts)))
-                                  (eval-expr x reader opts)))
+                                           (sci/alter-var-root next-val (constantly v))
+                                           (eval-expr next-val reader opts)))
+                                  (throw (ex-info "Non-top-level usage of await!" {}))))
+                              (await? next-val)
+                              (.then next-val
+                                     (fn [v]
+                                       (eval-expr v reader opts)))
                               :else (throw (ex-info "Non-top-level usage of await!" {})))))
                         (catch :default e
                           (js/Promise.reject e)))))
@@ -386,8 +385,7 @@
                                       'array (sci/copy-var array core-ns)
                                       'tap> (sci/copy-var tap> core-ns)
                                       'add-tap (sci/copy-var add-tap core-ns)
-                                      'remove-tap (sci/copy-var remove-tap core-ns)
-                                      }
+                                      'remove-tap (sci/copy-var remove-tap core-ns)}
 
                        'clojure.main {'repl-requires (sci/copy-var
                                                       repl-requires
@@ -412,6 +410,12 @@
                     'goog.string #js {:StringBuffer gstr/StringBuffer}
                     'Math js/Math}
           :disable-arity-checks true}))
+
+(def old-require (sci/eval-form @sci-ctx 'require))
+
+(swap! (:env @sci-ctx) assoc-in
+       [:namespaces 'clojure.core 'require]
+       (fn [& args] (await (handle-libspecs args))))
 
 (def ^:dynamic *file* sci/file) ;; make clj-kondo+lsp happy
 
