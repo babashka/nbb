@@ -265,33 +265,27 @@
                   {:features #{:org.babashka/nbb
                                :cljs}}))
 
-(defn eval-expr
-  "Evaluates top level forms asynchronously. Returns promise of last value."
-  ([prev-val reader] (eval-expr prev-val reader nil))
-  ([prev-val reader opts]
-   (let [next-val (try (if-let [parse-fn (:parse-fn opts)]
-                         (parse-fn reader)
-                         (parse-next reader))
-                       (catch :default e
-                         (js/Promise.reject e)))]
-     (if (instance? js/Promise next-val)
-       next-val
-       (if-not (= :sci.core/eof next-val)
-         (if (seq? next-val)
-           (let [fst (first next-val)]
-             (cond (= 'ns fst)
-                   ;; async
-                   (.then (eval-ns-form next-val)
+(declare eval-expr)
+
+(defn eval-form [prev-val reader form]
+  (if (instance? js/Promise form)
+       form
+       (if-not (= :sci.core/eof form)
+         (if (seq? form)
+           (let [fst (first form)]
+             (cond #_#_(= 'do fst)
+                   (reduce (fn [acc form]
+                             (.then acc (fn [acc]
+                                          (eval-form acc reader form))))
+                           (js/Promise.resolve prev-val)
+                           (rest form))
+                   (= 'ns fst)
+                   (.then (eval-ns-form form)
                           (fn [ns-obj]
                             (eval-expr ns-obj reader opts)))
-                   #_#_(= 'require fst)
-                   ;; async
-                   (.then (eval-require next-val)
-                          (fn [_]
-                            (eval-expr nil reader opts)))
                    :else
                    (try (let [pre-await await-counter
-                              next-val (sci/eval-form @sci-ctx next-val)
+                              next-val (sci/eval-form @sci-ctx form)
                               post-await await-counter]
                           (if (= pre-await post-await)
                             (eval-expr next-val reader opts)
@@ -303,23 +297,34 @@
                                          (fn [v]
                                            (sci/alter-var-root next-val (constantly v))
                                            (eval-expr next-val reader opts)))
-                                  (throw (ex-info "Non-top-level usage of await!" {}))))
+                                  (eval-expr next-val reader opts)))
                               (await? next-val)
                               (.then next-val
                                      (fn [v]
                                        (eval-expr v reader opts)))
-                              :else (throw (ex-info "Non-top-level usage of await!" {})))))
+                              :else (eval-expr next-val reader opts))))
                         (catch :default e
                           (js/Promise.reject e)))))
            (try
-             (eval-expr (sci/eval-form @sci-ctx next-val) reader opts)
+             (eval-expr (sci/eval-form @sci-ctx form) reader opts)
              (catch :default e
                (js/Promise.reject e))))
          ;; wrap normal value in promise
          (js/Promise.resolve
           (let [wrap (or (:wrap opts)
                          identity)]
-            (wrap prev-val))))))))
+            (wrap prev-val))))))
+
+(defn eval-expr
+  "Evaluates top level forms asynchronously. Returns promise of last value."
+  ([prev-val reader] (eval-expr prev-val reader nil))
+  ([prev-val reader opts]
+   (let [next-val (try (if-let [parse-fn (:parse-fn opts)]
+                         (parse-fn reader)
+                         (parse-next reader))
+                       (catch :default e
+                         (js/Promise.reject e)))]
+     (eval-form prev-val reader next-val))))
 
 (defn eval-string* [s]
   (with-async-bindings {sci/ns @sci/ns}
@@ -347,8 +352,7 @@
   [f]
   (with-async-bindings {sci/file (path/resolve f)}
     (-> (slurp f)
-        (.then (fn [source]
-                 (load-string source))))))
+        (.then load-string))))
 
 (defn register-plugin! [_plug-in-name sci-opts]
   (swap! sci-ctx sci/merge-opts sci-opts))
