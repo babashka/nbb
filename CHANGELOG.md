@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.2.4
+
+- Re-implement `require` via automatic `await`, allows conditional requires like: `(when foo? (require 'bar))`
+
 ## 0.2.3
 
 - feat [#142](https://github.com/babashka/nbb/issues/142): experimental nbb.core/await
