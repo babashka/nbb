@@ -96,7 +96,7 @@
                     ;; (prn :pending @pending)
                     (-> (eval-expr
                          socket
-                         #(nbb/eval-expr nil nil
+                         #(nbb/eval-next nil nil
                                          {:wrap vector
                                           ;; TODO this is a huge workaround
                                           ;; we should instead re-organize the code in nbb.core

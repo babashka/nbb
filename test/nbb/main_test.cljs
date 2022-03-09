@@ -29,7 +29,7 @@
                     (set! (.-argv js/process) old-args))))))
 
 (defn main-with-args [args]
-  (with-args args #(main/main)))
+  (with-args args main/main))
 
 (deftest parse-args-test
   (is (= {:expr "(+ 1 2 3)"} (main/parse-args ["-e" "(+ 1 2 3)"])))
@@ -195,12 +195,22 @@
       (.then (fn [val]
                (is (= 1 val))))))
 
-(deftest-async await-test
+(deftest-async def-await-test
   (-> (nbb/load-string
        (pr-str '(do (require '[nbb.core :refer [await]])
                     (require '[promesa.core :as p])
                     (def x (await (p/do (p/delay 100) :hello)))
                     (= x :hello))))
+      (.then (fn [val]
+               (is (true? val))))))
+
+(deftest-async await-test
+  (-> (nbb/load-string
+       (pr-str '(do (require '[nbb.core :refer [await]])
+                    (require '[promesa.core :as p])
+                    (def x (atom nil))
+                    (await (p/do (p/delay 100) (reset! x :foo)))
+                    (= :foo @x))))
       (.then (fn [val]
                (is (true? val))))))
 
