@@ -194,7 +194,7 @@
   (let [opts (parse-opts args)
         {:keys [error fail]}
         (if (empty? (dissoc opts :cmds))
-          (t/run-tests 'nbb-tests #_'nbb-nrepl-tests 'nbb-repl-tests)
+          (t/run-tests 'nbb-tests 'nbb-nrepl-tests 'nbb-repl-tests)
           (when-let [o (:only opts)]
             (let [o (symbol o)]
               (if (qualified-symbol? o)
