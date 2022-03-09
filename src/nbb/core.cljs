@@ -265,20 +265,10 @@
                   {:features #{:org.babashka/nbb
                                :cljs}}))
 
-(defn eval-expr
-  "Evaluates top level forms asynchronously. Returns promise of last value."
-  ([prev-val reader] (eval-expr prev-val reader nil))
-  ([prev-val reader opts]
-   (let [next-val (try (if-let [parse-fn (:parse-fn opts)]
-                         (parse-fn reader)
-                         (parse-next reader))
-                       (catch :default e
-                         (js/Promise.reject e)))]
-     (if (instance? js/Promise next-val)
-       next-val
-       (if-not (= :sci.core/eof next-val)
-         (if (seq? next-val)
-           (let [fst (first next-val)]
+(declare eval-expr)
+
+(defn eval-seq [reader next-val]
+  (let [fst (first next-val)]
              (cond (= 'ns fst)
                    ;; async
                    (.then (eval-ns-form next-val)
@@ -310,7 +300,22 @@
                                        (eval-expr v reader opts)))
                               :else (throw (ex-info "Non-top-level usage of await!" {})))))
                         (catch :default e
-                          (js/Promise.reject e)))))
+                          (js/Promise.reject e))))))
+
+(defn eval-expr
+  "Evaluates top level forms asynchronously. Returns promise of last value."
+  ([prev-val reader] (eval-expr prev-val reader nil))
+  ([prev-val reader opts]
+   (let [next-val (try (if-let [parse-fn (:parse-fn opts)]
+                         (parse-fn reader)
+                         (parse-next reader))
+                       (catch :default e
+                         (js/Promise.reject e)))]
+     (if (instance? js/Promise next-val)
+       next-val
+       (if-not (= :sci.core/eof next-val)
+         (if (seq? next-val)
+           (eval-seq reader next-val)
            (try
              (eval-expr (sci/eval-form @sci-ctx next-val) reader opts)
              (catch :default e
