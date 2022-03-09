@@ -415,7 +415,8 @@
 
 (swap! (:env @sci-ctx) assoc-in
        [:namespaces 'clojure.core 'require]
-       (fn [& args] (await (handle-libspecs args))))
+       (fn [& args] (await (.then (handle-libspecs args)
+                                  (fn [_])))))
 
 (def ^:dynamic *file* sci/file) ;; make clj-kondo+lsp happy
 
