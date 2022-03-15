@@ -1,37 +1,10 @@
 (ns example
-  {:clj-kondo/config '{:lint-as {promesa.core/let clojure.core/let}}}
-  (:require ["zx$default" :as zx]
-            [clojure.string :as str]
+  (:require ["zx" :refer [$ chalk]]
             [promesa.core :as p]))
 
-(defn $
-  "Wrapper for zx/$ with automatic conversion of input and output to
-  CLJS data structures. Supports setting verbosity during execution of
-  command, which zx doesn't support out of the box."
-  [opts & args]
-  (p/let [[opts args] (if (map? opts)
-                        [opts args]
-                        [nil (cons opts args)])
-          old-verbose (.-verbose zx/$)
-          {:keys [verbose] :or {verbose old-verbose}} opts
-          _ (set! (.-verbose zx/$) verbose)
-          res (-> (zx/$ (clj->js (into-array args)))
-                  (.finally (fn []
-                              (set! (.-verbose zx/$) old-verbose))))]
-    {:stdout (str/trim (.-stdout res))}))
-
-(p/let [{branch :stdout} ($ {:verbose false} "git branch --show-current")
-        _ (p/all [($ "sleep 1; echo 1")
-                  ($ "sleep 2; echo 2")
-                  ($ "sleep 3; echo 3")])]
-  (println "The branch was" (pr-str branch)))
-
-;; output:
-
-;; $ sleep 1; echo 1
-;; 1
-;; $ sleep 2; echo 2
-;; 2
-;; $ sleep 3; echo 3
-;; 3
-;; The branch was "main"
+(-> (p/do ($ #js ["which rg"])
+          (js/console.log (.green chalk "You already have rg, awesome")))
+    (p/catch
+        (fn [_]
+          (js/console.log (.red chalk "Nope, installing rg (rigrep)"))
+          ($ #js ["brew install ripgrep"]))))

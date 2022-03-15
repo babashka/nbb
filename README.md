@@ -69,13 +69,13 @@ $ npm install csv-parse shelljs term-size zx
 Create a script which uses the NPM libraries:
 
 ``` clojure
-(ns script
+(ns example
   (:require ["csv-parse/sync$default" :as csv]
             ["fs" :as fs]
             ["path" :as path]
             ["shelljs$default" :as sh]
             ["term-size$default" :as term-size]
-            ["zx$default" :as zx]
+            ["zx" :refer [$]]
             ["zx$fs" :as zxfs]
             [nbb.core :refer [*file*]]))
 
@@ -91,7 +91,7 @@ Create a script which uses the NPM libraries:
 
 (prn (zxfs/existsSync *file*))
 
-(zx/$ #js ["ls"])
+($ #js ["ls"])
 ```
 
 Call the script:
