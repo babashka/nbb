@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.2.5
+
+- Fix [#146](https://github.com/babashka/nbb/issues/146): add completions for clojure functions in nREPL server
+
 ## 0.2.4
 
 - Re-implement `require` via automatic `await`, allows conditional requires like: `(when foo? (require 'bar))`
