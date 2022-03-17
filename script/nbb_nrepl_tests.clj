@@ -176,20 +176,29 @@
           id (atom 0)
           new-id! #(swap! id inc)]
       (testing "complete"
-        (bencode/write-bencode os {"op" "eval" "code" "(require '[nbb.core :as nbb])"
+        (bencode/write-bencode os {"op" "eval" "code" "(require '[nbb.core :as nbb] '[\"fs\" :as fs])"
                                    "session" session "id" (new-id!)})
         (let [_ (read-reply in session @id)
               msg (read-reply in session @id)
               status (:status msg)
               _ (is (= ["done"] status))])
-       (bencode/write-bencode os
-                              {"op" "complete" "symbol" "nbb/"
-                                "session" session "id" (new-id!)})
-        (let [msg (read-reply in session @id)
-              completions (:completions msg)
-              completions (set (map read-msg completions))]
-          (is (contains? completions {:candidate "nbb/load-string", :ns "nbb.core"}))
-          (is (contains? completions {:candidate "nbb/await",       :ns "nbb.core"}))))
+        (testing "SCI var completions"
+          (bencode/write-bencode os
+                                 {"op" "complete" "symbol" "nbb/"
+                                  "session" session "id" (new-id!)})
+          (let [msg (read-reply in session @id)
+                completions (:completions msg)
+                completions (set (map read-msg completions))]
+            (is (contains? completions {:candidate "nbb/load-string", :ns "nbb.core"}))
+            (is (contains? completions {:candidate "nbb/await",       :ns "nbb.core"}))))
+        (testing "JS import completions"
+          (bencode/write-bencode os
+                                 {"op" "complete" "symbol" "fs/"
+                                  "session" session "id" (new-id!)})
+          (let [msg (read-reply in session @id)
+                completions (:completions msg)
+                completions (set (map read-msg completions))]
+            (is (contains? completions {:candidate "fs/readlink"})))))
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (new-id!)}))))
 
