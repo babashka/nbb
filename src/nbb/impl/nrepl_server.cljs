@@ -5,6 +5,7 @@
    ["net" :as node-net]
    ["path" :as path]
    [clojure.string :as str]
+   [goog.object :as gobject]
    [nbb.api :as api]
    [nbb.classpath :as cp]
    [nbb.core :as nbb]
@@ -151,13 +152,35 @@
               (when (re-find pat (str sym-ns "/" sym-name))
                 [sym-ns (str sym-ns "/" sym-name)]))))))
 
-(defn ns-imports->completions [sci-ctx-atom query-ns]
-  (let [ctx @sci-ctx-atom]
-    (when-let [imported (sci/eval-string* ctx (pr-str `(let [imports# (ns-imports *ns*)]
-                                                         (get imports# '~query-ns))))]
-      (let [completions (map (fn [k]
-                               [nil (str query-ns "/" k)]) (js/Object.keys imported))]
-        completions))))
+(defn ns-imports->completions [sci-ctx-atom query-ns query]
+  (let [ctx @sci-ctx-atom
+        [_ns-part name-part] (str/split query #"/")
+        resolved (sci/eval-string* ctx
+                                   (pr-str `(let [resolved# (resolve '~query-ns)]
+                                              (when-not (var? resolved#)
+                                                resolved#))))]
+    (when resolved
+      (when-let [[prefix imported] (if name-part
+                                     (let [ends-with-dot? (str/ends-with? name-part ".")
+                                           fields (str/split name-part #"\.")
+                                           fields (if ends-with-dot?
+                                                    fields
+                                                    (butlast fields))]
+                                       [(str query-ns "/" (when (seq fields)
+                                                            (let [joined (str/join "." fields)]
+                                                              (str joined "."))))
+                                        (apply gobject/getValueByKeys resolved
+                                               fields)])
+                                     [(str query-ns "/") resolved])]
+        (let [props (loop [obj imported
+                           props []]
+                      (if obj
+                        (recur (js/Object.getPrototypeOf obj)
+                               (into props (js/Object.getOwnPropertyNames obj)))
+                        props))
+              completions (map (fn [k]
+                                 [nil (str prefix k)]) props)]
+          completions)))))
 
 (defn handle-complete* [{ns-str :ns
                          :keys [sci-ctx-atom]
@@ -189,11 +212,13 @@
                 all-namespaces (->> (sci/eval-string* ctx "(all-ns)")
                                     (map (fn [ns]
                                            [(str ns) nil :qualified])))
-                from-imports (ns-imports->completions sci-ctx-atom query-ns)
+                from-imports (when has-namespace? (ns-imports->completions sci-ctx-atom query-ns query))
                 fully-qualified-names (when-not from-imports
                                         (when has-namespace?
                                           (let [ns (get alias->ns query-ns query-ns)
-                                                syms (sci/eval-string* ctx (format "(keys (ns-publics '%s))" ns))]
+                                                syms (sci/eval-string* ctx (format "(and (find-ns '%s)
+                                                                                         (keys (ns-publics '%s)))"
+                                                                                   ns))]
                                             (map (fn [sym]
                                                    [(str ns) (str sym) :qualified])
                                                  syms))))

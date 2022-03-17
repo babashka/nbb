@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.2.7
+
+- Support property access completions in nREPL server
+
 ## 0.2.6
 
 - Fix [#146](https://github.com/babashka/nbb/issues/146): add JS completions for clojure functions in nREPL server

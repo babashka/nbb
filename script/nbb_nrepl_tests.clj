@@ -198,7 +198,45 @@
           (let [msg (read-reply in session @id)
                 completions (:completions msg)
                 completions (set (map read-msg completions))]
-            (is (contains? completions {:candidate "fs/readlink"})))))
+            (is (contains? completions {:candidate "fs/readlink"}))))
+        (testing "JS import completions with property access"
+          (bencode/write-bencode os
+                                 {"op" "complete" "symbol" "fs/constants."
+                                  "session" session "id" (new-id!)})
+          (let [msg (read-reply in session @id)
+                completions (:completions msg)
+                completions (set (map read-msg completions))]
+            (is (contains? completions {:candidate "fs/constants.COPYFILE_EXCL"})))
+          (bencode/write-bencode os
+                                 {"op" "complete" "symbol" "fs/constants.C"
+                                  "session" session "id" (new-id!)})
+          (let [msg (read-reply in session @id)
+                completions (:completions msg)
+                completions (set (map read-msg completions))]
+            (is (contains? completions {:candidate "fs/constants.COPYFILE_EXCL"})))))
+      (testing "js global"
+        (bencode/write-bencode os
+                               {"op" "complete" "symbol" "js/"
+                                "session" session "id" (new-id!)})
+        (let [msg (read-reply in session @id)
+              completions (:completions msg)
+              completions (set (map read-msg completions))]
+          (is (contains? completions {:candidate "js/console"})))
+        (testing "property access"
+          (bencode/write-bencode os
+                                 {"op" "complete" "symbol" "js/console."
+                                  "session" session "id" (new-id!)})
+          (let [msg (read-reply in session @id)
+                completions (:completions msg)
+                completions (set (map read-msg completions))]
+            (is (contains? completions {:candidate "js/console.log"})))
+          (bencode/write-bencode os
+                                 {"op" "complete" "symbol" "js/console.l"
+                                  "session" session "id" (new-id!)})
+          (let [msg (read-reply in session @id)
+                completions (:completions msg)
+                completions (set (map read-msg completions))]
+            (is (contains? completions {:candidate "js/console.log"})))))
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (new-id!)}))))
 
