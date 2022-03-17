@@ -2,9 +2,13 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.2.6
+
+- Fix [#146](https://github.com/babashka/nbb/issues/146): add JS completions for clojure functions in nREPL server
+
 ## 0.2.5
 
-- Fix [#146](https://github.com/babashka/nbb/issues/146): add completions for clojure functions in nREPL server
+- Fix [#146](https://github.com/babashka/nbb/issues/146): add var completions for clojure functions in nREPL server
 
 ## 0.2.4
 
