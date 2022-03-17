@@ -14,7 +14,8 @@
    [nbb.macros :refer [with-async-bindings]]))
 
 (defn debug [& strs]
-  (.debug js/console (str/join " " strs)))
+  (when (:debug @nbb/opts)
+    (.debug js/console (str/join " " strs))))
 
 (defn warn [& strs]
   (.warn js/console (str/join " " strs)))
@@ -126,6 +127,81 @@
                          :ns @sci/ns)
                   send-fn))
 
+
+;;;; Completions, based on babashka.nrepl
+
+(defn format [fmt-str x]
+  (str/replace fmt-str "%s" x))
+
+(defn fully-qualified-syms [ctx ns-sym]
+  (let [syms (sci/eval-string* ctx (format "(keys (ns-map '%s))" ns-sym))
+        sym-strs (map #(str "`" %) syms)
+        sym-expr (str "[" (str/join " " sym-strs) "]")
+        syms (sci/eval-string* ctx sym-expr)]
+    syms))
+
+(defn match [_alias->ns ns->alias query [sym-ns sym-name qualifier]]
+  (let [pat (re-pattern query)]
+    (or (when (and (identical? :unqualified qualifier) (re-find pat sym-name))
+          [sym-ns sym-name])
+        (when sym-ns
+          (or (when (re-find pat (str (get ns->alias (symbol sym-ns)) "/" sym-name))
+                [sym-ns (str (get ns->alias (symbol sym-ns)) "/" sym-name)])
+              (when (re-find pat (str sym-ns "/" sym-name))
+                [sym-ns (str sym-ns "/" sym-name)]))))))
+
+(defn handle-complete [{ns-str :ns
+                        :keys [sci-ctx-atom]
+                        :as request} send-fn]
+  (try
+    (let [ctx @sci-ctx-atom
+          sci-ns (when ns-str
+                   (the-sci-ns ctx (symbol ns-str)))]
+      (sci/binding [sci/ns (or sci-ns @sci/ns)]
+        (if-let [query (or (:symbol request)
+                           (:prefix request))]
+          (let [has-namespace? (str/includes? query "/")
+                from-current-ns (fully-qualified-syms ctx (sci/eval-string* ctx "(ns-name *ns*)"))
+                from-current-ns (map (fn [sym]
+                                       [(namespace sym) (name sym) :unqualified])
+                                     from-current-ns)
+                alias->ns (sci/eval-string* ctx "(let [m (ns-aliases *ns*)] (zipmap (keys m) (map ns-name (vals m))))")
+                ns->alias (zipmap (vals alias->ns) (keys alias->ns))
+                from-aliased-nss (doall (mapcat
+                                         (fn [alias]
+                                           (let [ns (get alias->ns alias)
+                                                 syms (sci/eval-string* ctx (format "(keys (ns-publics '%s))" ns))]
+                                             (map (fn [sym]
+                                                    [(str ns) (str sym) :qualified])
+                                                  syms)))
+                                         (keys alias->ns)))
+                all-namespaces (->> (sci/eval-string* ctx "(all-ns)")
+                                    (map (fn [ns]
+                                           [(str ns) nil :qualified])))
+                fully-qualified-names (when has-namespace?
+                                        (let [fqns (symbol (first (str/split query #"/")))
+                                              ns (get alias->ns fqns fqns)
+                                              syms (sci/eval-string* ctx (format "(keys (ns-publics '%s))" ns))]
+                                          (map (fn [sym]
+                                                 [(str ns) (str sym) :qualified])
+                                               syms)))
+                svs (concat from-current-ns from-aliased-nss all-namespaces fully-qualified-names)
+                completions (keep (fn [entry]
+                                    (match alias->ns ns->alias query entry))
+                                  svs)
+                completions (->> (map (fn [[namespace name]]
+                                        {"candidate" (str name) "ns" (str namespace)})
+                                      completions)
+                                 distinct vec)]
+            (send-fn request {"completions" completions
+                              "status" ["done"]}))
+          (send-fn request {"status" ["done"]}))))
+    (catch :default _
+      (send-fn request {"completions" []
+                        "status" ["done"]}))))
+
+;;;; End completions
+
 (def ops
   "Operations supported by the nrepl server"
   {:eval handle-eval
@@ -133,7 +209,8 @@
    :clone handle-clone
    :close handle-close
    :classpath handle-classpath
-   :load-file handle-load-file})
+   :load-file handle-load-file
+   :complete handle-complete})
 
 (defn handle-request [{:keys [op] :as request} send-fn]
   (if-let [op-fn (get ops op)]
@@ -188,9 +265,9 @@
   (let [port (or (:port opts)
                  0)
         _log_level (or (if (object? opts)
-                        (.-log_level ^Object opts)
-                        (:log_level opts))
-                      "info")
+                         (.-log_level ^Object opts)
+                         (:log_level opts))
+                       "info")
         sci-last-error (sci/new-var '*e nil {:ns (sci/create-ns 'clojure.core)})
         ctx-atom nbb/sci-ctx
         server (node-net/createServer
@@ -211,9 +288,9 @@
                      (warn "Could not write .nrepl-port" e))))))
     server)
   #_(let [onExit (js/require "signal-exit")]
-    (onExit (fn [_code _signal]
-              (debug "Process exit, removing .nrepl-port")
-              (fs/unlinkSync ".nrepl-port")))))
+      (onExit (fn [_code _signal]
+                (debug "Process exit, removing .nrepl-port")
+                (fs/unlinkSync ".nrepl-port")))))
 
 (defn stop-server [server]
   (.close server
