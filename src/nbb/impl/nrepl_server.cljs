@@ -157,7 +157,6 @@
                                                          (get imports# '~query-ns))))]
       (let [completions (map (fn [k]
                                [nil (str query-ns "/" k)]) (js/Object.keys imported))]
-        (info completions)
         completions))))
 
 (defn handle-complete* [{ns-str :ns
@@ -204,7 +203,8 @@
                                   svs)
                 completions (concat completions from-imports)
                 completions (->> (map (fn [[namespace name]]
-                                        {"candidate" (str name) "ns" (str namespace)})
+                                        (cond-> {"candidate" (str name)}
+                                          namespace (assoc "ns" (str namespace))))
                                       completions)
                                  distinct vec)]
             {"completions" completions
