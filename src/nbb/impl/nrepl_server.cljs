@@ -137,12 +137,13 @@
   (let [syms (sci/eval-string* ctx (format "(keys (ns-map '%s))" ns-sym))
         sym-strs (map #(str "`" %) syms)
         sym-expr (str "[" (str/join " " sym-strs) "]")
-        syms (sci/eval-string* ctx sym-expr)]
+        syms (sci/eval-string* ctx sym-expr)
+        syms (remove #(str/starts-with? (str %) "nbb.internal") syms)]
     syms))
 
 (defn match [_alias->ns ns->alias query [sym-ns sym-name qualifier]]
   (let [pat (re-pattern query)]
-    (or (when (and (identical? :unqualified qualifier) (re-find pat sym-name))
+    (or (when (and (= :unqualified qualifier) (re-find pat sym-name))
           [sym-ns sym-name])
         (when sym-ns
           (or (when (re-find pat (str (get ns->alias (symbol sym-ns)) "/" sym-name))
@@ -150,9 +151,18 @@
               (when (re-find pat (str sym-ns "/" sym-name))
                 [sym-ns (str sym-ns "/" sym-name)]))))))
 
-(defn handle-complete [{ns-str :ns
-                        :keys [sci-ctx-atom]
-                        :as request} send-fn]
+(defn ns-imports->completions [sci-ctx-atom query-ns]
+  (let [ctx @sci-ctx-atom]
+    (when-let [imported (sci/eval-string* ctx (pr-str `(let [imports# (ns-imports *ns*)]
+                                                         (get imports# '~query-ns))))]
+      (let [completions (map (fn [k]
+                               [nil (str query-ns "/" k)]) (js/Object.keys imported))]
+        (info completions)
+        completions))))
+
+(defn handle-complete* [{ns-str :ns
+                         :keys [sci-ctx-atom]
+                         :as request}]
   (try
     (let [ctx @sci-ctx-atom
           sci-ns (when ns-str
@@ -161,6 +171,8 @@
         (if-let [query (or (:symbol request)
                            (:prefix request))]
           (let [has-namespace? (str/includes? query "/")
+                query-ns (when has-namespace? (some-> (str/split query #"/")
+                                                      first symbol))
                 from-current-ns (fully-qualified-syms ctx (sci/eval-string* ctx "(ns-name *ns*)"))
                 from-current-ns (map (fn [sym]
                                        [(namespace sym) (name sym) :unqualified])
@@ -178,27 +190,33 @@
                 all-namespaces (->> (sci/eval-string* ctx "(all-ns)")
                                     (map (fn [ns]
                                            [(str ns) nil :qualified])))
-                fully-qualified-names (when has-namespace?
-                                        (let [fqns (symbol (first (str/split query #"/")))
-                                              ns (get alias->ns fqns fqns)
-                                              syms (sci/eval-string* ctx (format "(keys (ns-publics '%s))" ns))]
-                                          (map (fn [sym]
-                                                 [(str ns) (str sym) :qualified])
-                                               syms)))
+                from-imports (ns-imports->completions sci-ctx-atom query-ns)
+                fully-qualified-names (when-not from-imports
+                                        (when has-namespace?
+                                          (let [ns (get alias->ns query-ns query-ns)
+                                                syms (sci/eval-string* ctx (format "(keys (ns-publics '%s))" ns))]
+                                            (map (fn [sym]
+                                                   [(str ns) (str sym) :qualified])
+                                                 syms))))
                 svs (concat from-current-ns from-aliased-nss all-namespaces fully-qualified-names)
                 completions (keep (fn [entry]
                                     (match alias->ns ns->alias query entry))
                                   svs)
+                completions (concat completions from-imports)
                 completions (->> (map (fn [[namespace name]]
                                         {"candidate" (str name) "ns" (str namespace)})
                                       completions)
                                  distinct vec)]
-            (send-fn request {"completions" completions
-                              "status" ["done"]}))
-          (send-fn request {"status" ["done"]}))))
-    (catch :default _
-      (send-fn request {"completions" []
-                        "status" ["done"]}))))
+            {"completions" completions
+             "status" ["done"]})
+          {"status" ["done"]})))
+    (catch :default e
+      (js/console.warn e)
+      {"completions" []
+       "status" ["done"]})))
+
+(defn handle-complete [request send-fn]
+  (send-fn request (handle-complete* request)))
 
 ;;;; End completions
 
