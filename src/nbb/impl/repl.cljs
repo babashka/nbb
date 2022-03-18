@@ -12,19 +12,26 @@
 
 (def last-ns (atom @sci/ns))
 
-(defn completer [line]
-  (let [line (if-let [idx (str/last-index-of line "(")]
-               (subs line (inc idx))
-               line)
+(defn completer*
+  "Given a line, returns a flat vector of completions"
+  [line]
+  (let [[prefix line] (if-let [idx (str/last-index-of line "(")]
+                        [(subs line 0 (inc idx)) (subs line (inc idx))]
+                        [nil line])
         xs (get (try (handle-complete* {:sci-ctx-atom nbb/sci-ctx
                                         :ns (str @last-ns)
                                         :prefix line})
                      (catch :default e
-                       (js/console.warn (str :warn) (ex-message e))))
+                       (js/console.warn (str :warn) (ex-message e))
+                       nil))
                 "completions")
-        xs (into-array (filter #(str/starts-with? % line)
-                               (map #(get % "candidate") xs)))]
-    #js [xs line]))
+        xs (map #(str prefix %)
+                (filterv #(str/starts-with? % line)
+                         (map #(get % "candidate") xs)))]
+    xs))
+
+(defn completer [line]
+  #js [(into-array (completer* line)) line])
 
 (def pending-input (atom ""))
 
@@ -204,6 +211,7 @@
 
 (def repl-namespace
   {'repl (sci/copy-var repl rns)
+   'get-completions (sci/copy-var completer* rns)
    'socket-repl (sci/copy-var socket-repl rns)})
 
 (defn init []
