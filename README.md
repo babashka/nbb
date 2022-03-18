@@ -488,11 +488,19 @@ to convert an nbb script or project to
 
 ## Publishing an nbb project to npm
 
-See [Publishing an nbb project to npm](doc/publish/README.md)
+See [Publishing an nbb project to npm](doc/publish/README.md).
 
 ## Creating a standalone executable with caxa
 
-See [Creating a standalone executable with caxa](doc/caxa/README.md)
+See [Creating a standalone executable with caxa](doc/caxa/README.md).
+
+## Nbb on AWS Lambda
+
+See [Nbb on AWS Lambda](doc/aws_lambda.md).
+
+## Nbb on Google Cloud Functions
+
+See [Nbb on Google Cloud Functions](doc/gcloud_functions.md).
 
 ## [Develop](doc/dev.md)
 
