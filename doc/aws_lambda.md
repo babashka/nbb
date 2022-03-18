@@ -54,9 +54,7 @@ After that you should end up with a public URL like
 you can then call from `curl` or via a browser. The response times I got after
 the cold start were around 100ms.
 
-As a nice bonus, you can edit the CLJS code directly in the console:
-
-<blockquote class="twitter-tweet"><p lang="en" dir="ltr">After cold start on a 128MB ARM lambda:<br><br>$ time curl <a href="https://t.co/NGsyrtbKZp">https://t.co/NGsyrtbKZp</a><br>{&quot;hello&quot;:&quot;world&quot;}curl 0.02s user 0.01s system 23% cpu 0.105 total<br><br>And you get to edit the CLJS code in the console :) <a href="https://t.co/4ql2R04R0N">pic.twitter.com/4ql2R04R0N</a></p>&mdash; (λ. borkdude) (@borkdude) <a href="https://twitter.com/borkdude/status/1479786184557617160?ref_src=twsrc%5Etfw">January 8, 2022</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+As a nice bonus, you can edit the CLJS code [directly in the console](https://twitter.com/borkdude/status/1479786184557617160).
 
 Also check out these resources:
 
