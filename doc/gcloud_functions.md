@@ -7,7 +7,7 @@ This article is based on [this](https://gist.github.com/jackrusher/1cc61e0ca0e92
 All you need to do to get nbb running on AWS Lambda is the following:
 
 package.json:
-```
+``` javascript
 {
     "type": "module",
     "scripts": {
