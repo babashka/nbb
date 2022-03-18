@@ -2,7 +2,7 @@
 
 This article is based on [this](https://gist.github.com/jackrusher/1cc61e0ca0e929b9ec21bf4407af6d75) gist by Jack Rusher. Thanks Jack!
 
-## Creating an nbb google cloud function.
+## Creating an nbb google cloud function
 
 All you need to do to get nbb running on AWS Lambda is the following:
 
