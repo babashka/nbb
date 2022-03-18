@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.2.9
+
+- Add `nbb.repl/get-completions` for `inf-clojure`
+
 ## 0.2.8
 
 - Feat [#149](https://github.com/babashka/nbb/issues/149): Add auto-completions to normal REPL
