@@ -4,21 +4,31 @@
    ["readline" :as readline]
    ["vm" :as vm]
    [clojure.string :as str]
-   [nbb.core :as nbb]
    [nbb.api :as api]
+   [nbb.core :as nbb]
+   [nbb.impl.repl-utils :refer [handle-complete*]]
    [sci.core :as sci])
   (:require-macros [nbb.macros :as macros]))
 
-(defn create-rl []
-  (.createInterface
-   readline #js {:input js/process.stdin
-                 :output js/process.stdout}))
+(def last-ns (atom @sci/ns))
+
+(defn completer [line]
+  (let [line (if-let [idx (str/last-index-of line "(")]
+               (subs line (inc idx))
+               line)
+        xs (get (try (handle-complete* {:sci-ctx-atom nbb/sci-ctx
+                                        :ns (str @last-ns)
+                                        :prefix line})
+                     (catch :default e
+                       (js/console.warn (str :warn) (ex-message e))))
+                "completions")
+        xs (into-array (filter #(str/starts-with? % line)
+                               (map #(get % "candidate") xs)))]
+    #js [xs line]))
 
 (def pending-input (atom ""))
 
 (declare input-loop eval-next)
-
-(def last-ns (atom @sci/ns))
 
 (def in-progress (atom false))
 
@@ -127,10 +137,17 @@
 (defn on-line [^js rl socket]
   (.on rl "line" #(input-handler socket rl %)))
 
+(defn create-rl []
+  (.createInterface
+   readline #js {:input js/process.stdin
+                 :output js/process.stdout
+                 :completer completer}))
+
 (defn create-socket-rl [socket]
   (.createInterface
    readline #js {:input socket
-                 :output socket}))
+                 :output socket
+                 :completer completer}))
 
 (defn input-loop [socket resolve]
   (let [rl (if socket
@@ -157,8 +174,7 @@
    (let [port (or (:port opts)
                   0)
          srv (net/createServer
-              (fn [socket]
-                (on-connect socket)))]
+              on-connect)]
      (.listen srv port "127.0.0.1"
               (fn []
                 (let [addr (-> srv (.address))

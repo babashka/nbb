@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.2.8
+
+- Feat [#149](https://github.com/babashka/nbb/issues/149): Add auto-completions to normal REPL
+
 ## 0.2.7
 
 - Support property access completions in nREPL server
