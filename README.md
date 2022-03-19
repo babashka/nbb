@@ -143,7 +143,7 @@ Nbb has first class support for macros: you can define them right inside your `.
             binding-pairs)))
 ```
 
-Using this macro we can look async code more like sync code. Consider this puppeteer example:
+Using this macro we can make async code look more like sync code. Consider this puppeteer example:
 
 ``` clojure
 (-> (.launch puppeteer)
