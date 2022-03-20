@@ -13,3 +13,4 @@ out
 example.pdf
 */**/package-lock.json
 print-cli-args/print-cli-args
+clojure_logo.png
