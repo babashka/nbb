@@ -7,4 +7,3 @@
 (await (-> (sharp "./clojure_logo.svg")
            (.toFile "./clojure_logo.png")))
 ;;=> #js {:format "png", :width 256, :height 256, :channels 4, :premultiplied false, :size 13165}
-
