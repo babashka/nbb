@@ -302,6 +302,8 @@
                (catch :default e
                  (js/Promise.reject e))))))
 
+(deftype Reject [v])
+
 (defn eval-next
   "Evaluates top level forms asynchronously. Returns promise of last value."
   ([prev-val reader] (eval-next prev-val reader nil))
@@ -316,10 +318,12 @@
        (if (not= :sci.core/eof next-val)
          (if (seq? next-val)
            (eval-seq reader next-val opts)
-           (try
-             (eval-next (sci/eval-form @sci-ctx next-val) reader opts)
-             (catch :default e
-               (js/Promise.reject e))))
+           (let [v (try (sci/eval-form @sci-ctx next-val)
+                        (catch :default e
+                          (->Reject e)))]
+             (if (instance? Reject v)
+               (js/Promise.reject (.-v v))
+               (recur v reader opts))))
          ;; wrap normal value in promise
          (js/Promise.resolve
           (let [wrap (or (:wrap opts)
