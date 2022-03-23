@@ -13,8 +13,8 @@
         cljs-bean/cljs-bean {:mvn/version "1.8.0"}
         org.babashka/sci
         #_{:local/root "../babashka/sci"}
-        #_{:mvn/version "0.3.1"}
-        {:git/url "https://github.com/babashka/sci"
+        {:mvn/version "0.3.3"}
+        #_{:git/url "https://github.com/babashka/sci"
          :git/sha "e0123533e75e9df9190205a6f15e49b7cf3690b1"}
         org.babashka/sci-configs
         {:git/url "https://github.com/babashka/sci-configs"
