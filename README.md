@@ -468,7 +468,7 @@ The following projects are using nbb or are supporting it as a development platf
 
 ## API
 
-See [API](doc/api.md) documentation.
+See [API](doc/api.md) documentation with a list of built-in libraries.
 
 ## Articles
 

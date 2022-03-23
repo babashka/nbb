@@ -53,3 +53,9 @@ See [js-interop docs](https://github.com/applied-science/js-interop).
 - `get`, `get-in`, `contains?`, `select-keys`, `lookup`, `assoc!`, `assoc-in!`,
   `update!`, `extend!`, `push!`, `unshift!`, `call`, `apply`, `call-in`,
   `apply-in`, `obj`, `let`, `fn`, `defn`, `lit`
+
+## Tools.cli
+
+### clojure.tools.cli
+
+- `format-lines`, `summarize`, `get-default-options`, `parse-opts`, `make-summary-part`
