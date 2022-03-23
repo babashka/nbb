@@ -18,4 +18,5 @@
          :git/sha "e0123533e75e9df9190205a6f15e49b7cf3690b1"}
         org.babashka/sci-configs
         {:git/url "https://github.com/babashka/sci-configs"
-         :git/sha "d197da2413bd8e4e5c43159620ddfe4286c731ba"}}}
+         :git/sha "d197da2413bd8e4e5c43159620ddfe4286c731ba"}
+        org.clojure/tools.cli {:mvn/version "1.0.206"}}}

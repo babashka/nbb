@@ -2,6 +2,11 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.3.0
+
+- Include `org.clojure/tools.cli` as built-in dependency.
+- Update SCI to `0.3.3`
+
 ## 0.2.9
 
 - Add `nbb.repl/get-completions` for `inf-clojure`

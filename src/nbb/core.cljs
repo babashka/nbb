@@ -151,6 +151,8 @@
           (load-module "./nbb_test.js" libname as refer rename libspecs)
           (nbb.repl)
           (load-module "./nbb_repl.js" libname as refer rename libspecs)
+          (clojure.tools.cli)
+          (load-module "./nbb_tools_cli.js" libname as refer rename libspecs)
           (if (string? libname)
             ;; TODO: parse properties
             (let [[libname properties] (str/split libname #"\$" 2)
