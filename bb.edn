@@ -47,7 +47,7 @@
 
   publish {:doc "Bumps version, pushes tag and lets CI publish to npm."
            :task
-           (do #_(shell "npm version patch")
+           (do (shell "npm version patch")
                (shell "git push --atomic origin main"
                       (str "v" (:version (json/parse-string (slurp "package.json") true)))))}
 
