@@ -63,7 +63,7 @@
   (println "
 Help:
 
- -h / --help: prints this help text and exit.
+ -h / --help: print this help text and exit.
 
 Global options:
 
