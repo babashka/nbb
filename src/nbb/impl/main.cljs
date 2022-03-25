@@ -31,6 +31,7 @@
             nargs (next args)]
         (case farg
           ("--help" "-h") (assoc opts :help true)
+          ("--version" "-v") (assoc opts :version true)
           "-e" (recur (assoc opts :expr (first nargs))
                       (next nargs))
           ("-m" "--main")
@@ -63,7 +64,8 @@
   (println "
 Help:
 
- -h / --help: prints this help text and exit.
+ -h / --help: print this help text and exit.
+ -v / --version: print the current version of nbb.
 
 Global options:
 
@@ -101,6 +103,9 @@ REPL:
                   (empty? (dissoc opts :expr :classpath :debug)))]
     (when (:help opts)
       (print-help)
+      (js/process.exit 0))
+    (when (:version opts)
+      (println (str "nbb v" (nbb/version)))
       (js/process.exit 0))
     (reset! nbb/opts opts)
     (when repl? (api/init-require (path/resolve "script.cljs")))
