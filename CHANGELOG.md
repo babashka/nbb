@@ -2,6 +2,11 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.3.1
+
+- Fix [#139](https://github.com/babashka/nbb/issues/139): include `goog.string/format`
+- Support `*print-err-fn*`
+
 ## 0.3.0
 
 - Include `org.clojure/tools.cli` as built-in dependency.
