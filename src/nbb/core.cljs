@@ -6,7 +6,6 @@
    ["url" :as url]
    [clojure.string :as str]
    [goog.object :as gobj]
-   [goog.string :as gstr]
    [nbb.classpath :as cp]
    [nbb.common :refer [core-ns]]
    [sci.core :as sci]
@@ -153,6 +152,8 @@
           (load-module "./nbb_repl.js" libname as refer rename libspecs)
           (clojure.tools.cli)
           (load-module "./nbb_tools_cli.js" libname as refer rename libspecs)
+          (goog.string goog.string.format)
+          (load-module "./nbb_goog_string.js" libname as refer rename libspecs)
           (if (string? libname)
             ;; TODO: parse properties
             (let [[libname properties] (str/split libname #"\$" 2)
@@ -413,7 +414,6 @@
                                       :set gobj/set
                                       :getKeys gobj/getKeys
                                       :getValueByKeys gobj/getValueByKeys}
-                    'goog.string #js {:StringBuffer gstr/StringBuffer}
                     'Math js/Math}
           :disable-arity-checks true}))
 

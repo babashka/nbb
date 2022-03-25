@@ -9,6 +9,8 @@
    :output-dir "out"
    :modules
    {:nbb_core {:init-fn nbb.core/init}
+    :nbb_goog_string {:init-fn nbb.impl.gstring/init
+                      :depends-on #{:nbb_core}}
     :nbb_impl_main {:init-fn nbb.impl.main/init
                     :depends-on #{:nbb_core :nbb_api}}
     :nbb_main {:init-fn nbb.main/main
