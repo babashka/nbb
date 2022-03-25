@@ -23,6 +23,7 @@
                         version nbb.api/version}
               :depends-on #{:nbb_core}}
     :nbb_reagent {:init-fn nbb.impl.reagent/init
+                  :entries [reagent.core]
                   :depends-on #{:nbb_core}}
     :nbb_reagent_dom_server {:init-fn nbb.impl.reagent.dom.server/init
                              :depends-on #{:nbb_core :nbb_reagent}}
