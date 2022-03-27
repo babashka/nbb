@@ -246,18 +246,16 @@
   ;; the parsing is still very crude, we only support a subset of the ns form
   ;; and ignore everything but (:require clauses)
   (let [[_ns ns-name & ns-forms] ns-form
-        ignored (group-by (fn [ns-form]
-                             (and (seq? ns-form)
-                                  (= :require-macros (first ns-form)))) ns-forms)
-        
         grouped (group-by (fn [ns-form]
                             (and (seq? ns-form)
-                                 (= :require (first ns-form)))) (get ignored false))
+                                 (= :require (first ns-form)))) ns-forms)
         require-forms (get grouped true)
         other-forms (get grouped false)
+        ;; ignore all :require-macros for now
+        other-forms (remove #(and (seq? %) (= :require-macros (first %)))
+                            other-forms)
         ns-obj (sci/eval-form @sci-ctx (list 'do (list* 'ns ns-name other-forms) '*ns*))
-        libspecs (mapcat (fn [require-form]
-                           (rest require-form))
+        libspecs (mapcat rest
                          require-forms)]
     (with-async-bindings {sci/ns ns-obj}
       (handle-libspecs libspecs))))

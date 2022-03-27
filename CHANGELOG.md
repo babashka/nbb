@@ -2,9 +2,9 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## 0.3.x
+## 0.3.2
 
-- Fix [#154](https://github.com/babashka/nbb/issues/154): require-macros trigger an error
+- Fix [#154](https://github.com/babashka/nbb/issues/154): ignore `:require-macros`
 
 ## 0.3.1
 
