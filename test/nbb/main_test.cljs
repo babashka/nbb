@@ -214,5 +214,10 @@
       (.then (fn [val]
                (is (true? val))))))
 
+(deftest-async ignore-require-macros-test
+  (-> (main-with-args ["test-scripts/ignore_require_macros.cljc"])
+      (.then (fn [res]
+               (is (= {:add 5 :subtract 1} res))))))
+
 (defn init []
   (t/run-tests 'nbb.main-test 'nbb.test-test))
