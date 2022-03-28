@@ -1,7 +1,7 @@
 # Dependencies
 
 Currently nbb doesn't load code from .jar files and doesn't have configuration
-file like `bb.edn` is to babashka. It does however have the ability to load
+file like babashka's `bb.edn`. It does however have the ability to load
 dependencies from directories. Here we describe how you can use babashka to load
 dependencies from clojars.
 
