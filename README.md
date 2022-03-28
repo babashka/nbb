@@ -472,7 +472,7 @@ See [API](doc/api.md) documentation with a list of built-in libraries.
 
 ## Talks
 
-[![Nbb: ad-hoc scripting for Clojure on Node.js](https://img.youtube.com/vi/Nw8aN-nrdEk/0.jpg)](https://youtu.be/7DQ0ymojfLg) by Michiel Borkent
+- [Nbb: ad-hoc scripting for Clojure on Node.js](https://youtu.be/7DQ0ymojfLg) by Michiel Borkent
 
 ## Articles
 
