@@ -218,7 +218,8 @@ $ nbb --classpath "$classpath" -e "(require '[honey.sql :as sql]) (sql/format {:
 ```
 
 Currently `nbb` only reads from directories, not jar files, so you are
-encouraged to use git libs. Support for `.jar` files will be added later.
+encouraged to use git libs. Support for `.jar` files will be added later. You
+can find a workaround for that [here](doc/dependencies.md).
 
 ## Current file
 
