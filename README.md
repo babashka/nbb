@@ -32,7 +32,7 @@ Additional goals and features are:
 
 ## Requirements
 
-Nbb requires Node.js v12 or newer.
+Nbb requires Node.js v14 or newer.
 
 ## How does this tool work?
 
@@ -469,6 +469,10 @@ The following projects are using nbb or are supporting it as a development platf
 ## API
 
 See [API](doc/api.md) documentation with a list of built-in libraries.
+
+## Talks
+
+[![Nbb: ad-hoc scripting for Clojure on Node.js](https://img.youtube.com/vi/Nw8aN-nrdEk/0.jpg)](https://youtu.be/7DQ0ymojfLg) by Michiel Borkent
 
 ## Articles
 
