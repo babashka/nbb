@@ -5,7 +5,7 @@ file like `bb.edn` is to babashka. It does however have the ability to load
 dependencies from directories. Here we describe how you can use babashka to load
 dependencies from clojars.
 
-## Create a nbb.edn file
+## Create an nbb.edn file
 
 This file will contain the dependencies, similar to `bb.edn` for babashka.
 E.g.:
