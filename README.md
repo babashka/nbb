@@ -472,6 +472,7 @@ See [API](doc/api.md) documentation with a list of built-in libraries.
 
 ## Articles
 
+- [Reloaded workflow with nbb and Express.js](https://dev.to/crinklywrappr/reloaded-workflow-with-nbb-expressjs-31f3)
 - [Serverless site analytics with Clojure nbb and AWS](https://www.loop-code-recur.io/simple-site-analytics-with-serverless-clojure)
 - [Creating an AWS Lambda function with
   nbb](https://blog.michielborkent.nl/aws-lambda-nbb.html) by Michiel Borkent
