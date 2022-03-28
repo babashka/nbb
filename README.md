@@ -472,8 +472,8 @@ See [API](doc/api.md) documentation with a list of built-in libraries.
 
 ## Articles
 
-- [Reloaded workflow with nbb and Express.js](https://dev.to/crinklywrappr/reloaded-workflow-with-nbb-expressjs-31f3)
-- [Serverless site analytics with Clojure nbb and AWS](https://www.loop-code-recur.io/simple-site-analytics-with-serverless-clojure)
+- [Reloaded workflow with nbb and Express.js](https://dev.to/crinklywrappr/reloaded-workflow-with-nbb-expressjs-31f3) by Daniel Fitzpatrick
+- [Serverless site analytics with Clojure nbb and AWS](https://www.loop-code-recur.io/simple-site-analytics-with-serverless-clojure) by Cyprien Pannier
 - [Creating an AWS Lambda function with
   nbb](https://blog.michielborkent.nl/aws-lambda-nbb.html) by Michiel Borkent
 - [Prerendering React in ClojureScript
@@ -526,6 +526,6 @@ Run `bb tasks` for more project-related tasks.
 
 ## License
 
-Copyright © 2021 Michiel Borkent
+Copyright © 2021-2022 Michiel Borkent
 
 Distributed under the EPL License. See LICENSE.
