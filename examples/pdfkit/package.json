@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "pdfkit": "^0.13.0",
+    "svg-to-pdfkit": "^0.1.8"
+  }
+}
