@@ -21,8 +21,7 @@
 
 (-> doc
     (.addPage)
-    (.font "PalatinoBold.ttf")
-    (.fontSize 25)
+    (.font "Times-Roman" 18)
     (.text "Nbb is awesome!"))
 
 ;; draw a triangle
