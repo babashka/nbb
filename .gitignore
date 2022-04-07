@@ -1,6 +1,6 @@
 .shadow-cljs
 node_modules
-out
+lib
 .nrepl-port
 .cpcache
 .lsp

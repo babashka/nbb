@@ -16,7 +16,7 @@
                                " --config-merge shadow-tests.edn")
                           cmd)]
                 cmd)))
-  clean (fs/delete-tree "out")
+  clean (fs/delete-tree "lib")
 
   compile (clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn compile modules"))
 
@@ -24,24 +24,24 @@
        :task
        (binding [*test* true]
          (println "Starting shadow-cljs in watch mode.")
-         (println "Run node out/nbb_main.js to test nbb")
+         (println "Run node lib/nbb_main.js to test nbb")
          (println "Run bb run-tests to run the tests")
          (apply clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn watch modules")
                 *command-line-args*))}
 
-  run-tests (shell "node out/nbb_tests.js")
+  run-tests (shell "node lib/nbb_tests.js")
 
   release {:depends [clean]
            :doc "Compiles release build."
            :task
            (do (apply clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn release modules")
                       *command-line-args*)
-               (spit "out/nbb_core.js"
-                     (clojure.string/replace (slurp "out/nbb_core.js") (re-pattern "self") "globalThis"))
-               (spit "out/nbb_main.js"
-                     (str "#!/usr/bin/env node\n\n" (slurp "out/nbb_main.js")))
-               (shell "chmod +x out/nbb_main.js")
-               (run! fs/delete (fs/glob "out" "**.map")))}
+               (spit "lib/nbb_core.js"
+                     (clojure.string/replace (slurp "lib/nbb_core.js") (re-pattern "self") "globalThis"))
+               (spit "lib/nbb_main.js"
+                     (str "#!/usr/bin/env node\n\n" (slurp "lib/nbb_main.js")))
+               (shell "chmod +x lib/nbb_main.js")
+               (run! fs/delete (fs/glob "lib" "**.map")))}
 
   run-integration-tests nbb-tests/main
 

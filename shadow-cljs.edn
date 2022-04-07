@@ -6,7 +6,7 @@
    :compiler-options {:infer-externs :auto}
    :target :esm
    :runtime :node
-   :output-dir "out"
+   :output-dir "lib"
    :modules
    {:nbb_core {:init-fn nbb.core/init}
     :nbb_goog_string {:init-fn nbb.impl.gstring/init
