@@ -59,5 +59,5 @@
 
 (defn init []
   (nbb/register-plugin!
-   ::reagent-dom-server
-   {:namespaces {'clojure.test clojure-test-namespace}}))
+   ::cljs-test
+   {:namespaces {'cljs.test clojure-test-namespace}}))

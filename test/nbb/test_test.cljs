@@ -17,6 +17,29 @@
         (.then (fn [_]
                  (is (str/includes? @output "expected: (= 1 2)  actual: (not (= 1 2))")))))))
 
+(deftest-async cljs-test-test
+  (let [output (atom "")]
+    (-> (with-async-bindings
+          {sci/print-fn (fn [s]
+                          (swap! output str s))}
+          (nbb/load-string "
+    (ns foo01 (:require [cljs.test :as t :refer [deftest is testing]]))
+    (t/deftest foo (t/is (= 1 2)))
+    (cljs.test/deftest bar (t/is (= 1 2))) (t/run-tests 'foo01)"))
+        (.then (fn [_]
+                 (is (str/includes? @output "expected: (= 1 2)  actual: (not (= 1 2))")))))))
+
+(deftest-async refer-macros-test
+  (let [output (atom "")]
+    (-> (with-async-bindings
+          {sci/print-fn (fn [s]
+                          (swap! output str s))}
+          (nbb/load-string "
+    (ns foo02 (:require [cljs.test :as t :refer-macros [deftest is]]))
+    (deftest foo (is (= 1 2))) (t/run-tests 'foo02)"))
+        (.then (fn [_]
+                 (is (str/includes? @output "expected: (= 1 2)  actual: (not (= 1 2))")))))))
+
 (deftest-async are-test
   (let [output (atom "")]
     (-> (with-async-bindings

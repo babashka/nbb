@@ -55,7 +55,8 @@
 (declare handle-libspecs)
 
 (def normalize-libname
-  {'clojure.pprint 'cljs.pprint})
+  {'clojure.pprint 'cljs.pprint
+   'clojure.test 'cljs.test})
 
 (defn load-module [m libname as refer rename libspecs]
   (-> (esm/dynamic-import m)
@@ -65,8 +66,8 @@
                    (when as
                      (sci/eval-form @sci-ctx
                                     (list 'alias
-                                          (list 'quote nlib)
-                                          (list 'quote libname)))))
+                                          (list 'quote libname)
+                                          (list 'quote nlib)))))
                  (let [libname (or nlib libname)]
                    (when as
                      (sci/eval-form @sci-ctx
@@ -108,7 +109,7 @@
           opts (apply hash-map opts)
           as (:as opts)
           as-alias (:as-alias opts)
-          refer (:refer opts)
+          refer (concat (:refer opts) (:refer-macros opts))
           rename (:rename opts)
           munged (munge libname)
           current-ns-str (str @sci/ns)

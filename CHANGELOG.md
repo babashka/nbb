@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.3.3
+
+- Fix [#158](https://github.com/babashka/nbb/issues/158): be able to use cljs.test as namespace name + support `:refer-macros`
+
 ## 0.3.2
 
 - Fix [#154](https://github.com/babashka/nbb/issues/154): ignore `:require-macros`
