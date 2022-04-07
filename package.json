@@ -4,7 +4,7 @@
   "type": "module",
   "main": "index.mjs",
   "bin": {
-    "nbb": "./out/nbb_main.js"
+    "nbb": "./lib/nbb_main.js"
   },
   "description": "Babashka-like tool for Node.js.",
   "devDependencies": {
@@ -16,13 +16,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/borkdude/nbb"
+    "url": "https://github.com/babashka/nbb"
   },
   "license": "EPL-1.0",
   "files": [
     "README.md",
     "img",
-    "out"
+    "lib"
   ],
   "dependencies": {}
 }

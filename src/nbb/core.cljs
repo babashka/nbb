@@ -58,8 +58,12 @@
   {'clojure.pprint 'cljs.pprint
    'clojure.test 'cljs.test})
 
+(def sci-find-ns (delay (sci/eval-form @sci-ctx 'find-ns)))
+
 (defn load-module [m libname as refer rename libspecs]
-  (-> (esm/dynamic-import m)
+  (-> (if (some? (@sci-find-ns libname))
+        (js/Promise.resolve nil)
+        (esm/dynamic-import m))
       (.then (fn [_module]
                (let [nlib (normalize-libname libname)]
                  (when-not (= nlib libname)

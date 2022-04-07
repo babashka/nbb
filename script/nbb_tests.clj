@@ -25,7 +25,7 @@
   (let [[opts args] (if (map? x)
                       [x xs]
                       [nil (cons x xs)])]
-    (-> (process (into ["node" "out/nbb_main.js"] args)
+    (-> (process (into ["node" "lib/nbb_main.js"] args)
                  (merge {:out :string
                          :err :inherit}
                         opts)))))
@@ -162,7 +162,7 @@
          (normalize-interop-output (nbb* "examples/cljs-bean/example.cljs")))))
 
 (deftest error-test
-  (let [err (-> (process ["node" "out/nbb_main.js" "test-scripts/error.cljs"]
+  (let [err (-> (process ["node" "lib/nbb_main.js" "test-scripts/error.cljs"]
                          {:out :string
                           :err :string})
                 deref
