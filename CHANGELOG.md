@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.3.4
+
+- Don't load modules more than once
+
 ## 0.3.3
 
 - Fix [#158](https://github.com/babashka/nbb/issues/158): be able to use cljs.test as namespace name + support `:refer-macros`
