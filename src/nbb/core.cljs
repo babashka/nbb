@@ -165,8 +165,8 @@
           (load-module "./nbb_datascript.js" libname as refer rename libspecs)
           (cognitect.transit)
           (load-module "./nbb_transit.js" libname as refer rename libspecs)
-          (me.tonsky.persistent-sorted-set)
-          (load-module "./nbb_datascript.js" libname as refer rename libspecs)
+          (datascript.transit)
+          (load-module "./nbb_datascript_transit.js" libname as refer rename libspecs)
           (if (string? libname)
             ;; TODO: parse properties
             (let [[libname properties] (str/split libname #"\$" 2)

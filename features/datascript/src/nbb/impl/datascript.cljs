@@ -2,13 +2,11 @@
   {:no-doc true}
   (:require [datascript.core :as d]
             [datascript.db :as db]
-            [me.tonsky.persistent-sorted-set :as pss]
             [nbb.core :as nbb]
             [sci.core :as sci :refer [copy-var]]))
 
 (def core-ns (sci/create-ns 'datascript.core nil))
 (def db-ns   (sci/create-ns 'datascript.db nil))
-(def sorted-set-ns (sci/create-ns 'me.tonsky.persistent-sorted-set nil))
 
 (def core-namespace
   {'q (copy-var d/q core-ns)
@@ -29,12 +27,8 @@
    'DB                (copy-var db/DB db-ns)
    'Datom             (copy-var db/Datom db-ns)})
 
-(def persistent-sorted-set-namespace
-  {'BTSet (copy-var pss/BTSet sorted-set-ns)})
-
 (defn init []
   (nbb/register-plugin!
    ::datascript
    {:namespaces {'datascript.core core-namespace
-                 'datascript.db   db-namespace
-                 'me.tonsky.persistent-sorted-set persistent-sorted-set-namespace}}))
+                 'datascript.db   db-namespace}}))

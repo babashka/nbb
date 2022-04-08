@@ -14,7 +14,6 @@
    'reader (copy-var transit/reader transit-ns)
    'read-handler (copy-var transit/read-handler transit-ns)
    'tagged-value (copy-var transit/tagged-value transit-ns)
-   ;; TODO: Lists as a var but doesn't resolve
    'ListHandler (copy-var transit/ListHandler transit-ns)})
 
 (defn init []
