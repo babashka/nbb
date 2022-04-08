@@ -1,0 +1,3 @@
+{:modules
+ {:nbb_datascript {:init-fn nbb.impl.datascript/init
+                   :depends-on #{:nbb_core}}}}
