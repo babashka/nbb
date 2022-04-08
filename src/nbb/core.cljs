@@ -159,6 +159,14 @@
           (load-module "./nbb_tools_cli.js" libname as refer rename libspecs)
           (goog.string goog.string.format)
           (load-module "./nbb_goog_string.js" libname as refer rename libspecs)
+          (datascript.core)
+          (load-module "./nbb_datascript.js" libname as refer rename libspecs)
+          (datascript.db)
+          (load-module "./nbb_datascript.js" libname as refer rename libspecs)
+          (cognitect.transit)
+          (load-module "./nbb_transit.js" libname as refer rename libspecs)
+          (me.tonsky.persistent-sorted-set)
+          (load-module "./nbb_datascript.js" libname as refer rename libspecs)
           (if (string? libname)
             ;; TODO: parse properties
             (let [[libname properties] (str/split libname #"\$" 2)
@@ -203,7 +211,7 @@
             (if (sci/eval-form @sci-ctx (list 'clojure.core/find-ns (list 'quote libname)))
               ;; built-in namespace
               (do (old-require fst)
-                  (handle-libspecs (next libspecs)))
+                (handle-libspecs (next libspecs)))
               (let [file (str/replace (str munged) #"\." "/")
                     files [(str file ".cljs") (str file ".cljc")]
                     dirs @cp/classpath-entries
@@ -234,16 +242,16 @@
                   (if-let [clazz (get-in @sci-ctx [:class->opts libname :class])]
                     (do (when as
                           (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports as] libname))
-                        (doseq [field refer]
-                          (let [mod-field (gobj/get clazz (str field))
-                                internal-subname (str current-ns "$" munged "$" field)]
-                            (swap! sci-ctx sci/merge-opts {:classes {internal-subname mod-field}})
-                            ;; Repeat hack from above
-                            (let [field (get rename field field)]
-                              (swap! (:env @sci-ctx)
-                                     assoc-in
-                                     [:namespaces current-ns :imports field] internal-subname))))
-                        (handle-libspecs (next libspecs)))
+                      (doseq [field refer]
+                        (let [mod-field (gobj/get clazz (str field))
+                              internal-subname (str current-ns "$" munged "$" field)]
+                          (swap! sci-ctx sci/merge-opts {:classes {internal-subname mod-field}})
+                          ;; Repeat hack from above
+                          (let [field (get rename field field)]
+                            (swap! (:env @sci-ctx)
+                                   assoc-in
+                                   [:namespaces current-ns :imports field] internal-subname))))
+                      (handle-libspecs (next libspecs)))
                     (js/Promise.reject (js/Error. (str "Could not find namespace: " libname)))))))))))
     (js/Promise.resolve @sci/ns)))
 
@@ -399,7 +407,8 @@
                                       'array (sci/copy-var array core-ns)
                                       'tap> (sci/copy-var tap> core-ns)
                                       'add-tap (sci/copy-var add-tap core-ns)
-                                      'remove-tap (sci/copy-var remove-tap core-ns)}
+                                      'remove-tap (sci/copy-var remove-tap core-ns)
+                                      'uuid (sci/copy-var uuid core-ns)}
 
                        'clojure.main {'repl-requires (sci/copy-var
                                                       repl-requires
