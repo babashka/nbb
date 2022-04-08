@@ -430,6 +430,7 @@
                                       :set gobj/set
                                       :getKeys gobj/getKeys
                                       :getValueByKeys gobj/getValueByKeys}
+                    'ExceptionInfo js/Error
                     'Math js/Math}
           :disable-arity-checks true}))
 
