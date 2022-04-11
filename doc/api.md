@@ -59,3 +59,9 @@ See [js-interop docs](https://github.com/applied-science/js-interop).
 ### clojure.tools.cli
 
 - `format-lines`, `summarize`, `get-default-options`, `parse-opts`, `make-summary-part`
+
+## transit-cljs
+
+### cognitect.transit
+
+- `write`, `writer`, `write-handler`, `write-meta`, `read`, `read`, `read-handler`, `tagged-value`
