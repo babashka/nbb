@@ -40,6 +40,8 @@
                  :depends-on #{:nbb_core}}
     :nbb_tools_cli {:init-fn nbb.impl.tools-cli/init
                     :depends-on #{:nbb_core :nbb_goog_string}}
+    :nbb_transit {:init-fn nbb.impl.transit/init
+                  :depends-on #{:nbb_core}}
     :nbb_nrepl_server {:init-fn nbb.impl.nrepl-server/init
                        :depends-on #{:nbb_core :nbb_api}}
     :nbb_repl {:init-fn nbb.impl.repl/init

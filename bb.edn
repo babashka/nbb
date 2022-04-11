@@ -2,20 +2,47 @@
  :tasks
  {:requires ([babashka.fs :as fs]
              [cheshire.core :as json]
+             [clojure.edn :as edn]
+             [clojure.pprint :as pp]
              [clojure.string :as str])
 
-  :init (do (def ^:dynamic *test* (= "true" (System/getenv "NBB_TESTS")))
-            (def windows? (-> (System/getProperty "os.name")
-                              str/lower-case
-                              (str/starts-with? "win")))
-            (when *test* (println "Tests are enabled.."))
-            (defn wrap-cmd [cmd]
-              (let [cmd (if *test*
-                          (str (str/replace cmd
-                                            "-M" "-M:test")
-                               " --config-merge shadow-tests.edn")
-                          cmd)]
+  :init (do
+          (def ^:dynamic *test* (= "true" (System/getenv "NBB_TESTS")))
+          (def windows? (-> (System/getProperty "os.name")
+                            str/lower-case
+                            (str/starts-with? "win")))
+          (def features (some-> (System/getenv "NBB_FEATURES")
+                                (str/split (re-pattern ","))))
+          (when *test* (println "Tests are enabled.."))
+          (defn wrap-cmd [cmd]
+            (let [cmd (if features
+                        (format "-Sdeps '%s' %s"
+                                {:deps
+                                 (into {}
+                                       (map (fn [f]
+                                              [(symbol (str f "/deps"))
+                                               {:local/root (str "features/" f)}])
+                                            features))}
+                                cmd)
+                        cmd)
+                  cmd (if *test*
+                        (str (str/replace cmd
+                                          "-M" "-M:test")
+                             " --config-merge shadow-tests.edn")
+                        cmd)]
+              (if features
+                (apply str cmd
+                  (map (fn [f] (format " --config-merge features/%s/shadow-cljs.edn" f))
+                       features))
                 cmd)))
+          ;; Build requires map for nbb to require feature namespaces
+          (when features
+            (let [m (->> (fs/glob "features" "**/nbb_features.edn")
+                         (mapcat (comp edn/read-string slurp str) )
+                         (mapcat (fn [{:keys [namespaces js]}]
+                                   (mapv (fn [n] [n js]) namespaces)))
+                         (into {}))]
+              (spit "src/nbb/feature-requires.edn" (with-out-str (pp/pprint m))))))
   clean (fs/delete-tree "lib")
 
   compile (clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn compile modules"))

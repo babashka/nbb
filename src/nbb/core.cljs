@@ -5,11 +5,13 @@
    ["path" :as path]
    ["url" :as url]
    [clojure.string :as str]
+   [clojure.edn :as edn]
    [goog.object :as gobj]
    [nbb.classpath :as cp]
    [nbb.common :refer [core-ns]]
    [sci.core :as sci]
    [sci.impl.vars :as vars]
+   [shadow.resource :as resource]
    [shadow.esm :as esm])
   (:require-macros [nbb.macros
                     :as macros
@@ -105,6 +107,14 @@
 
 (declare old-require)
 
+(defn- get-feature-requires
+  []
+  (edn/read-string (resource/inline "nbb/feature-requires.edn")))
+
+;; Lazily build map once to not effect initial load time
+(def feature-requires
+  (memoize get-feature-requires))
+
 (defn ^:private handle-libspecs [libspecs]
   (if (seq libspecs)
     (let [fst (first libspecs)
@@ -120,7 +130,7 @@
           current-ns (symbol current-ns-str)]
       (if as-alias
         (do (old-require fst)
-            (handle-libspecs (next libspecs)))
+          (handle-libspecs (next libspecs)))
         (case libname
           ;; built-ins
           (reagent.core)
@@ -159,7 +169,12 @@
           (load-module "./nbb_tools_cli.js" libname as refer rename libspecs)
           (goog.string goog.string.format)
           (load-module "./nbb_goog_string.js" libname as refer rename libspecs)
-          (if (string? libname)
+          (cognitect.transit)
+          (load-module "./nbb_transit.js" libname as refer rename libspecs)
+          (cond
+            (get (feature-requires) libname)
+            (load-module (get (feature-requires) libname) libname as refer rename libspecs)
+            (string? libname)
             ;; TODO: parse properties
             (let [[libname properties] (str/split libname #"\$" 2)
                   properties (when properties (.split properties "."))
@@ -199,11 +214,12 @@
                                        mod))))))]
               (-> mod
                   (.then after-load)))
+            :else
             ;; assume symbol
             (if (sci/eval-form @sci-ctx (list 'clojure.core/find-ns (list 'quote libname)))
               ;; built-in namespace
               (do (old-require fst)
-                  (handle-libspecs (next libspecs)))
+                (handle-libspecs (next libspecs)))
               (let [file (str/replace (str munged) #"\." "/")
                     files [(str file ".cljs") (str file ".cljc")]
                     dirs @cp/classpath-entries
@@ -234,16 +250,16 @@
                   (if-let [clazz (get-in @sci-ctx [:class->opts libname :class])]
                     (do (when as
                           (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports as] libname))
-                        (doseq [field refer]
-                          (let [mod-field (gobj/get clazz (str field))
-                                internal-subname (str current-ns "$" munged "$" field)]
-                            (swap! sci-ctx sci/merge-opts {:classes {internal-subname mod-field}})
-                            ;; Repeat hack from above
-                            (let [field (get rename field field)]
-                              (swap! (:env @sci-ctx)
-                                     assoc-in
-                                     [:namespaces current-ns :imports field] internal-subname))))
-                        (handle-libspecs (next libspecs)))
+                      (doseq [field refer]
+                        (let [mod-field (gobj/get clazz (str field))
+                              internal-subname (str current-ns "$" munged "$" field)]
+                          (swap! sci-ctx sci/merge-opts {:classes {internal-subname mod-field}})
+                          ;; Repeat hack from above
+                          (let [field (get rename field field)]
+                            (swap! (:env @sci-ctx)
+                                   assoc-in
+                                   [:namespaces current-ns :imports field] internal-subname))))
+                      (handle-libspecs (next libspecs)))
                     (js/Promise.reject (js/Error. (str "Could not find namespace: " libname)))))))))))
     (js/Promise.resolve @sci/ns)))
 
@@ -399,7 +415,8 @@
                                       'array (sci/copy-var array core-ns)
                                       'tap> (sci/copy-var tap> core-ns)
                                       'add-tap (sci/copy-var add-tap core-ns)
-                                      'remove-tap (sci/copy-var remove-tap core-ns)}
+                                      'remove-tap (sci/copy-var remove-tap core-ns)
+                                      'uuid (sci/copy-var uuid core-ns)}
 
                        'clojure.main {'repl-requires (sci/copy-var
                                                       repl-requires
@@ -421,6 +438,7 @@
                                       :set gobj/set
                                       :getKeys gobj/getKeys
                                       :getValueByKeys gobj/getValueByKeys}
+                    'ExceptionInfo js/Error
                     'Math js/Math}
           :disable-arity-checks true}))
 

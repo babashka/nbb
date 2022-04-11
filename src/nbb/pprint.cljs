@@ -9,13 +9,15 @@
   (binding [*print-fn* @sci/print-fn]
     (apply pp/pprint args)))
 
+(defn print-table [& args]
+  (binding [*print-fn* @sci/print-fn]
+    (apply pp/print-table args)))
+
 (def pprint-namespace
-  {'pprint (sci/copy-var pprint pns)})
+  {'pprint (sci/copy-var pprint pns)
+   'print-table (sci/copy-var print-table pns)})
 
 (defn init []
   (nbb/register-plugin!
    ::pprint
    {:namespaces {'cljs.pprint pprint-namespace}}))
-
-
-

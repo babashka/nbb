@@ -2,6 +2,12 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.3.x
+
+- Add initial features support with datascript and datascript-transit
+- Include `cognitect.transit` as built-in dependency
+- Add `clojure.pprint/print-table`
+
 ## 0.3.4
 
 - Don't load modules more than once

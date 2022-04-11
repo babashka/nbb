@@ -48,3 +48,16 @@ Then run `node out/nbb_main.js <args>` to test the compiled nbb.
 ## Test
 
 To run tests, run `bb run-tests` for unit tests and `bb run-integration-tests` for running integration tests.
+
+## Features
+
+`nbb` can optionally bundle additional Clojure(Script) libraries as features. These can be specified with `$NBB_FEATURES` to compilation tasks e.g. `NBB_FEATURES=datascript,datascript-transit bb release`. The following features are provided:
+
+* [datascript](https://github.com/tonsky/datascript)
+* [datascript-transit](https://github.com/tonsky/datascript-transit)
+
+To add a new feature, add the following under `features/$LIBRARY/`:
+- `deps.edn` - Dependencies for library
+- `shadow-cljs.edn` - Compiler options to build library in advanced/release mode
+- `src/nbb/impl/$LIBRARY.cljs` - Sci mappings
+- `src/nbb_features.edn` - Configuration to map namespaces to js assets
