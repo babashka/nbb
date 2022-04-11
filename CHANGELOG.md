@@ -2,7 +2,7 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## 0.3.x
+## 0.3.5
 
 - Add initial features support with datascript and datascript-transit
 - Include `cognitect.transit` as built-in dependency
