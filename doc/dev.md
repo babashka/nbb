@@ -60,4 +60,5 @@ To add a new feature, add the following under `features/$LIBRARY/`:
 - `deps.edn` - dependencies for library
 - `shadow-cljs.edn` - compiler options necessary for advanced/release mode
 - `src/nbb/impl/$LIBRARY.cljs` - Sci mappings
-- Entry/entries in `nbb.core` to require the library namespace(s)
+
+Then add entry/entries in `nbb.core` to require the library namespace(s).
