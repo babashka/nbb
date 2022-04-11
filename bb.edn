@@ -2,6 +2,8 @@
  :tasks
  {:requires ([babashka.fs :as fs]
              [cheshire.core :as json]
+             [clojure.edn :as edn]
+             [clojure.pprint :as pp]
              [clojure.string :as str])
 
   :init (do
@@ -32,7 +34,15 @@
                 (apply str cmd
                   (map (fn [f] (format " --config-merge features/%s/shadow-cljs.edn" f))
                        features))
-                cmd))))
+                cmd)))
+          ;; Build requires map for nbb to require feature namespaces
+          (when features
+            (let [m (->> (fs/glob "features" "**/nbb_features.edn")
+                         (mapcat (comp edn/read-string slurp str) )
+                         (mapcat (fn [{:keys [namespaces js]}]
+                                   (mapv (fn [n] [n js]) namespaces)))
+                         (into {}))]
+              (spit "src/nbb/feature-requires.edn" (with-out-str (pp/pprint m))))))
   clean (fs/delete-tree "lib")
 
   compile (clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn compile modules"))

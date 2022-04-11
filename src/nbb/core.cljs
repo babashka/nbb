@@ -5,11 +5,13 @@
    ["path" :as path]
    ["url" :as url]
    [clojure.string :as str]
+   [clojure.edn :as edn]
    [goog.object :as gobj]
    [nbb.classpath :as cp]
    [nbb.common :refer [core-ns]]
    [sci.core :as sci]
    [sci.impl.vars :as vars]
+   [shadow.resource :as resource]
    [shadow.esm :as esm])
   (:require-macros [nbb.macros
                     :as macros
@@ -105,6 +107,14 @@
 
 (declare old-require)
 
+(defn- get-feature-requires
+  []
+  (edn/read-string (resource/inline "nbb/feature-requires.edn")))
+
+;; Lazily build map once to not effect initial load time
+(def feature-requires
+  (memoize get-feature-requires))
+
 (defn ^:private handle-libspecs [libspecs]
   (if (seq libspecs)
     (let [fst (first libspecs)
@@ -120,7 +130,7 @@
           current-ns (symbol current-ns-str)]
       (if as-alias
         (do (old-require fst)
-            (handle-libspecs (next libspecs)))
+          (handle-libspecs (next libspecs)))
         (case libname
           ;; built-ins
           (reagent.core)
@@ -159,15 +169,12 @@
           (load-module "./nbb_tools_cli.js" libname as refer rename libspecs)
           (goog.string goog.string.format)
           (load-module "./nbb_goog_string.js" libname as refer rename libspecs)
-          (datascript.core)
-          (load-module "./nbb_datascript.js" libname as refer rename libspecs)
-          (datascript.db)
-          (load-module "./nbb_datascript.js" libname as refer rename libspecs)
           (cognitect.transit)
           (load-module "./nbb_transit.js" libname as refer rename libspecs)
-          (datascript.transit)
-          (load-module "./nbb_datascript_transit.js" libname as refer rename libspecs)
-          (if (string? libname)
+          (cond
+            (get (feature-requires) libname)
+            (load-module (get (feature-requires) libname) libname as refer rename libspecs)
+            (string? libname)
             ;; TODO: parse properties
             (let [[libname properties] (str/split libname #"\$" 2)
                   properties (when properties (.split properties "."))
@@ -207,6 +214,7 @@
                                        mod))))))]
               (-> mod
                   (.then after-load)))
+            :else
             ;; assume symbol
             (if (sci/eval-form @sci-ctx (list 'clojure.core/find-ns (list 'quote libname)))
               ;; built-in namespace

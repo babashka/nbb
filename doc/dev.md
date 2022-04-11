@@ -57,8 +57,7 @@ To run tests, run `bb run-tests` for unit tests and `bb run-integration-tests` f
 * [datascript-transit](https://github.com/tonsky/datascript-transit)
 
 To add a new feature, add the following under `features/$LIBRARY/`:
-- `deps.edn` - dependencies for library
-- `shadow-cljs.edn` - compiler options necessary for advanced/release mode
+- `deps.edn` - Dependencies for library
+- `shadow-cljs.edn` - Compiler options to build library in advanced/release mode
 - `src/nbb/impl/$LIBRARY.cljs` - Sci mappings
-
-Then add entry/entries in `nbb.core` to require the library namespace(s).
+- `src/nbb_features.edn` - Configuration to map namespaces to js assets
