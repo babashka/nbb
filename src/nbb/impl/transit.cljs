@@ -6,7 +6,8 @@
 (def transit-ns (sci/create-ns 'cognitect.transit nil))
 
 (def transit-namespace
-  {'write (copy-var transit/write transit-ns)
+  {'integer (copy-var transit/integer transit-ns)
+   'write (copy-var transit/write transit-ns)
    'writer (copy-var transit/writer transit-ns)
    'write-handler (copy-var transit/write-handler transit-ns)
    'write-meta (copy-var transit/write-meta transit-ns)

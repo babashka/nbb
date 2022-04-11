@@ -41,6 +41,7 @@
     :nbb_tools_cli {:init-fn nbb.impl.tools-cli/init
                     :depends-on #{:nbb_core :nbb_goog_string}}
     :nbb_transit {:init-fn nbb.impl.transit/init
+                  :entries [cognitect.transit]
                   :depends-on #{:nbb_core}}
     :nbb_nrepl_server {:init-fn nbb.impl.nrepl-server/init
                        :depends-on #{:nbb_core :nbb_api}}
