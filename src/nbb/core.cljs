@@ -132,6 +132,8 @@
           (do
             (load-react)
             (load-module "./nbb_reagent.js" libname as refer rename libspecs))
+          (reagent.ratom)
+          (load-module "./nbb_reagent.js" libname as refer rename libspecs)
           (reagent.dom.server)
           (do
             (load-react)
