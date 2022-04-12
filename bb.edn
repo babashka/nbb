@@ -47,7 +47,7 @@
          (println "Run node lib/nbb_main.js to test nbb")
          (println "Run bb run-tests to run the tests")
          (apply clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn watch modules")
-                *command-line-args*))}
+           *command-line-args*))}
 
   run-tests (shell "node lib/nbb_tests.js")
 
@@ -55,21 +55,23 @@
            :doc "Compiles release build."
            :task
            (do (apply clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn release modules")
-                      *command-line-args*)
-               (spit "lib/nbb_core.js"
-                     (clojure.string/replace (slurp "lib/nbb_core.js") (re-pattern "self") "globalThis"))
-               (spit "lib/nbb_main.js"
-                     (str "#!/usr/bin/env node\n\n" (slurp "lib/nbb_main.js")))
-               (shell "chmod +x lib/nbb_main.js")
-               (run! fs/delete (fs/glob "lib" "**.map")))}
+                 *command-line-args*)
+             (spit "lib/nbb_core.js"
+                   (clojure.string/replace (slurp "lib/nbb_core.js") (re-pattern "self") "globalThis"))
+             (spit "lib/nbb_main.js"
+                   (str "#!/usr/bin/env node\n\n" (slurp "lib/nbb_main.js")))
+             (shell "chmod +x lib/nbb_main.js")
+             (run! fs/delete (fs/glob "lib" "**.map")))}
 
   run-integration-tests nbb-tests/main
+
+  run-feature-integration-tests nbb-feature-tests/main
 
   publish {:doc "Bumps version, pushes tag and lets CI publish to npm."
            :task
            (do (shell "npm version patch")
-               (shell "git push --atomic origin main"
-                      (str "v" (:version (json/parse-string (slurp "package.json") true)))))}
+             (shell "git push --atomic origin main"
+                    (str "v" (:version (json/parse-string (slurp "package.json") true)))))}
 
   current-tag (->> (shell {:out :string} "git describe")
                    :out
@@ -88,13 +90,15 @@
                    (run 'clean)
                    (run 'release)
                    (run 'run-tests)
-                   (run 'run-integration-tests))}
+                   (run 'run-integration-tests)
+                   (when features
+                     (run 'run-feature-integration-tests)))}
   ci:publish {:doc "Publishes release build to npm"
               :depends [ci:is-release]
               :task
               (if ci:is-release
                 (do (println "Releasing")
-                    (binding [*test* false]
-                      (run 'release)
-                      (shell "npm publish")))
+                  (binding [*test* false]
+                    (run 'release)
+                    (shell "npm publish")))
                 (println "Skipping release."))}}}
