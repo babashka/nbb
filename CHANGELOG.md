@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.3.6
+
+- Allow `reagent.ratom` to be required separately
+
 ## 0.3.5
 
 - Add initial features support with datascript and datascript-transit
