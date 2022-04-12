@@ -51,7 +51,11 @@ To run tests, run `bb run-tests` for unit tests and `bb run-integration-tests` f
 
 ## Features
 
-`nbb` can optionally bundle additional Clojure(Script) libraries as features. These can be specified with `$NBB_FEATURES` to compilation tasks e.g. `NBB_FEATURES=datascript,datascript-transit bb release`. The following features are provided:
+`nbb` optionally bundles additional Clojure(Script) libraries as features.
+Features are designed to be kept isolated from nbb's core and are enabled with
+an optional `$NBB_FEATURES` variable. `$NBB_FEATURES` is used by compilation
+tasks e.g. `NBB_FEATURES=datascript,datascript-transit bb release`. The
+following features are available:
 
 * [datascript](https://github.com/tonsky/datascript)
 * [datascript-transit](https://github.com/tonsky/datascript-transit)
@@ -61,3 +65,7 @@ To add a new feature, add the following under `features/$LIBRARY/`:
 - `shadow-cljs.edn` - Compiler options to build library in advanced/release mode
 - `src/nbb/impl/$LIBRARY.cljs` - Sci mappings
 - `src/nbb_features.edn` - Configuration to map namespaces to js assets
+
+Some features have tests under `test-scripts/feature-tests`. These tests are run
+the same as integration tests but with `$NBB_FEATURES` e.g.
+`NBB_FEATURES=datascript bb ci:test`.

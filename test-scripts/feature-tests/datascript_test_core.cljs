@@ -1,5 +1,5 @@
 (ns datascript.test.core
-  "This is a minimal version of datascript.tests.core that works with nbb tests"
+  "This is a minimal version of datascript.test.core that works with nbb tests"
   (:require [cljs.test :as t]
             [datascript.core :as d]))
 
