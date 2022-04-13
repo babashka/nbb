@@ -60,10 +60,17 @@ $ nbb -e '(+ 1 2 3)'
 6
 ```
 
-And then install some other NPM libraries to use in the script. E.g.:
+And then install some other NPM libraries to use in the script. E.g. with the following `package.nson`:
 
-```
-$ npm install csv-parse shelljs term-size zx
+``` json
+{
+  "dependencies": {
+    "csv-parse": "^5.0.4",
+    "shelljs": "^0.8.5",
+    "term-size": "^3.0.1",
+    "zx": "^5.3.0"
+  }
+}
 ```
 
 Create a script which uses the NPM libraries:
