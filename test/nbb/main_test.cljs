@@ -219,5 +219,15 @@
       (.then (fn [res]
                (is (= {:add 5 :subtract 1} res))))))
 
+(deftest-async stack-consumption-test
+  (-> (nbb/load-string (str (str/join "\n" (map str (repeat 10000 nil))) 100))
+      (.then (fn [res]
+               (is (= 100 res))))
+      (.then (fn [_]
+               (nbb/load-string (str (str/join "\n" (map str (repeat 10000 '(+ 1 2 3))))))))
+      (.then (fn [res]
+               (is (= 100 res))))))
+
 (defn init []
   (t/run-tests 'nbb.main-test 'nbb.test-test))
+
