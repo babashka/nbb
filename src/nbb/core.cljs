@@ -307,7 +307,9 @@
                      next-val (sci/eval-form @sci-ctx form)
                      post-await await-counter]
                  (if (= pre-await post-await)
-                   (eval-next next-val reader opts)
+                   (.then (js/Promise.resolve nil)
+                          (fn [_]
+                            (eval-next next-val reader opts)))
                    (cond
                      (instance? sci.impl.vars/SciVar next-val)
                      (let [v (deref next-val)]
@@ -321,9 +323,13 @@
                      (.then next-val
                             (fn [v]
                               (eval-next v reader opts)))
-                     :else (eval-next next-val reader opts))))
+                     :else (.then (js/Promise.resolve nil)
+                                  (fn [_]
+                                    (eval-next next-val reader opts))))))
                (catch :default e
                  (js/Promise.reject e))))))
+
+(deftype Reject [v])
 
 (defn eval-next
   "Evaluates top level forms asynchronously. Returns promise of last value."
@@ -339,10 +345,12 @@
        (if (not= :sci.core/eof next-val)
          (if (seq? next-val)
            (eval-seq reader next-val opts)
-           (try
-             (eval-next (sci/eval-form @sci-ctx next-val) reader opts)
-             (catch :default e
-               (js/Promise.reject e))))
+           (let [v (try (sci/eval-form @sci-ctx next-val)
+                        (catch :default e
+                          (->Reject e)))]
+             (if (instance? Reject v)
+               (js/Promise.reject (.-v v))
+               (recur v reader opts))))
          ;; wrap normal value in promise
          (js/Promise.resolve
           (let [wrap (or (:wrap opts)
@@ -390,6 +398,19 @@
                          " msecs"))
      ret#))
 
+(defn ^:macro time*
+  "Async version of time."
+  [_ _ expr]
+  `(let [start# (cljs.core/system-time)
+         ret# ~expr
+         ret# (js/Promise.resolve ret#)]
+     (nbb.core/await
+      (.then ret# (fn [v]
+                    (prn (cljs.core/str "Elapsed time: "
+                                        (.toFixed (- (system-time) start#) 6)
+                                        " msecs"))
+                    v)))))
+
 (defn ^:macro implements?* [_ _ psym x]
   ;; hardcoded implementation of implements? for js-interop destructure which
   ;; uses implements?
@@ -427,7 +448,8 @@
                                   'slurp (sci/copy-var slurp nbb-ns)
                                   '*file* sci/file
                                   'version (sci/copy-var version nbb-ns)
-                                  'await (sci/copy-var await nbb-ns)}
+                                  'await (sci/copy-var await nbb-ns)
+                                  'time (sci/copy-var time* nbb-ns)}
                        'nbb.classpath {'add-classpath (sci/copy-var cp/add-classpath cp-ns)
                                        'get-classpath (sci/copy-var cp/get-classpath cp-ns)}}
           :classes {'js universe :allow :all
