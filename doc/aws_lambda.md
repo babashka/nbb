@@ -44,10 +44,23 @@ You can test the lambda function by creating a test event and invoking it.
 
 To be able to invoke the function via HTTP, you'll first have to `Publish` it.
 
-Then, under `Configuration > Trigger` you can add an API Gateway trigger. Create
-one and choose `HTTP API` and `Security Open` (make sure you change this when it
-becomes a private production lambda rather than just for the sake of trying nbb
-on lambda!).
+The API Gateway response has to be a little different so adjust your handler code like this...
+
+example.cljs:
+```clojure
+(ns example)
+(defn handler [event _ctx]
+      (js/console.log event)
+      (js/Promise.resolve
+        (clj->js {:statusCode 200
+                  :body       (js/JSON.stringify #js{:hello "world"})})))
+#js {:handler handler}
+```
+
+After uploading the updated code, under `Configuration > Trigger` you can add an
+API Gateway trigger. Create one and choose `HTTP API` and `Security Open` (make
+sure you change this when it becomes a private production lambda rather than
+just for the sake of trying nbb on lambda!).
 
 After that you should end up with a public URL like
 `https://9fov8nrv4f.execute-api.eu-central-1.amazonaws.com/default/...` which

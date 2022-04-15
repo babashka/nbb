@@ -13,7 +13,7 @@
 (def port (atom 13337))
 
 (defn nrepl-server []
-  (process ["node" "out/nbb_main.js" "nrepl-server" ":port" @port]
+  (process ["node" "lib/nbb_main.js" "nrepl-server" ":port" @port]
            (merge {:out :inherit
                    :err :inherit})))
 

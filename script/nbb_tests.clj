@@ -25,7 +25,7 @@
   (let [[opts args] (if (map? x)
                       [x xs]
                       [nil (cons x xs)])]
-    (-> (process (into ["node" "out/nbb_main.js"] args)
+    (-> (process (into ["node" "lib/nbb_main.js"] args)
                  (merge {:out :string
                          :err :inherit}
                         opts)))))
@@ -103,11 +103,15 @@
                 "(require '[honey.sql :as sql]) (sql/format {:select :foo :from :bar :where [:= :baz 2]})")))))
 
 (deftest pprint-test
-  (is (= (str "(0 1 2 3 4 5 6 7 8 9)\n")
-         (nbb "-e" "(require '[cljs.pprint :as pp]) (with-out-str (pp/pprint (range 10)))")))
+  (testing "pprint"
+    (is (= (str "(0 1 2 3 4 5 6 7 8 9)\n")
+          (nbb "-e" "(require '[cljs.pprint :as pp]) (with-out-str (pp/pprint (range 10)))"))))
   (testing "cljs.pprint = clojure.pprint"
     (is (= (str "(0 1 2 3 4 5 6 7 8 9)\n")
-           (nbb "-e" "(require '[clojure.pprint :as pp]) (with-out-str (pp/pprint (range 10)))")))))
+           (nbb "-e" "(require '[clojure.pprint :as pp]) (with-out-str (pp/pprint (range 10)))"))))
+  (testing "print-table"
+    (is (= "\n| :a |\n|----|\n|  1 |\n|  2 |\n"
+           (nbb* "-e" "(require '[clojure.pprint :as pp]) (do (pp/print-table [{:a 1} {:a 2}]))")))))
 
 (deftest api-test
   (tasks/shell {:dir "test-scripts/api-test"} (npm "install"))
@@ -161,8 +165,12 @@
   (is (= expected-cljs-bean-output
          (normalize-interop-output (nbb* "examples/cljs-bean/example.cljs")))))
 
+(deftest transit-test
+  (is (= {:fruits [:apple :banana :pear]}
+         (nbb "test-scripts/transit.cljs" (pr-str {:fruits [:apple :banana :pear]})))))
+
 (deftest error-test
-  (let [err (-> (process ["node" "out/nbb_main.js" "test-scripts/error.cljs"]
+  (let [err (-> (process ["node" "lib/nbb_main.js" "test-scripts/error.cljs"]
                          {:out :string
                           :err :string})
                 deref

@@ -1,6 +1,6 @@
 .shadow-cljs
 node_modules
-out
+lib
 .nrepl-port
 .cpcache
 .lsp
@@ -14,3 +14,4 @@ example.pdf
 */**/package-lock.json
 print-cli-args/print-cli-args
 clojure_logo.png
+test-scripts/feature-tests/libraries/

@@ -6,9 +6,12 @@
    :compiler-options {:infer-externs :auto}
    :target :esm
    :runtime :node
-   :output-dir "out"
+   :output-dir "lib"
    :modules
    {:nbb_core {:init-fn nbb.core/init}
+    :nbb_goog_string {:init-fn nbb.impl.gstring/init
+                      :depends-on #{:nbb_core}
+                      :entries [goog.string.format]}
     :nbb_impl_main {:init-fn nbb.impl.main/init
                     :depends-on #{:nbb_core :nbb_api}}
     :nbb_main {:init-fn nbb.main/main
@@ -20,6 +23,7 @@
                         version nbb.api/version}
               :depends-on #{:nbb_core}}
     :nbb_reagent {:init-fn nbb.impl.reagent/init
+                  :entries [reagent.core]
                   :depends-on #{:nbb_core}}
     :nbb_reagent_dom_server {:init-fn nbb.impl.reagent.dom.server/init
                              :depends-on #{:nbb_core :nbb_reagent}}
@@ -34,6 +38,11 @@
 
     :nbb_pprint {:init-fn nbb.pprint/init
                  :depends-on #{:nbb_core}}
+    :nbb_tools_cli {:init-fn nbb.impl.tools-cli/init
+                    :depends-on #{:nbb_core :nbb_goog_string}}
+    :nbb_transit {:init-fn nbb.impl.transit/init
+                  :entries [cognitect.transit]
+                  :depends-on #{:nbb_core}}
     :nbb_nrepl_server {:init-fn nbb.impl.nrepl-server/init
                        :depends-on #{:nbb_core :nbb_api}}
     :nbb_repl {:init-fn nbb.impl.repl/init

@@ -32,7 +32,7 @@ Additional goals and features are:
 
 ## Requirements
 
-Nbb requires Node.js v12 or newer.
+Nbb requires Node.js v14 or newer.
 
 ## How does this tool work?
 
@@ -60,10 +60,17 @@ $ nbb -e '(+ 1 2 3)'
 6
 ```
 
-And then install some other NPM libraries to use in the script. E.g.:
+And then install some other NPM libraries to use in the script. E.g. with the following `package.nson`:
 
-```
-$ npm install csv-parse shelljs term-size zx
+``` json
+{
+  "dependencies": {
+    "csv-parse": "^5.0.4",
+    "shelljs": "^0.8.5",
+    "term-size": "^3.0.1",
+    "zx": "^5.3.0"
+  }
+}
 ```
 
 Create a script which uses the NPM libraries:
@@ -218,7 +225,8 @@ $ nbb --classpath "$classpath" -e "(require '[honey.sql :as sql]) (sql/format {:
 ```
 
 Currently `nbb` only reads from directories, not jar files, so you are
-encouraged to use git libs. Support for `.jar` files will be added later.
+encouraged to use git libs. Support for `.jar` files will be added later. You
+can find a workaround for that [here](doc/dependencies.md).
 
 ## Current file
 
@@ -468,11 +476,16 @@ The following projects are using nbb or are supporting it as a development platf
 
 ## API
 
-See [API](doc/api.md) documentation.
+See [API](doc/api.md) documentation with a list of built-in libraries.
+
+## Talks
+
+- [Nbb: ad-hoc scripting for Clojure on Node.js](https://youtu.be/7DQ0ymojfLg) by Michiel Borkent
 
 ## Articles
 
-- [Serverless site analytics with Clojure nbb and AWS](https://www.loop-code-recur.io/simple-site-analytics-with-serverless-clojure)
+- [Reloaded workflow with nbb and Express.js](https://dev.to/crinklywrappr/reloaded-workflow-with-nbb-expressjs-31f3) by Daniel Fitzpatrick
+- [Serverless site analytics with Clojure nbb and AWS](https://www.loop-code-recur.io/simple-site-analytics-with-serverless-clojure) by Cyprien Pannier
 - [Creating an AWS Lambda function with
   nbb](https://blog.michielborkent.nl/aws-lambda-nbb.html) by Michiel Borkent
 - [Prerendering React in ClojureScript
@@ -525,6 +538,6 @@ Run `bb tasks` for more project-related tasks.
 
 ## License
 
-Copyright © 2021 Michiel Borkent
+Copyright © 2021-2022 Michiel Borkent
 
 Distributed under the EPL License. See LICENSE.

@@ -9,7 +9,7 @@ The `print-cli-args` directory contains a small project which prints CLI
 arguments. Normally you would invoke this with:
 
 ```
-$ nbb -cp src -m print-cli-args.core 1 2 3
+$ nbb runner.cljs 1 2 3
 Your command line arguments: (1 2 3)
 ```
 
@@ -18,9 +18,7 @@ Let's turn that project into a standalone executable. Execute this from the
 
 ```
 $ npx caxa@2.1.0 --input . --output print-cli-args -- \
-  "{{caxa}}/node_modules/.bin/nbb" \
-  "-cp" "{{caxa}}/src" \
-  "-m" "print-cli-args.core"
+  "{{caxa}}/node_modules/.bin/nbb" "{{caxa}}/runner.cljs"
 ```
 
 This produces an executable named `print-cli-args` of around 30MB. Let's invoke it:

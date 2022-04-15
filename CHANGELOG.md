@@ -2,6 +2,42 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.3.7
+
+- Add optional datascript tests
+
+## 0.3.6
+
+- Allow `reagent.ratom` to be required separately
+
+## 0.3.5
+
+- Add initial features support with datascript and datascript-transit
+- Include `cognitect.transit` as built-in dependency
+- Add `clojure.pprint/print-table`
+
+## 0.3.4
+
+- Don't load modules more than once
+
+## 0.3.3
+
+- Fix [#158](https://github.com/babashka/nbb/issues/158): be able to use `cljs.test` as namespace name + support `:refer-macros`
+
+## 0.3.2
+
+- Fix [#154](https://github.com/babashka/nbb/issues/154): ignore `:require-macros`
+
+## 0.3.1
+
+- Fix [#139](https://github.com/babashka/nbb/issues/139): include `goog.string/format`
+- Support `*print-err-fn*`
+
+## 0.3.0
+
+- Include `org.clojure/tools.cli` as built-in dependency.
+- Update SCI to `0.3.3`
+
 ## 0.2.9
 
 - Add `nbb.repl/get-completions` for `inf-clojure`

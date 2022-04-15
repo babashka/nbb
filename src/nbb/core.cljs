@@ -5,12 +5,13 @@
    ["path" :as path]
    ["url" :as url]
    [clojure.string :as str]
+   [clojure.edn :as edn]
    [goog.object :as gobj]
-   [goog.string :as gstr]
    [nbb.classpath :as cp]
    [nbb.common :refer [core-ns]]
    [sci.core :as sci]
    [sci.impl.vars :as vars]
+   [shadow.resource :as resource]
    [shadow.esm :as esm])
   (:require-macros [nbb.macros
                     :as macros
@@ -56,18 +57,23 @@
 (declare handle-libspecs)
 
 (def normalize-libname
-  {'clojure.pprint 'cljs.pprint})
+  {'clojure.pprint 'cljs.pprint
+   'clojure.test 'cljs.test})
+
+(def sci-find-ns (delay (sci/eval-form @sci-ctx 'find-ns)))
 
 (defn load-module [m libname as refer rename libspecs]
-  (-> (esm/dynamic-import m)
+  (-> (if (some? (@sci-find-ns libname))
+        (js/Promise.resolve nil)
+        (esm/dynamic-import m))
       (.then (fn [_module]
                (let [nlib (normalize-libname libname)]
                  (when-not (= nlib libname)
                    (when as
                      (sci/eval-form @sci-ctx
                                     (list 'alias
-                                          (list 'quote nlib)
-                                          (list 'quote libname)))))
+                                          (list 'quote libname)
+                                          (list 'quote nlib)))))
                  (let [libname (or nlib libname)]
                    (when as
                      (sci/eval-form @sci-ctx
@@ -101,6 +107,9 @@
 
 (declare old-require)
 
+(def feature-requires
+  (macros/feature-requires))
+
 (defn ^:private handle-libspecs [libspecs]
   (if (seq libspecs)
     (let [fst (first libspecs)
@@ -109,7 +118,7 @@
           opts (apply hash-map opts)
           as (:as opts)
           as-alias (:as-alias opts)
-          refer (:refer opts)
+          refer (concat (:refer opts) (:refer-macros opts))
           rename (:rename opts)
           munged (munge libname)
           current-ns-str (str @sci/ns)
@@ -123,6 +132,8 @@
           (do
             (load-react)
             (load-module "./nbb_reagent.js" libname as refer rename libspecs))
+          (reagent.ratom)
+          (load-module "./nbb_reagent.js" libname as refer rename libspecs)
           (reagent.dom.server)
           (do
             (load-react)
@@ -151,92 +162,102 @@
           (load-module "./nbb_test.js" libname as refer rename libspecs)
           (nbb.repl)
           (load-module "./nbb_repl.js" libname as refer rename libspecs)
-          (if (string? libname)
-            ;; TODO: parse properties
-            (let [[libname properties] (str/split libname #"\$" 2)
-                  properties (when properties (.split properties "."))
-                  internal-name (symbol (str "nbb.internal." munged))
-                  after-load (fn [mod]
-                               (swap! loaded-modules assoc internal-name mod)
-                               (when as
-                                 (swap! sci-ctx sci/merge-opts {:classes {internal-name mod}})
-                                 ;; HACK, we register the alias as a reference to the class
-                                 ;; via :imports we should expose this functionality in SCI
-                                 ;; itself as this relies on the internal representation of
-                                 (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports as] internal-name))
-                               (doseq [field refer]
-                                 (let [mod-field (gobj/get mod (str field))
-                                       ;; different namespaces can have different mappings
-                                       internal-subname (str internal-name "$" current-ns-str "$" field)]
-                                   (swap! sci-ctx sci/merge-opts {:classes {internal-subname mod-field}})
-                                   ;; Repeat hack from above
-                                   (let [field (get rename field field)]
-                                     (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports field] internal-subname))))
-                               (handle-libspecs (next libspecs)))
-                  mod (js/Promise.resolve
-                       (or
-                        ;; skip loading if module was already loaded
-                        (get @loaded-modules internal-name)
-                        ;; else load module and register in loaded-modules under internal-name
-                        (-> (esm/dynamic-import
-                             (let [path ((.-resolve (:require @ctx)) libname)
-                                   ;; ensure URL on Windows
-                                   path (if (and windows? (fs/existsSync path))
-                                          (str (url/pathToFileURL path))
-                                          path)]
-                               path))
-                            (.then (fn [mod]
-                                     (if properties
-                                       (gobj/getValueByKeys mod properties)
-                                       mod))))))]
-              (-> mod
-                  (.then after-load)))
-            ;; assume symbol
-            (if (sci/eval-form @sci-ctx (list 'clojure.core/find-ns (list 'quote libname)))
-              ;; built-in namespace
-              (do (old-require fst)
-                  (handle-libspecs (next libspecs)))
-              (let [file (str/replace (str munged) #"\." "/")
-                    files [(str file ".cljs") (str file ".cljc")]
-                    dirs @cp/classpath-entries
-                    the-file (reduce (fn [_ dir]
-                                       (some (fn [f]
-                                               (let [f (path/resolve dir f)]
-                                                 (when (fs/existsSync f)
-                                                   (reduced f))))
-                                             files)) nil dirs)]
-                (if the-file
-                  (-> (load-file the-file)
-                      (.then
-                       (fn [_]
-                         (when as
-                           (sci/eval-form @sci-ctx
-                                          (list 'clojure.core/alias
-                                                (list 'quote as)
-                                                (list 'quote libname))))
-                         (when (seq refer)
-                           (sci/eval-form @sci-ctx
-                                          (list 'clojure.core/refer
-                                                (list 'quote libname)
-                                                :only (list 'quote refer)
-                                                :rename (list 'quote rename))))))
-                      (.then (fn [_]
-                               (handle-libspecs (next libspecs)))))
-                  ;; here, let's look for classes
-                  (if-let [clazz (get-in @sci-ctx [:class->opts libname :class])]
-                    (do (when as
-                          (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports as] libname))
-                        (doseq [field refer]
-                          (let [mod-field (gobj/get clazz (str field))
-                                internal-subname (str current-ns "$" munged "$" field)]
-                            (swap! sci-ctx sci/merge-opts {:classes {internal-subname mod-field}})
-                            ;; Repeat hack from above
-                            (let [field (get rename field field)]
-                              (swap! (:env @sci-ctx)
-                                     assoc-in
-                                     [:namespaces current-ns :imports field] internal-subname))))
-                        (handle-libspecs (next libspecs)))
-                    (js/Promise.reject (js/Error. (str "Could not find namespace: " libname)))))))))))
+          (clojure.tools.cli)
+          (load-module "./nbb_tools_cli.js" libname as refer rename libspecs)
+          (goog.string goog.string.format)
+          (load-module "./nbb_goog_string.js" libname as refer rename libspecs)
+          (cognitect.transit)
+          (load-module "./nbb_transit.js" libname as refer rename libspecs)
+          (let [feat (get feature-requires libname)]
+            (cond
+              feat (load-module feat libname as refer rename libspecs)
+              (string? libname)
+              ;; TODO: parse properties
+              (let [[libname properties] (str/split libname #"\$" 2)
+                    properties (when properties (.split properties "."))
+                    internal-name (symbol (str "nbb.internal." munged))
+                    after-load (fn [mod]
+                                 (swap! loaded-modules assoc internal-name mod)
+                                 (when as
+                                   (swap! sci-ctx sci/merge-opts {:classes {internal-name mod}})
+                                   ;; HACK, we register the alias as a reference to the class
+                                   ;; via :imports we should expose this functionality in SCI
+                                   ;; itself as this relies on the internal representation of
+                                   (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports as] internal-name))
+                                 (doseq [field refer]
+                                   (let [mod-field (gobj/get mod (str field))
+                                         ;; different namespaces can have different mappings
+                                         internal-subname (str internal-name "$" current-ns-str "$" field)]
+                                     (swap! sci-ctx sci/merge-opts {:classes {internal-subname mod-field}})
+                                     ;; Repeat hack from above
+                                     (let [field (get rename field field)]
+                                       (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports field] internal-subname))))
+                                 (handle-libspecs (next libspecs)))
+                    mod (js/Promise.resolve
+                         (or
+                          ;; skip loading if module was already loaded
+                          (get @loaded-modules internal-name)
+                          ;; else load module and register in loaded-modules under internal-name
+                          (-> (esm/dynamic-import
+                               (let [path ((.-resolve (:require @ctx)) libname)
+                                     ;; ensure URL on Windows
+                                     path (if (and windows? (fs/existsSync path))
+                                            (str (url/pathToFileURL path))
+                                            path)]
+                                 path))
+                              (.then (fn [mod]
+                                       (if properties
+                                         (gobj/getValueByKeys mod properties)
+                                         mod))))))]
+                (-> mod
+                    (.then after-load)))
+              :else
+              ;; assume symbol
+              (if (sci/eval-form @sci-ctx (list 'clojure.core/find-ns (list 'quote libname)))
+                ;; built-in namespace
+                (do (old-require fst)
+                    (handle-libspecs (next libspecs)))
+                (let [file (str/replace (str munged) #"\." "/")
+                      files [(str file ".cljs") (str file ".cljc")]
+                      dirs @cp/classpath-entries
+                      the-file (reduce (fn [_ dir]
+                                         (some (fn [f]
+                                                 (let [f (path/resolve dir f)]
+                                                   (when (fs/existsSync f)
+                                                     (reduced f))))
+                                               files)) nil dirs)]
+                  (if the-file
+                    (-> (load-file the-file)
+                        (.then
+                         (fn [_]
+                           (when as
+                             (sci/eval-form @sci-ctx
+                                            (list 'clojure.core/alias
+                                                  (list 'quote as)
+                                                  (list 'quote libname))))
+                           (when (seq refer)
+                             (sci/eval-form @sci-ctx
+                                            (list 'clojure.core/refer
+                                                  (list 'quote libname)
+                                                  :only (list 'quote refer)
+                                                  :rename (list 'quote rename))))))
+                        (.then (fn [_]
+                                 (handle-libspecs (next libspecs)))))
+                    ;; here, let's look for classes
+                    (if-let [clazz (get-in @sci-ctx [:class->opts libname :class])]
+                      (do (when as
+                            (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports as] libname))
+                          (doseq [field refer]
+                            (let [mod-field (gobj/get clazz (str field))
+                                  internal-subname (str current-ns "$" munged "$" field)]
+                              (swap! sci-ctx sci/merge-opts {:classes {internal-subname mod-field}})
+                              ;; Repeat hack from above
+                              (let [field (get rename field field)]
+                                (swap! (:env @sci-ctx)
+                                       assoc-in
+                                       [:namespaces current-ns :imports field] internal-subname))))
+                          (handle-libspecs (next libspecs)))
+                      (js/Promise.reject (js/Error. (str "Could not find namespace: " libname))))))))))))
     (js/Promise.resolve @sci/ns)))
 
 (defn eval-ns-form [ns-form]
@@ -248,9 +269,11 @@
                                  (= :require (first ns-form)))) ns-forms)
         require-forms (get grouped true)
         other-forms (get grouped false)
+        ;; ignore all :require-macros for now
+        other-forms (remove #(and (seq? %) (= :require-macros (first %)))
+                            other-forms)
         ns-obj (sci/eval-form @sci-ctx (list 'do (list* 'ns ns-name other-forms) '*ns*))
-        libspecs (mapcat (fn [require-form]
-                           (rest require-form))
+        libspecs (mapcat rest
                          require-forms)]
     (with-async-bindings {sci/ns ns-obj}
       (handle-libspecs libspecs))))
@@ -393,7 +416,8 @@
                                       'array (sci/copy-var array core-ns)
                                       'tap> (sci/copy-var tap> core-ns)
                                       'add-tap (sci/copy-var add-tap core-ns)
-                                      'remove-tap (sci/copy-var remove-tap core-ns)}
+                                      'remove-tap (sci/copy-var remove-tap core-ns)
+                                      'uuid (sci/copy-var uuid core-ns)}
 
                        'clojure.main {'repl-requires (sci/copy-var
                                                       repl-requires
@@ -415,7 +439,7 @@
                                       :set gobj/set
                                       :getKeys gobj/getKeys
                                       :getValueByKeys gobj/getValueByKeys}
-                    'goog.string #js {:StringBuffer gstr/StringBuffer}
+                    'ExceptionInfo js/Error
                     'Math js/Math}
           :disable-arity-checks true}))
 
@@ -430,7 +454,8 @@
 
 (defn init []
   (enable-console-print!)
-  (sci/alter-var-root sci/print-fn (constantly *print-fn*)))
+  (sci/alter-var-root sci/print-fn (constantly *print-fn*))
+  (sci/alter-var-root sci/print-err-fn (constantly *print-err-fn*)))
 
 ;;;; Scratch
 

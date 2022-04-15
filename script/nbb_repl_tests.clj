@@ -12,7 +12,7 @@
 
 (defn repl-process
   [input dir opts]
-  (process (into ["node" (str (fs/absolutize "out/nbb_main.js"))] (:cmd opts))
+  (process (into ["node" (str (fs/absolutize "lib/nbb_main.js"))] (:cmd opts))
            (merge {:dir (or dir ".")
                    :out :string
                    :in input
@@ -77,7 +77,7 @@
   ([input match] (socket-repl input match nil))
   ([input match dir] (socket-repl input match dir nil))
   ([input match dir opts]
-   (let [p (process (into ["node" "out/nbb_main.js"]
+   (let [p (process (into ["node" "lib/nbb_main.js"]
                           (or (:cmd opts)
                               ["socket-repl" ":port" "1337"]))
                     (merge {:inherit true

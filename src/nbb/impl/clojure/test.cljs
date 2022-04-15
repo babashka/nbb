@@ -251,7 +251,7 @@
 ;; Nothing is marked "private" here, so you can rebind things to plug
 ;; in your own testing or reporting frameworks.
 
-(def tns (sci/create-ns 'clojure.test nil))
+(def tns (sci/create-ns 'cljs.test nil))
 
 ;;; USER-MODIFIABLE GLOBALS
 
@@ -500,9 +500,9 @@
     `(let [values# (list ~@args)
            result# (apply ~pred values#)]
        (if result#
-         (clojure.test/do-report {:type :pass, :message ~msg,
+         (cljs.test/do-report {:type :pass, :message ~msg,
                                   :expected '~form, :actual (cons '~pred values#)})
-         (clojure.test/do-report {:type :fail, :message ~msg,
+         (cljs.test/do-report {:type :fail, :message ~msg,
                                   :file clojure.core/*file*
                                   :line ~(:line (meta form))
                                   :expected '~form, :actual (list '~'not (cons '~pred values#))}))
@@ -515,9 +515,9 @@
   [msg form]
   `(let [value# ~form]
      (if value#
-       (clojure.test/do-report {:type :pass, :message ~msg,
+       (cljs.test/do-report {:type :pass, :message ~msg,
                                 :expected '~form, :actual value#})
-       (clojure.test/do-report {:type :fail, :message ~msg,
+       (cljs.test/do-report {:type :fail, :message ~msg,
                                 :file clojure.core/*file*
                                 :line ~(:line (meta form))
                                 :expected '~form, :actual value#}))
@@ -541,7 +541,7 @@
 (defmethod assert-expr :always-fail [_menv msg form]
   ;; nil test: always fail
   (let [{:keys [file line end-line column end-column]} (meta form)]
-    `(clojure.test/report {:type :fail, :message ~msg
+    `(cljs.test/report {:type :fail, :message ~msg
                            :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column})))
 
 (defmethod assert-expr :default [_menv msg form]
@@ -557,11 +557,11 @@
            object# ~(nth form 2)]
        (let [result# (instance? klass# object#)]
          (if result#
-           (clojure.test/report
+           (cljs.test/report
             {:type :pass, :message ~msg,
              :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column
              :expected '~form, :actual (type object#)})
-           (clojure.test/report
+           (cljs.test/report
             {:type :fail, :message ~msg,
              :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column
              :expected '~form, :actual (type object#)}))
@@ -576,12 +576,12 @@
         body (nthnext form 2)]
     `(try
        ~@body
-       (clojure.test/report
+       (cljs.test/report
         {:type :fail, :message ~msg,
          :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column
          :expected '~form, :actual nil})
        (catch ~klass e#
-         (clojure.test/report
+         (cljs.test/report
           {:type :pass, :message ~msg,
            :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column
            :expected '~form, :actual e#})
@@ -594,12 +594,12 @@
   (let [klass (second form)
         body (nthnext form 2)]
     `(try ~@body
-          (clojure.test/do-report {:type :fail, :message ~msg,
+          (cljs.test/do-report {:type :fail, :message ~msg,
                                    :file clojure.core/*file*
                                    :line ~(:line (meta form))
                                    :expected '~form, :actual nil})
           (catch ~klass e#
-            (clojure.test/do-report {:type :pass, :message ~msg,
+            (cljs.test/do-report {:type :pass, :message ~msg,
                                      :expected '~form, :actual e#})
             e#))))
 
@@ -614,16 +614,16 @@
         body (nthnext form 3)]
     `(try
        ~@body
-       (clojure.test/report {:type :fail, :message ~msg, :expected '~form, :actual nil
+       (cljs.test/report {:type :fail, :message ~msg, :expected '~form, :actual nil
                 :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column})
        (catch ~klass e#
          (let [m# (.-message e#)]
            (if (re-find ~re m#)
-             (clojure.test/report
+             (cljs.test/report
               {:type :pass, :message ~msg,
                :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column
                :expected '~form, :actual e#})
-             (clojure.test/report
+             (cljs.test/report
               {:type :fail, :message ~msg,
                :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column
                :expected '~form, :actual e#}))
@@ -637,7 +637,7 @@
     `(try
        ~(assert-expr &env msg form)
        (catch :default t#
-         (clojure.test/report
+         (cljs.test/report
           {:type :error, :message ~msg,
            :file ~file :line ~line :end-line ~end-line :column ~column :end-column ~end-column
            :expected '~form, :actual t#})))))
@@ -650,7 +650,7 @@
   [_ _ msg form]
   `(try ~(assert-expr msg form)
         (catch :default t#
-          (clojure.test/do-report {:file clojure.core/*file*
+          (cljs.test/do-report {:file clojure.core/*file*
                                    :line ~(:line (meta form))
                                    :type :error, :message ~msg,
                                    :expected '~form, :actual t#}))))
@@ -677,9 +677,9 @@
   re-find) the regular expression re."
   {:added "1.1"}
   ([_ _ form]
-   `(clojure.test/is ~form nil))
+   `(cljs.test/is ~form nil))
   ([_ _ form msg]
-   `(clojure.test/try-expr ~msg ~form)))
+   `(cljs.test/try-expr ~msg ~form)))
 
 (defn ^:macro are
   "Checks multiple assertions with a template expression.
@@ -703,7 +703,7 @@
        (and (pos? (count argv))
             (pos? (count args))
             (zero? (mod (count args) (count argv)))))
-    `(clojure.template/do-template ~argv (clojure.test/is ~expr) ~@args)
+    `(clojure.template/do-template ~argv (cljs.test/is ~expr) ~@args)
     (throw (js/Error. "The number of args doesn't match are's argv."))))
 
 (defn ^:macro testing
@@ -711,7 +711,7 @@
   but must occur inside a test function (deftest)."
   {:added "1.1"}
   [_ _ string & body]
-  `(binding [clojure.test/*testing-contexts* (conj clojure.test/*testing-contexts* ~string)]
+  `(binding [cljs.test/*testing-contexts* (conj cljs.test/*testing-contexts* ~string)]
      ~@body))
 
 
@@ -746,7 +746,7 @@
   [_ _ name & body]
   (when @load-tests
     `(def ~(vary-meta name assoc :test `(fn [] ~@body))
-       (fn [] (clojure.test/test-var (var ~name))))))
+       (fn [] (cljs.test/test-var (var ~name))))))
 
 (defn ^:macro deftest-
   "Like deftest but creates a private var."
@@ -866,7 +866,7 @@
                        )
                      0)))"
   [_ _ done & body]
-  `(clojure.test/-async-test
+  `(cljs.test/-async-test
     (fn [_# ~done] ~@body)))
 
 (defn -async-test
