@@ -398,6 +398,19 @@
                          " msecs"))
      ret#))
 
+(defn ^:macro time*
+  "Async version of time."
+  [_ _ expr]
+  `(let [start# (cljs.core/system-time)
+         ret# ~expr
+         ret# (js/Promise.resolve ret#)]
+     (nbb.core/await
+      (.then ret# (fn [v]
+                    (prn (cljs.core/str "Elapsed time: "
+                                        (.toFixed (- (system-time) start#) 6)
+                                        " msecs"))
+                    v)))))
+
 (defn ^:macro implements?* [_ _ psym x]
   ;; hardcoded implementation of implements? for js-interop destructure which
   ;; uses implements?
@@ -435,7 +448,8 @@
                                   'slurp (sci/copy-var slurp nbb-ns)
                                   '*file* sci/file
                                   'version (sci/copy-var version nbb-ns)
-                                  'await (sci/copy-var await nbb-ns)}
+                                  'await (sci/copy-var await nbb-ns)
+                                  'time (sci/copy-var time* nbb-ns)}
                        'nbb.classpath {'add-classpath (sci/copy-var cp/add-classpath cp-ns)
                                        'get-classpath (sci/copy-var cp/get-classpath cp-ns)}}
           :classes {'js universe :allow :all
