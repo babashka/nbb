@@ -226,7 +226,7 @@
       (.then (fn [_]
                (nbb/load-string (str (str/join "\n" (map str (repeat 10000 '(+ 1 2 3))))))))
       (.then (fn [res]
-               (is (= 100 res))))))
+               (is (= 6 res))))))
 
 (defn init []
   (t/run-tests 'nbb.main-test 'nbb.test-test))

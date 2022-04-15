@@ -307,7 +307,9 @@
                      next-val (sci/eval-form @sci-ctx form)
                      post-await await-counter]
                  (if (= pre-await post-await)
-                   (eval-next next-val reader opts)
+                   (.then (js/Promise.resolve nil)
+                          (fn [_]
+                            (eval-next next-val reader opts)))
                    (cond
                      (instance? sci.impl.vars/SciVar next-val)
                      (let [v (deref next-val)]
@@ -321,7 +323,9 @@
                      (.then next-val
                             (fn [v]
                               (eval-next v reader opts)))
-                     :else (eval-next next-val reader opts))))
+                     :else (.then (js/Promise.resolve nil)
+                                  (fn [_]
+                                    (eval-next next-val reader opts))))))
                (catch :default e
                  (js/Promise.reject e))))))
 
