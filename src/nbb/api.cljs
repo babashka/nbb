@@ -1,6 +1,8 @@
 (ns nbb.api
-  (:require ["module" :refer [createRequire]]
+  (:require ["import-meta-resolve" :as r]
+            ["module" :refer [createRequire]]
             ["path" :as path]
+            ["url" :as url]
             [nbb.classpath :as cp]
             [nbb.core :as nbb]))
 
@@ -10,10 +12,16 @@
         (fn [_]
           (throw (js/Error. "createRequire is not defined, this is a no-op"))))))
 
+(defn import-meta-resolve []
+  )
+
 (defn init-require [path]
   (let [require (create-require path)]
     (set! (.-require goog/global) require)
-    (swap! nbb/ctx assoc :require require)))
+    (swap! nbb/ctx assoc :require require)
+    (swap! nbb/ctx assoc :resolve #(do
+                                     (prn :> % path)
+                                     (r/resolve % (str (url/pathToFileURL path)))))))
 
 (defn loadFile [script]
   (let [script-path (path/resolve script)]
