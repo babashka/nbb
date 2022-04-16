@@ -4,6 +4,9 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 ## 0.3.7
 
+- Use `import-meta-resolve` to discover ES module files when `createRequire` doesn't find them.
+  Fixes issue with loading newer version of `zx` (6.0.0+).
+
 - Add optional datascript tests
 
 ## 0.3.6
