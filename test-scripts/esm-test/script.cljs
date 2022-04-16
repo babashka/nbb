@@ -4,9 +4,10 @@
             ["path" :as path]
             ["shelljs$default" :as sh]
             ["term-size$default" :as term-size]
-            ["zx$default" :as zx]
+            ["zx" :as zx]
             ["zx$fs" :as zxfs]
-            [nbb.core :refer [*file*]]))
+            ["execa" :as execa]
+            [nbb.core :refer [*file* await]]))
 
 (prn (path/resolve "."))
 
@@ -20,4 +21,6 @@
 
 (prn (zxfs/existsSync *file*))
 
-(zx/$ #js ["ls"])
+(await (zx/$ #js ["ls"]))
+
+(prn (execa/execaSync "ls"))
