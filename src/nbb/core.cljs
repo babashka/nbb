@@ -4,6 +4,7 @@
    ["fs" :as fs]
    ["path" :as path]
    ["url" :as url]
+   ["import-meta-resolve" :as r]
    [clojure.string :as str]
    [clojure.edn :as edn]
    [goog.object :as gobj]
