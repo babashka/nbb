@@ -4,7 +4,8 @@
             ["url" :as url]
             [nbb.classpath :as cp]
             [nbb.core :as nbb]
-            [shadow.esm :refer [dynamic-import]]))
+            [shadow.esm :refer [dynamic-import]])
+  (:require-macros [nbb.macros :as macros]))
 
 (def create-require
   (or createRequire
@@ -14,7 +15,11 @@
 
 (def imr (volatile! nil))
 
-(defn lazy-resolve [lib path-url]
+(defn lazy-resolve
+  "Lazily loads import-meta-resolve. Needed as fallback for
+  createRequire until import.meta.resolve becomes part of Node.js
+  proper. Lazy loading shaves off about 15-30 ms of startup time, when not used."
+  [lib path-url]
   (js/Promise.resolve (-> (or (some-> @imr js/Promise.resolve)
                               (-> (dynamic-import "import-meta-resolve")
                                   (.then (fn [mod]

@@ -406,11 +406,11 @@
          ret# ~expr
          ret# (js/Promise.resolve ret#)]
      (nbb.core/await
-      (.then ret# (fn [v]
+      (.then ret# (fn [v#]
                     (prn (cljs.core/str "Elapsed time: "
-                                        (.toFixed (- (system-time) start#) 6)
+                                        (.toFixed (- (cljs.core/system-time) start#) 6)
                                         " msecs"))
-                    v)))))
+                    v#)))))
 
 (defn ^:macro implements?* [_ _ psym x]
   ;; hardcoded implementation of implements? for js-interop destructure which
