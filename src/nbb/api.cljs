@@ -14,19 +14,20 @@
 
 (def imr (volatile! nil))
 
-(defn lazy-resolve [lib path]
+(defn lazy-resolve [lib path-url]
   (js/Promise.resolve (-> (or (some-> @imr js/Promise.resolve)
                               (-> (dynamic-import "import-meta-resolve")
                                   (.then (fn [mod]
                                            (vreset! imr (.-resolve mod))))))
                           (.then (fn [resolve]
-                                   (resolve lib (str (url/pathToFileURL path))))))))
+                                   (resolve lib path-url))))))
 
 (defn init-require [path]
-  (let [require (create-require path)]
+  (let [require (create-require path)
+        path-url (str (url/pathToFileURL path))]
     (set! (.-require goog/global) require)
     (swap! nbb/ctx assoc :require require)
-    (swap! nbb/ctx assoc :resolve #(lazy-resolve % (str (url/pathToFileURL path))))))
+    (swap! nbb/ctx assoc :resolve #(lazy-resolve % path-url))))
 
 (defn loadFile [script]
   (let [script-path (path/resolve script)]
