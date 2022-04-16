@@ -100,7 +100,7 @@ REPL:
         repl? (or (:repl opts)
                   (:socket-repl opts)
                   ;; TODO: better handling of detecting invocation without subtask
-                  (empty? (dissoc opts :expr :classpath :debug)))]
+                  (empty? (dissoc opts :classpath :debug)))]
     (when (:help opts)
       (print-help)
       (js/process.exit 0))

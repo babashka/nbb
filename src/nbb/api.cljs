@@ -1,10 +1,10 @@
 (ns nbb.api
-  (:require ["import-meta-resolve" :as r]
-            ["module" :refer [createRequire]]
+  (:require ["module" :refer [createRequire]]
             ["path" :as path]
             ["url" :as url]
             [nbb.classpath :as cp]
-            [nbb.core :as nbb]))
+            [nbb.core :as nbb]
+            [shadow.esm :refer [dynamic-import]]))
 
 (def create-require
   (or createRequire
@@ -12,16 +12,21 @@
         (fn [_]
           (throw (js/Error. "createRequire is not defined, this is a no-op"))))))
 
-(defn import-meta-resolve []
-  )
+(def imr (volatile! nil))
+
+(defn lazy-resolve [lib path]
+  (js/Promise.resolve (-> (or (some-> @imr js/Promise.resolve)
+                              (-> (dynamic-import "import-meta-resolve")
+                                  (.then (fn [mod]
+                                           (vreset! imr (.-resolve mod))))))
+                          (.then (fn [resolve]
+                                   (resolve lib (str (url/pathToFileURL path))))))))
 
 (defn init-require [path]
   (let [require (create-require path)]
     (set! (.-require goog/global) require)
     (swap! nbb/ctx assoc :require require)
-    (swap! nbb/ctx assoc :resolve #(do
-                                     (prn :> % path)
-                                     (r/resolve % (str (url/pathToFileURL path)))))))
+    (swap! nbb/ctx assoc :resolve #(lazy-resolve % (str (url/pathToFileURL path))))))
 
 (defn loadFile [script]
   (let [script-path (path/resolve script)]
