@@ -5,13 +5,11 @@
    ["path" :as path]
    ["url" :as url]
    [clojure.string :as str]
-   [clojure.edn :as edn]
    [goog.object :as gobj]
    [nbb.classpath :as cp]
    [nbb.common :refer [core-ns]]
    [sci.core :as sci]
    [sci.impl.vars :as vars]
-   [shadow.resource :as resource]
    [shadow.esm :as esm])
   (:require-macros [nbb.macros
                     :as macros
@@ -198,13 +196,16 @@
                           ;; skip loading if module was already loaded
                           (get @loaded-modules internal-name)
                           ;; else load module and register in loaded-modules under internal-name
-                          (-> (esm/dynamic-import
-                               (let [path ((.-resolve (:require @ctx)) libname)
-                                     ;; ensure URL on Windows
-                                     path (if (and windows? (fs/existsSync path))
-                                            (str (url/pathToFileURL path))
-                                            path)]
-                                 path))
+                          (->
+                           (js/Promise.resolve (try ((.-resolve (:require @ctx)) libname)
+                                                    (catch :default _
+                                                      ((:resolve @ctx) libname))))
+                           (.then (fn [path]
+                                    (esm/dynamic-import
+                                     (let [path (if (and windows? (fs/existsSync path))
+                                                  (str (url/pathToFileURL path))
+                                                  path)]
+                                       path))))
                               (.then (fn [mod]
                                        (if properties
                                          (gobj/getValueByKeys mod properties)
@@ -405,11 +406,11 @@
          ret# ~expr
          ret# (js/Promise.resolve ret#)]
      (nbb.core/await
-      (.then ret# (fn [v]
+      (.then ret# (fn [v#]
                     (prn (cljs.core/str "Elapsed time: "
-                                        (.toFixed (- (system-time) start#) 6)
+                                        (.toFixed (- (cljs.core/system-time) start#) 6)
                                         " msecs"))
-                    v)))))
+                    v#)))))
 
 (defn ^:macro implements?* [_ _ psym x]
   ;; hardcoded implementation of implements? for js-interop destructure which

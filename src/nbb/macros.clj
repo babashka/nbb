@@ -1,4 +1,5 @@
 (ns nbb.macros
+  (:refer-clojure :exclude [time])
   (:require
    [clojure.data.json :as json]
    [clojure.edn :as edn]
@@ -28,3 +29,16 @@
                                  (mapv (fn [n] [n js]) namespaces)))
                        (into {}))]
       (list 'quote m))))
+
+(defmacro time
+  "Async version of time."
+  [expr]
+  `(let [start# (cljs.core/system-time)
+         ret# ~expr
+         ret# (js/Promise.resolve ret#)]
+     (nbb.core/await
+      (.then ret# (fn [v#]
+                    (prn (cljs.core/str "Elapsed time: "
+                                        (.toFixed (- (cljs.core/system-time) start#) 6)
+                                        " msecs"))
+                    v#)))))

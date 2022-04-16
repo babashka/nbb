@@ -1,8 +1,9 @@
 {
   "dependencies": {
     "csv-parse": "^4.16.0",
+    "execa": "6.1.0",
     "shelljs": "^0.8.4",
     "term-size": "^3.0.0",
-    "zx": "^4.2.0"
+    "zx": "6.1.0"
   }
 }

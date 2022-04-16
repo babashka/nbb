@@ -7,6 +7,9 @@
     "nbb": "./lib/nbb_main.js"
   },
   "description": "Babashka-like tool for Node.js.",
+  "dependencies": {
+    "import-meta-resolve": "^1.1.1"
+  },
   "devDependencies": {
     "ink": "^3.0.9",
     "react": "^17.0.2",
@@ -23,6 +26,5 @@
     "README.md",
     "img",
     "lib"
-  ],
-  "dependencies": {}
+  ]
 }
