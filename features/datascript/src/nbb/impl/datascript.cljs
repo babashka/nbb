@@ -21,6 +21,7 @@
    'entity (copy-var d/entity core-ns)
    'tx0 (copy-var d/tx0 core-ns)
    'db (copy-var d/db core-ns)
+   'squuid (copy-var d/squuid core-ns)
    'with (copy-var d/with core-ns)
    'touch (copy-var d/touch core-ns)
    'index-range (copy-var d/index-range core-ns)

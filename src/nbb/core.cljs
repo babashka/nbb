@@ -168,6 +168,8 @@
           (load-module "./nbb_goog_string.js" libname as refer rename libspecs)
           (cognitect.transit)
           (load-module "./nbb_transit.js" libname as refer rename libspecs)
+          (clojure.data)
+          (load-module "./nbb_data.js" libname as refer rename libspecs)
           (let [feat (get feature-requires libname)]
             (cond
               feat (load-module feat libname as refer rename libspecs)
