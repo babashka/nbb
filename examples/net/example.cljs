@@ -17,12 +17,6 @@
 
 (.listen server port "localhost")
 
-;; $ nc localhost 1337
-;; 1
-;; You wrote: 1
-;; 2
-;; You wrote: 2
-
 (def client (net/createConnection #js {:port port}
                                   (fn [] (println "[client] Connected to server!"))))
 (.write client "Hello")
@@ -30,3 +24,8 @@
      (fn [data]
        (println "[client] Received:" (str data))
        (.destroy client)))
+
+;; [client] Connected to server!
+;; [server] Client sent: Hello
+;; [client] Received: You wrote: Hello
+;; [server] Client left the building
