@@ -8,9 +8,12 @@
                (.on sock "data"
                     (fn [data]
                       ;; print data to console
-                      (prn :data (str data))
+                      (println (str "[server] Client sent: " data))
                       ;; write response back to client
-                      (.write sock (str "You wrote: " data)))))))
+                      (.write sock (str "You wrote: " data))))
+               (.on sock "end"
+                    (fn []
+                      (println "[server] Client left the building"))))))
 
 (.listen server port "localhost")
 
@@ -19,3 +22,11 @@
 ;; You wrote: 1
 ;; 2
 ;; You wrote: 2
+
+(def client (net/createConnection #js {:port port}
+                                  (fn [] (println "[client] Connected to server!"))))
+(.write client "Hello")
+(.on client "data"
+     (fn [data]
+       (println "[client] Received:" (str data))
+       (.destroy client)))
