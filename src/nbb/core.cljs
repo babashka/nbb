@@ -113,6 +113,8 @@
     (let [fst (first libspecs)
           [libname & opts] (if (symbol? fst)
                              [fst] fst)
+          libname (if (= 'cljs.core libname)
+                    'clojure.core libname)
           opts (apply hash-map opts)
           as (:as opts)
           as-alias (:as-alias opts)
@@ -435,14 +437,16 @@
                                       'tap> (sci/copy-var tap> core-ns)
                                       'add-tap (sci/copy-var add-tap core-ns)
                                       'remove-tap (sci/copy-var remove-tap core-ns)
-                                      'uuid (sci/copy-var uuid core-ns)}
+                                      'uuid (sci/copy-var uuid core-ns)
+                                      'IEditableCollection (sci/copy-var IEditableCollection core-ns)
+                                      'MapEntry (sci/copy-var MapEntry core-ns)
+                                      'UUID (sci/copy-var UUID core-ns)
+                                      'PersistentQueue (sci/copy-var PersistentQueue core-ns)}
 
                        'clojure.main {'repl-requires (sci/copy-var
                                                       repl-requires
                                                       (sci/create-ns 'clojure.main))}
 
-                       ;; fixes (require 'cljs.core)
-                       'cljs.core {}
                        'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
                                   'load-file (sci/copy-var load-file nbb-ns)
                                   'alter-var-root (sci/copy-var sci/alter-var-root nbb-ns)
