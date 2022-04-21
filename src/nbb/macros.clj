@@ -17,6 +17,10 @@
 (def features (some-> (System/getenv "NBB_FEATURES")
                       (str/split (re-pattern ","))))
 
+(defmacro cli-name
+  []
+  (or (System/getenv "NBB_CLI_NAME") "nbb"))
+
 (defmacro feature-requires []
   (when features
     (let [;; all nbb_features.edn files on the classpath:

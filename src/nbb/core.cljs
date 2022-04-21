@@ -428,6 +428,9 @@
 (defn version []
   (macros/get-in-package-json :version))
 
+(defn cli-name []
+  (macros/cli-name))
+
 (reset! sci-ctx
         (sci/init
          {:namespaces {'clojure.core {'*command-line-args* command-line-args

@@ -69,3 +69,7 @@ To add a new feature, add the following under `features/$LIBRARY/`:
 Some features have tests under `test-scripts/feature-tests`. These tests are run
 the same as integration tests but with `$NBB_FEATURES` e.g.
 `NBB_FEATURES=datascript bb ci:test`.
+
+If you'd like to distribute a version of nbb with features and give the cli a
+different name, use `$NBB_CLI_NAME` e.g. `NBB_FEATURES=datascript
+NBB_CLI_NAME=nbb-datascript bb release`.

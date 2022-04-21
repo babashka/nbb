@@ -60,7 +60,7 @@
       opts)))
 
 (defn print-help []
-  (println "Nbb version:" (nbb/version))
+  (println (str/capitalize (nbb/cli-name)) "version:" (nbb/version))
   (println "
 Help:
 
@@ -105,7 +105,7 @@ REPL:
       (print-help)
       (js/process.exit 0))
     (when (:version opts)
-      (println (str "nbb v" (nbb/version)))
+      (println (str (nbb/cli-name) " v" (nbb/version)))
       (js/process.exit 0))
     (reset! nbb/opts opts)
     (when repl? (api/init-require (path/resolve "script.cljs")))
@@ -137,6 +137,6 @@ REPL:
                         (when (:debug opts)
                           (.error js/console (str err)))
                         (throw (js/Error. (ex-message err)))))))
-      (.error js/console "Usage: nbb <script> or nbb -e <expr>."))))
+      (.error js/console (str "Usage: " (nbb/cli-name) " <script> or nbb -e <expr>.")))))
 
 (defn init [])
