@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.3.8
+
+- Nbb is now able to run [medley](https://github.com/weavejester/medley) from source
+
 ## 0.3.7
 
 - Use `import-meta-resolve` to discover ES module files when `createRequire` doesn't find them.
