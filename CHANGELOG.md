@@ -2,6 +2,12 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.3.x
+
+- Include `clojure.data` as built-in dependency
+- Add `datascript.core/squuid`
+- Add support for different CLI name
+
 ## 0.3.8
 
 - Nbb is now able to run [medley](https://github.com/weavejester/medley) from source

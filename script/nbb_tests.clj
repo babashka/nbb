@@ -124,6 +124,10 @@
     (is (= "\n| :a |\n|----|\n|  1 |\n|  2 |\n"
            (nbb* "-e" "(require '[clojure.pprint :as pp]) (do (pp/print-table [{:a 1} {:a 2}]))")))))
 
+(deftest data-test
+  (is (= '({:a 1} {:c 3} {:b 2})
+         (nbb "-e" "(require '[clojure.data :as data]) (data/diff {:a 1 :b 2} {:b 2 :c 3})"))))
+
 (deftest api-test
   (tasks/shell {:dir "test-scripts/api-test"} (npm "install"))
   (tasks/shell {:dir "test-scripts/api-test"} "node test.mjs"))

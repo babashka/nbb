@@ -168,6 +168,8 @@
           (load-module "./nbb_goog_string.js" libname as refer rename libspecs)
           (cognitect.transit)
           (load-module "./nbb_transit.js" libname as refer rename libspecs)
+          (clojure.data)
+          (load-module "./nbb_data.js" libname as refer rename libspecs)
           (let [feat (get feature-requires libname)]
             (cond
               feat (load-module feat libname as refer rename libspecs)
@@ -426,6 +428,9 @@
 (defn version []
   (macros/get-in-package-json :version))
 
+(defn cli-name []
+  (macros/cli-name))
+
 (reset! sci-ctx
         (sci/init
          {:namespaces {'clojure.core {'*command-line-args* command-line-args
@@ -462,7 +467,7 @@
                                       :set gobj/set
                                       :getKeys gobj/getKeys
                                       :getValueByKeys gobj/getValueByKeys}
-                    'ExceptionInfo js/Error
+                    'ExceptionInfo ExceptionInfo
                     'Math js/Math}
           :disable-arity-checks true}))
 

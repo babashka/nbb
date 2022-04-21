@@ -60,7 +60,7 @@ $ nbb -e '(+ 1 2 3)'
 6
 ```
 
-And then install some other NPM libraries to use in the script. E.g. with the following `package.nson`:
+And then install some other NPM libraries to use in the script. E.g. with the following `package.json`:
 
 ``` json
 {

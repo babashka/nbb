@@ -1,7 +1,8 @@
 # API
 
 In addition to `clojure.core`, `clojure.set`, `clojure.edn`, `clojure.string`,
-`clojure.walk` and `clojure.pprint`, nbb exposes the following namespaces:
+`clojure.walk`, `clojure.data`, `clojure.test` and `clojure.pprint`, nbb exposes
+the following namespaces:
 
 ## Nbb
 
@@ -11,6 +12,7 @@ In addition to `clojure.core`, `clojure.set`, `clojure.edn`, `clojure.string`,
 - `(load-file f)`: reads contents of file f and then handles it using `load-string`.
 - `(load-string s)`: asynchronously parses and evaluates `s`, returns result as promise.
 - `(slurp f)`: asynchronously slurps contents of file to string, returns result as promise.
+- `(time body)`: Macro which times async code.
 
 ### nbb.repl
 
@@ -65,3 +67,9 @@ See [js-interop docs](https://github.com/applied-science/js-interop).
 ### cognitect.transit
 
 - `write`, `writer`, `write-handler`, `write-meta`, `read`, `read`, `read-handler`, `tagged-value`
+
+## cljs-bean
+
+### cljs-bean.core
+
+- `bean`, `bean?`, `object`, `->js`, `->clj`
