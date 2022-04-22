@@ -15,3 +15,4 @@ example.pdf
 print-cli-args/print-cli-args
 clojure_logo.png
 test-scripts/feature-tests/libraries/
+assets/command-icon.png
