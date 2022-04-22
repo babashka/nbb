@@ -16,7 +16,7 @@
   ],
   "dependencies": {
     "@raycast/api": "^1.33.1",
-    "nbb": "/Users/borkdude/dev/nbb",
+    "nbb": "^0.3.9",
     "react-async": "^10.0.1"
   },
   "devDependencies": {
