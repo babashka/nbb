@@ -183,8 +183,6 @@
                     internal-name (symbol (str "nbb.internal." munged))
                     after-load (fn [mod]
                                  (swap! loaded-modules assoc internal-name mod)
-                                 (when (= libname "react")
-                                   (set-react! mod))
                                  (when as
                                    (swap! sci-ctx sci/merge-opts {:classes {internal-name mod}})
                                    ;; HACK, we register the alias as a reference to the class
