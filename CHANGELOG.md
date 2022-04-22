@@ -2,11 +2,13 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## 0.3.x
+## 0.3.9
 
 - Include `clojure.data` as built-in dependency
 - Add `datascript.core/squuid`
 - Add support for different CLI name
+- React improvements
+- Support for [Raycast](doc/raycast/README.md).
 
 ## 0.3.8
 
