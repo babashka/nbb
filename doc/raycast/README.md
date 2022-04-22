@@ -1,5 +1,7 @@
 # Developing a Raycast extension
 
+This guide requires nbb 0.3.9 or higher.
+
 Raycast is a launcher similar to Alfred and Spotlight. It is extensible with
 scripts and extensions. This document explains how to write an extension with nbb.
 
