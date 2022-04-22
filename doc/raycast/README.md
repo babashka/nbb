@@ -27,4 +27,4 @@ continue building our extension in `script.cljs`. Save that file in `assets` in
 the extension directory. See [assets/script.cljs](assets/script.cljs).
 
 The `script.cljs` file returns the `Command` component and is rendered in the
-`.tsx` file. Done!
+`.tsx` file. Done! You can see the result [here](https://twitter.com/borkdude/status/1517442325588463617).
