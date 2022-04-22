@@ -482,6 +482,7 @@ See [API](doc/api.md) documentation with a list of built-in libraries.
 
 - [Write Node using Clojure and deploy to NPM!](https://youtu.be/_-G9EKaAyuI) by Daniel Amber and Michiel Borkent
 - [Nbb: ad-hoc scripting for Clojure on Node.js](https://youtu.be/7DQ0ymojfLg) by Michiel Borkent
+- [Create a Clojure web app using nbb and the Express node framework](https://youtu.be/uzy5ARQP3tA) by Bobby Towers
 
 ## Articles
 
