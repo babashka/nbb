@@ -38,3 +38,4 @@ To compile and view the Electron app:
 $ npx webpack --config webpack.dev.js && npm start
 ```
 
+See it in action [here](https://twitter.com/borkdude/status/1517537399072514048).
