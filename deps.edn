@@ -1,13 +1,13 @@
 {:paths ["src"]
  :aliases {:test {:extra-paths ["test"]}}
  :deps {thheller/shadow-cljs {:mvn/version "2.16.12"}
-        reagent/reagent {:mvn/version "1.1.1"}
+        ;; reagent/reagent {:mvn/version "1.0.0"}
         cljsjs/react {:mvn/version "17.0.2-0"}
         cljsjs/react-dom {:mvn/version "17.0.2-0"}
         cljsjs/react-dom-server {:mvn/version "17.0.2-0"}
         io.nervous/cljs-nodejs-externs {:mvn/version "0.2.0"}
-        #_#_reagent/reagent #_{:git/url "https://github.com/borkdude/nbb-reagent"
-                         :git/sha "01b2b9a38a6c5c4b2ea3fd0a9e038d9551299665"} {:local/root "../nbb-reagent"}
+        reagent/reagent {:git/url "https://github.com/borkdude/nbb-reagent"
+                         :git/sha "315d702436719ea3a9a356773d6a10038ce9ea75"}
         funcool/promesa {:mvn/version "8.0.450"}
         applied-science/js-interop {:mvn/version "0.3.1"}
         cljs-bean/cljs-bean {:mvn/version "1.8.0"}
