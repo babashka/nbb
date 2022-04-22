@@ -1,3 +1,7 @@
 [{:name logseq/datascript-transit
   :namespaces [datascript.transit]
-  :js "./nbb_datascript_transit.js"}]
+  :js "./nbb_datascript_transit.js"
+  :shadow-config
+  {:modules
+   {:nbb_datascript_transit {:init-fn nbb.impl.datascript-transit/init
+                             :depends-on #{:nbb_core :nbb_datascript :nbb_transit}}}}}]

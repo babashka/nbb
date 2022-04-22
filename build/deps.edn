@@ -1,0 +1,3 @@
+{:deps
+ {datascript/deps {:local/root "../features/datascript"}
+  datascript-transit/deps {:local/root "../features/datascript-transit"}}}

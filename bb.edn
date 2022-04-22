@@ -1,6 +1,9 @@
 {:paths ["script"]
+ :deps
+ {nbb.build {:local/root "build"}}
  :tasks
  {:requires ([babashka.fs :as fs]
+             [nbb.build :as build]
              [cheshire.core :as json]
              [clojure.edn :as edn]
              [clojure.pprint :as pp]
@@ -11,9 +14,11 @@
           (def windows? (-> (System/getProperty "os.name")
                             str/lower-case
                             (str/starts-with? "win")))
+          (when *test* (println "Tests are enabled.."))
+          ;; TODO: Remove
           (def features (some-> (System/getenv "NBB_FEATURES")
                                 (str/split (re-pattern ","))))
-          (when *test* (println "Tests are enabled.."))
+          (def build-features nil #_(build/features))
           (defn wrap-cmd [cmd]
             (let [cmd (if features
                         (format "-Sdeps '%s' %s"
@@ -30,15 +35,16 @@
                                           "-M" "-M:test")
                              " --config-merge shadow-tests.edn")
                         cmd)]
-              (if features
-                (apply str cmd
-                  (map (fn [f] (format " --config-merge features/%s/shadow-cljs.edn" f))
-                       features))
-                cmd))))
+              (doto (if build-features
+                      (apply str cmd
+                        (map (fn [m] (format " --config-merge '%s'" (pr-str (:shadow-config m))))
+                             build-features))
+                      cmd) prn))))
 
   clean (fs/delete-tree "lib")
 
-  compile (clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn compile modules"))
+  compile (build/build "-M -m shadow.cljs.devtools.cli --force-spawn compile modules"
+                       *command-line-args*)
 
   dev {:doc "Run shadow in watch mode with tests enabled."
        :task
@@ -53,15 +59,7 @@
 
   release {:depends [clean]
            :doc "Compiles release build."
-           :task
-           (do (apply clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn release modules")
-                 *command-line-args*)
-             (spit "lib/nbb_core.js"
-                   (clojure.string/replace (slurp "lib/nbb_core.js") (re-pattern "self") "globalThis"))
-             (spit "lib/nbb_main.js"
-                   (str "#!/usr/bin/env node\n\n" (slurp "lib/nbb_main.js")))
-             (shell "chmod +x lib/nbb_main.js")
-             (run! fs/delete (fs/glob "lib" "**.map")))}
+           :task build/release}
 
   run-integration-tests nbb-tests/main
 
