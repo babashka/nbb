@@ -116,6 +116,8 @@
     (let [fst (first libspecs)
           [libname & opts] (if (symbol? fst)
                              [fst] fst)
+          libname (if (= 'cljs.core libname)
+                    'clojure.core libname)
           opts (apply hash-map opts)
           as (:as opts)
           as-alias (:as-alias opts)
@@ -169,6 +171,8 @@
           (load-module "./nbb_goog_string.js" libname as refer rename libspecs)
           (cognitect.transit)
           (load-module "./nbb_transit.js" libname as refer rename libspecs)
+          (clojure.data)
+          (load-module "./nbb_data.js" libname as refer rename libspecs)
           (let [feat (get feature-requires libname)]
             (cond
               feat (load-module feat libname as refer rename libspecs)
@@ -429,6 +433,9 @@
 (defn version []
   (macros/get-in-package-json :version))
 
+(defn cli-name []
+  (macros/cli-name))
+
 (reset! sci-ctx
         (sci/init
          {:namespaces {'clojure.core {'*command-line-args* command-line-args
@@ -440,14 +447,16 @@
                                       'tap> (sci/copy-var tap> core-ns)
                                       'add-tap (sci/copy-var add-tap core-ns)
                                       'remove-tap (sci/copy-var remove-tap core-ns)
-                                      'uuid (sci/copy-var uuid core-ns)}
+                                      'uuid (sci/copy-var uuid core-ns)
+                                      'IEditableCollection (sci/copy-var IEditableCollection core-ns)
+                                      'MapEntry (sci/copy-var MapEntry core-ns)
+                                      'UUID (sci/copy-var UUID core-ns)
+                                      'PersistentQueue (sci/copy-var PersistentQueue core-ns)}
 
                        'clojure.main {'repl-requires (sci/copy-var
                                                       repl-requires
                                                       (sci/create-ns 'clojure.main))}
 
-                       ;; fixes (require 'cljs.core)
-                       'cljs.core {}
                        'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
                                   'load-file (sci/copy-var load-file nbb-ns)
                                   'alter-var-root (sci/copy-var sci/alter-var-root nbb-ns)
@@ -463,7 +472,7 @@
                                       :set gobj/set
                                       :getKeys gobj/getKeys
                                       :getValueByKeys gobj/getValueByKeys}
-                    'ExceptionInfo js/Error
+                    'ExceptionInfo ExceptionInfo
                     'Math js/Math}
           :disable-arity-checks true}))
 

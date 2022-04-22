@@ -102,6 +102,17 @@
                 "-e"
                 "(require '[honey.sql :as sql]) (sql/format {:select :foo :from :bar :where [:= :baz 2]})")))))
 
+(deftest medley-test
+  (let [deps '{medley/medley {:git/url "https://github.com/weavejester/medley"
+                              :git/tag "1.4.0"
+                              :git/sha "0044c6a"}}
+        _ (deps/add-deps {:deps deps})
+        cp (cp/get-classpath)]
+    (is (= {:a {:id :a}, :b {:id :b}}
+           (nbb "--classpath" cp
+                "-e"
+                "(require '[medley.core :as m]) (m/index-by :id [{:id :a} {:id :b}])")))))
+
 (deftest pprint-test
   (testing "pprint"
     (is (= (str "(0 1 2 3 4 5 6 7 8 9)\n")
@@ -112,6 +123,10 @@
   (testing "print-table"
     (is (= "\n| :a |\n|----|\n|  1 |\n|  2 |\n"
            (nbb* "-e" "(require '[clojure.pprint :as pp]) (do (pp/print-table [{:a 1} {:a 2}]))")))))
+
+(deftest data-test
+  (is (= '({:a 1} {:c 3} {:b 2})
+         (nbb "-e" "(require '[clojure.data :as data]) (data/diff {:a 1 :b 2} {:b 2 :c 3})"))))
 
 (deftest api-test
   (tasks/shell {:dir "test-scripts/api-test"} (npm "install"))

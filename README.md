@@ -60,7 +60,7 @@ $ nbb -e '(+ 1 2 3)'
 6
 ```
 
-And then install some other NPM libraries to use in the script. E.g. with the following `package.nson`:
+And then install some other NPM libraries to use in the script. E.g. with the following `package.json`:
 
 ``` json
 {
@@ -478,12 +478,14 @@ The following projects are using nbb or are supporting it as a development platf
 
 See [API](doc/api.md) documentation with a list of built-in libraries.
 
-## Talks
+## Videos
 
+- [Write Node using Clojure and deploy to NPM!](https://youtu.be/_-G9EKaAyuI) by Daniel Amber and Michiel Borkent
 - [Nbb: ad-hoc scripting for Clojure on Node.js](https://youtu.be/7DQ0ymojfLg) by Michiel Borkent
 
 ## Articles
 
+- [Sentiment analysis with nbb](https://slimslenderslacks.github.io/nbb-sentiment) by Jim Clark
 - [Reloaded workflow with nbb and Express.js](https://dev.to/crinklywrappr/reloaded-workflow-with-nbb-expressjs-31f3) by Daniel Fitzpatrick
 - [Serverless site analytics with Clojure nbb and AWS](https://www.loop-code-recur.io/simple-site-analytics-with-serverless-clojure) by Cyprien Pannier
 - [Creating an AWS Lambda function with
