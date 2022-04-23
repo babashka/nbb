@@ -15,35 +15,16 @@
                             str/lower-case
                             (str/starts-with? "win")))
           (when *test* (println "Tests are enabled.."))
-          ;; TODO: Remove
-          (def features (some-> (System/getenv "NBB_FEATURES")
-                                (str/split (re-pattern ","))))
-          (def build-features nil #_(build/features))
           (defn wrap-cmd [cmd]
-            (let [cmd (if features
-                        (format "-Sdeps '%s' %s"
-                                {:deps
-                                 (into {}
-                                       (map (fn [f]
-                                              [(symbol (str f "/deps"))
-                                               {:local/root (str "features/" f)}])
-                                            features))}
-                                cmd)
-                        cmd)
-                  cmd (if *test*
-                        (str (str/replace cmd
-                                          "-M" "-M:test")
-                             " --config-merge shadow-tests.edn")
-                        cmd)]
-              (doto (if build-features
-                      (apply str cmd
-                        (map (fn [m] (format " --config-merge '%s'" (pr-str (:shadow-config m))))
-                             build-features))
-                      cmd) prn))))
+            (if *test*
+              (str (str/replace cmd
+                                "-M" "-M:test")
+                   " --config-merge shadow-tests.edn")
+              cmd)))
 
   clean (fs/delete-tree "lib")
 
-  compile (build/build "-M -m shadow.cljs.devtools.cli --force-spawn compile modules"
+  compile (build/build (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn compile modules")
                        *command-line-args*)
 
   dev {:doc "Run shadow in watch mode with tests enabled."
@@ -52,18 +33,16 @@
          (println "Starting shadow-cljs in watch mode.")
          (println "Run node lib/nbb_main.js to test nbb")
          (println "Run bb run-tests to run the tests")
-         (apply clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn watch modules")
-           *command-line-args*))}
+         (build/build (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn watch modules")
+                      *command-line-args*))}
 
   run-tests (shell "node lib/nbb_tests.js")
 
   release {:depends [clean]
            :doc "Compiles release build."
-           :task build/release}
+           :task (build/release *command-line-args* {:wrap-cmd-fn wrap-cmd})}
 
   run-integration-tests nbb-tests/main
-
-  run-feature-integration-tests nbb-feature-tests/main
 
   publish {:doc "Bumps version, pushes tag and lets CI publish to npm."
            :task
@@ -88,9 +67,7 @@
                    (run 'clean)
                    (run 'release)
                    (run 'run-tests)
-                   (run 'run-integration-tests)
-                   (when features
-                     (run 'run-feature-integration-tests)))}
+                   (run 'run-integration-tests))}
   ci:publish {:doc "Publishes release build to npm"
               :depends [ci:is-release]
               :task
