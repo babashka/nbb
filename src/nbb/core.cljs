@@ -188,8 +188,8 @@
                         (swap! sci-ctx
                                (fn [sci-ctx]
                                  (-> sci-ctx
-                                     (sci/add-class internal-name mod)
-                                     (sci/add-import current-ns internal-name as)))))
+                                     (sci/add-class! internal-name mod)
+                                     (sci/add-import! current-ns internal-name as)))))
                       (doseq [field refer]
                         (let [mod-field (gobj/get mod (str field))
                               ;; different namespaces can have different mappings
@@ -198,8 +198,8 @@
                           (swap! sci-ctx
                                  (fn [sci-ctx]
                                    (-> sci-ctx
-                                       (sci/add-class internal-subname mod-field)
-                                       (sci/add-import current-ns internal-subname field))))))
+                                       (sci/add-class! internal-subname mod-field)
+                                       (sci/add-import! current-ns internal-subname field))))))
                       (handle-libspecs (next libspecs)))
                     mod (js/Promise.resolve
                          (or
@@ -254,21 +254,7 @@
                                                   :rename (list 'quote rename))))))
                         (.then (fn [_]
                                  (handle-libspecs (next libspecs)))))
-                    ;; here, let's look for classes
-                    (if-let [clazz (get-in @sci-ctx [:class->opts libname :class])]
-                      (do (when as
-                            (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports as] libname))
-                          (doseq [field refer]
-                            (let [mod-field (gobj/get clazz (str field))
-                                  internal-subname (str current-ns "$" munged "$" field)]
-                              (swap! sci-ctx sci/merge-opts {:classes {internal-subname mod-field}})
-                              ;; Repeat hack from above
-                              (let [field (get rename field field)]
-                                (swap! (:env @sci-ctx)
-                                       assoc-in
-                                       [:namespaces current-ns :imports field] internal-subname))))
-                          (handle-libspecs (next libspecs)))
-                      (js/Promise.reject (js/Error. (str "Could not find namespace: " libname))))))))))))
+                    (js/Promise.reject (js/Error. (str "Could not find namespace: " libname)))))))))))
     (js/Promise.resolve @sci/ns)))
 
 (defn eval-ns-form [ns-form]
@@ -467,7 +453,11 @@
                                   'await (sci/copy-var await nbb-ns)
                                   'time (sci/copy-var time* nbb-ns)}
                        'nbb.classpath {'add-classpath (sci/copy-var cp/add-classpath cp-ns)
-                                       'get-classpath (sci/copy-var cp/get-classpath cp-ns)}}
+                                       'get-classpath (sci/copy-var cp/get-classpath cp-ns)}
+                       'goog.object {'get gobj/get
+                                     'set gobj/set
+                                     'getKeys gobj/getKeys
+                                     'getValueByKeys gobj/getValueByKeys}}
           :classes {'js universe :allow :all
                     'goog.object #js {:get gobj/get
                                       :set gobj/set
