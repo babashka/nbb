@@ -181,23 +181,26 @@
               (let [[libname properties] (str/split libname #"\$" 2)
                     properties (when properties (.split properties "."))
                     internal-name (symbol (str "nbb.internal." munged))
-                    after-load (fn [mod]
-                                 (swap! loaded-modules assoc internal-name mod)
-                                 (when as
-                                   (swap! sci-ctx sci/merge-opts {:classes {internal-name mod}})
-                                   ;; HACK, we register the alias as a reference to the class
-                                   ;; via :imports we should expose this functionality in SCI
-                                   ;; itself as this relies on the internal representation of
-                                   (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports as] internal-name))
-                                 (doseq [field refer]
-                                   (let [mod-field (gobj/get mod (str field))
-                                         ;; different namespaces can have different mappings
-                                         internal-subname (str internal-name "$" current-ns-str "$" field)]
-                                     (swap! sci-ctx sci/merge-opts {:classes {internal-subname mod-field}})
-                                     ;; Repeat hack from above
-                                     (let [field (get rename field field)]
-                                       (swap! (:env @sci-ctx) assoc-in [:namespaces current-ns :imports field] internal-subname))))
-                                 (handle-libspecs (next libspecs)))
+                    after-load
+                    (fn [mod]
+                      (swap! loaded-modules assoc internal-name mod)
+                      (when as
+                        (swap! sci-ctx
+                               (fn [sci-ctx]
+                                 (-> sci-ctx
+                                     (sci/add-class internal-name mod)
+                                     (sci/add-import current-ns internal-name as)))))
+                      (doseq [field refer]
+                        (let [mod-field (gobj/get mod (str field))
+                              ;; different namespaces can have different mappings
+                              internal-subname (str internal-name "$" current-ns-str "$" field)
+                              field (get rename field field)]
+                          (swap! sci-ctx
+                                 (fn [sci-ctx]
+                                   (-> sci-ctx
+                                       (sci/add-class internal-subname mod-field)
+                                       (sci/add-import current-ns internal-subname field))))))
+                      (handle-libspecs (next libspecs)))
                     mod (js/Promise.resolve
                          (or
                           ;; skip loading if module was already loaded
@@ -213,10 +216,10 @@
                                                   (str (url/pathToFileURL path))
                                                   path)]
                                        path))))
-                              (.then (fn [mod]
-                                       (if properties
-                                         (gobj/getValueByKeys mod properties)
-                                         mod))))))]
+                           (.then (fn [mod]
+                                    (if properties
+                                      (gobj/getValueByKeys mod properties)
+                                      mod))))))]
                 (-> mod
                     (.then after-load)))
               :else
