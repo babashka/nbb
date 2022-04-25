@@ -18,32 +18,43 @@
   (->> files
        (mapcat (comp edn/read-string slurp str))))
 
-(defn- build-cmd [cmd]
+(defn- build-cmd [cmd nbb-dir]
   (let [files (feature-files)
         feature-configs (read-configs files)
         ;; Each ./src/nbb_features.edn has a ./deps.edn
         feature-dirs (map (comp fs/parent fs/parent) files)
-        cmd (if (seq files)
-              (format "-Sdeps '%s' %s"
-                      {:deps
-                       (into {}
-                             (map (fn [dir]
-                                    [(symbol (str (fs/file-name dir) "/deps"))
-                                     {:local/root (str dir)}])
-                                  feature-dirs))}
-                      cmd)
-              cmd)]
+        cmd' (if (seq files)
+               (format "-Sdeps '%s' %s"
+                       {:deps
+                        (merge (into {}
+                                     (map (fn [dir]
+                                            [(symbol (str (fs/file-name dir) "/deps"))
+                                             {:local/root (str dir)}])
+                                          feature-dirs))
+                               {'nbb/deps {:local/root nbb-dir}})}
+                       cmd)
+               cmd)]
     (if (seq feature-configs)
-      (apply str cmd
+      (apply str cmd'
         (map (fn [m] (format " --config-merge '%s'" (pr-str (:shadow-config m))))
              feature-configs))
-      cmd)))
+      cmd')))
 
 (defn build
   "Build nbb shadow builds using clojure cmd and commandline args. Features on
   classpath are automatically added"
   [cmd args]
-  (apply clojure (build-cmd cmd) args))
+  (let [building-outside-nbb? (not (fs/exists? "shadow-cljs.edn"))
+        nbb-dir (some->> (classpath/get-classpath)
+                         classpath/split-classpath
+                         ;; Pull out nbb from local/root or git/url
+                         (some #(when (re-find #"(nbb/[0-9a-f]+|nbb)/src" %) %))
+                         fs/parent)]
+    (when building-outside-nbb?
+      (fs/copy (fs/file nbb-dir "shadow-cljs.edn") "shadow-cljs.edn"))
+    (apply clojure (build-cmd cmd (str nbb-dir)) args)
+    (when building-outside-nbb?
+      (fs/delete "shadow-cljs.edn"))))
 
 (defn release
   "Compiles release build."

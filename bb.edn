@@ -1,6 +1,6 @@
 {:paths ["script"]
  :deps
- {nbb.build {:local/root "build"}}
+ {nbb.build/nbb.build {:local/root "build"}}
  :tasks
  {:requires ([babashka.fs :as fs]
              [nbb.build :as build]
