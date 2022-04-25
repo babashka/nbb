@@ -1,2 +1,0 @@
-{:deps
- {datascript-transit/datascript-transit {:mvn/version "0.3.0"}}}
