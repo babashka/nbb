@@ -34,6 +34,8 @@
                                {'nbb/deps {:local/root nbb-dir}})}
                        cmd)
                cmd)]
+    (when (seq feature-configs)
+      (println "Building features:" (str/join ", " (map :name feature-configs)) "..."))
     (if (seq feature-configs)
       (apply str cmd'
         (map (fn [m] (format " --config-merge '%s'" (pr-str (:shadow-config m))))
@@ -45,11 +47,12 @@
   classpath are automatically added"
   [cmd args]
   (let [building-outside-nbb? (not (fs/exists? "shadow-cljs.edn"))
-        nbb-dir (some->> (classpath/get-classpath)
-                         classpath/split-classpath
-                         ;; Pull out nbb from local/root or git/url
-                         (some #(when (re-find #"(nbb/[0-9a-f]+|nbb)/src" %) %))
-                         fs/parent)]
+        nbb-dir (when building-outside-nbb?
+                  (->> (classpath/get-classpath)
+                       classpath/split-classpath
+                       ;; Pull out nbb from local/root or git/url
+                       (some #(when (re-find #"(nbb/[0-9a-f]+|nbb)/src" %) %))
+                       fs/parent))]
     (when building-outside-nbb?
       (fs/copy (fs/file nbb-dir "shadow-cljs.edn") "shadow-cljs.edn"))
     (apply clojure (build-cmd cmd (str nbb-dir)) args)
