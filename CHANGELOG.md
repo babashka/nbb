@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.3.X
+- Migrate features support to classpath approach
+- Provide build bb library for building features
+
 ## 0.3.9
 
 - Include `clojure.data` as built-in dependency
