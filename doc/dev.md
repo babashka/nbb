@@ -49,27 +49,35 @@ Then run `node out/nbb_main.js <args>` to test the compiled nbb.
 
 To run tests, run `bb run-tests` for unit tests and `bb run-integration-tests` for running integration tests.
 
+## Build
+
+The two main build tasks are `bb dev` and `bb release` for development and
+production builds respectively. Some build tasks are available as a bb library
+in `build/`. This is useful for custom builds with features enabled.
+
+To build a version of nbb with a custom cli name use `$NBB_CLI_NAME` e.g.
+`NBB_CLI_NAME=nbb-datascript bb release`.
+
 ## Features
 
-`nbb` optionally bundles additional Clojure(Script) libraries as features.
-Features are designed to be kept isolated from nbb's core and are enabled with
-an optional `$NBB_FEATURES` variable. `$NBB_FEATURES` is used by compilation
-tasks e.g. `NBB_FEATURES=datascript,datascript-transit bb release`. The
-following features are available:
+`nbb` supports bundling additional Clojure(Script) libraries as features. This
+is particularly valuable for libraries that are not yet SCI compatible. nbb has
+some pre-built features at
+[nbb-features](https://github.com/babashka/nbb-features). Features are built
+using the [build library](../build) and bb tasks. Features are enabled by adding
+them on the classpath, usually as a dependency in `bb.edn`. See
+https://github.com/babashka/nbb-features/blob/main/bb.edn for a working example.
 
-* [datascript](https://github.com/tonsky/datascript)
-* [datascript-transit](https://github.com/tonsky/datascript-transit)
-
-To add a new feature, add the following under `features/$LIBRARY/`:
+To create a new feature, add the following files in a directory `$LIBRARY` and
+put that directory on your classpath:
 - `deps.edn` - Dependencies for library
-- `shadow-cljs.edn` - Compiler options to build library in advanced/release mode
-- `src/nbb/impl/$LIBRARY.cljs` - Sci mappings
 - `src/nbb_features.edn` - Configuration to map namespaces to js assets
+- `src/nbb/impl/$LIBRARY.cljs` - Sci mappings
 
-Some features have tests under `test-scripts/feature-tests`. These tests are run
-the same as integration tests but with `$NBB_FEATURES` e.g.
-`NBB_FEATURES=datascript bb ci:test`.
+`nbb_features.edn` is a vector of maps where each map consists of keys:
 
-If you'd like to distribute a version of nbb with features and give the cli a
-different name, use `$NBB_CLI_NAME` e.g. `NBB_FEATURES=datascript
-NBB_CLI_NAME=nbb-datascript bb release`.
+* `:name`: unique name to identify feature
+* `:namespaces`: namespaces provided by feature
+* `:shadow-cljs`: shadow-cljs config map for shadow-cljs module(s)
+* `:js`: The javascript file produced by the shadow-cljs config. This will be
+  loaded when one of the feature's namespaces are required.

@@ -35,6 +35,11 @@ jobs:
             node -v
             bb ci:test
       - run:
+          name: Run build tests
+          command: |
+            node -v
+            bb ci:test-build
+      - run:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run: bb ci:publish

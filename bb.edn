@@ -68,6 +68,19 @@
                    (run 'release)
                    (run 'run-tests)
                    (run 'run-integration-tests))}
+
+  ci:test-build {:doc "Runs tests for build library"
+                 :requires ([nbb-build-tests]
+                            [babashka.deps :as deps])
+                 :task (let [deps '{datascript/deps
+                                    {:git/url "https://github.com/logseq/nbb-logseq"
+                                     :git/sha "5aaf1a6a9516e61fbfb3eb73b3d28537e15c03af"
+                                     :deps/root "features/datascript"}}]
+                         (run 'clean)
+                         (deps/add-deps {:deps deps})
+                         (run 'release)
+                         (nbb-build-tests/main))}
+
   ci:publish {:doc "Publishes release build to npm"
               :depends [ci:is-release]
               :task
