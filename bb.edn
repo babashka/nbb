@@ -1,6 +1,9 @@
 {:paths ["script"]
+ :deps
+ {nbb.build/nbb.build {:local/root "build"}}
  :tasks
  {:requires ([babashka.fs :as fs]
+             [nbb.build :as build]
              [cheshire.core :as json]
              [clojure.edn :as edn]
              [clojure.pprint :as pp]
@@ -11,34 +14,18 @@
           (def windows? (-> (System/getProperty "os.name")
                             str/lower-case
                             (str/starts-with? "win")))
-          (def features (some-> (System/getenv "NBB_FEATURES")
-                                (str/split (re-pattern ","))))
           (when *test* (println "Tests are enabled.."))
           (defn wrap-cmd [cmd]
-            (let [cmd (if features
-                        (format "-Sdeps '%s' %s"
-                                {:deps
-                                 (into {}
-                                       (map (fn [f]
-                                              [(symbol (str f "/deps"))
-                                               {:local/root (str "features/" f)}])
-                                            features))}
-                                cmd)
-                        cmd)
-                  cmd (if *test*
-                        (str (str/replace cmd
-                                          "-M" "-M:test")
-                             " --config-merge shadow-tests.edn")
-                        cmd)]
-              (if features
-                (apply str cmd
-                  (map (fn [f] (format " --config-merge features/%s/shadow-cljs.edn" f))
-                       features))
-                cmd))))
+            (if *test*
+              (str (str/replace cmd
+                                "-M" "-M:test")
+                   " --config-merge shadow-tests.edn")
+              cmd)))
 
   clean (fs/delete-tree "lib")
 
-  compile (clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn compile modules"))
+  compile (build/build (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn compile modules")
+                       *command-line-args*)
 
   dev {:doc "Run shadow in watch mode with tests enabled."
        :task
@@ -46,26 +33,16 @@
          (println "Starting shadow-cljs in watch mode.")
          (println "Run node lib/nbb_main.js to test nbb")
          (println "Run bb run-tests to run the tests")
-         (apply clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn watch modules")
-           *command-line-args*))}
+         (build/build (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn watch modules")
+                      *command-line-args*))}
 
   run-tests (shell "node lib/nbb_tests.js")
 
   release {:depends [clean]
            :doc "Compiles release build."
-           :task
-           (do (apply clojure (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn release modules")
-                 *command-line-args*)
-             (spit "lib/nbb_core.js"
-                   (clojure.string/replace (slurp "lib/nbb_core.js") (re-pattern "self") "globalThis"))
-             (spit "lib/nbb_main.js"
-                   (str "#!/usr/bin/env node\n\n" (slurp "lib/nbb_main.js")))
-             (shell "chmod +x lib/nbb_main.js")
-             (run! fs/delete (fs/glob "lib" "**.map")))}
+           :task (build/release *command-line-args* {:wrap-cmd-fn wrap-cmd})}
 
   run-integration-tests nbb-tests/main
-
-  run-feature-integration-tests nbb-feature-tests/main
 
   publish {:doc "Bumps version, pushes tag and lets CI publish to npm."
            :task
@@ -90,9 +67,20 @@
                    (run 'clean)
                    (run 'release)
                    (run 'run-tests)
-                   (run 'run-integration-tests)
-                   (when features
-                     (run 'run-feature-integration-tests)))}
+                   (run 'run-integration-tests))}
+
+  ci:test-build {:doc "Runs tests for build library"
+                 :requires ([nbb-build-tests]
+                            [babashka.deps :as deps])
+                 :task (let [deps '{datascript/deps
+                                    {:git/url "https://github.com/logseq/nbb-logseq"
+                                     :git/sha "5aaf1a6a9516e61fbfb3eb73b3d28537e15c03af"
+                                     :deps/root "features/datascript"}}]
+                         (run 'clean)
+                         (deps/add-deps {:deps deps})
+                         (run 'release)
+                         (nbb-build-tests/main))}
+
   ci:publish {:doc "Publishes release build to npm"
               :depends [ci:is-release]
               :task

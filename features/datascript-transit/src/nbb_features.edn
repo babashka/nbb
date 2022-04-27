@@ -1,3 +1,0 @@
-[{:name logseq/datascript-transit
-  :namespaces [datascript.transit]
-  :js "./nbb_datascript_transit.js"}]

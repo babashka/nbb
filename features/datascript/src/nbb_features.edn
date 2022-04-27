@@ -1,3 +1,0 @@
-[{:name logseq/datascript
-  :namespaces [datascript.core datascript.db]
-  :js "./nbb_datascript.js"}]

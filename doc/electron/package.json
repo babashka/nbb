@@ -15,6 +15,6 @@
   },
   "dependencies": {
     "import-meta-resolve": "^1.1.1",
-    "nbb": "/Users/borkdude/dev/nbb"
+    "nbb": "^0.3.9"
   }
 }

@@ -1,2 +1,0 @@
-{:deps
- {datascript/datascript {:mvn/version "1.3.12"}}}
