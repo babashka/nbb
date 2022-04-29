@@ -2,9 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## 0.3.X
+## 0.3.10
 - Migrate features support to classpath approach
 - Provide build bb library for building features
+- Include `reagent.core/reactify-component`
 
 ## 0.3.9
 
