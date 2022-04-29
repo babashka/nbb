@@ -73,8 +73,8 @@
                  :requires ([nbb-build-tests]
                             [babashka.deps :as deps])
                  :task (let [deps '{datascript/deps
-                                    {:git/url "https://github.com/logseq/nbb-logseq"
-                                     :git/sha "5aaf1a6a9516e61fbfb3eb73b3d28537e15c03af"
+                                    {:git/url "https://github.com/babashk/nbb-features"
+                                     :git/sha "8938ef11926f660684a2d410d800cf9e12cf52a3"
                                      :deps/root "features/datascript"}}]
                          (run 'clean)
                          (deps/add-deps {:deps deps})
