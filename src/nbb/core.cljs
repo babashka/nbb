@@ -63,7 +63,7 @@
 
 (defn load-module [m libname as refer rename]
   (-> (if (some? (@sci-find-ns libname))
-        (js/Promise.resolve {:handled true})
+        (js/Promise.resolve {})
         (esm/dynamic-import m))
       (.then (fn [_module]
                (let [nlib (normalize-libname libname)]
@@ -85,7 +85,7 @@
                                           (list 'quote libname)
                                           :only (list 'quote refer)
                                           :rename (list 'quote rename))))))
-               {}))))
+               {:libname libname}))))
 
 (def ^:private  windows?
   (= "win32" js/process.platform))
@@ -114,6 +114,7 @@
 
 (defn async-load-fn [{:keys [libname opts ns]}]
   (let [{:keys [as refer rename]} opts
+        libname (normalize-libname libname libname)
         munged (munge libname)]
     (case libname
       ;; built-ins
