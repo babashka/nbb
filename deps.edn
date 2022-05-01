@@ -12,9 +12,9 @@
         applied-science/js-interop {:mvn/version "0.3.1"}
         cljs-bean/cljs-bean {:mvn/version "1.8.0"}
         org.babashka/sci
-        #_{:local/root "../babashka/sci"}
+        {:local/root "../babashka/sci"}
         #_{:mvn/version "0.3.4"}
-        {:git/url "https://github.com/babashka/sci"
+        #_{:git/url "https://github.com/babashka/sci"
          :git/sha "07e21bdab3c1365f7b2a06377e1c56fa09e95a15"}
         org.babashka/sci-configs
         {:git/url "https://github.com/babashka/sci-configs"
