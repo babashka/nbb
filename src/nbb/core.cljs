@@ -63,7 +63,7 @@
 
 (defn load-module [m libname as refer rename]
   (-> (if (some? (@sci-find-ns libname))
-        (js/Promise.resolve nil)
+        (js/Promise.resolve {:handled true})
         (esm/dynamic-import m))
       (.then (fn [_module]
                (let [nlib (normalize-libname libname)]
@@ -84,7 +84,8 @@
                                     (list 'clojure.core/refer
                                           (list 'quote libname)
                                           :only (list 'quote refer)
-                                          :rename (list 'quote rename))))))))))
+                                          :rename (list 'quote rename))))))
+               {}))))
 
 (def ^:private  windows?
   (= "win32" js/process.platform))
@@ -111,7 +112,7 @@
 (def feature-requires
   (macros/feature-requires))
 
-(defn async-load-fn [{:keys [libname opts ns ctx]}]
+(defn async-load-fn [{:keys [libname opts ns]}]
   (let [{:keys [as refer rename]} opts
         munged (munge libname)]
     (case libname
@@ -184,16 +185,18 @@
                              (fn [sci-ctx]
                                (-> sci-ctx
                                    (sci/add-class! internal-subname mod-field)
-                                   (sci/add-import! ns internal-subname field)))))))
+                                   (sci/add-import! ns internal-subname field))))))
+                  {:handled true})
                 mod (js/Promise.resolve
                      (or
                       ;; skip loading if module was already loaded
                       (get @loaded-modules internal-name)
                       ;; else load module and register in loaded-modules under internal-name
                       (->
-                       (js/Promise.resolve (try ((.-resolve (:require @ctx)) libname)
-                                                (catch :default _
-                                                  ((:resolve @ctx) libname))))
+                       (js/Promise.resolve (try
+                                             ((.-resolve (:require @ctx)) libname)
+                                             (catch :default _
+                                               ((:resolve @ctx) libname))))
                        (.then (fn [path]
                                 (esm/dynamic-import
                                  (let [path (if (and windows? (fs/existsSync path))
@@ -233,55 +236,6 @@
                                             :only (list 'quote refer)
                                             :rename (list 'quote rename)))))))
               (js/Promise.reject (js/Error. (str "Could not find namespace: " libname))))))))))
-
-#_(defn ^:private handle-libspecs [libspecs]
-    (if (seq libspecs)
-      (let [fst (first libspecs)
-            [libname & opts] (if (symbol? fst)
-                               [fst] fst)
-            libname (if (= 'cljs.core libname)
-                      'clojure.core libname)
-            opts (apply hash-map opts)
-            as (:as opts)
-            as-alias (:as-alias opts)
-            refer (concat (:refer opts) (:refer-macros opts))
-            rename (:rename opts)
-            munged (munge libname)
-            current-ns-str (str @sci/ns)
-            current-ns (symbol current-ns-str)]
-        (if as-alias
-          (do (old-require fst)
-              (handle-libspecs (next libspecs)))
-          ))
-      (js/Promise.resolve @sci/ns)))
-
-#_(defn eval-ns-form [ns-form]
-    ;; the parsing is still very crude, we only support a subset of the ns form
-    ;; and ignore everything but (:require clauses)
-    (let [[_ns ns-name & ns-forms] ns-form
-          grouped (group-by (fn [ns-form]
-                              (and (seq? ns-form)
-                                   (= :require (first ns-form)))) ns-forms)
-          require-forms (get grouped true)
-          other-forms (get grouped false)
-          ;; ignore all :require-macros for now
-          other-forms (remove #(and (seq? %) (= :require-macros (first %)))
-                              other-forms)
-          ns-obj (sci/eval-form @sci-ctx (list 'do (list* 'ns ns-name other-forms) '*ns*))
-          libspecs (mapcat rest
-                           require-forms)]
-      (with-async-bindings {sci/ns ns-obj}
-        (handle-libspecs libspecs))))
-
-#_(defn eval-require [require-form]
-    (let [args (rest require-form)
-          libspecs (mapv #(sci/eval-form @sci-ctx %) args)]
-      (handle-libspecs libspecs)))
-
-#_(defn parse-next [reader]
-    (sci/parse-next @sci-ctx reader
-                    {:features #{:org.babashka/nbb
-                                 :cljs}}))
 
 (declare eval-next)
 
