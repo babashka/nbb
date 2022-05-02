@@ -94,7 +94,8 @@
   (when-not (or @in-progress (str/blank? @pending-input))
     (reset! in-progress true)
     (let [rdr (sci/reader @pending-input)
-          the-val (try (nbb/parse-next rdr)
+          the-val (try (sci/binding [sci/ns @last-ns]
+                         (nbb/parse-next rdr))
                        (catch :default e
                          (if (str/includes? (ex-message e) "EOF while reading")
                            ::eof-while-reading
