@@ -5,6 +5,7 @@
    ["path" :as path]
    ["url" :as url]
    [clojure.string :as str]
+   [edamame.core]
    [goog.object :as gobj]
    [nbb.classpath :as cp]
    [nbb.common :refer [core-ns]]
@@ -457,7 +458,8 @@
                        'goog.object {'get gobj/get
                                      'set gobj/set
                                      'getKeys gobj/getKeys
-                                     'getValueByKeys gobj/getValueByKeys}}
+                                     'getValueByKeys gobj/getValueByKeys}
+                       'edamame.core (sci/copy-ns edamame.core (sci/create-ns 'edamame.core))}
           :classes {'js universe :allow :all
                     'goog.object #js {:get gobj/get
                                       :set gobj/set

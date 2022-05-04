@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.3.12
+
+- Expose `edamame.core`
+
 ## 0.3.11
 
 - Fix [#180](https://github.com/babashka/nbb/issues/180): namespace resolution in REPL
