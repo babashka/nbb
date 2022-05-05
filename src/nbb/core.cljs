@@ -4,6 +4,7 @@
    ["fs" :as fs]
    ["path" :as path]
    ["url" :as url]
+   [clojure.edn :as edn]
    [clojure.string :as str]
    [edamame.core]
    [goog.object :as gobj]
@@ -170,6 +171,8 @@
           (load-module "./nbb_tools_cli.js" libname as refer rename libspecs)
           (goog.string goog.string.format)
           (load-module "./nbb_goog_string.js" libname as refer rename libspecs)
+          (goog.crypt)
+          (load-module "./nbb_goog_crypt.js" libname as refer rename libspecs)
           (cognitect.transit)
           (load-module "./nbb_transit.js" libname as refer rename libspecs)
           (clojure.data)
@@ -440,7 +443,7 @@
                                       'MapEntry (sci/copy-var MapEntry core-ns)
                                       'UUID (sci/copy-var UUID core-ns)
                                       'PersistentQueue (sci/copy-var PersistentQueue core-ns)}
-
+                       'cljs.reader {'read-string (sci/copy-var edn/read-string (sci/create-ns 'cljs.reader))}
                        'clojure.main {'repl-requires (sci/copy-var
                                                       repl-requires
                                                       (sci/create-ns 'clojure.main))}
