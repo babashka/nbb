@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "rqlite-js": "^2.5.4"
+    "rqlite-js": "^2.5.5"
   }
 }

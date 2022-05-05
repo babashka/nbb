@@ -38,3 +38,4 @@ $ rqlite
 +----+-------+
 ```
 
+Now you're ready to run the example in `example.cljs` file.
