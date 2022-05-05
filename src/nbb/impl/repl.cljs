@@ -129,12 +129,16 @@
                                  (let [[val ns]
                                        [(first v) (sci/eval-form @nbb/sci-ctx '*ns*)]]
                                    (reset! last-ns ns)
+                                   (sci/alter-var-root sci/*3 (constantly @sci/*2))
+                                   (sci/alter-var-root sci/*2 (constantly @sci/*1))
+                                   (sci/alter-var-root sci/*1 (constantly val))
                                    (when socket
                                      (.write socket (prn-str val))
                                      #_(prn val))
                                    (continue rl socket))))
                         (.catch (fn [err]
                                   (prn (str err))
+                                  (sci/alter-var-root sci/*e (constantly err))
                                   (continue rl socket)))))
                   (reset! in-progress false)))))))
 

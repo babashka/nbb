@@ -2,6 +2,11 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## Unreleased
+
+- Add `goog.crypt`
+- 
+
 ## 0.3.12
 
 - Expose `edamame.core`
