@@ -2,10 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## Unreleased
+## 0.3.96
 
 - Add `goog.crypt`
-- 
+- #85: set *1, *2, *3, *e in REPL
 
 ## 0.3.12
 
