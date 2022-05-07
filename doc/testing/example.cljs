@@ -25,5 +25,6 @@
   (when-not (cljs.test/successful? m)
     (set! (.-exitCode js/process) 1)))
 
+;; run this function with: nbb -m example/run-tests
 (defn run-tests []
   (t/run-tests 'example))
