@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "clean": "rimraf kittens"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2"
+  },
+  "dependencies": {
+    "pouchdb": "^7.3.0"
+  }
+}
