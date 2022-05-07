@@ -363,6 +363,10 @@ Nbb supports the following reader conditional features: `:org.babashka/nbb` and
 #?(:cljs 2 :org.babashka/nbb 1) ;;=> 2
 ```
 
+## Testing
+
+See [doc/testing.md](doc/testing.md).
+
 ## REPL
 
 ### Console REPL
