@@ -365,7 +365,7 @@ Nbb supports the following reader conditional features: `:org.babashka/nbb` and
 
 ## Testing
 
-See [doc/testing/README.md](doc/testing/README.md).
+See [doc/testing](https://github.com/babashka/nbb/tree/main/doc/testing).
 
 ## REPL
 
