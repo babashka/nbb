@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.3.97
+
+- `nrepl-server` supports `:host` parameter enabling connection within a Docker container.
+
 ## 0.3.96
 
 - Add `goog.crypt`

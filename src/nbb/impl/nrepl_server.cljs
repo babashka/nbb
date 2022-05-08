@@ -198,6 +198,9 @@
   (api/init-require (path/resolve "script.cljs"))
   (let [port (or (:port opts)
                  0)
+        host (or (:host opts)
+                 "127.0.0.1" ;; default
+                 )
         _log_level (or (if (object? opts)
                          (.-log_level ^Object opts)
                          (:log_level opts))
@@ -208,7 +211,7 @@
     ;; Expose "app" key under js/app in the repl
     (.listen server
              port
-             "127.0.0.1" ;; default for now
+             host
              (fn []
                (let [addr (-> server (.address))
                      port (-> addr .-port)

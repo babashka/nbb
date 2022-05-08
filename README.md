@@ -446,6 +446,12 @@ $ lein repl :connect 1337
 
 and evaluate expressions.
 
+Running nREPL in Docker container is supported with the optional `:host` argument.
+
+``` clojure
+$ nbb nrepl-server :port 1337 :host 0.0.0.0
+```
+
 #### Calva
 
 In Calva connect to the REPL with:

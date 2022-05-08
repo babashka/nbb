@@ -42,12 +42,16 @@ the project to see which tasks are relevant.
 
 ## Develop
 
-Run the `bb dev` task to start compilation in development mode and to start a watcher to compile changes.
-Then run `node out/nbb_main.js <args>` to test the compiled nbb.
+Run the `bb dev` task to start compilation in development mode and to start a shadow-cljs watcher to compile changes. nbb is ultimately compiled entirely to js code so that it can be bootsrapped by `node`. `lib/nbb_main.js` will be produced as an entry point as well as many other js dependencies.
+
+Then run `node lib/nbb_main.js <args>` to test the compiled nbb.
 
 ## Test
 
 To run tests, run `bb run-tests` for unit tests and `bb run-integration-tests` for running integration tests.
+
+You need to run `bb dev` first or you'll get the errors with `Error: Cannot find module './nbb/lib/nbb_tests.js'`.
+
 
 ## Build
 
