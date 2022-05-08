@@ -50,6 +50,9 @@
           (":port" "--port")
           (recur (assoc opts :port (first nargs))
                  (next nargs))
+          (":host" "--host")
+          (recur (assoc opts :host (first nargs))
+                 (next nargs))
           "repl" (recur (assoc opts :repl true)
                         nargs)
           ;; default
@@ -80,10 +83,11 @@ Evaluation:
 REPL:
 
  repl: start console REPL.
- nrepl-server: start nrepl server. [1]
+ nrepl-server: start nrepl server. [1,2]
  socket-repl: start socket repl server. [1]
 
  1: Provide :port <port> to specify port.
+ 2: Provide :host <host> to specify host.
 "))
 
 (defn main []
