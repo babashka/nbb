@@ -8,6 +8,8 @@
    [clojure.string :as str]
    [nbb.api :as api]
    [nbb.classpath :as cp]
+   [goog.string :as gstring]
+   [goog.string.format]
    [nbb.core :as nbb]
    [nbb.impl.bencode :refer [encode decode-all]]
    [nbb.impl.repl-utils :as utils :refer [the-sci-ns]]
@@ -144,6 +146,86 @@
     "classpath"
     (cp/split-classpath (cp/get-classpath))}))
 
+(defn
+  handle-macroexpand
+  [{:keys [code expander] :as request} send-fn]
+  (try
+    (handle-eval
+     (assoc
+      request
+      :code
+      (str "( " expander "(quote "  code  "))"))
+     (fn
+       [request response]
+       (send-fn
+        request
+        (if-let [value (response "value")]
+          (assoc response "expansion" value)
+          response))))
+    (catch js/Error e
+      (send-fn request {"ex" (str e)
+                        "ns" (str @sci/ns)
+                        "status" ["done"]}))))
+
+
+;; compare [[babashka.nrepl.impl.server]]
+
+(defn forms-join [forms]
+  (->> (map pr-str forms)
+       (str/join \newline)))
+
+(defn handle-lookup [{:keys [sci-ctx-atom ns] :as request} send-fn]
+  (let [ns-str (:ns request)
+        sym-str (or (:sym request) (:symbol request))
+        mapping-type (-> request :op)
+        sci-ns
+        (or (when ns
+              (the-sci-ns @sci-ctx-atom (symbol ns)))
+            @last-ns
+            @sci/ns)]
+    (try
+      (sci/binding [sci/ns sci-ns]
+        (let [m (sci/eval-string* @sci-ctx-atom (gstring/format "
+(let [ns '%s
+      full-sym '%s]
+  (when-let [v (ns-resolve ns full-sym)]
+    (let [m (meta v)]
+      (assoc m :arglists (:arglists m)
+       :doc (:doc m)
+       :name (:name m)
+       :ns (some-> m :ns ns-name)
+       :val @v))))" ns-str sym-str))
+              doc (:doc m)
+              file (:file m)
+              line (:line m)
+              reply (case mapping-type
+                      :eldoc (cond->
+                                 {"ns" (:ns m)
+                                  "name" (:name m)
+                                  "eldoc" (mapv #(mapv str %) (:arglists m))
+                                  "type" (cond
+                                           (ifn? (:val m)) "function"
+                                           :else "variable")
+                                  "status" ["done"]}
+                                 doc (assoc "docstring" doc))
+                      (:info :lookup) (cond->
+                                          {"ns" (:ns m)
+                                           "name" (:name m)
+                                           "arglists-str" (forms-join (:arglists m))
+                                           "status" ["done"]}
+                                          doc (assoc "doc" doc)
+                                          file (assoc "file" file)
+                                          line (assoc "line" line)))]
+          (send-fn request reply)))
+      (catch js/Error e
+        (let [status (cond->
+                         #{"done"}
+                         (= mapping-type :eldoc)
+                         (conj "no-eldoc"))]
+          (send-fn
+           request
+           {"status" status "ex" (str e)}))))))
+
 (defn handle-load-file [{:keys [file] :as request} send-fn]
   (do-handle-eval (assoc request
                          :code file
@@ -163,8 +245,12 @@
   "Operations supported by the nrepl server"
   {:eval handle-eval
    :describe handle-describe
+   :info handle-lookup
+   :lookup handle-lookup
+   :eldoc handle-lookup
    :clone handle-clone
    :close handle-close
+   :macroexpand handle-macroexpand
    :classpath handle-classpath
    :load-file handle-load-file
    :complete handle-complete})
