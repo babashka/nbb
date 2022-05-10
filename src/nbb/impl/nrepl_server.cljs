@@ -11,7 +11,8 @@
    [nbb.core :as nbb]
    [nbb.impl.bencode :refer [encode decode-all]]
    [nbb.impl.repl-utils :as utils :refer [the-sci-ns]]
-   [sci.core :as sci])
+   [sci.core :as sci]
+   [clojure.pprint :as pp])
   (:require-macros
    [nbb.macros :refer [with-async-bindings]]))
 
@@ -70,6 +71,24 @@
 ;; TODO: this should not be global
 (def last-ns (atom nil))
 
+(def pretty-print-fns-map
+  {"clojure.core/prn" prn
+   "clojure.pprint/pprint" pp/pprint
+   "cider.nrepl.pprint/pprint" pp/pprint})
+
+(defn format-value [nrepl-pprint pprint-options value]
+  (if nrepl-pprint
+    (if-let [pprint-fn (pretty-print-fns-map nrepl-pprint)]
+      (let [{:keys [right-margin length level]} pprint-options]
+        (binding [*print-length* length
+                  *print-level* level
+                  pp/*print-right-margin* right-margin]
+          (with-out-str (pprint-fn value))))
+      (do
+        (debug "Pretty-Printing is only supported for clojure.core/prn and clojure.pprint/pprint.")
+        (pr-str value)))
+    (pr-str value)))
+
 (defn do-handle-eval [{:keys [ns code _sci-ctx-atom _load-file?] :as request} send-fn]
   (with-async-bindings
     {sci/ns ns
@@ -87,7 +106,9 @@
                    (sci/alter-var-root sci/*3 (constantly @sci/*2))
                    (sci/alter-var-root sci/*2 (constantly @sci/*1))
                    (sci/alter-var-root sci/*1 (constantly v))
-                   (send-fn request {"value" (pr-str v)
+                   (send-fn request {"value" (format-value (:nrepl.middleware.print/print request)
+                                                           (:nrepl.middleware.print/options request)
+                                                           v)
                                      "ns" (str @sci/ns)}))
                  (send-fn request {"status" ["done"]})))
         (.catch (fn [e]
