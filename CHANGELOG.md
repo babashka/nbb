@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.4.100
+
+- nREPL improvements
+
 ## 0.3.99
 
 - Fix [#187](https://github.com/babashka/nbb/issues/187): invalid arity with `are` macro (workaround for bug in CLJS)
