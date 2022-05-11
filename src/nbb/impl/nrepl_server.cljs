@@ -4,15 +4,14 @@
    ["fs" :as fs]
    ["net" :as node-net]
    ["path" :as path]
+   [clojure.pprint :as pp]
    [clojure.string :as str]
-   [goog.object :as gobject]
    [nbb.api :as api]
    [nbb.classpath :as cp]
    [nbb.core :as nbb]
    [nbb.impl.bencode :refer [encode decode-all]]
    [nbb.impl.repl-utils :as utils :refer [the-sci-ns]]
-   [sci.core :as sci]
-   [clojure.pprint :as pp])
+   [sci.core :as sci])
   (:require-macros
    [nbb.macros :refer [with-async-bindings]]))
 
@@ -106,10 +105,11 @@
                    (sci/alter-var-root sci/*3 (constantly @sci/*2))
                    (sci/alter-var-root sci/*2 (constantly @sci/*1))
                    (sci/alter-var-root sci/*1 (constantly v))
-                   (send-fn request {"value" (format-value (:nrepl.middleware.print/print request)
-                                                           (:nrepl.middleware.print/options request)
-                                                           v)
-                                     "ns" (str @sci/ns)}))
+                   (let [v (format-value (:nrepl.middleware.print/print request)
+                                         (:nrepl.middleware.print/options request)
+                                         v)]
+                     (send-fn request {"value" v
+                                       "ns" (str @sci/ns)})))
                  (send-fn request {"status" ["done"]})))
         (.catch (fn [e]
                   (sci/alter-var-root sci/*e (constantly e))
