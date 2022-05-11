@@ -240,6 +240,32 @@
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (new-id!)}))))
 
+(deftest pprint-test
+  (nrepl-server)
+  (wait-for-port "localhost" @port)
+  (with-open [socket (Socket. "127.0.0.1" @port)
+              in (.getInputStream socket)
+              in (java.io.PushbackInputStream. in)
+              os (.getOutputStream socket)]
+    (bencode/write-bencode os {"op" "clone"})
+    (let [session (:new-session (read-msg (bencode/read-bencode in)))
+          id (atom 0)
+          new-id! #(swap! id inc)]
+      (doseq [pprint-fn ["clojure.pprint/pprint"
+                         "cider.nrepl.pprint/pprint"]]
+        (testing "print"
+          (bencode/write-bencode os {"op" "eval"
+                                     "code" "(range 20)"
+                                     "nrepl.middleware.print/print" pprint-fn
+                                     "nrepl.middleware.print/options" {:length 10}
+                                     "session" session "id" (new-id!)})
+
+          (let [reply (read-reply in session @id)
+                {:keys [value]} reply]
+            (is (= "(0 1 2 3 4 5 6 7 8 9 ...)" (str/trim value))))))
+      (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
+                                 "session" session "id" (new-id!)}))))
+
 (defn -main [& _]
   (let [{:keys [:error :fail]} (t/run-tests 'nbb-nrepl-tests)]
     (when (pos? (+ error fail))
