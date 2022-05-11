@@ -74,4 +74,4 @@ Also check out these resources:
 - [nbb serverless example](https://github.com/vharmain/nbb-serverless-example)
 by Valtteri Harmainen
 - [Serverless site analytics with Clojure nbb and AWS](https://www.loop-code-recur.io/simple-site-analytics-with-serverless-clojure/) by Cyprien Pannier
-- [Nbb on Google Cloud Function](gloud_function.md).
+- [Nbb on Google Cloud Function](gcloud_functions.md)
