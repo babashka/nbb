@@ -13,6 +13,7 @@
 (def port (atom 13337))
 
 (defn nrepl-server []
+  (swap! port inc)
   (process ["node" "lib/nbb_main.js" "nrepl-server" ":port" @port]
            (merge {:out :inherit
                    :err :inherit})))
@@ -89,7 +90,6 @@
                                  "session" session "id" (new-id!)}))))
 
 (deftest promise-test
-  (swap! port inc)
   (nrepl-server)
   (wait-for-port "localhost" @port)
   (with-open [socket (Socket. "127.0.0.1" @port)
@@ -113,7 +113,6 @@
                                  "session" session "id" (new-id!)}))))
 
 (deftest doc-test
-  (swap! port inc)
   (nrepl-server)
   (wait-for-port "localhost" @port)
   (with-open [socket (Socket. "127.0.0.1" @port)
@@ -164,7 +163,6 @@
                                  "session" session "id" (new-id!)}))))
 
 (deftest complete-test
-  (swap! port inc)
   (nrepl-server)
   (wait-for-port "localhost" @port)
   (with-open [socket (Socket. "127.0.0.1" @port)
@@ -267,7 +265,6 @@
                                  "session" session "id" (new-id!)}))))
 
 (deftest eldoc-test
-  (swap! port inc)
   (nrepl-server)
   (wait-for-port "localhost" @port)
   (with-open [socket (Socket. "127.0.0.1" @port)
@@ -306,7 +303,6 @@
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (new-id!)}))))
 (deftest lookup-test
-  (swap! port inc)
   (nrepl-server)
   (wait-for-port "localhost" @port)
   (with-open [socket (Socket. "127.0.0.1" @port)
@@ -349,7 +345,6 @@
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (new-id!)}))))
 (deftest macroexpand-test
-  (swap! port inc)
   (nrepl-server)
   (wait-for-port "localhost" @port)
   (with-open [socket (Socket. "127.0.0.1" @port)
