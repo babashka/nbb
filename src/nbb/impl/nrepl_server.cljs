@@ -88,9 +88,11 @@
         (pr-str value)))
     (pr-str value)))
 
-(defn do-handle-eval [{:keys [ns code _sci-ctx-atom _load-file?] :as request} send-fn]
+(defn do-handle-eval [{:keys [ns code sci-last-error file
+                              _sci-ctx-atom _load-file? _line] :as request} send-fn]
   (with-async-bindings
     {sci/ns ns
+     sci/file file
      sci/print-length @sci/print-length
      sci/print-newline true}
     ;; we alter-var-root this because the print-fn may go out of scope in case
