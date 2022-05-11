@@ -266,6 +266,129 @@
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (new-id!)}))))
 
+(deftest eldoc-test
+  (swap! port inc)
+  (nrepl-server)
+  (wait-for-port "localhost" @port)
+  (with-open [socket (Socket. "127.0.0.1" @port)
+              in (.getInputStream socket)
+              in (java.io.PushbackInputStream. in)
+              os (.getOutputStream socket)]
+    (bencode/write-bencode os {"op" "clone"})
+    (let [session (:new-session (read-msg (bencode/read-bencode in)))
+          id (atom 0)
+          new-id! #(swap! id inc)]
+      (testing "eldoc"
+        (bencode/write-bencode os {"op" "eval"
+                                   "code"
+                                   "(ns example)"
+                                   "session" session "id" (new-id!)})
+        (let [_ (read-reply in session @id)
+              msg (read-reply in session @id)
+              status (:status msg)
+              _ (is (= ["done"] status))])
+        (testing "Core eldoc"
+          (bencode/write-bencode os
+                                 {"op" "eldoc"
+                                  "ns" "example"
+                                  "symbol" "prn"
+                                  "session" session "id" (new-id!)})
+          (let [msg (read-reply in session @id)
+                ;; fixme:
+                ;; (println (first (first (:eldoc msg))))
+                ;; #object[[B 0x4b7c736d [B@4b7c736
+                ;; I don't get how to get the strings
+                ;; cider correctly makes this out of :eldoc
+                ;; '(("&" "objs"))
+                _ (is (= (:name msg) "prn"))
+                _ (is (= (:ns msg) "clojure.core"))
+                _ (is (= (:type msg) "function"))])))
+      (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
+                                 "session" session "id" (new-id!)}))))
+(deftest lookup-test
+  (swap! port inc)
+  (nrepl-server)
+  (wait-for-port "localhost" @port)
+  (with-open [socket (Socket. "127.0.0.1" @port)
+              in (.getInputStream socket)
+              in (java.io.PushbackInputStream. in)
+              os (.getOutputStream socket)]
+    (bencode/write-bencode os {"op" "clone"})
+    (let [session (:new-session (read-msg (bencode/read-bencode in)))
+          id (atom 0)
+          new-id! #(swap! id inc)]
+      (testing "eldoc"
+        (bencode/write-bencode os {"op" "eval"
+                                   "code"
+                                   "(ns example)"
+                                   "session" session "id" (new-id!)})
+        (let [_ (read-reply in session @id)
+              msg (read-reply in session @id)
+              status (:status msg)
+              _ (is (= ["done"] status))])
+        (testing "Core lookup"
+          (bencode/write-bencode os
+                                 {"op" "lookup"
+                                  "ns" "example"
+                                  "symbol" "prn"
+                                  "session" session "id" (new-id!)})
+          (let [msg (read-reply in session @id)
+                _ (is (= (:arglists-str msg) "[& objs]"))
+                _ (is (= (:name msg) "prn"))
+                _ (is (= (:ns msg) "clojure.core"))]))
+        (testing "Core info"
+          (bencode/write-bencode os
+                                 {"op" "info"
+                                  "ns" "example"
+                                  "symbol" "prn"
+                                  "session" session "id" (new-id!)})
+          (let [msg (read-reply in session @id)
+                _ (is (= (:arglists-str msg) "[& objs]"))
+                _ (is (= (:name msg) "prn"))
+                _ (is (= (:ns msg) "clojure.core"))])))
+      (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
+                                 "session" session "id" (new-id!)}))))
+(deftest macroexpand-test
+  (swap! port inc)
+  (nrepl-server)
+  (wait-for-port "localhost" @port)
+  (with-open [socket (Socket. "127.0.0.1" @port)
+              in (.getInputStream socket)
+              in (java.io.PushbackInputStream. in)
+              os (.getOutputStream socket)]
+    (bencode/write-bencode os {"op" "clone"})
+    (let [session (:new-session (read-msg (bencode/read-bencode in)))
+          id (atom 0)
+          new-id! #(swap! id inc)]
+      (testing "eldoc"
+        (bencode/write-bencode os {"op" "eval"
+                                   "code"
+                                   "(ns example)\n(defmacro foo [] 'lul)"
+                                   "session" session "id" (new-id!)})
+        (let [_ (read-reply in session @id)
+              msg (read-reply in session @id)
+              status (:status msg)
+              _ (is (= ["done"] status))])
+        (testing "Expand user macro"
+          (bencode/write-bencode os
+                                 {"op" "macroexpand"
+                                  "code" "(foo)"
+                                  "expander" "macroexpand-1"
+                                  "session" session "id" (new-id!)})
+          (let [msg (read-reply in session @id)
+                _ (is (= (:expansion msg) "lul"))]))
+        (testing "Expand core macro"
+          (bencode/write-bencode os
+                                 {"op" "macroexpand"
+                                  "code" "(when 'foo 'bar)"
+                                  "expander" "macroexpand-1"
+                                  "session" session "id" (new-id!)})
+          (let [msg (read-reply in session @id)
+                _ (is (= (:expansion msg) "(if (quote foo) (do (quote bar)))"))])))
+      (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
+                                 "session" session "id" (new-id!)}))))
+
+
 (defn -main [& _]
   (let [{:keys [:error :fail]} (t/run-tests 'nbb-nrepl-tests)]
     (when (pos? (+ error fail))
