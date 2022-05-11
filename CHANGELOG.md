@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.3.99
+
+- Fix [#187](https://github.com/babashka/nbb/issues/187): invalid arity with `are` macro (workaround for bug in CLJS)
+
 ## 0.3.98
 
 - `nrepl-server` supports pprinting eval results
@@ -13,7 +17,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 ## 0.3.96
 
 - Add `goog.crypt`
-- #85: set *1, *2, *3, *e in REPL
+- [#85](https://github.com/babashka/nbb/issues/85): set *1, *2, *3, *e in REPL
 
 ## 0.3.12
 
