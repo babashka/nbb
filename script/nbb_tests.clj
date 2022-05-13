@@ -207,6 +207,15 @@
                   deref
                   :exit)))))
 
+(deftest failing-test-results-in-failing-exit-code
+  (is (not
+       (zero?
+        (-> (nbb** "-e" "
+    (ns foo0 (:require [clojure.test :as t :refer [deftest is testing]]))
+    (t/deftest foo (t/is (= 1 2))) (t/run-tests 'foo0)")
+            deref
+            :exit)))))
+
 (defn parse-opts [opts]
   (let [[cmds opts] (split-with #(not (str/starts-with? % ":")) opts)]
     (into {:cmds cmds}
