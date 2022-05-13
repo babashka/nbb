@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## Next release
+
+- cljs.test defaults to failed tests result in failed process
+
 ## 0.4.100
 
 - nREPL improvements
