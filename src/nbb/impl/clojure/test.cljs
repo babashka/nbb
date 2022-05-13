@@ -394,7 +394,6 @@
 (defmethod report-impl [:cljs.test/default :begin-test-var] [m]
   #_(println ":begin-test-var" (testing-vars-str m)))
 (defmethod report-impl [:cljs.test/default :end-test-var] [m])
-(defmethod report-impl [:cljs.test/default :end-run-tests] [m])
 (defmethod report-impl [:cljs.test/default :end-test-all-vars] [m])
 (defmethod report-impl [:cljs.test/default :end-test-vars] [m])
 
@@ -531,7 +530,7 @@
 ;; macro.  These define different kinds of tests, based on the first
 ;; symbol in the test expression.
 
-(defmulti assert-expr 
+(defmulti assert-expr
   (fn [_menv _msg form]
     (cond
       (nil? form) :always-fail
@@ -1080,3 +1079,8 @@
   [summary]
   (and (zero? (:fail summary 0))
        (zero? (:error summary 0))))
+
+;; Exit 1 if there is a test failure or error
+(defmethod report-impl [:cljs.test/default :end-run-tests] [m]
+  (when-not (successful? m)
+    (set! (.-exitCode js/process) 1)))
