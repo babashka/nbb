@@ -13,6 +13,7 @@
                           (swap! output str s))}
           (nbb/load-string "
     (ns foo0 (:require [clojure.test :as t :refer [deftest is testing]]))
+    (defmethod t/report [:cljs.test/default :end-run-tests] [m])
     (t/deftest foo (t/is (= 1 2))) (t/run-tests 'foo0)"))
         (.then (fn [_]
                  (is (str/includes? @output "expected: (= 1 2)  actual: (not (= 1 2))")))))))
@@ -24,6 +25,7 @@
                           (swap! output str s))}
           (nbb/load-string "
     (ns foo01 (:require [cljs.test :as t :refer [deftest is testing]]))
+    (defmethod t/report [:cljs.test/default :end-run-tests] [m])
     (t/deftest foo (t/is (= 1 2)))
     (cljs.test/deftest bar (t/is (= 1 2))) (t/run-tests 'foo01)"))
         (.then (fn [_]
@@ -36,6 +38,7 @@
                           (swap! output str s))}
           (nbb/load-string "
     (ns foo02 (:require [cljs.test :as t :refer-macros [deftest is]]))
+    (defmethod t/report [:cljs.test/default :end-run-tests] [m])
     (deftest foo (is (= 1 2))) (t/run-tests 'foo02)"))
         (.then (fn [_]
                  (is (str/includes? @output "expected: (= 1 2)  actual: (not (= 1 2))")))))))
@@ -48,6 +51,7 @@
       (->
        (nbb/load-string "
     (ns foo-are (:require [clojure.test :as t :refer [deftest is are testing]]))
+    (defmethod t/report [:cljs.test/default :end-run-tests] [m])
     (t/deftest foo (t/are [x] (= x 2) 1 2 3)) (t/run-tests 'foo-are)")
           (.then (fn [_]
                    (is (str/includes? @output "expected: (= 3 2)  actual: (not (= 3 2))"))))
@@ -85,6 +89,7 @@
            (sci/alter-var-root sci/print-newline (constantly true))
            (nbb/load-string "
     (ns foo1 (:require [clojure.test :as t :refer [deftest async is testing]]))
+    (defmethod t/report [:cljs.test/default :end-run-tests] [m])
     (deftest foo (async done
                    (js/setTimeout #(do (t/is (= 1 2)) (done)) 300)))
     (t/run-tests 'foo1)")
@@ -173,6 +178,8 @@
                (nbb/load-string "
 (ns foo4
   (:require [clojure.test :as t :refer [report]]))
+
+(defmethod t/report [:cljs.test/default :end-run-tests] [m])
 
 (def state (atom []))
 
