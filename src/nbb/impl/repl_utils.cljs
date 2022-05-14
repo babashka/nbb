@@ -5,7 +5,7 @@
    [sci.core :as sci]))
 
 (defn the-sci-ns [ctx ns-sym]
-  (sci/eval-form ctx (list 'clojure.core/the-ns (list 'quote ns-sym))))
+  (sci/find-ns ctx ns-sym))
 
 (defn format [fmt-str x]
   (str/replace fmt-str "%s" x))

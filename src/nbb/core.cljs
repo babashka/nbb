@@ -58,7 +58,8 @@
 
 (def normalize-libname
   {'clojure.pprint 'cljs.pprint
-   'clojure.test 'cljs.test})
+   'clojure.test 'cljs.test
+   'clojure.math 'cljs.math})
 
 (def sci-find-ns (delay (sci/eval-form @sci-ctx 'find-ns)))
 
@@ -68,12 +69,12 @@
         (esm/dynamic-import m))
       (.then (fn [_module]
                (let [nlib (normalize-libname libname)]
-                 (when-not (= nlib libname)
-                   (when as
-                     (sci/eval-form @sci-ctx
-                                    (list 'alias
-                                          (list 'quote libname)
-                                          (list 'quote nlib)))))
+                 (when (and as nlib
+                            (not= nlib libname))
+                   (sci/eval-form @sci-ctx
+                                  (list 'alias
+                                        (list 'quote libname)
+                                        (list 'quote nlib))))
                  (let [libname (or nlib libname)]
                    (when as
                      (sci/eval-form @sci-ctx
