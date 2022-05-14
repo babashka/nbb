@@ -6,6 +6,13 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 - cljs.test defaults to failed tests result in failed process
 
+## 0.5.101
+
+- Set exit code automatically based on failing `cljs.test` tests.
+- Upgrade to ClojureScript 1.11.51. See [release
+  notes](https://clojurescript.org/news/2022-05-13-release). This adds the
+  additional core vars + the `cljs.math` namespace.
+
 ## 0.4.100
 
 - nREPL improvements

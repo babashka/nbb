@@ -1,6 +1,8 @@
 {:paths ["src"]
  :aliases {:test {:extra-paths ["test"]}}
- :deps {thheller/shadow-cljs {:mvn/version "2.16.12"}
+ :deps {thheller/shadow-cljs {:mvn/version "2.18.0"}
+        org.clojure/clojurescript {:mvn/version "1.11.51"}
+        com.google.javascript/closure-compiler-unshaded {:mvn/version "v20220301"}
         ;; reagent/reagent {:mvn/version "1.0.0"}
         cljsjs/react {:mvn/version "17.0.2-0"}
         cljsjs/react-dom {:mvn/version "17.0.2-0"}
@@ -15,9 +17,10 @@
         #_{:local/root "../babashka/sci"}
         #_{:mvn/version "0.3.5"}
         {:git/url "https://github.com/babashka/sci"
-         :git/sha "246c6c0639d2b55082e06f03611830b99d6286ef"}
+         :git/sha "65c9d0d1b838afdaceece1f74dc7cbac66a658bf"}
         org.babashka/sci-configs
         {:git/url "https://github.com/babashka/sci-configs"
          :git/sha "d197da2413bd8e4e5c43159620ddfe4286c731ba"}
         org.clojure/tools.cli {:mvn/version "1.0.206"}
-        com.cognitect/transit-cljs {:mvn/version "0.8.269"}}}
+        com.cognitect/transit-cljs {:mvn/version "0.8.269"}
+        }}

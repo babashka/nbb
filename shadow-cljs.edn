@@ -53,6 +53,8 @@
     :nbb_test {:init-fn nbb.impl.test/init
                :depends-on #{:nbb_core}}
     :nbb_data {:init-fn nbb.impl.data/init
+               :depends-on #{:nbb_core}}
+    :nbb_math {:init-fn nbb.impl.math/init
                :depends-on #{:nbb_core}}}
    :build-hooks [(shadow.cljs.build-report/hook
                   {:output-to "report.html"})

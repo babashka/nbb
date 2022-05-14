@@ -177,6 +177,8 @@
           (load-module "./nbb_transit.js" libname as refer rename libspecs)
           (clojure.data)
           (load-module "./nbb_data.js" libname as refer rename libspecs)
+          (cljs.math clojure.math)
+          (load-module "./nbb_math.js" libname as refer rename libspecs)
           (let [feat (get feature-requires libname)]
             (cond
               feat (load-module feat libname as refer rename libspecs)
@@ -442,7 +444,15 @@
                                       'IEditableCollection (sci/copy-var IEditableCollection core-ns)
                                       'MapEntry (sci/copy-var MapEntry core-ns)
                                       'UUID (sci/copy-var UUID core-ns)
-                                      'PersistentQueue (sci/copy-var PersistentQueue core-ns)}
+                                      'PersistentQueue (sci/copy-var PersistentQueue core-ns)
+                                      'update-vals (sci/copy-var update-vals core-ns)
+                                      'update-keys (sci/copy-var update-keys core-ns)
+                                      'iteration (sci/copy-var iteration core-ns)
+                                      'NaN? (sci/copy-var NaN? core-ns)
+                                      'parse-long (sci/copy-var parse-long core-ns)
+                                      'parse-double (sci/copy-var parse-double core-ns)
+                                      'parse-boolean (sci/copy-var parse-boolean core-ns)
+                                      'parse-uuid (sci/copy-var parse-uuid core-ns)}
                        'cljs.reader {'read-string (sci/copy-var edn/read-string (sci/create-ns 'cljs.reader))}
                        'clojure.main {'repl-requires (sci/copy-var
                                                       repl-requires
