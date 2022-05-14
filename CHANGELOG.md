@@ -6,6 +6,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 - cljs.test defaults to failed tests result in failed process
 
+## 0.5.102
+
+- Fix [#190](https://github.com/babashka/nbb/issues/190): null namespace in completions
+
 ## 0.5.101
 
 - Set exit code automatically based on failing `cljs.test` tests.
