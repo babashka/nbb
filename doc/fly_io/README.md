@@ -15,5 +15,5 @@ Then run `flyctl launch` to create a new application. After making changes, you
 can re-deploy the site with `flyctl deploy`.
 
 That's it! Check out
-[this](https://twitter.com/borkdude/status/1526159091541987330) tweet for a
+[this](https://twitter.com/borkdude/status/1526159911033393152) tweet for a
 demo.
