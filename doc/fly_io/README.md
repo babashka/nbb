@@ -1,7 +1,9 @@
 # Deploying an nbb app to fly.io
 
 [Fly.io](https://fly.io/) is a service that can run full stack apps with minimal
-configuration. If you like the ease of Heroku, you might like it. This document shows how to get a minimal nbb application up and running on `fly.io`.
+configuration. If you like the ease of Heroku, you might like fly.io and perhaps
+even better! This document shows how to get a minimal nbb application up and
+running on `fly.io`.
 
 In `examples.cljs` we start an Express webserver on port `8092`. It prints
 `Hello World! This site is running with nbb v0.5.102`. To run the site locally,
