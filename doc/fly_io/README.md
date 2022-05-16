@@ -6,9 +6,8 @@ even better! This document shows how to get a minimal nbb application up and
 running on `fly.io`. This guide is based on the the fly.io documentation for
 Node.js [here](https://fly.io/docs/getting-started/node/).
 
-In `example.cljs` we start an Express webserver on port `8092`. It prints
-`Hello World! This site is running with nbb v0.5.102`. To run the site locally,
-run `npm run start`.
+In `example.cljs` we start an Express webserver on port `8092`. To run the site
+locally, run `npm run start`.
 
 To get this site running on `fly.io`, you need to
 [install](https://fly.io/docs/getting-started/installing-flyctl/) and [log
