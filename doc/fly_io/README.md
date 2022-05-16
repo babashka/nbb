@@ -14,4 +14,6 @@ in](https://fly.io/docs/getting-started/log-in-to-fly/).
 Then run `flyctl launch` to create a new application. After making changes, you
 can re-deploy the site with `flyctl deploy`.
 
-That's it!
+That's it! Check out
+[this](https://twitter.com/borkdude/status/1526159091541987330) tweet for a
+demo.
