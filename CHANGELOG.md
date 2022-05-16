@@ -2,9 +2,9 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## Next release
+## 0.5.x
 
-- cljs.test defaults to failed tests result in failed process
+- Bump shadow-cljs and fix custom nbb builds
 
 ## 0.5.102
 
