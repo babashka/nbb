@@ -2,9 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## 0.5.x
+## 0.5.103
 
 - Bump shadow-cljs and fix custom nbb builds
+- Include `promesa.core/loop` and `recur`
 
 ## 0.5.102
 
