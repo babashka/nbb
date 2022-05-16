@@ -1,7 +1,7 @@
 (ns nbb.impl.reagent.dom.server
   (:require
    [nbb.core :as nbb]
-   [sci-configs.reagent.reagent-dom-server :as srv]))
+   [sci.configs.reagent.reagent-dom-server :as srv]))
 
 (defn init []
   (nbb/register-plugin!
