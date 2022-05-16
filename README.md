@@ -530,6 +530,10 @@ See [Nbb on Google Cloud Functions](doc/gcloud_functions.md).
 
 ## [Develop](doc/dev.md)
 
+## Nbb on fly.io
+
+See [Deploying an nbb app to fly.io](doc/fly_io/README.md).
+
 ## Build
 
 Prequisites:
