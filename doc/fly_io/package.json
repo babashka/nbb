@@ -1,0 +1,13 @@
+{
+  "name": "mysite",
+  "dependencies": {
+    "express": "^4.18.1",
+    "nbb": "^0.5.102",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nbb example.cljs"
+  }
+}
