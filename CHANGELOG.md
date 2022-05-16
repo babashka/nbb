@@ -4,7 +4,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 ## 0.5.x
 
-- Add deps.edn exclusion so that downstream builds can build
+- Bump shadow-cljs and fix custom nbb builds
 
 ## 0.5.102
 
