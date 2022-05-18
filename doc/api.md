@@ -28,7 +28,7 @@ See [promesa docs](https://cljdoc.org/d/funcool/promesa/6.0.2/doc/user-guide).
 
 ### promesa.core
 
-- `let`, `do!`
+- `*loop-run-fn*`, `->`, `->>`, `TimeoutException`, `all`, `any`, `as->`, `bind`, `cancel!`, `cancelled?`, `catch`, `catch'`, `chain`, `chain'`, `create`, `deferred`, `deferred?`, `delay`, `do`, `do!`, `done?`, `err`, `error`, `finally`, `future`, `handle`, `let`, `loop`, `map`, `mapcat`, `pending?`, `plet`, `promise`, `promise?`, `promisify`, `race`, `recur`, `reject!`, `rejected`, `rejected?`, `resolve!`, `resolved`, `resolved?`, `run!`, `then`, `then'`, `thenable?`, `timeout`, `with-redefs`, `wrap`
 
 ## Reagent
 
