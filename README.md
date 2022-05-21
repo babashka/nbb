@@ -476,6 +476,7 @@ The following projects are using nbb or are supporting it as a development platf
 - [unminify](https://github.com/xfthhxk/unminify): unminifies JS stacktrace errors.
 - [nbb-serverless-example](https://github.com/vharmain/nbb-serverless-example): AWS serverless example using nbb
 - [clojure-quiz](https://github.com/prestancedesign/clojure-quiz): ClojureScript fancy terminal game
+- [monotropic](https://github.com/avelino/monotropic-theme-vscode): Monochromatic light theme for VSCode
 
 ## Examples
 
