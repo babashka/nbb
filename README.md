@@ -363,6 +363,23 @@ Nbb supports the following reader conditional features: `:org.babashka/nbb` and
 #?(:cljs 2 :org.babashka/nbb 1) ;;=> 2
 ```
 
+## Main function
+
+It is possible to use the `-main` function as the software (script) start point when using the `m` parameter of `nbb` passing your software namespace.
+
+```clj
+(ns example)
+
+(defn -main
+  [& args]
+  (prn "print in -main"))
+```
+
+Execute:
+```
+nbb -m example
+```
+
 ## Testing
 
 See [doc/testing](https://github.com/babashka/nbb/tree/main/doc/testing).
