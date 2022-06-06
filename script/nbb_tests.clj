@@ -1,14 +1,16 @@
 (ns nbb-tests
-  (:require [babashka.classpath :as cp]
-            [babashka.deps :as deps]
-            [babashka.process :refer [process check]]
-            [babashka.tasks :as tasks]
-            [clojure.edn :as edn]
-            [clojure.string :as str]
-            [clojure.test :as t :refer [deftest is testing]]
-            [nbb-nrepl-tests]
-            [nbb-repl-tests]
-            [test-utils :as tu :refer [windows?]]))
+  (:require
+   [babashka.classpath :as cp]
+   [babashka.deps :as deps]
+   [babashka.fs :as fs]
+   [babashka.process :refer [check process]]
+   [babashka.tasks :as tasks]
+   [clojure.edn :as edn]
+   [clojure.string :as str]
+   [clojure.test :as t :refer [deftest is testing]]
+   [nbb-nrepl-tests]
+   [nbb-repl-tests]
+   [test-utils :as tu :refer [windows?]]))
 
 (defmethod clojure.test/report :begin-test-var [m]
   (println "===" (-> m :var meta :name))
@@ -24,11 +26,13 @@
 (defn nbb** [x & xs]
   (let [[opts args] (if (map? x)
                       [x xs]
-                      [nil (cons x xs)])]
-    (-> (process (into ["node" "lib/nbb_main.js"] args)
-                 (merge {:out :string
-                         :err :inherit}
-                        opts)))))
+                      [nil (cons x xs)])
+        dir (:dir opts)
+        rel (when dir (fs/relativize dir "."))]
+    (process (into ["node" (fs/path rel "lib/nbb_main.js")] args)
+             (merge {:out :string
+                     :err :inherit}
+                    opts))))
 
 (defn nbb* [& xs]
   (-> (apply nbb** xs)
@@ -215,6 +219,9 @@
     (t/deftest foo (t/is (= 1 2))) (t/run-tests 'foo0)")
             deref
             :exit)))))
+
+(deftest local-js-require-test
+  (is (= {:a 1} (nbb {:dir "test-scripts/local-js"} "-cp" "src" "-m" "script"))))
 
 (defn parse-opts [opts]
   (let [[cmds opts] (split-with #(not (str/starts-with? % ":")) opts)]

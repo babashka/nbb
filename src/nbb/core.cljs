@@ -214,9 +214,12 @@
                           (get @loaded-modules internal-name)
                           ;; else load module and register in loaded-modules under internal-name
                           (->
-                           (js/Promise.resolve (try ((.-resolve (:require @ctx)) libname)
-                                                    (catch :default _
-                                                      ((:resolve @ctx) libname))))
+                           (js/Promise.resolve
+                            (if (str/starts-with? libname "./")
+                              (path/resolve (path/dirname @sci/file) libname)
+                              (try ((.-resolve (:require @ctx)) libname)
+                                   (catch :default _
+                                     ((:resolve @ctx) libname)))))
                            (.then (fn [path]
                                     (esm/dynamic-import
                                      (let [path (if (and windows? (fs/existsSync path))

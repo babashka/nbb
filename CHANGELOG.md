@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.5.104
+
+- Fix [#207](https://github.com/babashka/nbb/issues/207): Requiring a local JS file is now relative to the current `.cljs` file
+
 ## 0.5.103
 
 - Bump shadow-cljs and fix custom nbb builds
