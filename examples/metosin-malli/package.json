@@ -1,0 +1,5 @@
+{"dependencies":
+ {"nbb":"^0.5.115",
+  "@babashka/nbb-metosin-malli":"^0.5.115"
+ }
+}
