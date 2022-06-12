@@ -75,7 +75,9 @@
   nrepl-tests nbb-nrepl-tests/-main
 
   ci:is-release {:depends [current-tag current-branch]
-                 :task (and current-tag (= "main" current-branch))}
+                 :task (do
+                         (prn current-tag)
+                         (and current-tag (= "main" current-branch)))}
   ci:test {:doc "Runs all tests in CI."
            :task (binding [*test* true]
                    (println "Testing optimizations :advanced")
