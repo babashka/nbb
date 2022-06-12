@@ -57,6 +57,7 @@
                  _ (replace-version "ext/nbb-prismatic-schema/package.json"
                                     old-version new-version)]
              (shell "git add .")
+             (shell "git commit -m " new-version)
              (shell (str "git tag v" new-version))
              #_(shell "git push --atomic origin main"
                     (str "v" new-version)))
