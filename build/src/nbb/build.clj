@@ -1,10 +1,11 @@
 (ns nbb.build
   "Provides bb tasks for building and releasing nbb"
-  (:require [babashka.fs :as fs]
-            [babashka.classpath :as classpath]
-            [babashka.tasks :refer [shell clojure]]
-            [clojure.string :as str]
-            [clojure.edn :as edn]))
+  (:require
+   [babashka.classpath :as classpath]
+   [babashka.fs :as fs]
+   [babashka.tasks :refer [clojure shell]]
+   [clojure.edn :as edn]
+   [clojure.string :as str]))
 
 (defn- feature-files
   []
@@ -69,4 +70,9 @@
   (spit "lib/nbb_main.js"
         (str "#!/usr/bin/env node\n\n" (slurp "lib/nbb_main.js")))
   (shell "chmod +x lib/nbb_main.js")
-  (run! fs/delete (fs/glob "lib" "**.map")))
+  (run! fs/delete (fs/glob "lib" "**.map"))
+  (fs/move "lib/nbb_schema.js" "ext/nbb-prismatic-schema/index.mjs" {:replace-existing true})
+  (spit "ext/nbb-prismatic-schema/index.mjs"
+        (-> (slurp "ext/nbb-prismatic-schema/index.mjs")
+            (str/replace "from \"./nbb_core.js\";" "from \"nbb/lib/nbb_core.js\";")
+            (str/replace "import  \"./nbb_goog_string.js\";" "import \"nbb/lib/nbb_goog_string.js\";"))))

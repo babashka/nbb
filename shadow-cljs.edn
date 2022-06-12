@@ -55,7 +55,9 @@
     :nbb_data {:init-fn nbb.impl.data/init
                :depends-on #{:nbb_core}}
     :nbb_math {:init-fn nbb.impl.math/init
-               :depends-on #{:nbb_core}}}
+               :depends-on #{:nbb_core}}
+    :nbb_schema {:init-fn nbb.impl.schema/init
+                 :depends-on #{:nbb_core :nbb_goog_string}}}
    :build-hooks [(shadow.cljs.build-report/hook
                   {:output-to "report.html"})
                  (nbb.impl.shadow-hooks/hook
