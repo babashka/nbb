@@ -355,18 +355,26 @@ See the [example](examples/js-interop/example.cljs) of what is currently support
 
 ## Prismatic/schema
 
-Since nbb v0.5.106 [prismatic/schema](https://github.com/plumatic/schema) is
+Since nbb v0.5.110 [prismatic/schema](https://github.com/plumatic/schema) is
 available, if you install one additional dependency in your `package.json`:
 
 ``` clojure
-{"dependencies":{"@babashka/nbb-prismatic-schema":"^0.5.105"}}
+{"dependencies":
+ {"nbb":"^0.5.110",
+  "@babashka/nbb-prismatic-schema":"^0.5.110"
+ }
+}
 ```
 
 The dependency version of this library should always be the same as the version
 of nbb.
 
-After installation
+After installation you can require `schema.core`:
 
+``` clojure
+$ npx nbb -e "(require '[schema.core :as s]) (s/validate {:a s/Int} {:a 1})"
+{:a 1}
+```
 
 ## Reader conditionals
 
