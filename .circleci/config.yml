@@ -33,15 +33,20 @@ jobs:
           name: Run Node tests
           command: |
             node -v
+            npm -v
             bb ci:test
-      # - run:
-      #     name: Run build tests
-      #     command: |
-      #       node -v
-      #       bb ci:test-build
+      - run:
+          name: Run build tests
+          command: |
+            node -v
+            bb ci:test-build
       - run:
           name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
+          command: |
+            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
+            echo "registry=https://registry.npmjs.org/" >> ~/repo/.npmrc
+            echo "@babashka:registry=https://registry.npmjs.org/" >> ~/repo/.npmrc
+            cp ~/repo/.npmrc ~/repo/ext/nbb-prismatic-schema
       - run: bb ci:publish
       - save_cache:
           paths:
