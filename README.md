@@ -389,6 +389,16 @@ available, if you install one additional dependency in your `package.json`:
 }
 ```
 
+After installation you can require `malli.core`:
+
+``` clojure
+$ npx nbb
+Welcome to nbb v0.5.115!
+user=> (require '[malli.core :as m])
+nil
+user=> (m/validate :string "foo")
+true
+```
 
 ## Reader conditionals
 
