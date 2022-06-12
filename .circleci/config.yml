@@ -39,7 +39,7 @@ jobs:
           name: Run build tests
           command: |
             node -v
-            bb ci:test-build
+            # bb ci:test-build
       - run:
           name: Authenticate with registry
           command: |
