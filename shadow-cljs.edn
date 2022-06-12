@@ -3,8 +3,7 @@
  {:modules
   {:js-options {;; don't bundle any npm libs
                 :js-provider :import}
-   :compiler-options {:infer-externs :auto
-                      :optimizations :simple}
+   :compiler-options {:infer-externs :auto}
    :target :esm
    :runtime :node
    :output-dir "lib"

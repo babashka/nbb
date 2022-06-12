@@ -59,7 +59,7 @@
              (shell "git add .")
              (shell "git commit -m " new-version)
              (shell (str "git tag v" new-version))
-             #_(shell "git push --atomic origin main"
+             (shell "git push --atomic origin main"
                     (str "v" new-version)))
            }
 
@@ -103,6 +103,6 @@
                 (do (println "Releasing")
                     (binding [*test* false]
                       (run 'release)
-                      (shell "npm publish")
-                      (shell {:dir "ext/nbb-prismatic-schema"} "npm publish")))
+                      (shell "npm publish --access public")
+                      (shell {:dir "ext/nbb-prismatic-schema"} "npm publish --access public")))
                 (println "Skipping release."))}}}
