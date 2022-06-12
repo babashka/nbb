@@ -353,6 +353,21 @@ Most of this library is supported in nbb, except the following:
 
 See the [example](examples/js-interop/example.cljs) of what is currently supported.
 
+## Prismatic/schema
+
+Since nbb v0.5.106 [prismatic/schema](https://github.com/plumatic/schema) is
+available, if you install one additional dependency in your `package.json`:
+
+``` clojure
+{"dependencies":{"@babashka/nbb-prismatic-schema":"^0.5.105"}}
+```
+
+The dependency version of this library should always be the same as the version
+of nbb.
+
+After installation
+
+
 ## Reader conditionals
 
 Nbb supports the following reader conditional features: `:org.babashka/nbb` and
