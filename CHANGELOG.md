@@ -2,6 +2,14 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.5.115
+
+- Fix #214: add `reagent.core/adapt-react-class`
+
+## 0.5.110
+
+- Add support for `prismatic/schema`
+
 ## 0.5.104
 
 - Fix [#207](https://github.com/babashka/nbb/issues/207): Requiring a local JS file is now relative to the current `.cljs` file
