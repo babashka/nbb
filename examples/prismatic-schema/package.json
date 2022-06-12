@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "start": "nbb ./example.cljs" 
+  },
   "dependencies": {
     "@babashka/nbb-prismatic-schema":"0.5.113",
     "nbb": "0.5.113"
