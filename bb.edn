@@ -57,6 +57,8 @@
                  new-version (str major "." minor "." (inc (parse-long release)))
                  _ (replace-version "package.json" old-version new-version)
                  _ (replace-version "ext/nbb-prismatic-schema/package.json"
+                                    old-version new-version)
+                 _ (replace-version "ext/nbb-metosin-malli/package.json"
                                     old-version new-version)]
              (shell "git add .")
              (shell "git commit -m " new-version)

@@ -47,6 +47,7 @@ jobs:
             echo "registry=https://registry.npmjs.org/" >> ~/repo/.npmrc
             echo "@babashka:registry=https://registry.npmjs.org/" >> ~/repo/.npmrc
             cp ~/repo/.npmrc ~/repo/ext/nbb-prismatic-schema
+            cp ~/repo/.npmrc ~/repo/ext/nbb-metosin-malli-schema
       - run: bb ci:publish
       - save_cache:
           paths:
