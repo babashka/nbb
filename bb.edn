@@ -26,7 +26,9 @@
                   (-> (slurp file)
                       (str/replace old-version new-version)))))
 
-  clean (fs/delete-tree "lib")
+  clean (do
+          (fs/delete-tree ".shadow-cljs")
+          (fs/delete-tree "lib"))
 
   compile (build/build (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn compile modules")
                        *command-line-args*)
