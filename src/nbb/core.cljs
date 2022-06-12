@@ -182,7 +182,10 @@
           (load-module "./nbb_math.js" libname as refer rename libspecs)
           (schema.core)
           (load-module ((.-resolve (:require @ctx)) "@babashka/nbb-prismatic-schema/index.mjs")
-                        libname as refer rename libspecs)
+                       libname as refer rename libspecs)
+          (malli.core)
+          (load-module ((.-resolve (:require @ctx)) "@babashka/nbb-metosin-malli/index.mjs")
+                       libname as refer rename libspecs)
           (let [feat (get feature-requires libname)]
             (cond
               feat (load-module feat libname as refer rename libspecs)

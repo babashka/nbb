@@ -60,6 +60,13 @@
     (when building-outside-nbb?
       (fs/delete "shadow-cljs.edn"))))
 
+(defn move-ext-lib [src dest]
+  (fs/move src dest {:replace-existing true})
+  (spit dest
+        (-> (slurp dest)
+            (str/replace "from \"./nbb_core.js\";" "from \"nbb/lib/nbb_core.js\";")
+            (str/replace "import  \"./nbb_goog_string.js\";" "import \"nbb/lib/nbb_goog_string.js\";"))))
+
 (defn release
   "Compiles release build."
   [args & {:keys [wrap-cmd-fn] :or {wrap-cmd-fn identity}}]
@@ -71,8 +78,5 @@
         (str "#!/usr/bin/env node\n\n" (slurp "lib/nbb_main.js")))
   (shell "chmod +x lib/nbb_main.js")
   (run! fs/delete (fs/glob "lib" "**.map"))
-  (fs/move "lib/nbb_schema.js" "ext/nbb-prismatic-schema/index.mjs" {:replace-existing true})
-  (spit "ext/nbb-prismatic-schema/index.mjs"
-        (-> (slurp "ext/nbb-prismatic-schema/index.mjs")
-            (str/replace "from \"./nbb_core.js\";" "from \"nbb/lib/nbb_core.js\";")
-            (str/replace "import  \"./nbb_goog_string.js\";" "import \"nbb/lib/nbb_goog_string.js\";"))))
+  (move-ext-lib "lib/nbb_schema.js" "ext/nbb-prismatic-schema/index.mjs")
+  (move-ext-lib "lib/nbb_malli.js" "ext/nbb-metosin-malli/index.mjs"))

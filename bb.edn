@@ -109,5 +109,7 @@
                       (run 'clean)
                       (run 'release)
                       (shell {:dir "ext/nbb-prismatic-schema"} "npm publish --access public")
+                      (shell "npm publish --access public")
+                      (shell {:dir "ext/nbb-metosin-malli"} "npm publish --access public")
                       (shell "npm publish --access public")))
                 (println "Skipping release."))}}}
