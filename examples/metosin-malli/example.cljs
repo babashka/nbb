@@ -3,7 +3,12 @@
 
 (prn
  (m/parse
-  [:cat [:= :names] [:schema [:* string?]] [:= :nums] [:schema [:* number?]]]
-  [:names ["a" "b"] :nums [1 2 3]]))
+  [:* [:catn
+       [:prop string?]
+       [:val [:altn
+              [:s string?]
+              [:b boolean?]]]]]
+  ["-server" "foo" "-verbose" true "-user" "joe"]))
 
-;;=> [:names ["a" "b"] :nums [1 2 3]]
+;;=> [{:prop "-server", :val [:s "foo"]} {:prop "-verbose", :val [:b true]} {:prop "-user", :val [:s "joe"]}]
+
