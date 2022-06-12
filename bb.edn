@@ -63,10 +63,10 @@
                     (str "v" new-version)))
            }
 
-  current-tag (->> (shell {:out :string} "git describe")
+  current-tag (->> (shell {:out :string} "git tag --points-at HEAD")
                    :out
                    str/trim
-                   (re-matches (re-pattern "^v\\d+\\.\\d+\\.\\d+$")))
+                   not-empty)
 
   current-branch (->> (shell {:out :string} "git rev-parse --abbrev-ref HEAD")
                       :out
