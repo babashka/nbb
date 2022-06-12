@@ -103,15 +103,11 @@
   ci:publish {:doc "Publishes release build to npm"
               :depends [ci:is-release]
               :task
-              (if ci:is-release
+              (if true #_ci:is-release
                 (do (println "Releasing")
                     (binding [*test* false]
                       (run 'clean)
                       (run 'release)
-                      (shell "npm publish --access public")
-                      (spit ".npmrc"
-                             (str "//registry.npmjs.org/:_authToken="
-                                  (System/getenv "NPM_TOKEN")
-                                  " --scope=@babashka"))
-                      (shell {:dir "ext/nbb-prismatic-schema"} "npm publish --access public")))
+                      (shell {:dir "ext/nbb-prismatic-schema"} "npm publish --access public")
+                      (shell "npm publish --access public")))
                 (println "Skipping release."))}}}
