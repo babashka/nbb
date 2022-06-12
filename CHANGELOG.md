@@ -5,6 +5,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 ## 0.5.115
 
 - Fix #214: add `reagent.core/adapt-react-class`
+- Support `metosin/malli`
 
 ## 0.5.110
 

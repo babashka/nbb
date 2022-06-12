@@ -376,6 +376,20 @@ $ npx nbb -e "(require '[schema.core :as s]) (s/validate {:a s/Int} {:a 1})"
 {:a 1}
 ```
 
+## Metosin/malli
+
+Since nbb v0.5.115 [metosin/malli](https://github.com/metosin/malli) is
+available, if you install one additional dependency in your `package.json`:
+
+``` clojure
+{"dependencies":
+ {"nbb":"^0.5.115",
+  "@babashka/nbb-metosin-malli":"^0.5.115"
+ }
+}
+```
+
+
 ## Reader conditionals
 
 Nbb supports the following reader conditional features: `:org.babashka/nbb` and
