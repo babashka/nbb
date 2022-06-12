@@ -103,10 +103,13 @@
   ci:publish {:doc "Publishes release build to npm"
               :depends [ci:is-release]
               :task
-              (if ci:is-release
-                (do (println "Releasing")
-                    (binding [*test* false]
-                      (run 'release)
-                      (shell "npm publish --access public")
-                      (shell {:dir "ext/nbb-prismatic-schema"} "npm publish --access public")))
-                (println "Skipping release."))}}}
+              (do
+                (shell "npm login") ;; just testing if this works
+                (if ci:is-release
+                  (do (println "Releasing")
+                      (binding [*test* false]
+                        (run 'release)
+                        (shell "npm login")
+                        (shell "npm publish --access public")
+                        (shell {:dir "ext/nbb-prismatic-schema"} "npm publish --access public")))
+                  (println "Skipping release.")))}}}
