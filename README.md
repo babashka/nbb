@@ -376,6 +376,9 @@ $ npx nbb -e "(require '[schema.core :as s]) (s/validate {:a s/Int} {:a 1})"
 {:a 1}
 ```
 
+See [examples/prismatic-schema](examples/prismatic-schema) for an example that
+you can run directly.
+
 ## Metosin/malli
 
 Since nbb v0.5.115 [metosin/malli](https://github.com/metosin/malli) is
@@ -399,6 +402,9 @@ nil
 user=> (m/validate :string "foo")
 true
 ```
+
+See [examples/metosin-malli](examples/metosin-malli) for an example that you
+can run directly.
 
 ## Reader conditionals
 
