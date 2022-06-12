@@ -3,7 +3,8 @@
  {:modules
   {:js-options {;; don't bundle any npm libs
                 :js-provider :import}
-   :compiler-options {:infer-externs :auto}
+   :compiler-options {:infer-externs :auto
+                      :optimizations :simple}
    :target :esm
    :runtime :node
    :output-dir "lib"
@@ -55,7 +56,9 @@
     :nbb_data {:init-fn nbb.impl.data/init
                :depends-on #{:nbb_core}}
     :nbb_math {:init-fn nbb.impl.math/init
-               :depends-on #{:nbb_core}}}
+               :depends-on #{:nbb_core}}
+    :nbb_schema {:init-fn nbb.impl.schema/init
+                 :depends-on #{:nbb_core :nbb_goog_string}}}
    :build-hooks [(shadow.cljs.build-report/hook
                   {:output-to "report.html"})
                  (nbb.impl.shadow-hooks/hook

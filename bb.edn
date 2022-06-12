@@ -20,7 +20,11 @@
               (str (str/replace cmd
                                 "-M" "-M:test")
                    " --config-merge shadow-tests.edn")
-              cmd)))
+              cmd))
+          (defn replace-version [file old-version new-version]
+            (spit file
+                  (-> (slurp file)
+                      (str/replace old-version new-version)))))
 
   clean (fs/delete-tree "lib")
 
@@ -46,9 +50,14 @@
 
   publish {:doc "Bumps version, pushes tag and lets CI publish to npm."
            :task
-           (do (shell "npm version patch")
-             (shell "git push --atomic origin main"
-                    (str "v" (:version (json/parse-string (slurp "package.json") true)))))}
+           (let [old-version (:version (json/parse-string (slurp "package.json") true))
+                 [major minor release] (str/split old-version (re-pattern "\\."))
+                 new-version (str major "." minor "." (inc (parse-long release)))
+                 _ (replace-version "package.json" old-version new-version)
+                 _ (replace-version "ext/nbb-prismatic-schema")]
+             #_(shell "git push --atomic origin main"
+                    (str "v" (:version (json/parse-string (slurp "package.json") true)))))
+           }
 
   current-tag (->> (shell {:out :string} "git describe")
                    :out
@@ -88,7 +97,8 @@
               :task
               (if ci:is-release
                 (do (println "Releasing")
-                  (binding [*test* false]
-                    (run 'release)
-                    (shell "npm publish")))
+                    (binding [*test* false]
+                      (run 'release)
+                      (shell "npm publish")
+                      (shell {:dir "ext/nbb-prismatic-schema"} "npm publish")))
                 (println "Skipping release."))}}}

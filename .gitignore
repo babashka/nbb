@@ -16,3 +16,4 @@ print-cli-args/print-cli-args
 clojure_logo.png
 assets/command-icon.png
 doc/electron/index.js
+ext/nbb-prismatic-schema/index.mjs
