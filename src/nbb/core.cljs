@@ -12,6 +12,7 @@
    [nbb.common :refer [core-ns]]
    [sci.core :as sci]
    [sci.impl.vars :as vars]
+   [sci.lang]
    [shadow.esm :as esm])
   (:require-macros [nbb.macros
                     :as macros
@@ -324,7 +325,7 @@
                           (fn [_]
                             (eval-next next-val reader opts)))
                    (cond
-                     (instance? sci.impl.vars/SciVar next-val)
+                     (instance? sci.lang/Var next-val)
                      (let [v (deref next-val)]
                        (if (await? v)
                          (.then v
