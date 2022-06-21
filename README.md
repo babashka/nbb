@@ -567,6 +567,7 @@ See [API](doc/api.md) documentation with a list of built-in libraries.
 
 ## Articles
 
+- [Create a blog with Clojure, nbb, and MarkDoc](https://www.alexandercarls.de/markdoc-nbb-clojure/) by Alexander Carls
 - [Sentiment analysis with nbb](https://slimslenderslacks.github.io/nbb-sentiment) by Jim Clark
 - [Reloaded workflow with nbb and Express.js](https://dev.to/crinklywrappr/reloaded-workflow-with-nbb-expressjs-31f3) by Daniel Fitzpatrick
 - [Serverless site analytics with Clojure nbb and AWS](https://www.loop-code-recur.io/simple-site-analytics-with-serverless-clojure) by Cyprien Pannier

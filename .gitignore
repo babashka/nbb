@@ -17,3 +17,4 @@ clojure_logo.png
 assets/command-icon.png
 doc/electron/index.js
 ext/**/index.mjs
+.DS_Store
