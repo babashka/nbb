@@ -2,11 +2,11 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## 0.5.116
+## 0.5.118
 
 - Optimization in SCI: smaller advanced JS bundle
 - Bump malli
-- Add `promesa.core/error`
+- Temporarily roll back malli and schema support due to deployment difficulties
 
 ## 0.5.115
 

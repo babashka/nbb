@@ -78,5 +78,5 @@
         (str "#!/usr/bin/env node\n\n" (slurp "lib/nbb_main.js")))
   (shell "chmod +x lib/nbb_main.js")
   (run! fs/delete (fs/glob "lib" "**.map"))
-  (move-ext-lib "lib/nbb_schema.js" "ext/nbb-prismatic-schema/index.mjs")
-  (move-ext-lib "lib/nbb_malli.js" "ext/nbb-metosin-malli/index.mjs"))
+  #_(move-ext-lib "lib/nbb_schema.js" "ext/nbb-prismatic-schema/index.mjs")
+  #_(move-ext-lib "lib/nbb_malli.js" "ext/nbb-metosin-malli/index.mjs"))

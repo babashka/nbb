@@ -1,4 +1,4 @@
 {"name": "@babashka/nbb-metosin-malli",
- "version": "0.5.117",
+ "version": "0.5.118",
  "type": "module",
- "peerDependencies": {"nbb": "0.5.117"}}
+ "peerDependencies": {"nbb": "0.5.118"}}
