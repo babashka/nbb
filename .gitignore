@@ -18,3 +18,4 @@ assets/command-icon.png
 doc/electron/index.js
 ext/**/index.mjs
 .DS_Store
+.clj-kondo/metosin
