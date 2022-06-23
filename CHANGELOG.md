@@ -2,6 +2,12 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.5.116
+
+- Optimization in SCI: smaller advanced JS bundle
+- Bump malli
+- Add `promesa.core/error`
+
 ## 0.5.115
 
 - Fix #214: add `reagent.core/adapt-react-class`
