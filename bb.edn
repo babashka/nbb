@@ -63,7 +63,7 @@
              (shell "git add .")
              (shell "git commit -m " new-version)
              (shell (str "git tag v" new-version))
-             (shell "git push --atomic origin main"
+             (println "git push --atomic origin main"
                     (str "v" new-version)))
            }
 
