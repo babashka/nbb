@@ -353,58 +353,58 @@ Most of this library is supported in nbb, except the following:
 
 See the [example](examples/js-interop/example.cljs) of what is currently supported.
 
-## Prismatic/schema
+<!-- ## Prismatic/schema -->
 
-Since nbb v0.5.110 [prismatic/schema](https://github.com/plumatic/schema) is
-available, if you install one additional dependency in your `package.json`:
+<!-- Since nbb v0.5.110 [prismatic/schema](https://github.com/plumatic/schema) is -->
+<!-- available, if you install one additional dependency in your `package.json`: -->
 
-``` clojure
-{"dependencies":
- {"nbb":"^0.5.110",
-  "@babashka/nbb-prismatic-schema":"^0.5.110"
- }
-}
-```
+<!-- ``` clojure -->
+<!-- {"dependencies": -->
+<!--  {"nbb":"^0.5.110", -->
+<!--   "@babashka/nbb-prismatic-schema":"^0.5.110" -->
+<!--  } -->
+<!-- } -->
+<!-- ``` -->
 
-The dependency version of this library should always be the same as the version
-of nbb.
+<!-- The dependency version of this library should always be the same as the version -->
+<!-- of nbb. -->
 
-After installation you can require `schema.core`:
+<!-- After installation you can require `schema.core`: -->
 
-``` clojure
-$ npx nbb -e "(require '[schema.core :as s]) (s/validate {:a s/Int} {:a 1})"
-{:a 1}
-```
+<!-- ``` clojure -->
+<!-- $ npx nbb -e "(require '[schema.core :as s]) (s/validate {:a s/Int} {:a 1})" -->
+<!-- {:a 1} -->
+<!-- ``` -->
 
-See [examples/prismatic-schema](examples/prismatic-schema) for an example that
-you can run directly.
+<!-- See [examples/prismatic-schema](examples/prismatic-schema) for an example that -->
+<!-- you can run directly. -->
 
-## Metosin/malli
+<!-- ## Metosin/malli -->
 
-Since nbb v0.5.115 [metosin/malli](https://github.com/metosin/malli) is
-available, if you install one additional dependency in your `package.json`:
+<!-- Since nbb v0.5.115 [metosin/malli](https://github.com/metosin/malli) is -->
+<!-- available, if you install one additional dependency in your `package.json`: -->
 
-``` clojure
-{"dependencies":
- {"nbb":"^0.5.115",
-  "@babashka/nbb-metosin-malli":"^0.5.115"
- }
-}
-```
+<!-- ``` clojure -->
+<!-- {"dependencies": -->
+<!--  {"nbb":"^0.5.115", -->
+<!--   "@babashka/nbb-metosin-malli":"^0.5.115" -->
+<!--  } -->
+<!-- } -->
+<!-- ``` -->
 
-After installation you can require `malli.core`:
+<!-- After installation you can require `malli.core`: -->
 
-``` clojure
-$ npx nbb
-Welcome to nbb v0.5.115!
-user=> (require '[malli.core :as m])
-nil
-user=> (m/validate :string "foo")
-true
-```
+<!-- ``` clojure -->
+<!-- $ npx nbb -->
+<!-- Welcome to nbb v0.5.115! -->
+<!-- user=> (require '[malli.core :as m]) -->
+<!-- nil -->
+<!-- user=> (m/validate :string "foo") -->
+<!-- true -->
+<!-- ``` -->
 
-See [examples/metosin-malli](examples/metosin-malli) for an example that you
-can run directly.
+<!-- See [examples/metosin-malli](examples/metosin-malli) for an example that you -->
+<!-- can run directly. -->
 
 ## Reader conditionals
 
