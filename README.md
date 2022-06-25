@@ -547,6 +547,7 @@ The following projects are using nbb or are supporting it as a development platf
 - [nbb-serverless-example](https://github.com/vharmain/nbb-serverless-example): AWS serverless example using nbb
 - [clojure-quiz](https://github.com/prestancedesign/clojure-quiz): ClojureScript fancy terminal game
 - [monotropic](https://github.com/avelino/monotropic-theme-vscode): Monochromatic light theme for VSCode
+- [devsoutinho/labs](https://github.com/devsoutinho/labs): Flutter universal project + CLJS as backend web framework on top of GraphQL
 
 ## Examples
 
@@ -564,6 +565,7 @@ See [API](doc/api.md) documentation with a list of built-in libraries.
 - [Write Node using Clojure and deploy to NPM!](https://youtu.be/_-G9EKaAyuI) by Daniel Amber and Michiel Borkent
 - [Nbb: ad-hoc scripting for Clojure on Node.js](https://youtu.be/7DQ0ymojfLg) by Michiel Borkent
 - [Create a Clojure web app using nbb and the Express node framework](https://youtu.be/uzy5ARQP3tA) by Bobby Towers
+- [🇧🇷 - Get Started: Segunda Linguagem ROUBANDO mais CORAÇÃO Dos Devs Mundialmente ](https://youtu.be/uzy5ARQP3tA) by Mario Souto (DevSoutinho)
 
 ## Articles
 
