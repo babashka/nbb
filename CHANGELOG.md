@@ -2,7 +2,7 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## 0.5.119
+## 0.5.120
 
 - Add `cljs.test/run-all-tests`
 
