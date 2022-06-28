@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.5.119
+
+- Add `cljs.test/run-all-tests`
+
 ## 0.5.118
 
 - Optimization in SCI: smaller advanced JS bundle
