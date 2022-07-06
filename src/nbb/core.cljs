@@ -388,6 +388,7 @@
   (js/Promise.
    (fn [resolve reject]
      (fs/readFile f
+                  "utf-8"
                   (fn [error contents]
                     (if error
                       (reject error)

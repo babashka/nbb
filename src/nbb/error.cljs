@@ -32,7 +32,7 @@
 
 (defn read-maybe-file [file]
   (when (fs/existsSync file)
-    (str (fs/readFileSync file))))
+    (fs/readFileSync file "utf-8")))
 
 (defn error-context [ex]
   (let [{:keys [:file :line :column]} (ex-data ex)]
