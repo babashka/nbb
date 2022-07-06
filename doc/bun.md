@@ -10,7 +10,7 @@ This document contains best practices to use nbb with bun. Bun is still experime
 
 Write an `index.mjs` like this:
 
-```
+``` javascript
 // loadFile is silently failing in bun, so we use loadString instead:
 import { loadString } from 'nbb'
 
@@ -23,7 +23,7 @@ Since loadFile is using Node's fs API and this is not fully supported yet, we wo
 
 With `index.cljs` as:
 
-```
+``` clojure
 (defn foo []
   (prn :hello))
 
