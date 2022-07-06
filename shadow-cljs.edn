@@ -31,6 +31,7 @@
     :nbb_reagent_dom_server {:init-fn nbb.impl.reagent.dom.server/init
                              :depends-on #{:nbb_core :nbb_reagent}}
     :nbb_promesa {:init-fn nbb.impl.promesa/init
+                  :entries [promesa.core]
                   :depends-on #{:nbb_core}}
 
     :nbb_js_interop {:init-fn nbb.impl.js-interop/init
@@ -56,6 +57,8 @@
                :depends-on #{:nbb_core}}
     :nbb_math {:init-fn nbb.impl.math/init
                :depends-on #{:nbb_core}}
+    :nbb_bundler {:init-fn nbb.impl.bundler/init
+                  :depends-on #{:nbb_core :nbb_promesa}}
     #_#_:nbb_schema {:init-fn nbb.impl.schema/init
                  :depends-on #{:nbb_core :nbb_goog_string}}
     #_#_:nbb_malli {:init-fn nbb.impl.malli/init

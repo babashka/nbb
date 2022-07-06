@@ -1,13 +1,14 @@
 (ns nbb.impl.main
-  (:require ["path" :as path]
-            [clojure.string :as str]
-            [nbb.api :as api]
-            [nbb.classpath :as cp]
-            [nbb.core :as nbb]
-            [nbb.error :as error]
-            [nbb.impl.common :as common]
-            [sci.core :as sci]
-            [shadow.esm :as esm]))
+  (:require
+   ["path" :as path]
+   [clojure.string :as str]
+   [nbb.api :as api]
+   [nbb.classpath :as cp]
+   [nbb.core :as nbb]
+   [nbb.error :as error]
+   [nbb.impl.common :as common]
+   [sci.core :as sci]
+   [shadow.esm :as esm]))
 
 (defn main-expr [main-fn]
   (let [main-fn (symbol main-fn)
@@ -55,6 +56,9 @@
                  (next nargs))
           "repl" (recur (assoc opts :repl true)
                         nargs)
+          "bundle" (assoc opts
+                          :bundle-file (first nargs)
+                          :args (next nargs))
           ;; default
           (if (not (:expr args))
             ;; when not expression, this argument is interpreted as file
@@ -104,7 +108,8 @@ REPL:
         repl? (or (:repl opts)
                   (:socket-repl opts)
                   ;; TODO: better handling of detecting invocation without subtask
-                  (empty? (dissoc opts :classpath :debug)))]
+                  (empty? (dissoc opts :classpath :debug)))
+        bundle-file (:bundle-file opts)]
     (when (:help opts)
       (print-help)
       (js/process.exit 0))
@@ -113,7 +118,7 @@ REPL:
       (js/process.exit 0))
     (reset! nbb/opts opts)
     (when repl? (api/init-require (path/resolve "script.cljs")))
-    (if (or script-file expr nrepl-server repl?)
+    (if (or script-file expr nrepl-server repl? bundle-file)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
           (-> (cond script-file
                     (api/loadFile script-file)
@@ -127,11 +132,14 @@ REPL:
                                  ((-> nbb/sci-ctx deref :env deref
                                       :namespaces (get 'nbb.repl) (get 'socket-repl))
                                   {:port (:port opts)}))))
+                    (:bundle-file opts)
+                    (esm/dynamic-import "./nbb_bundler.js")
                     repl?
                     (-> (esm/dynamic-import "./nbb_repl.js")
                         (.then (fn [_mod]
                                  ((-> nbb/sci-ctx deref :env deref
-                                      :namespaces (get 'nbb.repl) (get 'repl)))))))
+                                      :namespaces (get 'nbb.repl) (get 'repl))))))
+                    )
               (.then (fn [val]
                        (when (and expr (some? val))
                          (prn val))
