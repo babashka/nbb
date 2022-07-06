@@ -6,20 +6,32 @@ According to their [website](https://github.com/Jarred-Sumner/bun), bun is an
 
 This document contains best practices to use nbb with bun. Bun is still experimental and does not support the full Node API. As such, some things may not work as expected.
 
-## Evaluate a file
+## Installing nbb
+
+`package.json`:
+
+```
+{
+  "dependencies": {
+    "nbb": "^0.5.121"
+  },
+  "scripts": {
+    "nbb": "node_modules/nbb/lib/nbb_main.js"
+  }
+}
+```
+
+Run `bun install` to install nbb.
+Then run `bun run nbb -e '(+ 1 2 3)` to test running nbb.
+
+## JS wrapper
 
 Write an `index.mjs` like this:
 
 ``` javascript
-// loadFile is silently failing in bun, so we use loadString instead:
-import { loadString } from 'nbb'
-
-const code = await Bun.file('index.cljs').text();
-
-await loadString(code);
+import { loadFile } from 'nbb'
+await loadFile('index.cljs')
 ```
-
-Since loadFile is using Node's fs API and this is not fully supported yet, we work around this using `loadString`.
 
 With `index.cljs` as:
 
