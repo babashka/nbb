@@ -7,7 +7,7 @@
    [promesa.core :as p]))
 
 (defn decompose-clause [clause]
-  (prn :clause clause)
+  ;;(prn :clause clause)
   (if (symbol? clause)
     {:ns clause}
     (when (seqable? clause)
@@ -81,15 +81,17 @@
     (sci/binding [sci/file @sci/file
                   sci/ns @sci/ns]
       (doseq [expr expressions]
+        (prn :expr expr (type expr))
         (let [rdr (sci/reader expr)]
+          ;;(prn :> (sci/parse-next ctx rdr))
           (loop []
             (let [next-val
                   (try (sci/parse-next ctx rdr)
                        ;; swallow reader error
-                       (catch :default _e
-                         (binding [*print-fn* *print-err-fn*]
-                           (println "[babashka]" "Ignoring read error while assembling uberscript near"
-                                    (loc rdr)))))]
+                       (catch :default e
+                         (js/console.log (ex-message e))
+                         (js/console.error "[babashka]" "Ignoring read error while assembling uberscript near"
+                                           (str (loc rdr)))))]
               ;; (.println System/err (pr-str next-val))
               (prn :next-val next-val)
               (when-not (= ::sci/eof next-val)
@@ -102,23 +104,28 @@
                                    (= 'in-ns fst)
                                    (process-in-ns ctx next-val))]
                     (when expr
+                      (prn :expr expr)
                       (try
-                        (prn :eval expr)
+                        ;;(prn :eval expr)
                         (sci/eval-form ctx expr)
                         ;; swallow exception and continue
                         (catch :default e
                           (js/console.log e)
-                          (binding [*print-fn* *print-err-fn*]
-                            (println "[babashka]" "Ignoring expression while assembling uberscript:"
-                                     expr "near" (loc rdr))))))
+                          (js/console.error "[babashka]" "Ignoring read error while assembling uberscript near"
+                                            (str (loc rdr))))))
                     (recur))
                   (recur))))))))))
 
 
 (defn init []
-  (let [{:keys [bundle-file]} @opts]
-    (uberscript {:ctx (sci/merge-opts @nbb.core/sci-ctx
-                                      {:load-fn (fn [m]
-                                                  (prn :m m)
-                                                  )})
-                 :expressions [(fs/readFileSync bundle-file "utf-8")]})))
+  (let [{:keys [bundle-file]} @opts
+        ctx (update @nbb.core/sci-ctx
+                    :env swap!
+                    (fn [env]
+                      (assoc env :load-fn
+                             (fn [m]
+                               (js/console.log "hello")
+                               {:source ""}))))
+        ctx @nbb.core/sci-ctx]
+    (uberscript {:ctx ctx
+                 :expressions ["(ns example\n  (:require [\"chalk$default\" :as chalk]))\n\n(def log js/console.log)\n\n(log (chalk/blue \"hello\"))\n\n\n"]})))
