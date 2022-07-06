@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.5.121
+
+- Use `utf-8` encoding in `fs/readFile` for bun compatibility.
+
 ## 0.5.120
 
 - Add `cljs.test/run-all-tests`

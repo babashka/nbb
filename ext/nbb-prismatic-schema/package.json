@@ -1,4 +1,4 @@
 {"name": "@babashka/nbb-prismatic-schema",
- "version": "0.5.120",
+ "version": "0.5.121",
  "type": "module",
- "peerDependencies": {"nbb": "0.5.120"}}
+ "peerDependencies": {"nbb": "0.5.121"}}
