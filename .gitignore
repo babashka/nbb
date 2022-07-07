@@ -21,3 +21,4 @@ ext/**/index.mjs
 .clj-kondo/metosin
 output.html
 doc/bundle/dist
+doc/bundle/out.mjs
