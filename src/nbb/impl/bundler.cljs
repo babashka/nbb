@@ -2,12 +2,11 @@
   "Mostly a copy of babashka uberscript, but generating an .mjs file for Node to execute"
   (:require
    ["fs" :as fs]
-   [nbb.core :as nbb :refer [opts]]
-   [sci.core :as sci]
-   [promesa.core :as p]
+   [clojure.string :as str]
    [goog.string :as gstring]
    [goog.string.format]
-   [clojure.string :as str]))
+   [nbb.core :as nbb :refer [opts]]
+   [sci.core :as sci]))
 
 (defn decompose-clause [clause]
   ;;(prn :clause clause)
