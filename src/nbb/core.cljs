@@ -222,6 +222,7 @@
               (string? libname)
               ;; TODO: parse properties
               (let [[libname properties] (split-libname libname)
+                    munged (munge libname)
                     properties (when properties (.split properties "."))
                     internal-name (munged->internal munged)
                     after-load
@@ -244,17 +245,18 @@
                                        (sci/add-import! current-ns internal-subname field))))))
                       (handle-libspecs (next libspecs)))
                     mod (js/Promise.resolve
-                         (or
-                          ;; skip loading if module was already loaded
-                          (doto (get @loaded-modules internal-name)
-                            (prn :yeah! internal-name))
-                          ;; else load module and register in loaded-modules under internal-name
-                          (->
+                         (->
+                          (or
+                           ;; skip loading if module was already loaded
+                           (some-> (get @loaded-modules internal-name)
+                                   js/Promise.resolve)
                            (load-js-module libname internal-name)
-                           (.then (fn [mod]
-                                    (if properties
-                                      (gobj/getValueByKeys mod properties)
-                                      mod))))))]
+                           ;; else load module and register in loaded-modules under internal-name
+                           )
+                          (.then (fn [mod]
+                                   (if properties
+                                     (gobj/getValueByKeys mod properties)
+                                     mod)))))]
                 (-> mod
                     (.then after-load)))
               :else
