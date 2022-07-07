@@ -151,7 +151,7 @@
                  :expressions [(fs/readFileSync bundle-file "utf-8")]})
     (print! "import { loadFile, registerModule } from 'nbb'")
     (doseq [lib @java-libs]
-      (let [internal (nbb/libname->internal-name lib)
+      (let [internal (munge lib) #_(nbb/libname->internal-name lib)
             js-internal (str/replace (str internal) "." "_dot_")]
         (print! (gstring/format "import * as %s from '%s'" js-internal lib))
         (print! (gstring/format "registerModule(%s, '%s')" js-internal lib))))
