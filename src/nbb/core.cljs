@@ -221,18 +221,22 @@
               feat (load-module feat libname as refer rename libspecs)
               (string? libname)
               ;; TODO: parse properties
-              (let [[libname properties] (split-libname libname)
+              (let [[libname properties*] (split-libname libname)
                     munged (munge libname)
-                    properties (when properties (.split properties "."))
+                    properties (when properties* (.split properties* "."))
                     internal-name (munged->internal munged)
                     after-load
                     (fn [mod]
-                      (when as
-                        (swap! sci-ctx
-                               (fn [sci-ctx]
-                                 (-> sci-ctx
-                                     (sci/add-class! internal-name mod)
-                                     (sci/add-import! current-ns internal-name as)))))
+                      (let [internal-name
+                            (if properties*
+                              (str internal-name "$" properties*)
+                              internal-name)]
+                        (when as
+                          (swap! sci-ctx
+                                 (fn [sci-ctx]
+                                   (-> sci-ctx
+                                       (sci/add-class! internal-name mod)
+                                       (sci/add-import! current-ns internal-name as))))))
                       (doseq [field refer]
                         (let [mod-field (gobj/get mod (str field))
                               ;; different namespaces can have different mappings
