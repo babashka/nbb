@@ -59,7 +59,7 @@
     :nbb_math {:init-fn nbb.impl.math/init
                :depends-on #{:nbb_core}}
     :nbb_bundler {:init-fn nbb.impl.bundler/init
-                  :depends-on #{:nbb_core :nbb_promesa :nbb_goog_string}}
+                  :depends-on #{:nbb_core :nbb_goog_string}}
     #_#_:nbb_schema {:init-fn nbb.impl.schema/init
                  :depends-on #{:nbb_core :nbb_goog_string}}
     #_#_:nbb_malli {:init-fn nbb.impl.malli/init

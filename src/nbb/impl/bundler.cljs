@@ -8,6 +8,8 @@
    [nbb.core :as nbb :refer [opts]]
    [sci.core :as sci]))
 
+(js/process.exit 0)
+
 (defn decompose-clause [clause]
   ;;(prn :clause clause)
   (if (symbol? clause)
@@ -81,7 +83,8 @@
 (defn uberscript [{:keys [ctx expressions]}]
   (let [ctx (assoc ctx :reload-all true)]
     (sci/binding [sci/file @sci/file
-                  sci/ns @sci/ns]
+                  sci/ns @sci/ns
+                  sci/print-fn identity]
       (doseq [expr expressions]
         (let [rdr (sci/reader expr)]
           ;;(prn :> (sci/parse-next ctx rdr))
@@ -129,22 +132,23 @@
                           %)))
         ctx (sci/merge-opts @nbb.core/sci-ctx
                             {:load-fn (fn [{:keys [namespace ctx]}]
-                                        (cond (string? namespace)
-                                              (swap! java-libs conj
-                                                     (first (nbb/split-libname namespace)))
-                                              (= 'promesa.core namespace)
-                                              (swap! built-ins conj "nbb/lib/nbb_promesa.js")
-                                              (symbol? namespace)
-                                              (uberscript {:ctx ctx
-                                                           :expressions
-                                                           [(fs/readFileSync
-                                                             (str (-> (str namespace)
-                                                                      (str/replace
-                                                                       ;; TODO: Windows
-                                                                        "." "/")
-                                                                      (str/replace "-" "_"))
-                                                                  ".cljs")
-                                                             "utf-8")]}))
+                                        (let [feat (get nbb/feature-requires namespace)]
+                                          (cond (string? namespace)
+                                                (swap! java-libs conj
+                                                       (first (nbb/split-libname namespace)))
+                                                feat
+                                                (swap! built-ins conj feat)
+                                                (symbol? namespace)
+                                                (uberscript {:ctx ctx
+                                                             :expressions
+                                                             [(fs/readFileSync
+                                                               (str (-> (str namespace)
+                                                                        (str/replace
+                                                                         ;; TODO: Windows
+                                                                         "." "/")
+                                                                        (str/replace "-" "_"))
+                                                                    ".cljs")
+                                                               "utf-8")]})))
                                         {})})]
     (uberscript {:ctx ctx
                  :expressions [(fs/readFileSync bundle-file "utf-8")]})
@@ -155,5 +159,6 @@
         (print! (gstring/format "import * as %s from '%s'" js-internal lib))
         (print! (gstring/format "registerModule(%s, '%s')" js-internal lib))))
     (doseq [lib @built-ins]
-      (print! (gstring/format "import '%s'" lib)))
+      (print! (gstring/format "import 'nbb/lib/%s'" lib)))
     (println @out)))
+

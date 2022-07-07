@@ -133,7 +133,9 @@ REPL:
                                       :namespaces (get 'nbb.repl) (get 'socket-repl))
                                   {:port (:port opts)}))))
                     (:bundle-file opts)
-                    (esm/dynamic-import "./nbb_bundler.js")
+                    (do
+                      (prn :yoooo)
+                      (esm/dynamic-import "./nbb_bundler.js"))
                     repl?
                     (-> (esm/dynamic-import "./nbb_repl.js")
                         (.then (fn [_mod]
