@@ -21,7 +21,9 @@ You can already run this file with Node.js, but it still requires the installed
 $ node out.mjs
 ```
 
-Now we're going to package up `out.mjs` to a standalone JS file:
+## Ncc
+
+Now we're going to package up `out.mjs` to a standalone JS file using `ncc`:
 
 ```
 $ npx ncc build out.mjs -m
@@ -30,3 +32,19 @@ $ npx ncc build out.mjs -m
 This produces a file `dist/index.mjs` which can run without `node_modules`.
 
 See an example [Github Action](https://github.com/borkdude/nbb-action-example) written using nbb which uses the bundle command.
+
+## Webpack
+
+Ncc produces a `dist/index.mjs` file, since the input was also an `.mjs`
+file. Unfortunately, making an executable file with a shebang is not well
+supported with `.mjs` files. However, webpack is able to produce a regular `.js`
+file (non-ESM) from our `out.mjs`.
+
+Run:
+
+```
+$ npx webpack --config webpack.prod.js
+```
+
+which produces a `dist/index.js`. You can then prepend a `#!/usr/bin/env node`
+shebang to this file, make it executable and then distribute it.
