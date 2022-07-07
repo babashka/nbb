@@ -24,7 +24,7 @@ $ node out.mjs
 Now we're going to package up `out.mjs` to a standalone JS file:
 
 ```
-$ npx ncc build out.mjs
+$ npx ncc build out.mjs -m
 ```
 
 This produces a file `dist/index.mjs` which can run without `node_modules`.
