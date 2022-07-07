@@ -47,4 +47,14 @@ $ npx webpack --config webpack.prod.js
 ```
 
 which produces a `dist/index.js`. You can then prepend a `#!/usr/bin/env node`
-shebang to this file, make it executable and then distribute it.
+shebang to this file, make it executable and then distribute it. Or you can use
+[pkg](https://github.com/vercel/pkg) to make a self-contained executable.
+
+## Pkg
+
+The `dist/index.js` produced by Webpack can be used with [pkg](https://github.com/vercel/pkg) to create a standalone executable:
+
+```
+$ npx pkg -t node16 dist/index.js -o mytool
+$ ./mytool
+```

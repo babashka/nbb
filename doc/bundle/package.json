@@ -2,11 +2,12 @@
   "dependencies": {
     "chalk": "^5.0.1",
     "nbb": "^0.6.122",
+    "pkg": "^5.7.0",
     "term-size": "^3.0.2"
   },
   "devDependencies": {
+    "ncc": "^0.3.6",
     "webpack": "^5.72.0",
-    "webpack-cli": "^4.9.2",
-    "ncc": "^0.3.6"
+    "webpack-cli": "^4.9.2"
   }
 }
