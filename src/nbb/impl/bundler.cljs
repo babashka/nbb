@@ -119,13 +119,9 @@
 
 (defn init []
   (let [{:keys [bundle-file]} @opts
-        ctx (update @nbb.core/sci-ctx
-                    :env swap!
-                    (fn [env]
-                      (assoc env :load-fn
-                             (fn [m]
-                               (js/console.log "hello")
-                               {:source ""}))))
-        ctx @nbb.core/sci-ctx]
+        ctx (sci/merge-opts @nbb.core/sci-ctx
+                            {:load-fn (fn [m]
+                                        (js/console.log "hellox" (str (:namespace m)))
+                                        {:source ""})})]
     (uberscript {:ctx ctx
-                 :expressions ["(ns example\n  (:require [\"chalk$default\" :as chalk]))\n\n(def log js/console.log)\n\n(log (chalk/blue \"hello\"))\n\n\n"]})))
+                 :expressions [(fs/readFileSync bundle-file "utf-8")]})))
