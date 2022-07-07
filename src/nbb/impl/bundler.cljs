@@ -8,8 +8,6 @@
    [nbb.core :as nbb :refer [opts]]
    [sci.core :as sci]))
 
-(js/process.exit 0)
-
 (defn decompose-clause [clause]
   ;;(prn :clause clause)
   (if (symbol? clause)
@@ -122,6 +120,7 @@
   (let [{:keys [bundle-file]} @opts
         java-libs (atom ())
         built-ins (atom [])
+        expressions (atom ())
         out (atom "")
         print! #(swap! out
                        (fn [output]
@@ -139,26 +138,32 @@
                                                 feat
                                                 (swap! built-ins conj feat)
                                                 (symbol? namespace)
-                                                (uberscript {:ctx ctx
-                                                             :expressions
-                                                             [(fs/readFileSync
-                                                               (str (-> (str namespace)
-                                                                        (str/replace
-                                                                         ;; TODO: Windows
-                                                                         "." "/")
-                                                                        (str/replace "-" "_"))
-                                                                    ".cljs")
-                                                               "utf-8")]})))
+                                                (let [file (fs/readFileSync
+                                                            (str (-> (str namespace)
+                                                                     (str/replace
+                                                                      ;; TODO: Windows
+                                                                      "." "/")
+                                                                     (str/replace "-" "_"))
+                                                                 ".cljs")
+                                                            "utf-8")]
+                                                  (swap! expressions conj file)
+                                                  (uberscript {:ctx ctx
+                                                               :expressions
+                                                               [file]}))))
                                         {})})]
-    (uberscript {:ctx ctx
-                 :expressions [(fs/readFileSync bundle-file "utf-8")]})
-    (print! "import { loadFile, registerModule } from 'nbb'")
-    (doseq [lib @java-libs]
+    (let [file (fs/readFileSync bundle-file "utf-8")]
+      (swap! expressions conj file)
+      (uberscript {:ctx ctx
+                   :expressions [file]}))
+    (print! "import { loadFile, loadString, registerModule } from 'nbb'")
+    (doseq [lib (distinct @java-libs)]
       (let [internal (munge lib) #_(nbb/libname->internal-name lib)
             js-internal (str/replace (str internal) "." "_dot_")]
         (print! (gstring/format "import * as %s from '%s'" js-internal lib))
         (print! (gstring/format "registerModule(%s, '%s')" js-internal lib))))
-    (doseq [lib @built-ins]
+    (doseq [lib (distinct @built-ins)]
       (print! (gstring/format "import 'nbb/lib/%s'" lib)))
+    (doseq [expr (distinct @expressions)]
+      (print! (gstring/format "await loadString(%s)" (pr-str expr))))
     (println @out)))
 

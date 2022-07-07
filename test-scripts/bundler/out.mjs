@@ -1,2 +1,0 @@
-:yoooo
-:promesa2
