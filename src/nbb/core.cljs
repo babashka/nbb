@@ -118,22 +118,25 @@
 (defn split-libname [libname]
   (str/split libname #"\$" 2))
 
+(defn register-module [mod internal-name]
+  (swap! loaded-modules assoc internal-name mod))
+
 (defn load-js-module [libname internal-name]
-  (js/Promise.resolve
-   (if (str/starts-with? libname "./")
-     (path/resolve (path/dirname @sci/file) libname)
-     (try ((.-resolve (:require @ctx)) libname)
-          (catch :default _
-            ((:resolve @ctx) libname)))))
-  (.then (fn [path]
-           (esm/dynamic-import
-            (let [path (if (and windows? (fs/existsSync path))
-                         (str (url/pathToFileURL path))
-                         path)]
-              path))))
-  (.then (fn [mod]
-           (swap! loaded-modules assoc internal-name mod)
-           mod)))
+  (-> (js/Promise.resolve
+       (if (str/starts-with? libname "./")
+         (path/resolve (path/dirname @sci/file) libname)
+         (try ((.-resolve (:require @ctx)) libname)
+              (catch :default _
+                ((:resolve @ctx) libname)))))
+      (.then (fn [path]
+               (esm/dynamic-import
+                (let [path (if (and windows? (fs/existsSync path))
+                             (str (url/pathToFileURL path))
+                             path)]
+                  path))))
+      (.then (fn [mod]
+               (register-module mod internal-name)
+               mod))))
 
 (defn munged->internal [munged]
   (symbol (str "nbb.internal." munged)))
@@ -243,7 +246,8 @@
                     mod (js/Promise.resolve
                          (or
                           ;; skip loading if module was already loaded
-                          (get @loaded-modules internal-name)
+                          (doto (get @loaded-modules internal-name)
+                            (prn :yeah! internal-name))
                           ;; else load module and register in loaded-modules under internal-name
                           (->
                            (load-js-module libname internal-name)

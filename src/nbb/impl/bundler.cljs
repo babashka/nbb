@@ -4,7 +4,10 @@
    ["fs" :as fs]
    [nbb.core :as nbb :refer [opts]]
    [sci.core :as sci]
-   [promesa.core :as p]))
+   [promesa.core :as p]
+   [goog.string :as gstring]
+   [goog.string.format]
+   [clojure.string :as str]))
 
 (defn decompose-clause [clause]
   ;;(prn :clause clause)
@@ -77,6 +80,7 @@
        (sci/get-column-number rdr)))
 
 (defn uberscript [{:keys [ctx expressions]}]
+  (prn :expr expressions)
   (let [ctx (assoc ctx :reload-all true)]
     (sci/binding [sci/file @sci/file
                   sci/ns @sci/ns]
@@ -116,12 +120,25 @@
 (defn init []
   (let [{:keys [bundle-file]} @opts
         java-libs (atom ())
+        out (atom "")
+        print! #(swap! out str "\n" (str %))
         ctx (sci/merge-opts @nbb.core/sci-ctx
                             {:load-fn (fn [{:keys [namespace]}]
+                                        (prn :yolo)
                                         (when (string? namespace)
+                                          (prn :name)
                                           (swap! java-libs conj
                                                  (first (nbb/split-libname namespace))))
                                         {})})]
     (uberscript {:ctx ctx
                  :expressions [(fs/readFileSync bundle-file "utf-8")]})
-    (prn @java-libs)))
+    (prn @java-libs)
+    (print! "import { loadFile, registerModule } from '../../lib/nbb_api.js'")
+    (doseq [lib @java-libs]
+      (let [internal (nbb/libname->internal-name lib)
+            js-internal (str/replace (str internal) "." "_dot_")]
+        (print! (gstring/format "import * as %s from '%s'" js-internal lib))
+        (print! (gstring/format "registerModule(%s, '%s')" js-internal lib))))
+    (print! (gstring/format "await loadFile('%s')" bundle-file))
+    (println @out)
+    (fs/writeFileSync "out.mjs" @out)))
