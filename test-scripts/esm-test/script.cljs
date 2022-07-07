@@ -4,6 +4,8 @@
             ["path" :as path]
             ["shelljs$default" :as sh]
             ["term-size$default" :as term-size]
+            ;; This is an important test, do not change:
+            ;; load zx without props and with props:
             ["zx" :as zx]
             ["zx$fs" :as zxfs]
             ["execa" :as execa]

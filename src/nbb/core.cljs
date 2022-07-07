@@ -115,6 +115,35 @@
 (def feature-requires
   (macros/feature-requires))
 
+(defn split-libname [libname]
+  (str/split libname #"\$" 2))
+
+(defn register-module [mod internal-name]
+  (swap! loaded-modules assoc internal-name mod))
+
+(defn load-js-module [libname internal-name]
+  (-> (js/Promise.resolve
+       (if (str/starts-with? libname "./")
+         (path/resolve (path/dirname @sci/file) libname)
+         (try ((.-resolve (:require @ctx)) libname)
+              (catch :default _
+                ((:resolve @ctx) libname)))))
+      (.then (fn [path]
+               (esm/dynamic-import
+                (let [path (if (and windows? (fs/existsSync path))
+                             (str (url/pathToFileURL path))
+                             path)]
+                  path))))
+      (.then (fn [mod]
+               (register-module mod internal-name)
+               mod))))
+
+(defn munged->internal [munged]
+  (symbol (str "nbb.internal." munged)))
+
+(defn libname->internal-name [libname]
+  (-> libname munge munged->internal))
+
 (defn ^:private handle-libspecs [libspecs]
   (if (seq libspecs)
     (let [fst (first libspecs)
@@ -157,53 +186,33 @@
                 ;; don't have to hardcode this.
                 (set! ^js (.-nbb$internal$react-dom-server goog/global) mod))
               (load-module "./nbb_reagent_dom_server.js" libname as refer rename libspecs)))
-          (promesa.core)
-          (load-module "./nbb_promesa.js" libname as refer rename libspecs)
-          (applied-science.js-interop)
-          (load-module "./nbb_js_interop.js" libname as refer rename libspecs)
-          (cljs-bean.core)
-          (load-module "./nbb_cljs_bean.js" libname as refer rename libspecs)
-          (cljs.pprint clojure.pprint)
-          (load-module "./nbb_pprint.js" libname as refer rename libspecs)
-          (cljs.test clojure.test)
-          (load-module "./nbb_test.js" libname as refer rename libspecs)
-          (nbb.repl)
-          (load-module "./nbb_repl.js" libname as refer rename libspecs)
-          (clojure.tools.cli)
-          (load-module "./nbb_tools_cli.js" libname as refer rename libspecs)
-          (goog.string goog.string.format)
-          (load-module "./nbb_goog_string.js" libname as refer rename libspecs)
-          (goog.crypt)
-          (load-module "./nbb_goog_crypt.js" libname as refer rename libspecs)
-          (cognitect.transit)
-          (load-module "./nbb_transit.js" libname as refer rename libspecs)
-          (clojure.data)
-          (load-module "./nbb_data.js" libname as refer rename libspecs)
-          (cljs.math clojure.math)
-          (load-module "./nbb_math.js" libname as refer rename libspecs)
-          (schema.core)
-          (load-module ((.-resolve (:require @ctx)) "@babashka/nbb-prismatic-schema/index.mjs")
-                       libname as refer rename libspecs)
-          (malli.core)
-          (load-module ((.-resolve (:require @ctx)) "@babashka/nbb-metosin-malli/index.mjs")
-                       libname as refer rename libspecs)
+          ;; (schema.core)
+          ;; (load-module ((.-resolve (:require @ctx)) "@babashka/nbb-prismatic-schema/index.mjs")
+          ;;              libname as refer rename libspecs)
+          ;; (malli.core)
+          ;; (load-module ((.-resolve (:require @ctx)) "@babashka/nbb-metosin-malli/index.mjs")
+          ;;              libname as refer rename libspecs)
           (let [feat (get feature-requires libname)]
             (cond
               feat (load-module feat libname as refer rename libspecs)
               (string? libname)
               ;; TODO: parse properties
-              (let [[libname properties] (str/split libname #"\$" 2)
-                    properties (when properties (.split properties "."))
-                    internal-name (symbol (str "nbb.internal." munged))
+              (let [[libname properties*] (split-libname libname)
+                    munged (munge libname)
+                    properties (when properties* (.split properties* "."))
+                    internal-name (munged->internal munged)
                     after-load
                     (fn [mod]
-                      (swap! loaded-modules assoc internal-name mod)
-                      (when as
-                        (swap! sci-ctx
-                               (fn [sci-ctx]
-                                 (-> sci-ctx
-                                     (sci/add-class! internal-name mod)
-                                     (sci/add-import! current-ns internal-name as)))))
+                      (let [internal-name
+                            (if properties*
+                              (str internal-name "$" properties*)
+                              internal-name)]
+                        (when as
+                          (swap! sci-ctx
+                                 (fn [sci-ctx]
+                                   (-> sci-ctx
+                                       (sci/add-class! internal-name mod)
+                                       (sci/add-import! current-ns internal-name as))))))
                       (doseq [field refer]
                         (let [mod-field (gobj/get mod (str field))
                               ;; different namespaces can have different mappings
@@ -216,27 +225,18 @@
                                        (sci/add-import! current-ns internal-subname field))))))
                       (handle-libspecs (next libspecs)))
                     mod (js/Promise.resolve
-                         (or
-                          ;; skip loading if module was already loaded
-                          (get @loaded-modules internal-name)
-                          ;; else load module and register in loaded-modules under internal-name
-                          (->
-                           (js/Promise.resolve
-                            (if (str/starts-with? libname "./")
-                              (path/resolve (path/dirname @sci/file) libname)
-                              (try ((.-resolve (:require @ctx)) libname)
-                                   (catch :default _
-                                     ((:resolve @ctx) libname)))))
-                           (.then (fn [path]
-                                    (esm/dynamic-import
-                                     (let [path (if (and windows? (fs/existsSync path))
-                                                  (str (url/pathToFileURL path))
-                                                  path)]
-                                       path))))
-                           (.then (fn [mod]
-                                    (if properties
-                                      (gobj/getValueByKeys mod properties)
-                                      mod))))))]
+                         (->
+                          (or
+                           ;; skip loading if module was already loaded
+                           (some-> (get @loaded-modules internal-name)
+                                   js/Promise.resolve)
+                           (load-js-module libname internal-name)
+                           ;; else load module and register in loaded-modules under internal-name
+                           )
+                          (.then (fn [mod]
+                                   (if properties
+                                     (gobj/getValueByKeys mod properties)
+                                     mod)))))]
                 (-> mod
                     (.then after-load)))
               :else

@@ -51,3 +51,7 @@
 
 (defn version []
   (nbb/version))
+
+(defn registerModule [mod libname]
+  (let [internal (nbb/libname->internal-name libname)]
+    (nbb/register-module mod internal)))
