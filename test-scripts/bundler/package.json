@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "chalk": "^5.0.1"
+    "chalk": "^5.0.1",
+    "term-size": "^3.0.2"
   }
 }
