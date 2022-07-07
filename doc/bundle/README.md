@@ -28,3 +28,5 @@ $ npx ncc build out.mjs -m
 ```
 
 This produces a file `dist/index.mjs` which can run without `node_modules`.
+
+See an example [Github Action](https://github.com/borkdude/nbb-action-example) written using nbb which uses the bundle command.

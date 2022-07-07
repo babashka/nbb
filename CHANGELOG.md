@@ -2,6 +2,11 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.6.122
+
+- Introduce [bundle](https://github.com/babashka/nbb/tree/main/doc/bundle) to
+  make nbb projects work together with JS bundlers.
+
 ## 0.5.121
 
 - Use `utf-8` encoding in `fs/readFile` for bun compatibility.
