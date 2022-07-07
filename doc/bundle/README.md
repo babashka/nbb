@@ -1,6 +1,6 @@
 # Bundle
 
-Since version 0.6.122, nbb support the `bundle` command, which will bundle an
+Since version 0.6.122, nbb supports the `bundle` command, which will bundle an
 nbb application to a single JS file. You can then process this JS file with a
 tool like [ncc](https://github.com/vercel/ncc) to get a truly standalone JS file
 with all dependencies included. You can run the following example in this
