@@ -51,3 +51,7 @@
 
 (defn version []
   (nbb/version))
+
+(defn loadModule [libname]
+  (let [internal (nbb/libname->internal-name libname)]
+    (nbb/load-js-module libname internal)))

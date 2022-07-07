@@ -115,6 +115,32 @@
 (def feature-requires
   (macros/feature-requires))
 
+(defn split-libname [libname]
+  (str/split libname #"\$" 2))
+
+(defn load-js-module [libname internal-name]
+  (js/Promise.resolve
+   (if (str/starts-with? libname "./")
+     (path/resolve (path/dirname @sci/file) libname)
+     (try ((.-resolve (:require @ctx)) libname)
+          (catch :default _
+            ((:resolve @ctx) libname)))))
+  (.then (fn [path]
+           (esm/dynamic-import
+            (let [path (if (and windows? (fs/existsSync path))
+                         (str (url/pathToFileURL path))
+                         path)]
+              path))))
+  (.then (fn [mod]
+           (swap! loaded-modules assoc internal-name mod)
+           mod)))
+
+(defn munged->internal [munged]
+  (symbol (str "nbb.internal." munged)))
+
+(defn libname->internal-name [libname]
+  (-> libname munge munged->internal))
+
 (defn ^:private handle-libspecs [libspecs]
   (if (seq libspecs)
     (let [fst (first libspecs)
@@ -192,12 +218,11 @@
               feat (load-module feat libname as refer rename libspecs)
               (string? libname)
               ;; TODO: parse properties
-              (let [[libname properties] (str/split libname #"\$" 2)
+              (let [[libname properties] (split-libname libname)
                     properties (when properties (.split properties "."))
-                    internal-name (symbol (str "nbb.internal." munged))
+                    internal-name (munged->internal munged)
                     after-load
                     (fn [mod]
-                      (swap! loaded-modules assoc internal-name mod)
                       (when as
                         (swap! sci-ctx
                                (fn [sci-ctx]
@@ -221,18 +246,7 @@
                           (get @loaded-modules internal-name)
                           ;; else load module and register in loaded-modules under internal-name
                           (->
-                           (js/Promise.resolve
-                            (if (str/starts-with? libname "./")
-                              (path/resolve (path/dirname @sci/file) libname)
-                              (try ((.-resolve (:require @ctx)) libname)
-                                   (catch :default _
-                                     ((:resolve @ctx) libname)))))
-                           (.then (fn [path]
-                                    (esm/dynamic-import
-                                     (let [path (if (and windows? (fs/existsSync path))
-                                                  (str (url/pathToFileURL path))
-                                                  path)]
-                                       path))))
+                           (load-js-module libname internal-name)
                            (.then (fn [mod]
                                     (if properties
                                       (gobj/getValueByKeys mod properties)

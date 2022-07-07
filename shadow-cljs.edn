@@ -23,7 +23,8 @@
                         loadString nbb.api/loadString
                         getClassPath nbb.api/getClassPath
                         addClassPath nbb.api/addClassPath
-                        version nbb.api/version}
+                        version nbb.api/version
+                        loadModule nbb.api/loadModule}
               :depends-on #{:nbb_core}}
     :nbb_reagent {:init-fn nbb.impl.reagent/init
                   :entries [reagent.core]

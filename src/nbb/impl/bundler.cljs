@@ -2,7 +2,7 @@
   "Mostly a copy of babashka uberscript, but generating an .mjs file for Node to execute"
   (:require
    ["fs" :as fs]
-   [nbb.core :refer [opts]]
+   [nbb.core :as nbb :refer [opts]]
    [sci.core :as sci]
    [promesa.core :as p]))
 
@@ -81,7 +81,6 @@
     (sci/binding [sci/file @sci/file
                   sci/ns @sci/ns]
       (doseq [expr expressions]
-        (prn :expr expr (type expr))
         (let [rdr (sci/reader expr)]
           ;;(prn :> (sci/parse-next ctx rdr))
           (loop []
@@ -92,8 +91,6 @@
                          (js/console.log (ex-message e))
                          (js/console.error "[babashka]" "Ignoring read error while assembling uberscript near"
                                            (str (loc rdr)))))]
-              ;; (.println System/err (pr-str next-val))
-              (prn :next-val next-val)
               (when-not (= ::sci/eof next-val)
                 (if (seq? next-val)
                   (let [fst (first next-val)
@@ -104,7 +101,6 @@
                                    (= 'in-ns fst)
                                    (process-in-ns ctx next-val))]
                     (when expr
-                      (prn :expr expr)
                       (try
                         ;;(prn :eval expr)
                         (sci/eval-form ctx expr)
@@ -119,9 +115,13 @@
 
 (defn init []
   (let [{:keys [bundle-file]} @opts
+        java-libs (atom ())
         ctx (sci/merge-opts @nbb.core/sci-ctx
-                            {:load-fn (fn [m]
-                                        (js/console.log "hellox" (str (:namespace m)))
-                                        {:source ""})})]
+                            {:load-fn (fn [{:keys [namespace]}]
+                                        (when (string? namespace)
+                                          (swap! java-libs conj
+                                                 (first (nbb/split-libname namespace))))
+                                        {})})]
     (uberscript {:ctx ctx
-                 :expressions [(fs/readFileSync bundle-file "utf-8")]})))
+                 :expressions [(fs/readFileSync bundle-file "utf-8")]})
+    (prn @java-libs)))
