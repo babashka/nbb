@@ -115,9 +115,25 @@
                     (recur))
                   (recur))))))))))
 
+(defn print-help []
+  (println "
+Bundle: produce single JS file for usage with bundlers.
+
+Usage:
+
+  nbb bundle <input.cljs> [opts]
+
+Options:
+
+ -o, --out [file]  Write to file instead of stdout"))
 
 (defn init []
-  (let [{:keys [bundle-file]} @opts
+  (let [{:keys [bundle-opts]} @opts
+        {:keys [cmds args]
+         parsed-opts :opts} bundle-opts
+        help (:help parsed-opts)
+        bundle-file (or (first cmds)
+                        (first args))
         java-libs (atom ())
         built-ins (atom [])
         expressions (atom ())
@@ -151,19 +167,24 @@
                                                                :expressions
                                                                [file]}))))
                                         {})})]
-    (let [file (fs/readFileSync bundle-file "utf-8")]
-      (swap! expressions conj file)
-      (uberscript {:ctx ctx
-                   :expressions [file]}))
-    (print! "import { loadFile, loadString, registerModule } from 'nbb'")
-    (doseq [lib (distinct @java-libs)]
-      (let [internal (munge lib) #_(nbb/libname->internal-name lib)
-            js-internal (str/replace (str internal) "." "_dot_")]
-        (print! (gstring/format "import * as %s from '%s'" js-internal lib))
-        (print! (gstring/format "registerModule(%s, '%s')" js-internal lib))))
-    (doseq [lib (distinct @built-ins)]
-      (print! (gstring/format "import 'nbb/lib/%s'" lib)))
-    (doseq [expr (distinct @expressions)]
-      (print! (gstring/format "await loadString(%s)" (pr-str expr))))
-    (println @out)))
+    (if help
+      (print-help)
+      (do
+        (let [file (fs/readFileSync bundle-file "utf-8")]
+            (swap! expressions conj file)
+            (uberscript {:ctx ctx
+                         :expressions [file]}))
+        (print! "import { loadFile, loadString, registerModule } from 'nbb'")
+        (doseq [lib (distinct @java-libs)]
+          (let [internal (munge lib) #_(nbb/libname->internal-name lib)
+                js-internal (str/replace (str internal) "." "_dot_")]
+            (print! (gstring/format "import * as %s from '%s'" js-internal lib))
+            (print! (gstring/format "registerModule(%s, '%s')" js-internal lib))))
+        (doseq [lib (distinct @built-ins)]
+          (print! (gstring/format "import 'nbb/lib/%s'" lib)))
+        (doseq [expr (distinct @expressions)]
+          (print! (gstring/format "await loadString(%s)" (pr-str expr))))
+        (if-let [out-file (:out parsed-opts)]
+          (fs/writeFileSync out-file @out "utf-8")
+          (println @out))))))
 

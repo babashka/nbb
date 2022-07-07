@@ -20,4 +20,4 @@ ext/**/index.mjs
 .DS_Store
 .clj-kondo/metosin
 output.html
-/doc/bundle/dist
+doc/bundle/dist
