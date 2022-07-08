@@ -50,6 +50,8 @@ which produces a `dist/index.js`. You can then prepend a `#!/usr/bin/env node`
 shebang to this file, make it executable and then distribute it. Or you can use
 [pkg](https://github.com/vercel/pkg) to make a self-contained executable.
 
+On Windows, you can use `npm install -D wrap-cmd` and then `npx wrap-cmd
+dist/index.js` to create a wrapper `.cmd` file.
 
 ## Pkg
 
