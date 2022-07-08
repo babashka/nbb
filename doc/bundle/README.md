@@ -38,17 +38,19 @@ See an example [Github Action](https://github.com/borkdude/nbb-action-example) w
 Ncc produces a `dist/index.mjs` file, since the input was also an `.mjs`
 file. Unfortunately, making an executable file with a shebang is not well
 supported with `.mjs` files. However, webpack is able to produce a regular `.js`
-file (non-ESM) from our `out.mjs`.
+file (non-ESM) from our `out.mjs`. Also, `ncc` seems to have problems with the [ink](https://github.com/vadimdemedes/ink) package, while `webpack` can handle it.
 
 Run:
 
 ```
+$ npx nbb bundle ink.cljs -o out.mjs
 $ npx webpack --config webpack.prod.js
 ```
 
 which produces a `dist/index.js`. You can then prepend a `#!/usr/bin/env node`
 shebang to this file, make it executable and then distribute it. Or you can use
 [pkg](https://github.com/vercel/pkg) to make a self-contained executable.
+
 
 ## Pkg
 
