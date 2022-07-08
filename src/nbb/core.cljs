@@ -144,6 +144,11 @@
 (defn libname->internal-name [libname]
   (-> libname munge munged->internal))
 
+;; Reagent is loaded according to following scheme:
+;; reagent.core => ./nbb_reagent.js + "react"
+;; reagent.ratom => ./nbb_reagent.js
+;; reagent.dom.server => "react" + "react-dom/server" + "./nbb_reagent_dom_server.js"
+
 (defn ^:private handle-libspecs [libspecs]
   (if (seq libspecs)
     (let [fst (first libspecs)

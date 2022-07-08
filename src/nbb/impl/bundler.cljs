@@ -134,7 +134,7 @@ Options:
         help (:help parsed-opts)
         bundle-file (or (first cmds)
                         (first args))
-        java-libs (atom ())
+        js-libs (atom ())
         built-ins (atom [])
         expressions (atom ())
         out (atom "")
@@ -145,12 +145,26 @@ Options:
                           (when (not= "" output)
                             "\n")
                           %)))
+        ;; Reagent is loaded according to following scheme:
+        ;; reagent.core => ./nbb_reagent.js + "react"
+        ;; reagent.ratom => ./nbb_reagent.js
+        ;; reagent.dom.server => "react" + "react-dom/server" + "./nbb_reagent_dom_server.js"
         ctx (sci/merge-opts @nbb.core/sci-ctx
                             {:load-fn (fn [{:keys [namespace ctx]}]
                                         (let [feat (get nbb/feature-requires namespace)]
                                           (cond (string? namespace)
-                                                (swap! java-libs conj
+                                                (swap! js-libs conj
                                                        (first (nbb/split-libname namespace)))
+                                                (= 'reagent.core namespace)
+                                                (do (swap! built-ins conj "./nbb_reagent.js")
+                                                    (swap! js-libs conj
+                                                           "react"))
+                                                (= 'reagent.ratom namespace)
+                                                (swap! built-ins conj "./nbb_reagent.js")
+                                                (= 'reagent.dom.server namespace)
+                                                (do (swap! built-ins conj "./nbb_reagent_dom_server.js")
+                                                    (swap! js-libs conj
+                                                           "react" "react-dom/server"))
                                                 feat
                                                 (swap! built-ins conj feat)
                                                 (symbol? namespace)
@@ -175,7 +189,7 @@ Options:
             (uberscript {:ctx ctx
                          :expressions [file]}))
         (print! "import { loadFile, loadString, registerModule } from 'nbb'")
-        (doseq [lib (distinct @java-libs)]
+        (doseq [lib (distinct @js-libs)]
           (let [internal (munge lib) #_(nbb/libname->internal-name lib)
                 js-internal (str/replace (str internal) "." "_dot_")]
             (print! (gstring/format "import * as %s from '%s'" js-internal lib))
