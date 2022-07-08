@@ -4,7 +4,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 ## 0.6.124
 
-- Fix #136: allow `set!` on any var
+- Fix [#136](https://github.com/babashka/nbb/issues/136): allow `set!` on any var
 
 ## 0.6.123
 
@@ -31,7 +31,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 ## 0.5.115
 
-- Fix #214: add `reagent.core/adapt-react-class`
+- Fix [#214](https://github.com/babashka/nbb/issues/214): add `reagent.core/adapt-react-class`
 - Support `metosin/malli`
 
 ## 0.5.110
