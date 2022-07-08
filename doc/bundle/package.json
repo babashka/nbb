@@ -4,10 +4,11 @@
     "ink": "^3.2.0",
     "nbb": "^0.6.123",
     "pkg": "^5.7.0",
-    "term-size": "^3.0.2"
+    "term-size": "^3.0.2",
+    "wrap-cmd": "^1.1.0"
   },
   "devDependencies": {
-    "ncc": "^0.3.6",
+    "@vercel/ncc": "^0.34.0",
     "webpack": "^5.72.0",
     "webpack-cli": "^4.9.2"
   }
