@@ -11,12 +11,15 @@
    [nbb.classpath :as cp]
    [nbb.common :refer [core-ns]]
    [sci.core :as sci]
+   [sci.impl.unrestrict :refer [*unrestricted*]]
    [sci.impl.vars :as vars]
    [sci.lang]
    [shadow.esm :as esm])
   (:require-macros [nbb.macros
                     :as macros
                     :refer [with-async-bindings]]))
+
+(set! *unrestricted* true)
 
 (def await-counter 0)
 

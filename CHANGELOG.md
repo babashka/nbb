@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.6.123
+
+- Fix #136: allow `set!` on any var
+
 ## 0.6.122
 
 - Introduce [bundle](https://github.com/babashka/nbb/tree/main/doc/bundle) to
