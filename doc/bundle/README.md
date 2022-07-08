@@ -43,7 +43,6 @@ file (non-ESM) from our `out.mjs`. Also, `ncc` seems to have problems with the [
 Run:
 
 ```
-$ npx nbb bundle ink.cljs -o out.mjs
 $ npx webpack --config webpack.prod.js
 ```
 
