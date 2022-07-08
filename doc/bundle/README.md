@@ -59,3 +59,6 @@ The `dist/index.js` produced by Webpack can be used with [pkg](https://github.co
 $ npx pkg -t node16 dist/index.js -o mytool
 $ ./mytool
 ```
+
+See the [caxa](https://github.com/babashka/nbb/tree/main/doc/caxa) docs for an
+alternative approach to building a standalone executable without a bundler.
