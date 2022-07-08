@@ -2,9 +2,13 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## 0.6.123
+## 0.6.124
 
 - Fix #136: allow `set!` on any var
+
+## 0.6.123
+
+- Fix bundler problem with `reagent.core`
 
 ## 0.6.122
 
