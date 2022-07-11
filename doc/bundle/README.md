@@ -33,6 +33,15 @@ This produces a file `dist/index.mjs` which can run without `node_modules`.
 
 See an example [Github Action](https://github.com/borkdude/nbb-action-example) written using nbb which uses the bundle command.
 
+## Rollup
+
+For completeness, a rollup config is also provided.
+Produce the `dist/index.mjs` file with:
+
+```
+$ node ./node_modules/.bin/rollup -c rollup.config.js
+```
+
 ## Webpack
 
 Ncc produces a `dist/index.mjs` file, since the input was also an `.mjs`
@@ -52,15 +61,6 @@ shebang to this file, make it executable and then distribute it. Or you can use
 
 On Windows, you can use `npm install -D wrap-cmd` and then `npx wrap-cmd
 dist/index.js` to create a wrapper `.cmd` file.
-
-## Rollup
-
-For completeness, a rollup config is also provided.
-Produce the `dist/index.mjs` file with:
-
-```
-$ node ./node_modules/.bin/rollup -c rollup.config.js
-```
 
 ## Pkg
 
