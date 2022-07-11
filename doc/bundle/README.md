@@ -53,6 +53,15 @@ shebang to this file, make it executable and then distribute it. Or you can use
 On Windows, you can use `npm install -D wrap-cmd` and then `npx wrap-cmd
 dist/index.js` to create a wrapper `.cmd` file.
 
+## Rollup
+
+For completeness, a rollup config is also provided.
+Produce the `dist/index.mjs` file with:
+
+```
+$ node ./node_modules/.bin/rollup -c rollup.config.js
+```
+
 ## Pkg
 
 The `dist/index.js` produced by Webpack can be used with [pkg](https://github.com/vercel/pkg) to create a standalone executable:
