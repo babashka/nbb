@@ -26,3 +26,6 @@
 (await (zx/$ #js ["ls"]))
 
 (prn (execa/execaSync "ls"))
+
+(def term-size' (await (js/import "term-size")))
+(prn (term-size'.default))
