@@ -29,3 +29,6 @@
 
 (def term-size' (await (js/import "term-size")))
 (prn (term-size'.default))
+
+(def js-file (await (js/import "./test-js-file.js")))
+(assert (= 10 (:x js-file)))
