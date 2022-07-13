@@ -1,6 +1,6 @@
 {
   "name": "nbb",
-  "version": "0.6.124",
+  "version": "0.6.125",
   "type": "module",
   "main": "index.mjs",
   "bin": {
