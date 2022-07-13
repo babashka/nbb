@@ -206,3 +206,14 @@
               (fn [m]
                 (is (= [:default :default :default :default :default :summary :end-run-tests] m))
                 (done))))))
+
+(deftest issue-234-assert-expr
+  (async done
+         (-> (with-async-bindings
+               {sci/print-fn (fn [_])}
+               (nbb/load-string
+                "(require '[cljs.test :as t]) (defmethod t/assert-expr 'foo [menv msg form] nil)"))
+             (.then
+              (fn [m]
+                (is m)
+                (done))))))
