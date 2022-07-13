@@ -53,11 +53,11 @@
 
 (def sci-ctx (atom nil))
 
-(set! (.-import goog/global) (fn [what]
-                               ;; need to resolve based on the current file
-                               (await
-                                (-> ((:resolve @ctx) what)
-                                    (.then #(esm/dynamic-import %))))))
+(set! (.-import goog/global)
+      (fn [what]
+        ;; need to resolve based on the current file
+        (-> ((:resolve @ctx) what)
+            (.then #(esm/dynamic-import %)))))
 
 (def loaded-modules (atom {}))
 
