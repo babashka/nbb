@@ -15,8 +15,8 @@
 (defn nrepl-server []
   (swap! port inc)
   (process ["node" "lib/nbb_main.js" "nrepl-server" ":port" @port]
-           (merge {:out :inherit
-                   :err :inherit})))
+           {:out :inherit
+            :err :inherit}))
 
 (defn bytes->str [x]
   (if (bytes? x) (String. (bytes x))
