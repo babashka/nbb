@@ -73,7 +73,7 @@
             (name data)))
     (number? data)
     (str "i" data "e")
-    (or (vector? data) (nil? data))
+    (or (set? data) (vector? data) (nil? data))
     (str "l" (apply str (map encode data)) "e")
     (map? data)
     (str "d" (->> data
