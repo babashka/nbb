@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.6.125
+
+- Fix [#219](https://github.com/babashka/nbb/issues/219): nbb doesn't resolve local node_modules when using the dynamic `js/import`
+
 ## 0.6.124
 
 - Fix [#136](https://github.com/babashka/nbb/issues/136): allow `set!` on any var
