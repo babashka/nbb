@@ -14,7 +14,8 @@
    [sci.impl.unrestrict :refer [*unrestricted*]]
    [sci.impl.vars :as vars]
    [sci.lang]
-   [shadow.esm :as esm])
+   [shadow.esm :as esm]
+   [sci.ctx-store :as store])
   (:require-macros [nbb.macros
                     :as macros
                     :refer [with-async-bindings]]))
@@ -51,8 +52,6 @@
 
 (def nbb-ns (sci/create-ns 'nbb.core nil))
 
-(def sci-ctx (atom nil))
-
 (set! (.-import goog/global)
       (fn [what]
         ;; need to resolve based on the current file
@@ -69,7 +68,7 @@
    'clojure.test 'cljs.test
    'clojure.math 'cljs.math})
 
-(def sci-find-ns (delay (sci/eval-form @sci-ctx 'find-ns)))
+(def sci-find-ns (delay (sci/eval-form (store/get-ctx) 'find-ns)))
 
 (defn load-module [m libname as refer rename libspecs]
   (-> (if (some? (@sci-find-ns libname))
@@ -79,18 +78,18 @@
                (let [nlib (normalize-libname libname)]
                  (when (and as nlib
                             (not= nlib libname))
-                   (sci/eval-form @sci-ctx
+                   (sci/eval-form (store/get-ctx)
                                   (list 'alias
                                         (list 'quote libname)
                                         (list 'quote nlib))))
                  (let [libname (or nlib libname)]
                    (when as
-                     (sci/eval-form @sci-ctx
+                     (sci/eval-form (store/get-ctx)
                                     (list 'alias
                                           (list 'quote as)
                                           (list 'quote libname))))
                    (when (seq refer)
-                     (sci/eval-form @sci-ctx
+                     (sci/eval-form (store/get-ctx)
                                     (list 'clojure.core/refer
                                           (list 'quote libname)
                                           :only (list 'quote refer)
@@ -220,7 +219,7 @@
                               (str internal-name "$" properties*)
                               internal-name)]
                         (when as
-                          (swap! sci-ctx
+                          (store/swap-ctx!
                                  (fn [sci-ctx]
                                    (-> sci-ctx
                                        (sci/add-class! internal-name mod)
@@ -230,7 +229,7 @@
                               ;; different namespaces can have different mappings
                               internal-subname (str internal-name "$" current-ns-str "$" field)
                               field (get rename field field)]
-                          (swap! sci-ctx
+                          (store/swap-ctx!
                                  (fn [sci-ctx]
                                    (-> sci-ctx
                                        (sci/add-class! internal-subname mod-field)
@@ -253,7 +252,7 @@
                     (.then after-load)))
               :else
               ;; assume symbol
-              (if (sci/eval-form @sci-ctx (list 'clojure.core/find-ns (list 'quote libname)))
+              (if (sci/eval-form (store/get-ctx) (list 'clojure.core/find-ns (list 'quote libname)))
                 ;; built-in namespace
                 (do (old-require fst)
                     (handle-libspecs (next libspecs)))
@@ -271,12 +270,12 @@
                         (.then
                          (fn [_]
                            (when as
-                             (sci/eval-form @sci-ctx
+                             (sci/eval-form (store/get-ctx)
                                             (list 'clojure.core/alias
                                                   (list 'quote as)
                                                   (list 'quote libname))))
                            (when (seq refer)
-                             (sci/eval-form @sci-ctx
+                             (sci/eval-form (store/get-ctx)
                                             (list 'clojure.core/refer
                                                   (list 'quote libname)
                                                   :only (list 'quote refer)
@@ -298,7 +297,7 @@
         ;; ignore all :require-macros for now
         other-forms (remove #(and (seq? %) (= :require-macros (first %)))
                             other-forms)
-        ns-obj (sci/eval-form @sci-ctx (list 'do (list* 'ns ns-name other-forms) '*ns*))
+        ns-obj (sci/eval-form (store/get-ctx) (list 'do (list* 'ns ns-name other-forms) '*ns*))
         libspecs (mapcat rest
                          require-forms)]
     (with-async-bindings {sci/ns ns-obj}
@@ -306,11 +305,11 @@
 
 (defn eval-require [require-form]
   (let [args (rest require-form)
-        libspecs (mapv #(sci/eval-form @sci-ctx %) args)]
+        libspecs (mapv #(sci/eval-form (store/get-ctx) %) args)]
     (handle-libspecs libspecs)))
 
 (defn parse-next [reader]
-  (sci/parse-next @sci-ctx reader
+  (sci/parse-next (store/get-ctx) reader
                   {:features #{:org.babashka/nbb
                                :cljs}}))
 
@@ -330,7 +329,7 @@
                    (eval-next ns-obj reader opts)))
           :else
           (try (let [pre-await await-counter
-                     next-val (sci/eval-form @sci-ctx form)
+                     next-val (sci/eval-form (store/get-ctx) form)
                      post-await await-counter]
                  (if (= pre-await post-await)
                    (.then (js/Promise.resolve nil)
@@ -371,7 +370,7 @@
        (if (not= :sci.core/eof next-val)
          (if (seq? next-val)
            (eval-seq reader next-val opts)
-           (let [v (try (sci/eval-form @sci-ctx next-val)
+           (let [v (try (sci/eval-form (store/get-ctx) next-val)
                         (catch :default e
                           (->Reject e)))]
              (if (instance? Reject v)
@@ -413,7 +412,7 @@
         (.then load-string))))
 
 (defn register-plugin! [_plug-in-name sci-opts]
-  (swap! sci-ctx sci/merge-opts sci-opts))
+  (store/swap-ctx! sci/merge-opts sci-opts))
 
 (defn ^:macro time
   "Evaluates expr and prints the time it took. Returns the value of expr."
@@ -453,7 +452,7 @@
 (defn cli-name []
   (macros/cli-name))
 
-(reset! sci-ctx
+(store/reset-ctx!
         (sci/init
          {:namespaces {'clojure.core {'*command-line-args* command-line-args
                                       '*warn-on-infer* warn-on-infer
@@ -506,9 +505,9 @@
                     'Math js/Math}
           :disable-arity-checks true}))
 
-(def old-require (sci/eval-form @sci-ctx 'require))
+(def old-require (sci/eval-form (store/get-ctx) 'require))
 
-(swap! (:env @sci-ctx) assoc-in
+(swap! (:env (store/get-ctx)) assoc-in
        [:namespaces 'clojure.core 'require]
        (fn [& args] (await (.then (handle-libspecs args)
                                   (fn [_])))))

@@ -9,6 +9,7 @@
    [nbb.error :as error]
    [nbb.impl.common :as common]
    [sci.core :as sci]
+   [sci.ctx-store :as store]
    [shadow.esm :as esm]))
 
 (defn main-expr [main-fn]
@@ -134,7 +135,7 @@ Tooling:
                     (and repl? (:socket-repl opts))
                     (-> (esm/dynamic-import "./nbb_repl.js")
                         (.then (fn [_mod]
-                                 ((-> nbb/sci-ctx deref :env deref
+                                 ((-> (store/get-ctx) :env deref
                                       :namespaces (get 'nbb.repl) (get 'socket-repl))
                                   {:port (:port opts)}))))
                     (:bundle-opts opts)
@@ -142,7 +143,7 @@ Tooling:
                     repl?
                     (-> (esm/dynamic-import "./nbb_repl.js")
                         (.then (fn [_mod]
-                                 ((-> nbb/sci-ctx deref :env deref
+                                 ((-> (store/get-ctx) deref :env deref
                                       :namespaces (get 'nbb.repl) (get 'repl)))))))
               (.then (fn [val]
                        (when (and expr (some? val))

@@ -7,7 +7,8 @@
    [nbb.api :as api]
    [nbb.core :as nbb]
    [nbb.impl.repl-utils :refer [handle-complete*]]
-   [sci.core :as sci])
+   [sci.core :as sci]
+   [sci.ctx-store :as store])
   (:require-macros [nbb.macros :as macros]))
 
 (def last-ns (atom @sci/ns))
@@ -18,8 +19,7 @@
   (let [[prefix line] (if-let [idx (str/last-index-of line "(")]
                         [(subs line 0 (inc idx)) (subs line (inc idx))]
                         [nil line])
-        xs (get (try (handle-complete* {:sci-ctx-atom nbb/sci-ctx
-                                        :ns (str @last-ns)
+        xs (get (try (handle-complete* {:ns (str @last-ns)
                                         :prefix line})
                      (catch :default e
                        (js/console.warn (str :warn) (ex-message e))
@@ -127,7 +127,7 @@
                                                           :sci.core/eof)))}))
                         (.then (fn [v]
                                  (let [[val ns]
-                                       [(first v) (sci/eval-form @nbb/sci-ctx '*ns*)]]
+                                       [(first v) (sci/eval-form (store/get-ctx) '*ns*)]]
                                    (reset! last-ns ns)
                                    (sci/alter-var-root sci/*3 (constantly @sci/*2))
                                    (sci/alter-var-root sci/*2 (constantly @sci/*1))
