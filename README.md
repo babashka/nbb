@@ -571,6 +571,7 @@ See [API](doc/api.md) documentation with a list of built-in libraries.
 
 ## Articles
 
+- [AWS Lambda, now with first class parentheses](https://www.juxt.pro/blog/nbb-lambda) by Ray McDermott
 - [Create a blog with Clojure, nbb, and MarkDoc](https://www.alexandercarls.de/markdoc-nbb-clojure/) by Alexander Carls
 - [Sentiment analysis with nbb](https://slimslenderslacks.github.io/nbb-sentiment) by Jim Clark
 - [Reloaded workflow with nbb and Express.js](https://dev.to/crinklywrappr/reloaded-workflow-with-nbb-expressjs-31f3) by Daniel Fitzpatrick
