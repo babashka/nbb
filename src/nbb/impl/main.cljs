@@ -143,7 +143,7 @@ Tooling:
                     repl?
                     (-> (esm/dynamic-import "./nbb_repl.js")
                         (.then (fn [_mod]
-                                 ((-> (store/get-ctx) deref :env deref
+                                 ((-> (store/get-ctx) :env deref
                                       :namespaces (get 'nbb.repl) (get 'repl)))))))
               (.then (fn [val]
                        (when (and expr (some? val))
