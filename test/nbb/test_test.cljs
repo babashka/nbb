@@ -212,8 +212,8 @@
          (-> (with-async-bindings
                {sci/print-fn (fn [_])}
                (nbb/load-string
-                "(require '[cljs.test :as t]) (defmethod t/assert-expr 'foo [menv msg form] nil)"))
+                "(require '[cljs.test :as t]) (defmethod t/assert-expr 'foo [menv msg form] :hello) (t/is (foo))"))
              (.then
               (fn [m]
-                (is m)
+                (is (= :hello m))
                 (done))))))
