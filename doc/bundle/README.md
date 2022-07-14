@@ -35,11 +35,18 @@ See an example [Github Action](https://github.com/borkdude/nbb-action-example) w
 
 ## Rollup
 
-For completeness, a rollup config is also provided.
-Produce the `dist/index.mjs` file with:
+With rollup, produce the `dist/index.mjs` file with:
 
 ```
 $ node ./node_modules/.bin/rollup -c rollup.config.js
+```
+
+## Esbuild
+
+With `esbuild`, produce the `dist/index.mjs` file with:
+
+```
+$ npx esbuild out.mjs --bundle --minify --platform=node --outfile=dist/index.mjs --format=esm
 ```
 
 ## Webpack

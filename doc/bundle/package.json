@@ -8,10 +8,11 @@
     "wrap-cmd": "^1.1.0"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.3.0",
     "@vercel/ncc": "^0.34.0",
-    "webpack": "^5.72.0",
-    "webpack-cli": "^4.9.2",
+    "esbuild": "^0.14.49",
     "rollup": "^2.76.0",
-    "@rollup/plugin-node-resolve": "^13.3.0"
+    "webpack": "^5.72.0",
+    "webpack-cli": "^4.9.2"
   }
 }
