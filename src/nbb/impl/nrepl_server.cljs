@@ -13,7 +13,8 @@
    [nbb.core :as nbb]
    [nbb.impl.bencode :refer [encode decode-all]]
    [nbb.impl.repl-utils :as utils :refer [the-sci-ns]]
-   [sci.core :as sci])
+   [sci.core :as sci]
+   [sci.ctx-store :as store])
   (:require-macros
    [nbb.macros :refer [with-async-bindings]]))
 
@@ -48,10 +49,9 @@
     (debug "response" response)
     (handler request response)))
 
-(defn eval-ctx-mw [handler {:keys [sci-ctx-atom]}]
+(defn eval-ctx-mw [handler _]
   (fn [request send-fn]
-    (handler (assoc request
-                    :sci-ctx-atom sci-ctx-atom)
+    (handler request
              send-fn)))
 
 (declare ops)
@@ -90,8 +90,8 @@
         (pr-str value)))
     (pr-str value)))
 
-(defn do-handle-eval [{:keys [ns code sci-last-error file
-                              _sci-ctx-atom _load-file? _line] :as request} send-fn]
+(defn do-handle-eval [{:keys [ns code file
+                              _load-file? _line] :as request} send-fn]
   (with-async-bindings
     {sci/ns ns
      sci/file file
@@ -124,9 +124,9 @@
                                       "ns" (str @sci/ns)
                                       "status" ["done"]})))))))
 
-(defn handle-eval [{:keys [ns sci-ctx-atom] :as request} send-fn]
+(defn handle-eval [{:keys [ns] :as request} send-fn]
   (do-handle-eval (assoc request :ns (or (when ns
-                                           (the-sci-ns @sci-ctx-atom (symbol ns)))
+                                           (the-sci-ns (store/get-ctx) (symbol ns)))
                                          @last-ns
                                          @sci/ns))
                   send-fn))
@@ -174,18 +174,18 @@
   (->> (map pr-str forms)
        (str/join \newline)))
 
-(defn handle-lookup [{:keys [sci-ctx-atom ns] :as request} send-fn]
+(defn handle-lookup [{:keys [ns] :as request} send-fn]
   (let [mapping-type (-> request :op)]
     (try
       (let [ns-str (:ns request)
             sym-str (or (:sym request) (:symbol request))
             sci-ns
             (or (when ns
-                  (the-sci-ns @sci-ctx-atom (symbol ns)))
+                  (the-sci-ns (store/get-ctx) (symbol ns)))
                 @last-ns
                 @sci/ns)]
         (sci/binding [sci/ns sci-ns]
-          (let [m (sci/eval-string* @sci-ctx-atom (gstring/format "
+          (let [m (sci/eval-string* (store/get-ctx) (gstring/format "
 (let [ns '%s
       full-sym '%s]
   (when-let [v (ns-resolve ns full-sym)]
@@ -314,9 +314,8 @@
                          (.-log_level ^Object opts)
                          (:log_level opts))
                        "info")
-        ctx-atom nbb/sci-ctx
         server (node-net/createServer
-                (partial on-connect {:sci-ctx-atom ctx-atom}))]
+                (partial on-connect {}))]
     ;; Expose "app" key under js/app in the repl
     (.listen server
              port

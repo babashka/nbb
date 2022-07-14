@@ -2,7 +2,8 @@
   (:require
    [clojure.string :as str]
    [goog.object :as gobject]
-   [sci.core :as sci]))
+   [sci.core :as sci]
+   [sci.ctx-store :as store]))
 
 (defn the-sci-ns [ctx ns-sym]
   (sci/find-ns ctx ns-sym))
@@ -28,8 +29,8 @@
               (when (re-find pat (str sym-ns "/" sym-name))
                 [sym-ns (str sym-ns "/" sym-name)]))))))
 
-(defn ns-imports->completions [sci-ctx-atom query-ns query]
-  (let [ctx @sci-ctx-atom
+(defn ns-imports->completions [query-ns query]
+  (let [ctx (store/get-ctx)
         [_ns-part name-part] (str/split query #"/")
         resolved (sci/eval-string* ctx
                                    (pr-str `(let [resolved# (resolve '~query-ns)]
@@ -59,10 +60,9 @@
           completions)))))
 
 (defn handle-complete* [{ns-str :ns
-                         :keys [sci-ctx-atom]
                          :as request}]
   (try
-    (let [ctx @sci-ctx-atom
+    (let [ctx (store/get-ctx)
           sci-ns (when ns-str
                    (the-sci-ns ctx (symbol ns-str)))]
       (sci/binding [sci/ns (or sci-ns @sci/ns)]
@@ -88,7 +88,7 @@
                 all-namespaces (->> (sci/eval-string* ctx "(all-ns)")
                                     (map (fn [ns]
                                            [(str ns) nil :qualified])))
-                from-imports (when has-namespace? (ns-imports->completions sci-ctx-atom query-ns query))
+                from-imports (when has-namespace? (ns-imports->completions query-ns query))
                 fully-qualified-names (when-not from-imports
                                         (when has-namespace?
                                           (let [ns (get alias->ns query-ns query-ns)

@@ -6,7 +6,8 @@
    [goog.string :as gstring]
    [goog.string.format]
    [nbb.core :as nbb :refer [opts]]
-   [sci.core :as sci]))
+   [sci.core :as sci]
+   [sci.ctx-store :as store]))
 
 (defn decompose-clause [clause]
   ;;(prn :clause clause)
@@ -149,7 +150,7 @@ Options:
         ;; reagent.core => ./nbb_reagent.js + "react"
         ;; reagent.ratom => ./nbb_reagent.js
         ;; reagent.dom.server => "react" + "react-dom/server" + "./nbb_reagent_dom_server.js"
-        ctx (sci/merge-opts @nbb.core/sci-ctx
+        ctx (sci/merge-opts (store/get-ctx)
                             {:load-fn (fn [{:keys [namespace ctx]}]
                                         (let [feat (get nbb/feature-requires namespace)]
                                           (cond (string? namespace)
