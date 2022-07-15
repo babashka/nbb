@@ -169,13 +169,13 @@ Options:
                                                 feat
                                                 (swap! built-ins conj feat)
                                                 (symbol? namespace)
-                                                (let [file (fs/readFileSync
-                                                            (str (-> (str namespace)
-                                                                     (str/replace
-                                                                      ;; TODO: Windows
-                                                                      "." "/")
-                                                                     (str/replace "-" "_"))
-                                                                 ".cljs")
+                                                (let [munged (-> (str namespace)
+                                                                 (str/replace
+                                                                  "." "/")
+                                                                 (str/replace "-" "_"))
+                                                      file (nbb/find-file-on-classpath munged)
+                                                      file (fs/readFileSync
+                                                            file
                                                             "utf-8")]
                                                   (swap! expressions conj file)
                                                   (uberscript {:ctx ctx

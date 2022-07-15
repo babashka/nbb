@@ -109,7 +109,8 @@ Tooling:
         classpath (:classpath opts)
         cwd (js/process.cwd)
         _ (do (cp/add-classpath cwd)
-              (when classpath (cp/add-classpath classpath)))
+              (when classpath
+                (cp/add-classpath classpath)))
         nrepl-server (:nrepl-server opts)
         repl? (or (:repl opts)
                   (:socket-repl opts)

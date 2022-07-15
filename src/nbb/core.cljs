@@ -150,6 +150,17 @@
 (defn libname->internal-name [libname]
   (-> libname munge munged->internal))
 
+(defn find-file-on-classpath [munged]
+  (let [file (str/replace (str munged) #"\." "/")
+        files [(str file ".cljs") (str file ".cljc")]
+        dirs @cp/classpath-entries]
+    (reduce (fn [_ dir]
+              (some (fn [f]
+                      (let [f (path/resolve dir f)]
+                        (when (fs/existsSync f)
+                          (reduced f))))
+                    files)) nil dirs)))
+
 ;; Reagent is loaded according to following scheme:
 ;; reagent.core => ./nbb_reagent.js + "react"
 ;; reagent.ratom => ./nbb_reagent.js
@@ -220,20 +231,20 @@
                               internal-name)]
                         (when as
                           (store/swap-ctx!
-                                 (fn [sci-ctx]
-                                   (-> sci-ctx
-                                       (sci/add-class! internal-name mod)
-                                       (sci/add-import! current-ns internal-name as))))))
+                           (fn [sci-ctx]
+                             (-> sci-ctx
+                                 (sci/add-class! internal-name mod)
+                                 (sci/add-import! current-ns internal-name as))))))
                       (doseq [field refer]
                         (let [mod-field (gobj/get mod (str field))
                               ;; different namespaces can have different mappings
                               internal-subname (str internal-name "$" current-ns-str "$" field)
                               field (get rename field field)]
                           (store/swap-ctx!
-                                 (fn [sci-ctx]
-                                   (-> sci-ctx
-                                       (sci/add-class! internal-subname mod-field)
-                                       (sci/add-import! current-ns internal-subname field))))))
+                           (fn [sci-ctx]
+                             (-> sci-ctx
+                                 (sci/add-class! internal-subname mod-field)
+                                 (sci/add-import! current-ns internal-subname field))))))
                       (handle-libspecs (next libspecs)))
                     mod (js/Promise.resolve
                          (->
@@ -256,33 +267,24 @@
                 ;; built-in namespace
                 (do (old-require fst)
                     (handle-libspecs (next libspecs)))
-                (let [file (str/replace (str munged) #"\." "/")
-                      files [(str file ".cljs") (str file ".cljc")]
-                      dirs @cp/classpath-entries
-                      the-file (reduce (fn [_ dir]
-                                         (some (fn [f]
-                                                 (let [f (path/resolve dir f)]
-                                                   (when (fs/existsSync f)
-                                                     (reduced f))))
-                                               files)) nil dirs)]
-                  (if the-file
-                    (-> (load-file the-file)
-                        (.then
-                         (fn [_]
-                           (when as
-                             (sci/eval-form (store/get-ctx)
-                                            (list 'clojure.core/alias
-                                                  (list 'quote as)
-                                                  (list 'quote libname))))
-                           (when (seq refer)
-                             (sci/eval-form (store/get-ctx)
-                                            (list 'clojure.core/refer
-                                                  (list 'quote libname)
-                                                  :only (list 'quote refer)
-                                                  :rename (list 'quote rename))))))
-                        (.then (fn [_]
-                                 (handle-libspecs (next libspecs)))))
-                    (js/Promise.reject (js/Error. (str "Could not find namespace: " libname)))))))))))
+                (if-let [the-file (find-file-on-classpath munged)]
+                  (-> (load-file the-file)
+                      (.then
+                       (fn [_]
+                         (when as
+                           (sci/eval-form (store/get-ctx)
+                                          (list 'clojure.core/alias
+                                                (list 'quote as)
+                                                (list 'quote libname))))
+                         (when (seq refer)
+                           (sci/eval-form (store/get-ctx)
+                                          (list 'clojure.core/refer
+                                                (list 'quote libname)
+                                                :only (list 'quote refer)
+                                                :rename (list 'quote rename))))))
+                      (.then (fn [_]
+                               (handle-libspecs (next libspecs)))))
+                  (js/Promise.reject (js/Error. (str "Could not find namespace: " libname))))))))))
     (js/Promise.resolve @sci/ns)))
 
 (defn eval-ns-form [ns-form]
@@ -453,57 +455,57 @@
   (macros/cli-name))
 
 (store/reset-ctx!
-        (sci/init
-         {:namespaces {'clojure.core {'*command-line-args* command-line-args
-                                      '*warn-on-infer* warn-on-infer
-                                      'time (sci/copy-var time core-ns)
-                                      'system-time (sci/copy-var system-time core-ns)
-                                      'implements? (sci/copy-var implements?* core-ns)
-                                      'array (sci/copy-var array core-ns)
-                                      'tap> (sci/copy-var tap> core-ns)
-                                      'add-tap (sci/copy-var add-tap core-ns)
-                                      'remove-tap (sci/copy-var remove-tap core-ns)
-                                      'uuid (sci/copy-var uuid core-ns)
-                                      'IEditableCollection (sci/copy-var IEditableCollection core-ns)
-                                      'MapEntry (sci/copy-var MapEntry core-ns)
-                                      'UUID (sci/copy-var UUID core-ns)
-                                      'PersistentQueue (sci/copy-var PersistentQueue core-ns)
-                                      'update-vals (sci/copy-var update-vals core-ns)
-                                      'update-keys (sci/copy-var update-keys core-ns)
-                                      'iteration (sci/copy-var iteration core-ns)
-                                      'NaN? (sci/copy-var NaN? core-ns)
-                                      'parse-long (sci/copy-var parse-long core-ns)
-                                      'parse-double (sci/copy-var parse-double core-ns)
-                                      'parse-boolean (sci/copy-var parse-boolean core-ns)
-                                      'parse-uuid (sci/copy-var parse-uuid core-ns)}
-                       'cljs.reader {'read-string (sci/copy-var edn/read-string (sci/create-ns 'cljs.reader))}
-                       'clojure.main {'repl-requires (sci/copy-var
-                                                      repl-requires
-                                                      (sci/create-ns 'clojure.main))}
+ (sci/init
+  {:namespaces {'clojure.core {'*command-line-args* command-line-args
+                               '*warn-on-infer* warn-on-infer
+                               'time (sci/copy-var time core-ns)
+                               'system-time (sci/copy-var system-time core-ns)
+                               'implements? (sci/copy-var implements?* core-ns)
+                               'array (sci/copy-var array core-ns)
+                               'tap> (sci/copy-var tap> core-ns)
+                               'add-tap (sci/copy-var add-tap core-ns)
+                               'remove-tap (sci/copy-var remove-tap core-ns)
+                               'uuid (sci/copy-var uuid core-ns)
+                               'IEditableCollection (sci/copy-var IEditableCollection core-ns)
+                               'MapEntry (sci/copy-var MapEntry core-ns)
+                               'UUID (sci/copy-var UUID core-ns)
+                               'PersistentQueue (sci/copy-var PersistentQueue core-ns)
+                               'update-vals (sci/copy-var update-vals core-ns)
+                               'update-keys (sci/copy-var update-keys core-ns)
+                               'iteration (sci/copy-var iteration core-ns)
+                               'NaN? (sci/copy-var NaN? core-ns)
+                               'parse-long (sci/copy-var parse-long core-ns)
+                               'parse-double (sci/copy-var parse-double core-ns)
+                               'parse-boolean (sci/copy-var parse-boolean core-ns)
+                               'parse-uuid (sci/copy-var parse-uuid core-ns)}
+                'cljs.reader {'read-string (sci/copy-var edn/read-string (sci/create-ns 'cljs.reader))}
+                'clojure.main {'repl-requires (sci/copy-var
+                                               repl-requires
+                                               (sci/create-ns 'clojure.main))}
 
-                       'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
-                                  'load-file (sci/copy-var load-file nbb-ns)
-                                  'alter-var-root (sci/copy-var sci/alter-var-root nbb-ns)
-                                  'slurp (sci/copy-var slurp nbb-ns)
-                                  '*file* sci/file
-                                  'version (sci/copy-var version nbb-ns)
-                                  'await (sci/copy-var await nbb-ns)
-                                  'time (sci/copy-var time* nbb-ns)}
-                       'nbb.classpath {'add-classpath (sci/copy-var cp/add-classpath cp-ns)
-                                       'get-classpath (sci/copy-var cp/get-classpath cp-ns)}
-                       'goog.object {'get gobj/get
-                                     'set gobj/set
-                                     'getKeys gobj/getKeys
-                                     'getValueByKeys gobj/getValueByKeys}
-                       'edamame.core (sci/copy-ns edamame.core (sci/create-ns 'edamame.core))}
-          :classes {'js universe :allow :all
-                    'goog.object #js {:get gobj/get
-                                      :set gobj/set
-                                      :getKeys gobj/getKeys
-                                      :getValueByKeys gobj/getValueByKeys}
-                    'ExceptionInfo ExceptionInfo
-                    'Math js/Math}
-          :disable-arity-checks true}))
+                'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
+                           'load-file (sci/copy-var load-file nbb-ns)
+                           'alter-var-root (sci/copy-var sci/alter-var-root nbb-ns)
+                           'slurp (sci/copy-var slurp nbb-ns)
+                           '*file* sci/file
+                           'version (sci/copy-var version nbb-ns)
+                           'await (sci/copy-var await nbb-ns)
+                           'time (sci/copy-var time* nbb-ns)}
+                'nbb.classpath {'add-classpath (sci/copy-var cp/add-classpath cp-ns)
+                                'get-classpath (sci/copy-var cp/get-classpath cp-ns)}
+                'goog.object {'get gobj/get
+                              'set gobj/set
+                              'getKeys gobj/getKeys
+                              'getValueByKeys gobj/getValueByKeys}
+                'edamame.core (sci/copy-ns edamame.core (sci/create-ns 'edamame.core))}
+   :classes {'js universe :allow :all
+             'goog.object #js {:get gobj/get
+                               :set gobj/set
+                               :getKeys gobj/getKeys
+                               :getValueByKeys gobj/getValueByKeys}
+             'ExceptionInfo ExceptionInfo
+             'Math js/Math}
+   :disable-arity-checks true}))
 
 (def old-require (sci/eval-form (store/get-ctx) 'require))
 
