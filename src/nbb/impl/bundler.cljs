@@ -129,6 +129,7 @@ Options:
  -o, --out [file]  Write to file instead of stdout"))
 
 (defn init []
+  (prn :bundler)
   (let [{:keys [bundle-opts]} @opts
         {:keys [cmds args]
          parsed-opts :opts} bundle-opts
