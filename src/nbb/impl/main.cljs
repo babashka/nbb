@@ -101,7 +101,6 @@ Tooling:
 "))
 
 (defn main []
-  (prn :yo)
   (let [[_ _ & args] js/process.argv
         opts (parse-args args)
         _ (reset! common/opts opts)
@@ -111,7 +110,6 @@ Tooling:
         cwd (js/process.cwd)
         _ (do (cp/add-classpath cwd)
               (when classpath
-                (prn :classpath classpath)
                 (cp/add-classpath classpath)))
         nrepl-server (:nrepl-server opts)
         repl? (or (:repl opts)
