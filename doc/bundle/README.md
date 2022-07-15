@@ -11,7 +11,7 @@ To run `example.cljs` normally, we would run: `npx nbb example.cljs`.
 To produce a single JS file suitable for JS bundlers, run:
 
 ```
-$ npx nbb bundle example.cljs -o out.mjs
+$ npx nbb -cp src bundle example.cljs -o out.mjs
 ```
 
 You can already run this file with Node.js, but it still requires the installed
