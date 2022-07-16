@@ -1,0 +1,4 @@
+{:deps {metosin/malli {:git/url "https://github.com/borkdude/malli"
+                       :git/sha "e400bbcdab09b21dc42d82f90400f60f85af6bd9"}
+        borkdude/dynaload {:git/url "https://github.com/borkdude/dynaload"
+                           :git/sha "71eb9281dd8716b48995fe69845753575fc25c39"}}}
