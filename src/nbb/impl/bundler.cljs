@@ -89,7 +89,7 @@
           ;;(prn :> (sci/parse-next ctx rdr))
           (loop []
             (let [next-val
-                  (try (sci/parse-next ctx rdr)
+                  (try (sci/parse-next ctx rdr {:features #{:cljs :org.babashka/nbb}})
                        ;; swallow reader error
                        (catch :default e
                          (js/console.log (ex-message e))
