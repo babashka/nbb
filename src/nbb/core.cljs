@@ -444,7 +444,8 @@
   ;; uses implements?
   (case psym
     cljs.core/ISeq (implements? ISeq x)
-    cljs.core/INamed (implements? INamed x)))
+    cljs.core/INamed (implements? INamed x)
+    (list 'cljs.core/instance? psym x)))
 
 (def cp-ns (sci/create-ns 'nbb.classpath nil))
 
@@ -453,6 +454,9 @@
 
 (defn cli-name []
   (macros/cli-name))
+
+(defn ^:macro gdefine [_ _ name value]
+  (list 'def name value))
 
 (store/reset-ctx!
  (sci/init
@@ -477,7 +481,8 @@
                                'parse-long (sci/copy-var parse-long core-ns)
                                'parse-double (sci/copy-var parse-double core-ns)
                                'parse-boolean (sci/copy-var parse-boolean core-ns)
-                               'parse-uuid (sci/copy-var parse-uuid core-ns)}
+                               'parse-uuid (sci/copy-var parse-uuid core-ns)
+                               'goog-define (sci/copy-var gdefine core-ns)}
                 'cljs.reader {'read-string (sci/copy-var edn/read-string (sci/create-ns 'cljs.reader))}
                 'clojure.main {'repl-requires (sci/copy-var
                                                repl-requires
