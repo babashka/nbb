@@ -150,7 +150,9 @@ Options:
         ;; reagent.core => ./nbb_reagent.js + "react"
         ;; reagent.ratom => ./nbb_reagent.js
         ;; reagent.dom.server => "react" + "react-dom/server" + "./nbb_reagent_dom_server.js"
-        ctx (sci/merge-opts (store/get-ctx)
+        initial-ctx (store/get-ctx)
+        built-in-nss (sci/eval-string* initial-ctx "(set (map ns-name (all-ns)))")
+        ctx (sci/merge-opts initial-ctx
                             {:load-fn (fn [{:keys [namespace ctx]}]
                                         (let [feat (get nbb/feature-requires namespace)]
                                           (cond (string? namespace)
@@ -168,7 +170,7 @@ Options:
                                                            "react" "react-dom/server"))
                                                 feat
                                                 (swap! built-ins conj feat)
-                                                (symbol? namespace)
+                                                (and (symbol? namespace) (not (contains? built-in-nss namespace)))
                                                 (let [munged (-> (str namespace)
                                                                  (str/replace
                                                                   "." "/")
