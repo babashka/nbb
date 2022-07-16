@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.6.129
+
+- Malli compatibility
+
 ## 0.6.128
 
 - More bundler fixes
