@@ -74,9 +74,6 @@
          args)
   (spit "lib/nbb_core.js"
         (str/replace (slurp "lib/nbb_core.js") (re-pattern "self") "globalThis"))
-  (spit "lib/nbb_main.js"
-        (str "#!/usr/bin/env node\n\n" (slurp "lib/nbb_main.js")))
-  (shell "chmod +x lib/nbb_main.js")
   (run! fs/delete (fs/glob "lib" "**.map"))
   #_(move-ext-lib "lib/nbb_schema.js" "ext/nbb-prismatic-schema/index.mjs")
   #_(move-ext-lib "lib/nbb_malli.js" "ext/nbb-metosin-malli/index.mjs"))
