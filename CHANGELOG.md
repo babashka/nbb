@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.6.128
+
+- More bundler fixes
+
 ## 0.6.127
 
 - Fix [#239](https://github.com/babashka/nbb/issues/239): bundler with `--classpath`
