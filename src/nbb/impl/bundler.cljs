@@ -191,17 +191,17 @@ Options:
             (swap! expressions conj file)
             (uberscript {:ctx ctx
                          :expressions [file]}))
-        (print! "import { loadFile, loadString, registerModule } from 'nbb'")
+        (print! (gstring/format "import { loadFile, loadString, registerModule } from '%s'"
+                                (nbb/npm-lib-name)))
         (doseq [lib (distinct @js-libs)]
           (let [internal (munge lib) #_(nbb/libname->internal-name lib)
                 js-internal (str/replace (str internal) "." "_dot_")]
             (print! (gstring/format "import * as %s from '%s'" js-internal lib))
             (print! (gstring/format "registerModule(%s, '%s')" js-internal lib))))
         (doseq [lib (distinct @built-ins)]
-          (print! (gstring/format "import 'nbb/lib/%s'" lib)))
+          (print! (gstring/format "import '%s/lib/%s'" (nbb/npm-lib-name) lib)))
         (doseq [expr (distinct @expressions)]
           (print! (gstring/format "await loadString(%s)" (pr-str expr))))
         (if-let [out-file (:out parsed-opts)]
           (fs/writeFileSync out-file @out "utf-8")
           (println @out))))))
-

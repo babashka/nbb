@@ -121,6 +121,9 @@
 (def feature-requires
   (macros/feature-requires))
 
+(defn npm-lib-name []
+  (macros/npm-lib-name))
+
 (defn split-libname [libname]
   (str/split libname #"\$" 2))
 
