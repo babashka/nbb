@@ -482,7 +482,8 @@
                                'parse-double (sci/copy-var parse-double core-ns)
                                'parse-boolean (sci/copy-var parse-boolean core-ns)
                                'parse-uuid (sci/copy-var parse-uuid core-ns)
-                               'goog-define (sci/copy-var gdefine core-ns)}
+                               'goog-define (sci/copy-var gdefine core-ns)
+                               'demunge (sci/copy-var demunge core-ns)}
                 'cljs.reader {'read-string (sci/copy-var edn/read-string (sci/create-ns 'cljs.reader))}
                 'clojure.main {'repl-requires (sci/copy-var
                                                repl-requires
