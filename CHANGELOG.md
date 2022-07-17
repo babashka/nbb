@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.6.X
+
+- Allow npm lib name in bundle to be configured with `$NBB_NPM_LIB_NAME`
+
 ## 0.6.129
 
 - Malli compatibility

@@ -59,8 +59,11 @@ The two main build tasks are `bb dev` and `bb release` for development and
 production builds respectively. Some build tasks are available as a bb library
 in `build/`. This is useful for custom builds with features enabled.
 
-To build a version of nbb with a custom cli name use `$NBB_CLI_NAME` e.g.
-`NBB_CLI_NAME=nbb-datascript bb release`.
+To build a version of nbb with a custom cli name, use `$NBB_CLI_NAME` e.g.
+`NBB_CLI_NAME=nbb-logseq bb release`.
+
+To build a version of nbb with a custom npm lib for bundle, use `$NBB_NPM_LIB_NAME` e.g.
+`NBB_NPM_LIB_NAME=@logseq/nbb-logseq bb release`.
 
 ## Features
 

@@ -17,6 +17,10 @@
   []
   (or (System/getenv "NBB_CLI_NAME") "nbb"))
 
+(defmacro npm-lib-name
+  []
+  (or (System/getenv "NBB_NPM_LIB_NAME") "nbb"))
+
 (defmacro feature-requires []
   (let [;; all nbb_features.edn files on the classpath:
         configs (enumeration-seq
