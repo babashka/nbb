@@ -6,7 +6,7 @@ All you need to do to get nbb running on AWS Lambda is the following:
 
 package.json:
 ``` json
-{"dependencies": {"nbb": "0.5.103"}}
+{"dependencies": {"nbb": "^0.6.129"}}
 ```
 
 It's recommend to always use the newest version of nbb, so be sure to execute:
