@@ -9,9 +9,17 @@ package.json:
 {"dependencies": {"nbb": "0.5.103"}}
 ```
 
+It's recommend to always use the newest version of nbb, so be sure to execute:
+
+``` shell
+$ npm install nbb@latest
+```
+
 index.mjs:
 ``` javascript
-import { loadFile } from 'nbb';
+import { loadFile, addClassPath } from 'nbb';
+
+addClassPath('.'); // This is necessary when you require another .cljs file
 
 const { handler } = await loadFile('./example.cljs');
 
@@ -29,7 +37,11 @@ example.cljs:
 #js {:handler handler}
 ```
 
-Make sure to run `npm install`.
+Test if the code runs locally:
+
+``` clojure
+$ node index.mjs
+```
 
 Zip the directory: `zip -r app.zip .`
 
