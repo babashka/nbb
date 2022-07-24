@@ -18,6 +18,8 @@
 
 
 (defn download-and-extract-deps!
+  "Given a map of dependencies and a path, downloads all dependencies to
+  '*nbb-path*/_deps/*hash-of-deps-map*/nbb-deps' and returns that full path."
   [deps nbb-path]
   (let [deps-hash (hash-deps deps)
         deps-path (str nbb-path "/_deps/" deps-hash)
