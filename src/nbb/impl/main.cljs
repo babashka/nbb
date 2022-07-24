@@ -1,13 +1,16 @@
 (ns nbb.impl.main
   (:require
+   ["fs" :as fs]
    ["path" :as path]
    [babashka.cli :as cli]
+   [clojure.edn :as edn]
    [clojure.string :as str]
    [nbb.api :as api]
    [nbb.classpath :as cp]
    [nbb.core :as nbb]
    [nbb.error :as error]
    [nbb.impl.common :as common]
+   [nbb.impl.deps :as deps]
    [sci.core :as sci]
    [sci.ctx-store :as store]
    [shadow.esm :as esm]))
@@ -100,11 +103,20 @@ Tooling:
   bundle: produce single JS file for usage with bundlers.
 "))
 
+
+(defn local-nbb-edn
+  "Finds a local nbb.edn file and reads it. Returns nil if none found."
+  []
+  (when-let [file (some #(when (= "nbb.edn" %) %) (fs/readdirSync "."))]
+    (edn/read-string (fs/readFileSync file "utf8"))))
+
+
 (defn main []
   (let [[_ _ & args] js/process.argv
         opts (parse-args args)
         _ (reset! common/opts opts)
         script-file (:script opts)
+        nbb-edn (local-nbb-edn)
         expr (:expr opts)
         classpath (:classpath opts)
         cwd (js/process.cwd)
@@ -117,6 +129,9 @@ Tooling:
                   ;; TODO: better handling of detecting invocation without subtask
                   (empty? (dissoc opts :classpath :debug)))
         bundle-opts (:bundle-opts opts)]
+    (when-let [deps (:deps nbb-edn)]
+      (-> (deps/download-and-extract-deps! deps deps/default-nbb-path)
+          (cp/add-classpath)))
     (when (:help opts)
       (print-help)
       (js/process.exit 0))
