@@ -22,7 +22,7 @@
   '*nbb-path*/_deps/*hash-of-deps-map*/nbb-deps' and returns that full path."
   [deps nbb-path]
   (let [deps-hash (hash-deps deps)
-        deps-path (str nbb-path deps-hash)
+        deps-path (str nbb-path "/" deps-hash)
         deps-edn-path (str deps-path "/deps.edn")
         jar-path (str deps-path "/nbb-deps.jar")
         unzipped-path (str deps-path "/nbb-deps")]
