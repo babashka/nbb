@@ -26,7 +26,6 @@
         jar-path (str deps-path "/nbb-deps.jar")
         unzipped-path (str deps-path "/nbb-deps")]
     (when-not (fs/existsSync unzipped-path)
-      (println "Dependency changes detected.")
       (fs/mkdirSync deps-path #js {:recursive true})
       (println "Downloading dependencies...")
       (cproc/execSync (str "bb --config nbb.edn uberjar " jar-path))
