@@ -47,6 +47,9 @@
           ("-cp" "--classpath")
           (recur (assoc opts :classpath (first nargs))
                  (next nargs))
+          "--config" (recur (assoc opts :config
+                                   (edn/read-string (first nargs)))
+                            (next nargs))
           "--debug" (recur (assoc opts :debug true)
                            nargs)
           "nrepl-server" (recur (assoc opts :nrepl-server true)
@@ -116,7 +119,7 @@ Tooling:
         opts (parse-args args)
         _ (reset! common/opts opts)
         script-file (:script opts)
-        nbb-edn (local-nbb-edn)
+        nbb-edn (or (:config opts) (local-nbb-edn))
         expr (:expr opts)
         classpath (:classpath opts)
         cwd (js/process.cwd)
