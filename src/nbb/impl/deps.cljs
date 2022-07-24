@@ -6,7 +6,7 @@
    ["os" :as os]))
 
 
-(def default-nbb-path
+(def default-nbb-cache-path
   ".nbb/.cache")
 
 

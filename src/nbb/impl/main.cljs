@@ -133,7 +133,7 @@ Tooling:
                   (empty? (dissoc opts :classpath :debug)))
         bundle-opts (:bundle-opts opts)]
     (when-let [deps (:deps nbb-edn)]
-      (-> (deps/download-and-extract-deps! deps deps/default-nbb-path)
+      (-> (deps/download-and-extract-deps! deps deps/default-nbb-cache-path)
           (cp/add-classpath)))
     (when (:help opts)
       (print-help)
