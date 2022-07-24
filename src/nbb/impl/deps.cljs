@@ -3,8 +3,7 @@
    ["child_process" :as cproc]
    ["crypto" :as crypto]
    ["fs" :as fs]
-   ["os" :as os]
-   ))
+   ["os" :as os]))
 
 
 (def default-nbb-path
