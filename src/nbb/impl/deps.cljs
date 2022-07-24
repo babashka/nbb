@@ -32,4 +32,3 @@
                            unzipped-path
                            "\")'")))
     unzipped-path))
-
