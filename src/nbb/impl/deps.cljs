@@ -23,12 +23,14 @@
   [deps nbb-path]
   (let [deps-hash (hash-deps deps)
         deps-path (str nbb-path "/_deps/" deps-hash)
+        deps-edn-path (str deps-path "/deps.edn")
         jar-path (str deps-path "/nbb-deps.jar")
         unzipped-path (str deps-path "/nbb-deps")]
     (when-not (fs/existsSync unzipped-path)
       (fs/mkdirSync deps-path #js {:recursive true})
+      (fs/writeFileSync deps-edn-path (str {:deps deps}))
       (println "Downloading dependencies...")
-      (cproc/execSync (str "bb --config nbb.edn uberjar " jar-path))
+      (cproc/execSync (str "bb --config " deps-edn-path " uberjar " jar-path))
       (println "Extracting dependencies...")
       (cproc/execSync (str "bb -e '(fs/unzip \""
                            jar-path
