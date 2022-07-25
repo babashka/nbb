@@ -10,7 +10,6 @@
    [nbb.core :as nbb]
    [nbb.error :as error]
    [nbb.impl.common :as common]
-   [nbb.impl.deps :as deps]
    [sci.core :as sci]
    [sci.ctx-store :as store]
    [shadow.esm :as esm]))
@@ -117,9 +116,13 @@ Tooling:
 (defn main []
   (let [[_ _ & args] js/process.argv
         opts (parse-args args)
+        opts (if (:config opts)
+               opts
+               (if-let [config (local-nbb-edn)]
+                 (assoc opts :config config)
+                 opts))
         _ (reset! common/opts opts)
         script-file (:script opts)
-        nbb-edn (or (:config opts) (local-nbb-edn))
         expr (:expr opts)
         classpath (:classpath opts)
         cwd (js/process.cwd)
@@ -132,9 +135,6 @@ Tooling:
                   ;; TODO: better handling of detecting invocation without subtask
                   (empty? (dissoc opts :classpath :debug)))
         bundle-opts (:bundle-opts opts)]
-    (when-let [deps (:deps nbb-edn)]
-      (-> (deps/download-and-extract-deps! deps deps/default-nbb-cache-path)
-          (cp/add-classpath)))
     (when (:help opts)
       (print-help)
       (js/process.exit 0))
@@ -145,6 +145,8 @@ Tooling:
     (when repl? (api/init-require (path/resolve "script.cljs")))
     (if (or script-file expr nrepl-server repl? bundle-opts)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
+          (when (:config opts)
+            (esm/dynamic-import "./nbb_deps.js"))
           (-> (cond script-file
                     (api/loadFile script-file)
                     expr
