@@ -3,6 +3,7 @@
    ["child_process" :as cproc]
    ["crypto" :as crypto]
    ["fs" :as fs]
+   [nbb.classpath :as cp]
    [nbb.core :as nbb :refer [opts]]))
 
 
@@ -44,4 +45,6 @@
 (defn init
   []
   (when-let [deps (get-in @opts [:config :deps])]
-    (download-and-extract-deps! deps default-nbb-cache-path)))
+    (-> deps
+        (download-and-extract-deps! default-nbb-cache-path)
+        (cp/add-classpath))))
