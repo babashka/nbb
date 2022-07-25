@@ -1,7 +1,9 @@
 (ns nbb.impl.main
   (:require
+   ["fs" :as fs]
    ["path" :as path]
    [babashka.cli :as cli]
+   [clojure.edn :as edn]
    [clojure.string :as str]
    [nbb.api :as api]
    [nbb.classpath :as cp]
@@ -44,6 +46,9 @@
           ("-cp" "--classpath")
           (recur (assoc opts :classpath (first nargs))
                  (next nargs))
+          "--config" (recur (assoc opts :config
+                                   (edn/read-string (first nargs)))
+                            (next nargs))
           "--debug" (recur (assoc opts :debug true)
                            nargs)
           "nrepl-server" (recur (assoc opts :nrepl-server true)
@@ -100,9 +105,22 @@ Tooling:
   bundle: produce single JS file for usage with bundlers.
 "))
 
+
+(defn local-nbb-edn
+  "Finds a local nbb.edn file and reads it. Returns nil if none found."
+  []
+  (when-let [file (some #(when (= "nbb.edn" %) %) (fs/readdirSync "."))]
+    (edn/read-string (fs/readFileSync file "utf8"))))
+
+
 (defn main []
   (let [[_ _ & args] js/process.argv
         opts (parse-args args)
+        opts (if (:config opts)
+               opts
+               (if-let [config (local-nbb-edn)]
+                 (assoc opts :config config)
+                 opts))
         _ (reset! common/opts opts)
         script-file (:script opts)
         expr (:expr opts)
@@ -127,6 +145,8 @@ Tooling:
     (when repl? (api/init-require (path/resolve "script.cljs")))
     (if (or script-file expr nrepl-server repl? bundle-opts)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
+          (when (:config opts)
+            (esm/dynamic-import "./nbb_deps.js"))
           (-> (cond script-file
                     (api/loadFile script-file)
                     expr
