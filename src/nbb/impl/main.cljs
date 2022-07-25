@@ -46,8 +46,7 @@
           ("-cp" "--classpath")
           (recur (assoc opts :classpath (first nargs))
                  (next nargs))
-          "--config" (recur (assoc opts :config
-                                   (edn/read-string (first nargs)))
+          "--config" (recur (assoc opts :config (first nargs))
                             (next nargs))
           "--debug" (recur (assoc opts :debug true)
                            nargs)
@@ -117,7 +116,11 @@ Tooling:
   (let [[_ _ & args] js/process.argv
         opts (parse-args args)
         opts (if (:config opts)
-               opts
+               (assoc opts :config
+                      (edn/read-string
+                       (fs/readFileSync
+                        (:config opts)
+                        "utf8")))
                (if-let [config (local-nbb-edn)]
                  (assoc opts :config config)
                  opts))
@@ -133,7 +136,7 @@ Tooling:
         repl? (or (:repl opts)
                   (:socket-repl opts)
                   ;; TODO: better handling of detecting invocation without subtask
-                  (empty? (dissoc opts :classpath :debug)))
+                  (empty? (dissoc opts :classpath :debug :config)))
         bundle-opts (:bundle-opts opts)]
     (when (:help opts)
       (print-help)
