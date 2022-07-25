@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "blipgloss": "^0.0.4",
     "nbb": "^0.6.129"
   }
 }

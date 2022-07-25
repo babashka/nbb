@@ -1,6 +1,6 @@
 # Bun examples
 
-To run example `foo.cljs`, execute the JS wrapper with bun: `bun foo.mjs`.
+To run example, invoke `bun run.mjs <example.cljs>`.
 
 ## FFI
 
