@@ -109,8 +109,8 @@ Tooling:
 (defn local-nbb-edn
   "Finds a local nbb.edn file and reads it. Returns nil if none found."
   []
-  (when-let [file (some #(when (= "nbb.edn" %) %) (fs/readdirSync "."))]
-    (edn/read-string (fs/readFileSync file "utf8"))))
+  (when (fs/existsSync "nbb.edn")
+    (edn/read-string (fs/readFileSync "nbb.edn" "utf8"))))
 
 
 (defn main []
