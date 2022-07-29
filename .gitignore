@@ -22,5 +22,5 @@ ext/**/index.mjs
 output.html
 doc/bundle/dist
 doc/bundle/out.mjs
-./bun.lockb
+.nbb/.cache/
 bun.lockb

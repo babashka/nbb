@@ -39,7 +39,9 @@
   (is (= {:expr "(require 'foo) (apply foo/-main *command-line-args*)", :args '("1" "2" "3")}
          (main/parse-args ["-m" "foo" "1" "2" "3"])))
   (is (= {:nrepl-server true, :port "0.0.0.0"}
-      (main/parse-args ["nrepl-server" "--port" "0.0.0.0" ]))))
+      (main/parse-args ["nrepl-server" "--port" "0.0.0.0" ])))
+  (is (= {:config "../foo/nbb.edn"}
+         (main/parse-args ["--config" "../foo/nbb.edn"]))))
 
 (deftest-async simple-require-test
   (-> (nbb/load-string "(ns foo (:require cljs.core clojure.set))
