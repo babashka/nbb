@@ -14,17 +14,16 @@ This document contains best practices to use nbb with bun. Bun is still experime
 {
   "dependencies": {
     "nbb": "^0.5.121"
-  },
-  "scripts": {
-    "nbb": "node_modules/nbb/lib/nbb_main.js"
   }
 }
 ```
 
 Run `bun install` to install nbb.
-Then run `bun run nbb -e '(+ 1 2 3)` to test running nbb.
 
 ## JS wrapper
+
+To run scripts with bun, you need to write a JS wrapper, else bun is going to
+invoke Node.js, since the nbb entrypoint has a Node.js shebang.
 
 Write an `index.mjs` like this:
 
@@ -55,3 +54,7 @@ and you should see:
 ```
 
 For faster startup time, run `bun bun index.mjs`.
+
+## Examples
+
+See [examples/bun](../examples/bun) for bun examples.
