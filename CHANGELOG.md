@@ -2,7 +2,7 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## 0.7.130
+## 0.7.131
 
 - Support `:deps` in `nbb.edn` - thanks [@lilactown](https://github.com/lilactown)!
 - Allow npm lib name in bundle to be configured with `$NBB_NPM_LIB_NAME`
