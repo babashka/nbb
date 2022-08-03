@@ -16,7 +16,7 @@
         #_{:local/root "../babashka/sci"}
         #_{:mvn/version "0.3.5"}
         {:git/url "https://github.com/babashka/sci"
-         :git/sha "3e068bbd9cfdf8e39107721658a3717db092c2e0"}
+         :git/sha "129d388ac2589103b31a561defc33b94ca28b59c"}
         org.babashka/sci.configs
         #_{:local/root "/Users/borkdude/dev/sci.configs"}
         {:git/url "https://github.com/babashka/sci.configs"
