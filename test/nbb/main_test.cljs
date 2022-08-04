@@ -13,6 +13,18 @@
   (println "===" (-> m :var meta :name))
   (println))
 
+(def old-fail (get-method t/report [:cljs.test/default :fail]))
+
+(defmethod t/report [:cljs.test/default :fail] [m]
+  (set! js/process.exitCode 1)
+  (old-fail m))
+
+(def old-error (get-method t/report [:cljs.test/default :fail]))
+
+(defmethod t/report [:cljs.test/default :error] [m]
+  (set! js/process.exitCode 1)
+  (old-error m))
+
 (cp/add-classpath "test-scripts")
 (reset! nbb/ctx {:require (createRequire (path/resolve "script.cljs"))})
 
