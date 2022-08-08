@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.7.132
+
+- Bump SCI, fixes [#242](https://github.com/babashka/nbb/issues/242) and [#244](https://github.com/babashka/nbb/issues/244) and adds `demunge` to `cljs.core`
+
 ## 0.7.131
 
 - Support `:deps` in `nbb.edn` - thanks [@lilactown](https://github.com/lilactown)!
