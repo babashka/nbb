@@ -461,6 +461,43 @@
 (defn ^:macro gdefine [_ _ name value]
   (list 'def name value))
 
+(def ^:private goog-object-ns
+  {'add gobj/add
+   'clear gobj/clear
+   'clone gobj/clone
+   'contains gobj/contains
+   'containsKey gobj/containsKey
+   'containsValue gobj/containsValue
+   'create gobj/create
+   'createImmutableView gobj/createImmutableView
+   'createSet gobj/createSet
+   'equals gobj/equals
+   'every gobj/every
+   'extend gobj/extend
+   'filter gobj/filter
+   'findKey gobj/findKey
+   'findValue gobj/findValue
+   'forEach gobj/forEach
+   'get gobj/get
+   'getAllPropertyNames gobj/getAllPropertyNames
+   'getAnyKey gobj/getAnyKey
+   'getAnyValue gobj/getAnyValue
+   'getCount gobj/getCount
+   'getKeys gobj/getKeys
+   'getSuperClass gobj/getSuperClass
+   'getValueByKeys gobj/getValueByKeys
+   'getValues gobj/getValues
+   'isEmpty gobj/isEmpty
+   'isImmutableView gobj/isImmutableView
+   'map gobj/map
+   'remove gobj/remove
+   'set gobj/set
+   'setIfUndefined gobj/setIfUndefined
+   'setWithReturnValueIfNotSet gobj/setWithReturnValueIfNotSet
+   'some gobj/some
+   'transpose gobj/transpose
+   'unsafeClone gobj/unsafeClone})
+
 (store/reset-ctx!
  (sci/init
   {:namespaces {'clojure.core {'*command-line-args* command-line-args
@@ -501,16 +538,10 @@
                            'time (sci/copy-var time* nbb-ns)}
                 'nbb.classpath {'add-classpath (sci/copy-var cp/add-classpath cp-ns)
                                 'get-classpath (sci/copy-var cp/get-classpath cp-ns)}
-                'goog.object {'get gobj/get
-                              'set gobj/set
-                              'getKeys gobj/getKeys
-                              'getValueByKeys gobj/getValueByKeys}
+                'goog.object goog-object-ns
                 'edamame.core (sci/copy-ns edamame.core (sci/create-ns 'edamame.core))}
    :classes {'js universe :allow :all
-             'goog.object #js {:get gobj/get
-                               :set gobj/set
-                               :getKeys gobj/getKeys
-                               :getValueByKeys gobj/getValueByKeys}
+             'goog.object (clj->js goog-object-ns)
              'ExceptionInfo ExceptionInfo
              'Math js/Math}
    :disable-arity-checks true}))

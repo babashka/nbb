@@ -3,6 +3,7 @@
             ["path" :as path]
             [clojure.string :as str]
             [clojure.test :as t :refer [deftest is testing]]
+            [goog.object :as gobj]
             [nbb.classpath :as cp]
             [nbb.core :as nbb]
             [nbb.impl.main :as main]
@@ -192,6 +193,27 @@
                         (get #js{:y 2} \"y\") ")
       (.then (fn [val]
                (is (= 2 val))))))
+
+(deftest-async gobject-get-all-property-names
+  (-> (nbb/load-string "(ns foo (:require [goog.object :as gobj]))
+                        (gobj/getAllPropertyNames #js{:x 0 :y 1 :z 2})")
+      (.then (fn [val]
+               (is (= ["x" "y" "z"] (js->clj val)))))))
+
+(deftest-async gobject-remove
+  (-> (nbb/load-string "(ns foo (:require [goog.object :as gobj]))
+                        (def obj #js {:x 0 :y 1})
+                        (gobj/remove obj \"x\")
+                        obj")
+      (.then (fn [val]
+               (is (= {"y" 1} (js->clj val)))))))
+
+(deftest goog-object-ns
+  (testing "nbb's goog.object maps to actual goog.object"
+    (dorun (map (fn [[gobj-sym gobj-fn]]
+                  (is (ifn? gobj-fn))
+                  (is (= (str gobj-sym) (gobj/get gobj-fn "name"))))
+                @#'nbb/goog-object-ns))))
 
 (deftest-async with-out-str-test
   (-> (nbb/load-string "[(with-out-str (println :hello))
