@@ -462,41 +462,43 @@
   (list 'def name value))
 
 (def ^:private goog-object-ns
-  {'add gobj/add
-   'clear gobj/clear
-   'clone gobj/clone
-   'contains gobj/contains
-   'containsKey gobj/containsKey
-   'containsValue gobj/containsValue
-   'create gobj/create
-   'createImmutableView gobj/createImmutableView
-   'createSet gobj/createSet
-   'equals gobj/equals
-   'every gobj/every
-   'extend gobj/extend
-   'filter gobj/filter
-   'findKey gobj/findKey
-   'findValue gobj/findValue
-   'forEach gobj/forEach
-   'get gobj/get
-   'getAllPropertyNames gobj/getAllPropertyNames
-   'getAnyKey gobj/getAnyKey
-   'getAnyValue gobj/getAnyValue
-   'getCount gobj/getCount
-   'getKeys gobj/getKeys
-   'getSuperClass gobj/getSuperClass
-   'getValueByKeys gobj/getValueByKeys
-   'getValues gobj/getValues
-   'isEmpty gobj/isEmpty
-   'isImmutableView gobj/isImmutableView
-   'map gobj/map
-   'remove gobj/remove
-   'set gobj/set
-   'setIfUndefined gobj/setIfUndefined
-   'setWithReturnValueIfNotSet gobj/setWithReturnValueIfNotSet
-   'some gobj/some
-   'transpose gobj/transpose
-   'unsafeClone gobj/unsafeClone})
+  (macros/copy-js-ns
+   {:namespace 'goog.object
+    :names ['add
+            'clear
+            'clone
+            'contains
+            'containsKey
+            'containsValue
+            'create
+            'createImmutableView
+            'createSet
+            'equals
+            'every
+            'extend
+            'filter
+            'findKey
+            'findValue
+            'forEach
+            'get
+            'getAllPropertyNames
+            'getAnyKey
+            'getAnyValue
+            'getCount
+            'getKeys
+            'getSuperClass
+            'getValueByKeys
+            'getValues
+            'isEmpty
+            'isImmutableView
+            'map
+            'remove
+            'set
+            'setIfUndefined
+            'setWithReturnValueIfNotSet
+            'some
+            'transpose
+            'unsafeClone]}))
 
 (store/reset-ctx!
  (sci/init

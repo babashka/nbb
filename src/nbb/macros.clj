@@ -17,6 +17,27 @@
   []
   (or (System/getenv "NBB_CLI_NAME") "nbb"))
 
+(defmacro copy-js-ns
+  "This macro is used to generate a map of
+  quoted symbols and their corresponding
+  evaluated symbol in the namespace.
+
+  Example usage:
+
+  (copy-js-ns
+   {:namespace 'goog.object
+    :names ['get 'set]})
+
+  {'get goog.object/get
+   'set goog.object/set}
+  "
+  [{:keys [namespace names]}]
+  (letfn [(name->symbol [n]
+            (symbol (str (eval namespace))
+                    (str (eval n))))]
+
+    (zipmap names (map name->symbol names))))
+
 (defmacro npm-lib-name
   []
   (or (System/getenv "NBB_NPM_LIB_NAME") "nbb"))
