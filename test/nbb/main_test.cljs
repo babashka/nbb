@@ -193,6 +193,27 @@
       (.then (fn [val]
                (is (= 2 val))))))
 
+(deftest-async gobject-get-all-property-names
+  (-> (nbb/load-string "(ns foo (:require [goog.object :as gobj]))
+                        (gobj/getAllPropertyNames #js{:x 0 :y 1 :z 2})")
+      (.then (fn [val]
+               (is (= ["x" "y" "z"] (js->clj val)))))))
+
+(deftest-async gobject-remove
+  (-> (nbb/load-string "(ns foo (:require [goog.object :as gobj]))
+                        (def obj #js {:x 0 :y 1})
+                        (gobj/remove obj \"x\")
+                        obj")
+      (.then (fn [val]
+               (is (= {"y" 1} (js->clj val)))))))
+
+(deftest goog-object-ns
+  (testing "every value in goog-object-ns is a function"
+    (is (every? ifn? (vals @#'nbb/goog-object-ns))))
+
+  (testing "the expected number of functions are included"
+    (is (= 35 (count @#'nbb/goog-object-ns)))))
+
 (deftest-async with-out-str-test
   (-> (nbb/load-string "[(with-out-str (println :hello))
                          (with-out-str (prn :hello))
