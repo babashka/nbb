@@ -20,7 +20,7 @@
         org.babashka/sci.configs
         #_{:local/root "/Users/borkdude/dev/sci.configs"}
         {:git/url "https://github.com/babashka/sci.configs"
-         :git/sha "f51eb77af54f34ade0e37695a52285808bfb5d55"}
+         :git/sha "63225c8606d593c595d2f10a6fa5bf38103852df"}
         org.clojure/tools.cli {:mvn/version "1.0.206"}
         com.cognitect/transit-cljs {:mvn/version "0.8.269"}
         #_#_prismatic/schema {:mvn/version "1.3.0"}
