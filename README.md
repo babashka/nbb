@@ -571,6 +571,7 @@ See [API](doc/api.md) documentation with a list of built-in libraries.
 
 ## Articles
 
+- [Implementing a comments feature for my blog with nbb, htmx, Serverless Framework, and DynamoDB](https://nickcellino.com/blog/2022-09-03-nbb-comments.html) by Nick Cellino
 - [AWS Lambda, now with first class parentheses](https://www.juxt.pro/blog/nbb-lambda) by Ray McDermott
 - [Create a blog with Clojure, nbb, and MarkDoc](https://www.alexandercarls.de/markdoc-nbb-clojure/) by Alexander Carls
 - [Sentiment analysis with nbb](https://slimslenderslacks.github.io/nbb-sentiment) by Jim Clark
