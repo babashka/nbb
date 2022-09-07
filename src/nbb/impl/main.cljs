@@ -132,6 +132,10 @@ Tooling:
         _ (do (cp/add-classpath cwd)
               (when classpath
                 (cp/add-classpath classpath)))
+        _ (let [nbb-edn (local-nbb-edn)]
+            (doseq [path (:paths nbb-edn)]
+              (cp/add-classpath
+               (path/resolve path))))
         nrepl-server (:nrepl-server opts)
         repl? (or (:repl opts)
                   (:socket-repl opts)
