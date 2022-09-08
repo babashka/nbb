@@ -98,13 +98,14 @@
                    @result))])))))
 
 (deftest classpath-test
-  (let [deps '{com.github.seancorfield/honeysql {:git/tag "v2.0.0-rc5" :git/sha "01c3a55"}}
-        _ (deps/add-deps {:deps deps})
-        cp (cp/get-classpath)]
-    (is (= ["SELECT foo FROM bar WHERE baz = ?" 2]
-           (nbb "--classpath" cp
-                "-e"
-                "(require '[honey.sql :as sql]) (sql/format {:select :foo :from :bar :where [:= :baz 2]})")))))
+  (testing "passing classpath cli arg"
+    (let [deps '{com.github.seancorfield/honeysql {:git/tag "v2.0.0-rc5" :git/sha "01c3a55"}}
+          _ (deps/add-deps {:deps deps})
+          cp (cp/get-classpath)]
+      (is (= ["SELECT foo FROM bar WHERE baz = ?" 2]
+             (nbb "--classpath" cp
+                  "-e"
+                  "(require '[honey.sql :as sql]) (sql/format {:select :foo :from :bar :where [:= :baz 2]})"))))))
 
 (deftest medley-test
   (let [deps '{medley/medley {:git/url "https://github.com/weavejester/medley"
