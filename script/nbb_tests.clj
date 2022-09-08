@@ -105,7 +105,9 @@
       (is (= ["SELECT foo FROM bar WHERE baz = ?" 2]
              (nbb "--classpath" cp
                   "-e"
-                  "(require '[honey.sql :as sql]) (sql/format {:select :foo :from :bar :where [:= :baz 2]})"))))))
+                  "(require '[honey.sql :as sql]) (sql/format {:select :foo :from :bar :where [:= :baz 2]})")))))
+  (testing "add `:paths` from nbb.edn to classpath"
+    (nbb {:dir "test-scripts/paths-test"} "runner.cljs")))
 
 (deftest medley-test
   (let [deps '{medley/medley {:git/url "https://github.com/weavejester/medley"
