@@ -109,8 +109,8 @@
   (testing "add `:paths` from nbb.edn to classpath"
     (nbb {:dir "test-scripts/paths-test"} "runner.cljs"))
   (testing "project dir is removed from classpath when `:paths` present in `nbb.edn`"
-    (is (thrown? Exception #_#"Could not find namespace: runner"
-         (nbb {:dir "test-scripts/paths-test"} "src/project_dir_not_on_classpath.cljs")))))
+    (is (thrown? Exception
+                 (nbb {:dir "test-scripts/paths-test"} "src/project_dir_not_on_classpath.cljs")))))
 
 (deftest medley-test
   (let [deps '{medley/medley {:git/url "https://github.com/weavejester/medley"
