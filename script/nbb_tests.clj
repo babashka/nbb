@@ -107,7 +107,8 @@
                   "-e"
                   "(require '[honey.sql :as sql]) (sql/format {:select :foo :from :bar :where [:= :baz 2]})")))))
   (testing "add `:paths` from nbb.edn to classpath"
-    (is (nbb {:dir "test-scripts/paths-test"} "runner.cljs")))
+    (is (= "success"
+         (nbb {:dir "test-scripts/paths-test"} "runner.cljs"))))
   (testing "project dir is removed from classpath when `:paths` present in `nbb.edn`"
     (is (thrown? Exception
                  (nbb {:dir "test-scripts/paths-test"} "src/project_dir_not_on_classpath.cljs")))))

@@ -1,4 +1,4 @@
 (ns core)
 
 (defn -main []
-  true)
+  (prn "success"))
