@@ -129,9 +129,12 @@ Tooling:
         expr (:expr opts)
         classpath (:classpath opts)
         cwd (js/process.cwd)
-        _ (do (cp/add-classpath cwd)
-              (when classpath
-                (cp/add-classpath classpath)))
+        _ (do (when classpath
+                (cp/add-classpath classpath))
+              (if-let [paths (get-in opts [:config :paths])]
+                (doseq [path paths]
+                  (cp/add-classpath path))
+                (cp/add-classpath cwd)))
         nrepl-server (:nrepl-server opts)
         repl? (or (:repl opts)
                   (:socket-repl opts)
