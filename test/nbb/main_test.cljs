@@ -265,6 +265,11 @@
       (.then (fn [res]
                (is (= 6 res))))))
 
+(deftest-async queue-test
+  (is (.then (nbb/load-string "#queue [1 2 3]")
+             (fn [val]
+               (is (= #queue [1 2 3] val))))))
+
 (defn init []
   (t/run-tests 'nbb.main-test 'nbb.test-test))
 
