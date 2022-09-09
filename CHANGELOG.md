@@ -2,11 +2,13 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## Next
+## 0.7.133
 
-- Include remaining `goog.object` functions, fixes [#247](https://github.com/babashka/nbb/issues/247)
+- [#247](https://github.com/babashka/nbb/issues/247): Include remaining `goog.object` functions
 - Respect `:paths` from `nbb.edn`
-- 
+- [#253](https://github.com/babashka/nbb/issues/253): relative Javascript imports cached by "name", not by the resolved path
+- [#252](https://github.com/babashka/nbb/issues/252): `IPrintWithWriter` support
+- Add `type->str`
 
 ## 0.7.132
 
