@@ -151,36 +151,40 @@ Tooling:
     (when repl? (api/init-require (path/resolve "script.cljs")))
     (if (or script-file expr nrepl-server repl? bundle-opts)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
-          (when (:config opts)
-            (esm/dynamic-import "./nbb_deps.js"))
-          (-> (cond script-file
-                    (api/loadFile script-file)
-                    expr
-                    (api/loadString expr)
-                    (:nrepl-server opts)
-                    (esm/dynamic-import "./nbb_nrepl_server.js")
-                    (and repl? (:socket-repl opts))
-                    (-> (esm/dynamic-import "./nbb_repl.js")
-                        (.then (fn [_mod]
-                                 ((-> (store/get-ctx) :env deref
-                                      :namespaces (get 'nbb.repl) (get 'socket-repl))
-                                  {:port (:port opts)}))))
-                    (:bundle-opts opts)
-                    (esm/dynamic-import "./nbb_bundler.js")
-                    repl?
-                    (-> (esm/dynamic-import "./nbb_repl.js")
-                        (.then (fn [_mod]
-                                 ((-> (store/get-ctx) :env deref
-                                      :namespaces (get 'nbb.repl) (get 'repl)))))))
-              (.then (fn [val]
-                       (when (and expr (some? val))
-                         (prn val))
-                       val))
-              (.catch (fn [err]
-                        (error/error-handler err opts)
-                        (when (:debug opts)
-                          (.error js/console (str err)))
-                        (throw (js/Error. (ex-message err)))))))
+          (->
+           (js/Promise.resolve
+            (when (:config opts)
+              (esm/dynamic-import "./nbb_deps.js")))
+           (.then
+            (fn []
+              (-> (cond script-file
+                        (api/loadFile script-file)
+                        expr
+                        (api/loadString expr)
+                        (:nrepl-server opts)
+                        (esm/dynamic-import "./nbb_nrepl_server.js")
+                        (and repl? (:socket-repl opts))
+                        (-> (esm/dynamic-import "./nbb_repl.js")
+                            (.then (fn [_mod]
+                                     ((-> (store/get-ctx) :env deref
+                                          :namespaces (get 'nbb.repl) (get 'socket-repl))
+                                      {:port (:port opts)}))))
+                        (:bundle-opts opts)
+                        (esm/dynamic-import "./nbb_bundler.js")
+                        repl?
+                        (-> (esm/dynamic-import "./nbb_repl.js")
+                            (.then (fn [_mod]
+                                     ((-> (store/get-ctx) :env deref
+                                          :namespaces (get 'nbb.repl) (get 'repl)))))))
+                  (.then (fn [val]
+                           (when (and expr (some? val))
+                             (prn val))
+                           val))
+                  (.catch (fn [err]
+                            (error/error-handler err opts)
+                            (when (:debug opts)
+                              (.error js/console (str err)))
+                            (throw (js/Error. (ex-message err))))))))))
       (.error js/console (str "Usage: " (nbb/cli-name) " <script> or nbb -e <expr>.")))))
 
 (defn init [])
