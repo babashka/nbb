@@ -11,11 +11,11 @@
    [nbb.classpath :as cp]
    [nbb.common :refer [core-ns]]
    [sci.core :as sci]
+   [sci.ctx-store :as store]
    [sci.impl.unrestrict :refer [*unrestricted*]]
    [sci.impl.vars :as vars]
    [sci.lang]
-   [shadow.esm :as esm]
-   [sci.ctx-store :as store])
+   [shadow.esm :as esm])
   (:require-macros [nbb.macros
                     :as macros
                     :refer [with-async-bindings]]))
@@ -132,11 +132,9 @@
 
 (defn load-js-module [libname internal-name]
   (-> (js/Promise.resolve
-       (if (str/starts-with? libname "./")
-         (path/resolve (path/dirname @sci/file) libname)
-         (try ((.-resolve (:require @ctx)) libname)
-              (catch :default _
-                ((:resolve @ctx) libname)))))
+       (try ((.-resolve (:require @ctx)) libname)
+            (catch :default _
+              ((:resolve @ctx) libname))))
       (.then (fn [path]
                (esm/dynamic-import
                 (let [path (if (and windows? (fs/existsSync path))
@@ -222,7 +220,10 @@
               feat (load-module feat libname as refer rename libspecs)
               (string? libname)
               ;; TODO: parse properties
-              (let [[libname properties*] (split-libname libname)
+              (let [libname (if (str/starts-with? libname "./")
+                              (path/resolve (path/dirname @sci/file) libname)
+                              libname)
+                    [libname properties*] (split-libname libname)
                     munged (munge libname)
                     properties (when properties* (.split properties* "."))
                     internal-name (munged->internal munged)

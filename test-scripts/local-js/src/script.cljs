@@ -1,5 +1,8 @@
 (ns script
-  (:require ["./foo.mjs$default" :as foo]))
+  (:require
+   ["./foo.mjs$default" :as foo]
+   [other.script :as o]))
 
 (defn -main [& _]
-  (js->clj foo :keywordize-keys true))
+  (assoc (js->clj foo :keywordize-keys true)
+         :other.script/foo o/foo))

@@ -6,6 +6,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 - Include remaining `goog.object` functions, fixes [#247](https://github.com/babashka/nbb/issues/247)
 - Respect `:paths` from `nbb.edn`
+- 
 
 ## 0.7.132
 

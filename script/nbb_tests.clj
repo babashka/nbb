@@ -228,7 +228,7 @@
             :exit)))))
 
 (deftest local-js-require-test
-  (is (= {:a 1} (nbb {:dir "test-scripts/local-js"} "-cp" "src" "-m" "script"))))
+  (is (= {:a 1, :other.script/foo 1} (nbb {:dir "test-scripts/local-js"} "-cp" "src" "-m" "script"))))
 
 (defn parse-opts [opts]
   (let [[cmds opts] (split-with #(not (str/starts-with? % ":")) opts)]
