@@ -516,7 +516,6 @@
                                'IEditableCollection (sci/copy-var IEditableCollection core-ns)
                                'MapEntry (sci/copy-var MapEntry core-ns)
                                'UUID (sci/copy-var UUID core-ns)
-                               'PersistentQueue (sci/copy-var PersistentQueue core-ns)
                                'update-vals (sci/copy-var update-vals core-ns)
                                'update-keys (sci/copy-var update-keys core-ns)
                                'iteration (sci/copy-var iteration core-ns)
@@ -547,8 +546,8 @@
    :classes {'js universe :allow :all
              'goog.object (clj->js goog-object-ns)
              'ExceptionInfo ExceptionInfo
-             'Math js/Math}
-   }))
+             'Math js/Math
+             'cljs.core #js {:PersistentQueue #js {:EMPTY cljs.core/PersistentQueue.EMPTY }}}}))
 
 (def old-require (sci/eval-form (store/get-ctx) 'require))
 
