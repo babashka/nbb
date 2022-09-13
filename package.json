@@ -8,7 +8,7 @@
   },
   "description": "Babashka-like tool for Node.js.",
   "dependencies": {
-    "import-meta-resolve": "^1.1.1"
+    "import-meta-resolve": "^2.1.0"
   },
   "devDependencies": {
     "ink": "^3.0.9",
