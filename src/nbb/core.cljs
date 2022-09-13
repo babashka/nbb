@@ -132,9 +132,10 @@
 
 (defn load-js-module [libname internal-name]
   (-> (js/Promise.resolve
-       (try ((.-resolve (:require @ctx)) libname)
-            (catch :default _
-              ((:resolve @ctx) libname))))
+       (-> ((:resolve @ctx) libname)
+           (.catch
+            (fn [_]
+              ((.-resolve (:require @ctx)) libname)))))
       (.then (fn [path]
                (esm/dynamic-import
                 (let [path (if (and windows? (fs/existsSync path))
