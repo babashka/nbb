@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 0.7.135
+
+- [#256](https://github.com/babashka/nbb/issues/256): prefer loading package.json import over require (#257)
+
 ## 0.7.134
 
 #246: Support queue literal
