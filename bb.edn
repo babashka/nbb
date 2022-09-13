@@ -44,7 +44,9 @@
 
   run-tests (shell "node lib/nbb_tests.js")
 
-  release {:depends [clean]
+  npm-install (shell "npm install")
+
+  release {:depends [clean npm-install]
            :doc "Compiles release build."
            :task (build/release *command-line-args* {:wrap-cmd-fn wrap-cmd})}
 

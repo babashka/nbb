@@ -3,7 +3,7 @@
   (:require
    [babashka.classpath :as classpath]
    [babashka.fs :as fs]
-   [babashka.tasks :refer [clojure shell]]
+   [babashka.tasks :refer [clojure]]
    [clojure.edn :as edn]
    [clojure.string :as str]))
 
