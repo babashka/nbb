@@ -8,7 +8,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 ## 0.7.134
 
-#246: Support queue literal
+- [#246](https://github.com/babashka/nbb/issues/246): Support queue literal
 
 ## 0.7.133
 
