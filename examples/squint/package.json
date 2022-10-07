@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "squint-cljs": "^0.0.0-alpha.48"
+  }
+}
