@@ -403,7 +403,7 @@
         (js/Promise.resolve
          (let [wrap (or (:wrap opts)
                         identity)]
-           (wrap prev-val)))))))
+           (wrap prev-val {:ns (:ns opts)})))))))
 
 (defn eval-string* [s opts]
   (let [reader (sci/reader s)]

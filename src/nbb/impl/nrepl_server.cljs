@@ -106,8 +106,9 @@
                                               :file file
                                               :wrap vector})
         (.then (fn [v]
-                 (let [v (first v)]
-                   (reset! last-ns @sci/ns)
+                 (let [[v opts] v
+                       sci-ns (:ns opts)]
+                   (reset! last-ns sci-ns)
                    (sci/alter-var-root sci/*3 (constantly @sci/*2))
                    (sci/alter-var-root sci/*2 (constantly @sci/*1))
                    (sci/alter-var-root sci/*1 (constantly v))
@@ -115,7 +116,7 @@
                                          (:nrepl.middleware.print/options request)
                                          v)]
                      (send-fn request {"value" v
-                                       "ns" (str @sci/ns)})))
+                                       "ns" (str sci-ns)})))
                  (send-fn request {"status" ["done"]})))
         (.catch (fn [e]
                   (sci/alter-var-root sci/*e (constantly e))
