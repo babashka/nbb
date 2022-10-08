@@ -376,30 +376,30 @@
 
 (defn eval-next
   "Evaluates top level forms asynchronously. Returns promise of last value."
-  ([prev-val reader opts]
-   (let [next-val (try (if-let [parse-fn (:parse-fn opts)]
-                         (parse-fn reader)
-                         (parse-next reader))
-                       (catch :default e
-                         (js/Promise.reject e)))]
-     (if (instance? js/Promise next-val)
-       next-val
-       (if (not= :sci.core/eof next-val)
-         (if (seq? next-val)
-           (eval-seq reader next-val opts)
-           (let [v (try
-                     (sci/binding [sci/ns (:ns opts)]
-                       (sci/eval-form (store/get-ctx) next-val))
-                     (catch :default e
-                          (->Reject e)))]
-             (if (instance? Reject v)
-               (js/Promise.reject (.-v v))
-               (recur v reader opts))))
-         ;; wrap normal value in promise
-         (js/Promise.resolve
-          (let [wrap (or (:wrap opts)
-                         identity)]
-            (wrap prev-val))))))))
+  [prev-val reader opts]
+  (let [next-val (try (if-let [parse-fn (:parse-fn opts)]
+                        (parse-fn reader)
+                        (parse-next reader))
+                      (catch :default e
+                        (js/Promise.reject e)))]
+    (if (instance? js/Promise next-val)
+      next-val
+      (if (not= :sci.core/eof next-val)
+        (if (seq? next-val)
+          (eval-seq reader next-val opts)
+          (let [v (try
+                    (sci/binding [sci/ns (:ns opts)]
+                      (sci/eval-form (store/get-ctx) next-val))
+                    (catch :default e
+                      (->Reject e)))]
+            (if (instance? Reject v)
+              (js/Promise.reject (.-v v))
+              (recur v reader opts))))
+        ;; wrap normal value in promise
+        (js/Promise.resolve
+         (let [wrap (or (:wrap opts)
+                        identity)]
+           (wrap prev-val)))))))
 
 (defn eval-string* [s opts]
   (let [reader (sci/reader s)]
@@ -410,13 +410,7 @@
   [s]
   (let [sci-file @sci/file
         sci-ns @sci/ns]
-    (sci.impl.vars/push-thread-bindings {})
-    (.finally
-     (-> (eval-string* s {:ns sci-ns :file sci-file})
-         (.then (fn [v]
-                  v)))
-              (fn []
-                (sci.impl.vars/pop-thread-bindings)))))
+    (eval-string* s {:ns sci-ns :file sci-file})))
 
 (defn slurp
   "Asynchronously returns string from file f. Returns promise."
