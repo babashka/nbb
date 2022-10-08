@@ -16,9 +16,7 @@
    [sci.impl.vars :as vars]
    [sci.lang]
    [shadow.esm :as esm])
-  (:require-macros [nbb.macros
-                    :as macros
-                    :refer [with-async-bindings]]))
+  (:require-macros [nbb.macros :as macros]))
 
 (set! *unrestricted* true)
 
@@ -76,24 +74,25 @@
         (esm/dynamic-import m))
       (.then (fn [_module]
                (let [nlib (normalize-libname libname)]
-                 (when (and as nlib
-                            (not= nlib libname))
-                   (sci/eval-form (store/get-ctx)
-                                  (list 'alias
-                                        (list 'quote libname)
-                                        (list 'quote nlib))))
-                 (let [libname (or nlib libname)]
-                   (when as
+                 (sci/binding [sci/ns (:ns opts)]
+                   (when (and as nlib
+                              (not= nlib libname))
                      (sci/eval-form (store/get-ctx)
                                     (list 'alias
-                                          (list 'quote as)
-                                          (list 'quote libname))))
-                   (when (seq refer)
-                     (sci/eval-form (store/get-ctx)
-                                    (list 'clojure.core/refer
                                           (list 'quote libname)
-                                          :only (list 'quote refer)
-                                          :rename (list 'quote rename)))))
+                                          (list 'quote nlib))))
+                   (let [libname (or nlib libname)]
+                     (when as
+                       (sci/eval-form (store/get-ctx)
+                                      (list 'alias
+                                            (list 'quote as)
+                                            (list 'quote libname))))
+                     (when (seq refer)
+                       (sci/eval-form (store/get-ctx)
+                                      (list 'clojure.core/refer
+                                            (list 'quote libname)
+                                            :only (list 'quote refer)
+                                            :rename (list 'quote rename))))))
                  (handle-libspecs (next libspecs) opts))))))
 
 (def ^:private  windows?
@@ -279,17 +278,18 @@
                   (-> (load-file the-file)
                       (.then
                        (fn [_]
-                         (when as
-                           (sci/eval-form (store/get-ctx)
-                                          (list 'clojure.core/alias
-                                                (list 'quote as)
-                                                (list 'quote libname))))
-                         (when (seq refer)
-                           (sci/eval-form (store/get-ctx)
-                                          (list 'clojure.core/refer
-                                                (list 'quote libname)
-                                                :only (list 'quote refer)
-                                                :rename (list 'quote rename))))))
+                         (sci/binding [sci/ns (:ns ns-opts)]
+                           (when as
+                             (sci/eval-form (store/get-ctx)
+                                            (list 'clojure.core/alias
+                                                  (list 'quote as)
+                                                  (list 'quote libname))))
+                           (when (seq refer)
+                             (sci/eval-form (store/get-ctx)
+                                            (list 'clojure.core/refer
+                                                  (list 'quote libname)
+                                                  :only (list 'quote refer)
+                                                  :rename (list 'quote rename)))))))
                       (.then (fn [_]
                                (handle-libspecs (next libspecs) ns-opts))))
                   (js/Promise.reject (js/Error. (str "Could not find namespace: " libname))))))))))
@@ -307,7 +307,8 @@
         ;; ignore all :require-macros for now
         other-forms (remove #(and (seq? %) (= :require-macros (first %)))
                             other-forms)
-        ns-obj (sci/eval-form (store/get-ctx) (list 'do (list* 'ns ns-name other-forms) '*ns*))
+        ns-obj (sci/binding [sci/ns @sci/ns]
+                 (sci/eval-form (store/get-ctx) (list 'do (list* 'ns ns-name other-forms) '*ns*)))
         libspecs (mapcat rest
                          require-forms)
         opts (assoc opts :ns ns-obj)]
@@ -408,10 +409,13 @@
   [s]
   (let [sci-file @sci/file
         sci-ns @sci/ns]
-    ;; (prn :sci-file sci-file)
-    ;; (prn :load-string-ns (str sci-ns))
-    (with-async-bindings {#_#_warn-on-infer @warn-on-infer}
-      (eval-string* s {:ns sci-ns :file sci-file}))))
+    (sci.impl.vars/push-thread-bindings {})
+    (.finally
+     (-> (eval-string* s {:ns sci-ns :file sci-file})
+         (.then (fn [v]
+                  v)))
+              (fn []
+                (sci.impl.vars/pop-thread-bindings)))))
 
 (defn slurp
   "Asynchronously returns string from file f. Returns promise."
