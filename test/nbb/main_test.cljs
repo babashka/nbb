@@ -85,11 +85,11 @@
                (testing "internal load-string"
                  (is (= 'bar ns-name)))))
       (.then (fn [_]
-               (prn :eeee (str @sci/ns))
-               (nbb/load-string "(ns-name *ns*)")))
+               (sci/binding [sci/ns (sci/create-ns 'user)]
+                 (nbb/load-string "(ns-name *ns*)"))))
       (.then (fn [ns-name]
                (prn :nsss ns-name)
-               (is (= 'dude ns-name))))
+               (is (= 'user ns-name))))
       (.then (fn [_]
                (nbb/load-file "test-scripts/script.cljs")))
       (.catch (fn [err]

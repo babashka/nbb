@@ -318,10 +318,8 @@
         libspecs (mapv #(sci/eval-form (store/get-ctx) %) args)
         sci-ns @sci/ns
         sci-file @sci/file]
-    (identity
-     ;;with-async-bindings {sci/file sci-file}
-      (handle-libspecs libspecs {:ns sci-ns
-                                 :file sci-file}))))
+    (handle-libspecs libspecs {:ns sci-ns
+                               :file sci-file})))
 
 (defn parse-next [reader]
   (sci/parse-next (store/get-ctx) reader
@@ -412,7 +410,7 @@
         sci-ns @sci/ns]
     ;; (prn :sci-file sci-file)
     ;; (prn :load-string-ns (str sci-ns))
-    (with-async-bindings {warn-on-infer @warn-on-infer}
+    (with-async-bindings {#_#_warn-on-infer @warn-on-infer}
       (eval-string* s {:ns sci-ns :file sci-file}))))
 
 (defn slurp
