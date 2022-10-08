@@ -272,7 +272,8 @@
               ;; assume symbol
               (if (sci/eval-form (store/get-ctx) (list 'clojure.core/find-ns (list 'quote libname)))
                 ;; built-in namespace
-                (do (old-require fst)
+                (do (sci/binding [sci/ns (:ns ns-opts)]
+                      (old-require fst))
                     (handle-libspecs (next libspecs) ns-opts))
                 (if-let [the-file (find-file-on-classpath munged)]
                   (-> (load-file the-file)
