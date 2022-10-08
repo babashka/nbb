@@ -379,9 +379,10 @@
 (defn eval-next
   "Evaluates top level forms asynchronously. Returns promise of last value."
   [prev-val reader opts]
-  (let [next-val (try (if-let [parse-fn (:parse-fn opts)]
-                        (parse-fn reader)
-                        (parse-next reader))
+  (let [next-val (try (sci/binding [sci/ns (:ns opts)]
+                        (if-let [parse-fn (:parse-fn opts)]
+                          (parse-fn reader)
+                          (parse-next reader)))
                       (catch :default e
                         (js/Promise.reject e)))]
     (if (instance? js/Promise next-val)
