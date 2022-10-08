@@ -6,12 +6,12 @@
    ["path" :as path]
    [clojure.pprint :as pp]
    [clojure.string :as str]
-   [nbb.api :as api]
-   [nbb.classpath :as cp]
    [goog.string :as gstring]
    [goog.string.format]
+   [nbb.api :as api]
+   [nbb.classpath :as cp]
    [nbb.core :as nbb]
-   [nbb.impl.bencode :refer [encode decode-all]]
+   [nbb.impl.bencode :refer [decode-all encode]]
    [nbb.impl.repl-utils :as utils :refer [the-sci-ns]]
    [sci.core :as sci]
    [sci.ctx-store :as store])
@@ -102,7 +102,9 @@
     (sci/alter-var-root sci/print-fn (constantly
                                       (fn [s]
                                         (send-fn request {"out" s}))))
-    (-> (nbb/eval-next nil (sci/reader code) {:wrap vector})
+    (-> (nbb/eval-next nil (sci/reader code) {:ns ns
+                                              :file file
+                                              :wrap vector})
         (.then (fn [v]
                  (let [v (first v)]
                    (reset! last-ns @sci/ns)

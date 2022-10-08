@@ -1,12 +1,14 @@
 (ns nbb.main-test
-  (:require ["module" :refer [createRequire]]
-            ["path" :as path]
-            [clojure.string :as str]
-            [clojure.test :as t :refer [deftest is testing]]
-            [nbb.classpath :as cp]
-            [nbb.core :as nbb]
-            [nbb.impl.main :as main]
-            [nbb.test-test])
+  (:require
+   ["module" :refer [createRequire]]
+   ["path" :as path]
+   [clojure.string :as str]
+   [clojure.test :as t :refer [deftest is testing]]
+   [nbb.classpath :as cp]
+   [nbb.core :as nbb]
+   [nbb.impl.main :as main]
+   [nbb.test-test]
+   [sci.core :as sci])
   (:require-macros [nbb.test-macros :refer [deftest-async]]))
 
 (defmethod t/report [:cljs.test/default :begin-test-var] [m]
@@ -78,14 +80,16 @@
       (.then (fn [ns-name]
                (is (= 'foo ns-name))))
       (.then (fn [_] (nbb/load-string
-                      "(nbb.core/load-string \"(ns foo) (defn foo [] (+ 1 2 3)) (ns-name *ns*)\")")))
+                      "(nbb.core/load-string \"(ns bar) (defn foo [] (+ 1 2 3)) (ns-name *ns*)\")")))
       (.then (fn [ns-name]
                (testing "internal load-string"
-                 (is (= 'foo ns-name)))))
+                 (is (= 'bar ns-name)))))
       (.then (fn [_]
+               (prn :eeee (str @sci/ns))
                (nbb/load-string "(ns-name *ns*)")))
       (.then (fn [ns-name]
-               (is (= 'user ns-name))))
+               (prn :nsss ns-name)
+               (is (= 'dude ns-name))))
       (.then (fn [_]
                (nbb/load-file "test-scripts/script.cljs")))
       (.catch (fn [err]

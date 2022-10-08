@@ -115,7 +115,9 @@
                     (-> (eval-expr
                          socket
                          #(nbb/eval-next nil nil
-                                         {:wrap vector
+                                         {:ns @last-ns
+                                          :file @sci/file
+                                          :wrap vector
                                           ;; TODO this is a huge workaround
                                           ;; we should instead re-organize the code in nbb.core
                                           :parse-fn (let [realized? (atom false)]

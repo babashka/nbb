@@ -342,10 +342,11 @@
           (= 'ns fst)
           (.then (eval-ns-form form opts)
                  (fn [ns-obj]
-                   (eval-next ns-obj reader opts)))
+                   (eval-next ns-obj reader (assoc opts :ns ns-obj))))
           :else
           (try (let [pre-await await-counter
-                     next-val (sci/eval-form (store/get-ctx) form)
+                     next-val (sci/binding [sci/ns (:ns opts)]
+                                (sci/eval-form (store/get-ctx) form))
                      post-await await-counter]
                  (if (= pre-await post-await)
                    (.then (js/Promise.resolve nil)
@@ -385,8 +386,10 @@
        (if (not= :sci.core/eof next-val)
          (if (seq? next-val)
            (eval-seq reader next-val opts)
-           (let [v (try (sci/eval-form (store/get-ctx) next-val)
-                        (catch :default e
+           (let [v (try
+                     (sci/binding [sci/ns (:ns opts)]
+                       (sci/eval-form (store/get-ctx) next-val))
+                     (catch :default e
                           (->Reject e)))]
              (if (instance? Reject v)
                (js/Promise.reject (.-v v))
@@ -406,6 +409,7 @@
   [s]
   (let [sci-file @sci/file
         sci-ns @sci/ns]
+    ;; (prn :load-string-ns (str sci-ns))
     (with-async-bindings {warn-on-infer @warn-on-infer}
       (eval-string* s {:ns sci-ns :file sci-file}))))
 
@@ -428,7 +432,9 @@
     (-> (slurp f)
         (.then #(sci/binding [sci/file sci-file
                               sci/ns sci-ns]
-                  (load-string %))))))
+                  (load-string %)))
+        #_(.finally (fn []
+                    (prn :finally (str @sci/ns)))))))
 
 (defn register-plugin! [_plug-in-name sci-opts]
   (store/swap-ctx! sci/merge-opts sci-opts))
