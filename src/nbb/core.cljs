@@ -527,7 +527,10 @@
                                'parse-boolean (sci/copy-var parse-boolean core-ns)
                                'parse-uuid (sci/copy-var parse-uuid core-ns)
                                'goog-define (sci/copy-var gdefine core-ns)
-                               'type->str (sci/copy-var type->str core-ns)}
+                               'type->str (sci/copy-var type->str core-ns)
+                               'Keyword (sci/copy-var Keyword core-ns)
+                               'Symbol (sci/copy-var Symbol core-ns)
+                               'PersistentVector (sci/copy-var PersistentVector core-ns)}
                 'cljs.reader {'read-string (sci/copy-var edn/read-string (sci/create-ns 'cljs.reader))}
                 'clojure.main {'repl-requires (sci/copy-var
                                                repl-requires
