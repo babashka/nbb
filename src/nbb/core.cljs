@@ -272,7 +272,8 @@
               ;; assume symbol
               (if (sci/eval-form (store/get-ctx) (list 'clojure.core/find-ns (list 'quote libname)))
                 ;; built-in namespace
-                (do (sci/binding [sci/ns (:ns ns-opts)]
+                (do (sci/binding [sci/ns (:ns ns-opts)
+                                  sci/file (:file ns-opts)]
                       (old-require fst))
                     (handle-libspecs (next libspecs) ns-opts))
                 (if-let [the-file (find-file-on-classpath munged)]
@@ -346,7 +347,8 @@
                    (eval-next ns-obj reader (assoc opts :ns ns-obj))))
           :else
           (try (let [pre-await await-counter
-                     next-val (sci/binding [sci/ns (:ns opts)]
+                     next-val (sci/binding [sci/ns (:ns opts)
+                                            sci/file (:file opts)]
                                 (sci/eval-form (store/get-ctx) form))
                      post-await await-counter]
                  (if (= pre-await post-await)
@@ -388,7 +390,8 @@
         (if (seq? next-val)
           (eval-seq reader next-val opts)
           (let [v (try
-                    (sci/binding [sci/ns (:ns opts)]
+                    (sci/binding [sci/ns (:ns opts)
+                                  sci/file (:file opts)]
                       (sci/eval-form (store/get-ctx) next-val))
                     (catch :default e
                       (->Reject e)))]
