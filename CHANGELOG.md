@@ -2,7 +2,7 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-## 2022.10.09
+## 1.0.136
 
 - #258: improvements for loading namespaces and JS code asynchronously
 - Fix compatibility with latest HoneySQL version
