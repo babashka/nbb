@@ -115,7 +115,9 @@
                     (-> (eval-expr
                          socket
                          #(nbb/eval-next nil nil
-                                         {:wrap vector
+                                         {:ns @last-ns
+                                          :file @sci/file
+                                          :wrap vector
                                           ;; TODO this is a huge workaround
                                           ;; we should instead re-organize the code in nbb.core
                                           :parse-fn (let [realized? (atom false)]
@@ -126,8 +128,7 @@
                                                             the-val)
                                                           :sci.core/eof)))}))
                         (.then (fn [v]
-                                 (let [[val ns]
-                                       [(first v) (sci/eval-form (store/get-ctx) '*ns*)]]
+                                 (let [[val {:keys [ns]}] v]
                                    (reset! last-ns ns)
                                    (sci/alter-var-root sci/*3 (constantly @sci/*2))
                                    (sci/alter-var-root sci/*2 (constantly @sci/*1))
