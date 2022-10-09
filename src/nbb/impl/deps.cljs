@@ -10,13 +10,11 @@
 (def default-nbb-cache-path
   ".nbb/.cache")
 
-
 (defn hash-deps
   "Given a map of dependencies, generates a unique hash of that map for
   caching purposes."
   [deps]
   (.. (crypto/createHash "sha1") (update (str deps) "binary") (digest "hex")))
-
 
 (defn download-and-extract-deps!
   "Given a map of dependencies and a path, downloads all dependencies to
@@ -30,15 +28,15 @@
     (when-not (fs/existsSync unzipped-path)
       (fs/mkdirSync deps-path #js {:recursive true})
       (fs/writeFileSync deps-edn-path (str {:deps deps}))
-      (println "Downloading dependencies...")
+      (*print-err-fn* "Downloading dependencies...")
       (cproc/execSync (str "bb --config " deps-edn-path " uberjar " jar-path))
-      (println "Extracting dependencies...")
+      (*print-err-fn* "Extracting dependencies...")
       (cproc/execSync (str "bb -e '(fs/unzip \""
                            jar-path
                            "\" \""
                            unzipped-path
                            "\")'"))
-      (println "Done."))
+      (*print-err-fn* "Done."))
     unzipped-path))
 
 
