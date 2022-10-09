@@ -1,1 +1,0 @@
-{:deps {com.github.seancorfield/honeysql {:mvn/version "2.3.928"}}}
