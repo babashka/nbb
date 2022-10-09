@@ -2,6 +2,12 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 2022.10.09
+
+- #258: improvements for loading namespaces and JS code asynchronously
+- Fix compatibility with latest HoneySQL version
+- Bump promesa to latest version and include promise-aware `doseq` macro
+
 ## 0.7.135
 
 - [#256](https://github.com/babashka/nbb/issues/256): prefer loading package.json import over require (#257)
