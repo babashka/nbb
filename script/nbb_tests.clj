@@ -99,7 +99,7 @@
 
 (deftest classpath-test
   (testing "passing classpath cli arg"
-    (let [deps '{com.github.seancorfield/honeysql {:git/tag "v2.0.0-rc5" :git/sha "01c3a55"}}
+    (let [deps '{com.github.seancorfield/honeysql {:mvn/version "2.3.928"}}
           _ (deps/add-deps {:deps deps})
           cp (cp/get-classpath)]
       (is (= ["SELECT foo FROM bar WHERE baz = ?" 2]
