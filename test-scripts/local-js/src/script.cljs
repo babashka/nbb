@@ -2,7 +2,13 @@
   (:require
    ["./async_require.js" :refer [res1 res2 res3 res4]]
    ["./foo.mjs$default" :as foo]
-   [other.script :as o]))
+   [nbb.core :refer [await]]
+   [promesa.core :as p]))
+
+(def p (require '[other.script :as o]))
+
+(await (p/delay 50))
+(await p)
 
 (defn -main [& _]
   (assoc (js->clj foo :keywordize-keys true)
