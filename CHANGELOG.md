@@ -4,7 +4,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 ## 1.0.136
 
-- #258: improvements for loading namespaces and JS code asynchronously
+- [#258](https://github.com/babashka/nbb/issues/258): improvements for loading namespaces and JS code asynchronously
 - Fix compatibility with latest HoneySQL version
 - Bump promesa to latest version and include promise-aware `doseq` macro
 
