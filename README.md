@@ -65,10 +65,10 @@ And then install some other NPM libraries to use in the script. E.g. with the fo
 ``` json
 {
   "dependencies": {
-    "csv-parse": "^5.0.4",
+    "csv-parse": "^5.3.0",
     "shelljs": "^0.8.5",
-    "term-size": "^3.0.1",
-    "zx": "^5.3.0"
+    "term-size": "^3.0.2",
+    "zx": "^7.1.1"
   }
 }
 ```
@@ -77,7 +77,7 @@ Create a script which uses the NPM libraries:
 
 ``` clojure
 (ns example
-  (:require ["csv-parse/sync$default" :as csv]
+  (:require ["csv-parse/sync" :as csv]
             ["fs" :as fs]
             ["path" :as path]
             ["shelljs$default" :as sh]
