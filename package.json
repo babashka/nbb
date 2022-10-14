@@ -4,7 +4,8 @@
   "type": "module",
   "main": "index.mjs",
   "bin": {
-    "nbb": "cli.js"
+    "nbb": "cli.js",
+    "nbbun": "nbbun.js"
   },
   "description": "Babashka-like tool for Node.js.",
   "dependencies": {
