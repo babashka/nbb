@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "posthtml-parser": "^0.11.0"
+  }
+}
