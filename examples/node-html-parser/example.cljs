@@ -15,9 +15,6 @@
           (map html->hiccup (.-childNodes elt)))
     (instance? html/TextNode elt)
     (.-text elt)
-    :else
-    (do
-      (prn elt ((js/eval "(x) => typeof(x)" elt)))
-      elt)))
+    :else elt))
 
 (run! pprint (map html->hiccup (.-childNodes root)))
