@@ -533,6 +533,8 @@ In Calva connect to the REPL with:
 Currently CIDER needs the following
 [workaround](https://github.com/clojure-emacs/cider/issues/3061).
 
+See also [this article](https://benjamin-asdf.github.io/faster-than-light-memes/jacking-nbb.html) by Benjamin Scherdtner.
+
 #### Vim Iced
 
 See [this](https://twitter.com/uochan/status/1444417505506721793) tweet.
@@ -571,6 +573,7 @@ See [API](doc/api.md) documentation with a list of built-in libraries.
 
 ## Articles
 
+- [Jack-in nbb](https://benjamin-asdf.github.io/faster-than-light-memes/jacking-nbb.html)
 - [Implementing a comments feature for my blog with nbb, htmx, Serverless Framework, and DynamoDB](https://nickcellino.com/blog/2022-09-03-nbb-comments.html) by Nick Cellino
 - [AWS Lambda, now with first class parentheses](https://www.juxt.pro/blog/nbb-lambda) by Ray McDermott
 - [Create a blog with Clojure, nbb, and MarkDoc](https://www.alexandercarls.de/markdoc-nbb-clojure/) by Alexander Carls
