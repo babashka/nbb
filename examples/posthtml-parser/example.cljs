@@ -28,3 +28,13 @@
      (hs/select (hs/attr :class #(= "item" %)))
      (mapv :content)))
 
+;; $ npx nbb example.cljs
+;; [:ul
+;;  {:id "list"}
+;;  "\n               "
+;;  [:li {:class "item"} "Hello"]
+;;  "\n               "
+;;  [:li {:class "item"} "Goodbye"]
+;;  "\n             "]
+
+;; [["Hello"] ["Goodbye"]]
