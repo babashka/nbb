@@ -548,7 +548,8 @@
                                'type->str (sci/copy-var type->str core-ns)
                                'Keyword (sci/copy-var Keyword core-ns)
                                'Symbol (sci/copy-var Symbol core-ns)
-                               'PersistentVector (sci/copy-var PersistentVector core-ns)}
+                               'PersistentVector (sci/copy-var PersistentVector core-ns)
+                               'IFn (sci/copy-var IFn core-ns)}
                 'cljs.reader {'read-string (sci/copy-var edn/read-string (sci/create-ns 'cljs.reader))}
                 'clojure.main {'repl-requires (sci/copy-var
                                                repl-requires

@@ -45,7 +45,8 @@
                        cognitect.transit "./nbb_transit.js"
                        clojure.data "./nbb_data.js"
                        cljs.math "./nbb_math.js"
-                       clojure.math "./nbb_math.js"}))]
+                       clojure.math "./nbb_math.js"
+                       clojure.zip "./nbb_zip.js"}))]
     (list 'quote m)))
 
 (defmacro time

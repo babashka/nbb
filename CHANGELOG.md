@@ -2,6 +2,11 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 1.0.137
+
+- Add `clojure.zip`
+- Add `IFn` for compatibility with `hickory.select`
+
 ## 1.0.136
 
 - [#258](https://github.com/babashka/nbb/issues/258): improvements for loading namespaces and JS code asynchronously

@@ -62,10 +62,8 @@
                   :depends-on #{:nbb_core :nbb_goog_string}}
     :nbb_deps {:init-fn nbb.impl.deps/init
                :depends-on #{:nbb_core}}
-    #_#_:nbb_schema {:init-fn nbb.impl.schema/init
-                 :depends-on #{:nbb_core :nbb_goog_string}}
-    #_#_:nbb_malli {:init-fn nbb.impl.malli/init
-                :depends-on #{:nbb_core}}}
+    :nbb_zip {:init-fn nbb.impl.zip/init
+              :depends-on #{:nbb_core}}}
    :build-hooks [(shadow.cljs.build-report/hook
                   {:output-to "report.html"})
                  (nbb.impl.shadow-hooks/hook
