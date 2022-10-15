@@ -22,13 +22,6 @@
 (pprint
  (-> parsed first html->hiccup))
 
-(prn
- (->> parsed
-     first
-     (hs/select (hs/attr :class #(= "item" %)))
-     (mapv :content)))
-
-;; $ npx nbb example.cljs
 ;; [:ul
 ;;  {:id "list"}
 ;;  "\n               "
@@ -36,5 +29,11 @@
 ;;  "\n               "
 ;;  [:li {:class "item"} "Goodbye"]
 ;;  "\n             "]
+
+(prn
+ (->> parsed
+     first
+     (hs/select (hs/attr :class #(= "item" %)))
+     (mapv :content)))
 
 ;; [["Hello"] ["Goodbye"]]
