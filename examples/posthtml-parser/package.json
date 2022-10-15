@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "nbb": "^1.0.137",
     "posthtml-parser": "^0.11.0"
   }
 }

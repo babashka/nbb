@@ -1,0 +1,2 @@
+{:deps {hickory/hickory {:mvn/version "0.7.1"}}}
+

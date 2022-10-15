@@ -1,7 +1,8 @@
 (ns example
   (:require
    ["posthtml-parser" :refer [parser]]
-   [clojure.pprint :refer [pprint]]))
+   [clojure.pprint :refer [pprint]]
+   [hickory.select :as hs]))
 
 (defn parse [s]
   (js->clj (parser s) :keywordize-keys true))
@@ -13,4 +14,17 @@
           (map html->hiccup content))
     elt))
 
-(run! (comp pprint html->hiccup) (parse "<ul id=\"list\" ><li>Hello World</li></ul>"))
+(def parsed (parse "<ul id=\"list\">
+               <li class=\"item\">Hello</li>
+               <li class=\"item\">Goodbye</li>
+             </ul>"))
+
+(pprint
+ (-> parsed first html->hiccup))
+
+(prn
+ (->> parsed
+     first
+     (hs/select (hs/attr :class #(= "item" %)))
+     (mapv :content)))
+

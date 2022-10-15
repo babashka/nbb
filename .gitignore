@@ -24,3 +24,4 @@ doc/bundle/dist
 doc/bundle/out.mjs
 .nbb/.cache/
 bun.lockb
+.nbb
