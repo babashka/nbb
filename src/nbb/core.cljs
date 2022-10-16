@@ -575,12 +575,17 @@
 
 (def old-require (sci/eval-form (store/get-ctx) 'require))
 
+(def ^:dynamic *old-require* false)
+
 (swap! (:env (store/get-ctx)) assoc-in
        [:namespaces 'clojure.core 'require]
-       (fn [& args] (await (.then (identity ;; with-async-bindings {sci/file @sci/file}
-                                    (handle-libspecs args {:ns @sci/ns
-                                                           :file @sci/file}))
-                                  (fn [_])))))
+       (fn [& args]
+         (if *old-require*
+           (apply old-require args)
+           (await (.then (identity ;; with-async-bindings {sci/file @sci/file}
+                          (handle-libspecs args {:ns @sci/ns
+                                                 :file @sci/file}))
+                         (fn [_]))))))
 
 (def ^:dynamic *file* sci/file) ;; make clj-kondo+lsp happy
 

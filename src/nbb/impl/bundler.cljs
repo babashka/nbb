@@ -186,15 +186,15 @@ Options:
                                         {})})]
     (if help
       (print-help)
-      (do
+      (binding [nbb/*old-require* true]
         (let [file (fs/readFileSync bundle-file "utf-8")]
-            (swap! expressions conj file)
-            (uberscript {:ctx ctx
-                         :expressions [file]}))
+          (swap! expressions conj file)
+          (uberscript {:ctx ctx
+                       :expressions [file]}))
         (print! (gstring/format "import { loadFile, loadString, registerModule } from '%s'"
                                 (nbb/npm-lib-name)))
         (doseq [lib (distinct @js-libs)]
-          (let [internal (munge lib) #_(nbb/libname->internal-name lib)
+          (let [internal (munge lib)
                 js-internal (str/replace (str internal) "." "_dot_")]
             (print! (gstring/format "import * as %s from '%s'" js-internal lib))
             (print! (gstring/format "registerModule(%s, '%s')" js-internal lib))))
