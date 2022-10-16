@@ -202,14 +202,7 @@ All NPM libraries loaded by a script are resolved relative to that script. When
 using the [Reagent](#reagent) module, React is resolved in the same way as any
 other NPM library.
 
-### Classpath
-
-To load `.cljs` files from local paths or dependencies, you can use the
-`--classpath` argument. The current dir is added to the classpath automatically.
-So if there is a file `foo/bar.cljs` relative to your current dir, then you can
-load it via `(:require [foo.bar :as fb])`. Note that `nbb` uses the same naming
-conventions for namespaces and directories as other Clojure tools: `foo-bar` in
-the namespace name becomes `foo_bar` in the directory name.
+### Clojure dependencies
 
 To load dependencies from the Clojure ecosystem, you can create an `nbb.edn`:
 
@@ -219,6 +212,15 @@ To load dependencies from the Clojure ecosystem, you can create an `nbb.edn`:
 
 Similar to `node_modules`, nbb will unpack these dependencies in an `.nbb`
 directory and will load them from there.
+
+### Classpath
+
+To load `.cljs` files from local paths or dependencies, you can use the
+`--classpath` argument. The current dir is added to the classpath automatically.
+So if there is a file `foo/bar.cljs` relative to your current dir, then you can
+load it via `(:require [foo.bar :as fb])`. Note that `nbb` uses the same naming
+conventions for namespaces and directories as other Clojure tools: `foo-bar` in
+the namespace name becomes `foo_bar` in the directory name.
 
 ## Current file
 
