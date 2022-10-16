@@ -6,6 +6,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 - Add `clojure.zip`
 - Add `IFn` for compatibility with `hickory.select`
+- Add `nbbun` launcher for [Bun](https://github.com/oven-sh/bun)
 
 ## 1.0.136
 
