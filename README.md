@@ -198,9 +198,9 @@ use a globally installed `nbb` or use `$(npm bin)/nbb script.cljs` to bypass
 
 ### NPM dependencies
 
-Nbb does not depend on any NPM dependencies. All NPM libraries loaded by a
-script are resolved relative to that script. When using the [Reagent](#reagent)
-module, React is resolved in the same way as any other NPM library.
+All NPM libraries loaded by a script are resolved relative to that script. When
+using the [Reagent](#reagent) module, React is resolved in the same way as any
+other NPM library.
 
 ### Classpath
 
@@ -211,22 +211,14 @@ load it via `(:require [foo.bar :as fb])`. Note that `nbb` uses the same naming
 conventions for namespaces and directories as other Clojure tools: `foo-bar` in
 the namespace name becomes `foo_bar` in the directory name.
 
-To load dependencies from the Clojure ecosystem,
-you can use the Clojure CLI or babashka to download them and produce a classpath:
+To load dependencies from the Clojure ecosystem, you can create an `nbb.edn`:
 
 ``` clojure
-$ classpath="$(clojure -A:nbb -Spath -Sdeps '{:aliases {:nbb {:replace-deps {com.github.seancorfield/honeysql {:git/tag "v2.0.0-rc5" :git/sha "01c3a55"}}}}}')"
-```
-and then feed it to the `--classpath` argument:
-
-``` clojure
-$ nbb --classpath "$classpath" -e "(require '[honey.sql :as sql]) (sql/format {:select :foo :from :bar :where [:= :baz 2]})"
-["SELECT foo FROM bar WHERE baz = ?" 2]
+{:deps {com.github.seancorfield/honeysql {:mvn/version "2.2.868"}}}
 ```
 
-Currently `nbb` only reads from directories, not jar files, so you are
-encouraged to use git libs. Support for `.jar` files will be added later. You
-can find a workaround for that [here](doc/dependencies.md).
+Similar to `node_modules`, nbb will unpack these dependencies in an `.nbb`
+directory and will load them from there.
 
 ## Current file
 
