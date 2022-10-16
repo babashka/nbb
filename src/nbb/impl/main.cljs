@@ -183,7 +183,7 @@ Tooling:
                   (.catch (fn [err]
                             (error/error-handler err opts)
                             (when (:debug opts)
-                              (.error js/console (str err)))
+                              (js/console.error err))
                             (throw (js/Error. (ex-message err))))))))))
       (.error js/console (str "Usage: " (nbb/cli-name) " <script> or nbb -e <expr>.")))))
 
