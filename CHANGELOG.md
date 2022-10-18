@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 1.0.138
+
+- Optimize `let` in SCI
+
 ## 1.0.137
 
 - Add `clojure.zip`
