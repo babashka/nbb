@@ -17,21 +17,24 @@
 (deftest browser-test
   (async
    done
-   (p/let [browser (.launch browser-type #js {:headless false})
-           context (.newContext browser)
-           page (.newPage context)
-           _ (.goto page "https://clojure.org")
-           _ (-> (.screenshot page #js{:path "screenshot.png"})
-                 (.catch #(js/console.log %)))
-           content (.content page)
-           ;; uncomment to save content to variable for inspection
-           ;; _ (def c content)
-           ;; uncomment to pause execution to inspect state in browser
-           ;; _ (pause)
-           ]
-     (is (str/includes? content "clojure"))
-     (.close browser)
-     (done))))
+   (p/let [browser (.launch browser-type #js {:headless false})]
+     (-> (p/let [context (.newContext browser)
+                 page (.newPage context)
+                 _ (.goto page "https://clojure.org")
+                 _ (.waitFor (.locator page "audio") #js {:timeout 100})
+                 _ (-> (.screenshot page #js{:path "screenshot.png"})
+                       (.catch #(js/console.log %)))
+                 content (.content page)
+                 ;; uncomment to save content to variable for inspection
+                 ;; _ (def c content)
+                 ;; uncomment to pause execution to inspect state in browser
+                 ;; _ (pause)
+                 ]
+           (is (str/includes? content "clojure")))
+         (p/finally
+           (fn []
+             (.close browser)
+             (done)))))))
 
 (t/run-tests 'example)
 
