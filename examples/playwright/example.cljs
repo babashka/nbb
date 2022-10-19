@@ -4,7 +4,8 @@
   (:require
    ["playwright$default" :as pw]
    [clojure.string :as str]
-   [clojure.test :as t :refer [deftest is async]]
+   [clojure.test :as t :refer [async deftest is]]
+   [nbb.core :refer [*file*]]
    [promesa.core :as p]))
 
 (def browser-type pw/firefox) ;; or pw/chromium
@@ -13,6 +14,11 @@
 (defn pause []
   (js/Promise. (fn [resolve]
                  (reset! continue resolve))))
+
+(def file *file*)
+(defmacro print-error [err]
+  (let [{:keys [line column]} (meta &form)]
+    `(js/console.error (str file ":" ~line ":" ~column " - " (ex-message ~err)))))
 
 (deftest browser-test
   (async
@@ -31,6 +37,10 @@
                  ;; _ (pause)
                  ]
            (is (str/includes? content "clojure")))
+         (p/catch
+             (fn [err]
+               (print-error err)
+               (is false)))
          (p/finally
            (fn []
              (.close browser)
