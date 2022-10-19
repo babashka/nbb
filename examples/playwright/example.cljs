@@ -27,7 +27,6 @@
      (-> (p/let [context (.newContext browser)
                  page (.newPage context)
                  _ (.goto page "https://clojure.org")
-                 _ (.waitFor (.locator page "audio") #js {:timeout 100})
                  _ (-> (.screenshot page #js{:path "screenshot.png"})
                        (.catch #(js/console.log %)))
                  content (.content page)
