@@ -18,7 +18,7 @@
 (def file *file*)
 (defmacro print-error [err]
   (let [{:keys [line column]} (meta &form)]
-    `(js/console.error (str file ":" ~line ":" ~column " - " (ex-message ~err)))))
+    `(js/console.log (str file ":" ~line ":" ~column " - " (ex-message ~err)))))
 
 (deftest browser-test
   (async
