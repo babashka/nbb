@@ -60,7 +60,7 @@
     (when building-outside-nbb?
       (fs/delete "shadow-cljs.edn"))))
 
-(defn move-ext-lib [src dest]
+#_(defn move-ext-lib [src dest]
   (fs/move src dest {:replace-existing true})
   (spit dest
         (-> (slurp dest)
@@ -72,7 +72,7 @@
   [args & {:keys [wrap-cmd-fn] :or {wrap-cmd-fn identity}}]
   (build (wrap-cmd-fn "-M -m shadow.cljs.devtools.cli --force-spawn release modules")
          args)
-  (spit "lib/nbb_core.js"
+  #_(spit "lib/nbb_core.js"
         (str/replace (slurp "lib/nbb_core.js") (re-pattern "self") "globalThis"))
   (run! fs/delete (fs/glob "lib" "**.map"))
   #_(move-ext-lib "lib/nbb_schema.js" "ext/nbb-prismatic-schema/index.mjs")
