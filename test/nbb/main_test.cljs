@@ -255,8 +255,8 @@
       (.then (fn [val]
                (is (true? val))))))
 
-(deftest-async ignore-require-macros-test
-  (-> (main-with-args ["test-scripts/ignore_require_macros.cljc"])
+(deftest-async require-macros-test
+  (-> (main-with-args ["test-scripts/require_macros.cljc"])
       (.then (fn [res]
                (is (= {:add 5 :subtract 1} res))))))
 
