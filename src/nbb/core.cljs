@@ -439,6 +439,7 @@
         (.then #(sci/binding [sci/file sci-file
                               sci/ns sci-ns]
                   (load-string %)))
+        (await)
         #_(.finally (fn []
                       (prn :finally (str @sci/ns)))))))
 

@@ -5,6 +5,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 ## 1.0.139
 
 - [#268](https://github.com/babashka/nbb/issues/268): Fix `:require-macros` (compatibility with [camel-snake-kebab](https://github.com/clj-commons/camel-snake-kebab))
+- [#264](https://github.com/babashka/nbb/issues/264): make `load-file` auto-await
 
 ## 1.0.138
 
