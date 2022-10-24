@@ -185,116 +185,120 @@
           munged (munge libname)
           current-ns-str (str (:ns ns-opts))
           current-ns (symbol current-ns-str)]
-      (if as-alias
-        (do (old-require fst)
-            (handle-libspecs (next libspecs) ns-opts))
-        (case libname
-          ;; built-ins
-          (reagent.core)
-          (do
-            (load-react)
-            (load-module "./nbb_reagent.js" libname as refer rename libspecs ns-opts))
-          (reagent.ratom)
-          (load-module "./nbb_reagent.js" libname as refer rename libspecs ns-opts)
-          (reagent.dom.server)
-          (do
-            (load-react)
-            (let [internal-name (symbol "nbb.internal.react-dom-server")]
-              (let [mod
-                    ;; NOTE: react could already have been loaded by requiring it
-                    ;; directly, in that case it's part of loaded-modules already
-                    (or (get @loaded-modules internal-name)
-                        (let [mod ((:require @ctx) "react-dom/server")]
-                          (swap! loaded-modules assoc internal-name mod)
-                          mod))]
-                ;; To make sure reagent sees the required react, we set it here Wwe
-                ;; could make reagent directly use loaded-modules via a global so we
-                ;; don't have to hardcode this.
-                (set! ^js (.-nbb$internal$react-dom-server goog/global) mod))
-              (load-module "./nbb_reagent_dom_server.js" libname as refer rename libspecs ns-opts)))
-          ;; (schema.core)
-          ;; (load-module ((.-resolve (:require @ctx)) "@babashka/nbb-prismatic-schema/index.mjs")
-          ;;              libname as refer rename libspecs)
-          ;; (malli.core)
-          ;; (load-module ((.-resolve (:require @ctx)) "@babashka/nbb-metosin-malli/index.mjs")
-          ;;              libname as refer rename libspecs)
-          (let [feat (get feature-requires libname)]
-            (cond
-              feat (load-module feat libname as refer rename libspecs ns-opts)
-              (string? libname)
-              ;; TODO: parse properties
-              (let [libname (if (str/starts-with? libname "./")
-                              (path/resolve (path/dirname (:file ns-opts)) libname)
-                              libname)
-                    [libname properties*] (split-libname libname)
-                    munged (munge libname)
-                    properties (when properties* (.split properties* "."))
-                    internal-name (munged->internal munged)
-                    after-load
-                    (fn [mod]
-                      (let [internal-name
-                            (if properties*
-                              (str internal-name "$" properties*)
-                              internal-name)]
-                        (when as
-                          (store/swap-ctx!
-                           (fn [sci-ctx]
-                             (-> sci-ctx
-                                 (sci/add-class! internal-name mod)
-                                 (sci/add-import! current-ns internal-name as))))))
-                      (doseq [field refer]
-                        (let [mod-field (gobj/get mod (str field))
-                              ;; different namespaces can have different mappings
-                              internal-subname (str internal-name "$" current-ns-str "$" field)
-                              field (get rename field field)]
-                          (store/swap-ctx!
-                           (fn [sci-ctx]
-                             (-> sci-ctx
-                                 (sci/add-class! internal-subname mod-field)
-                                 (sci/add-import! current-ns internal-subname field))))))
+      (if
+          ;; this handles the :require-macros self-require case
+          (= libname current-ns)
+        (handle-libspecs (next libspecs) ns-opts)
+        (if as-alias
+          (do (old-require fst)
+              (handle-libspecs (next libspecs) ns-opts))
+          (case libname
+            ;; built-ins
+            (reagent.core)
+            (do
+              (load-react)
+              (load-module "./nbb_reagent.js" libname as refer rename libspecs ns-opts))
+            (reagent.ratom)
+            (load-module "./nbb_reagent.js" libname as refer rename libspecs ns-opts)
+            (reagent.dom.server)
+            (do
+              (load-react)
+              (let [internal-name (symbol "nbb.internal.react-dom-server")]
+                (let [mod
+                      ;; NOTE: react could already have been loaded by requiring it
+                      ;; directly, in that case it's part of loaded-modules already
+                      (or (get @loaded-modules internal-name)
+                          (let [mod ((:require @ctx) "react-dom/server")]
+                            (swap! loaded-modules assoc internal-name mod)
+                            mod))]
+                  ;; To make sure reagent sees the required react, we set it here Wwe
+                  ;; could make reagent directly use loaded-modules via a global so we
+                  ;; don't have to hardcode this.
+                  (set! ^js (.-nbb$internal$react-dom-server goog/global) mod))
+                (load-module "./nbb_reagent_dom_server.js" libname as refer rename libspecs ns-opts)))
+            ;; (schema.core)
+            ;; (load-module ((.-resolve (:require @ctx)) "@babashka/nbb-prismatic-schema/index.mjs")
+            ;;              libname as refer rename libspecs)
+            ;; (malli.core)
+            ;; (load-module ((.-resolve (:require @ctx)) "@babashka/nbb-metosin-malli/index.mjs")
+            ;;              libname as refer rename libspecs)
+            (let [feat (get feature-requires libname)]
+              (cond
+                feat (load-module feat libname as refer rename libspecs ns-opts)
+                (string? libname)
+                ;; TODO: parse properties
+                (let [libname (if (str/starts-with? libname "./")
+                                (path/resolve (path/dirname (:file ns-opts)) libname)
+                                libname)
+                      [libname properties*] (split-libname libname)
+                      munged (munge libname)
+                      properties (when properties* (.split properties* "."))
+                      internal-name (munged->internal munged)
+                      after-load
+                      (fn [mod]
+                        (let [internal-name
+                              (if properties*
+                                (str internal-name "$" properties*)
+                                internal-name)]
+                          (when as
+                            (store/swap-ctx!
+                             (fn [sci-ctx]
+                               (-> sci-ctx
+                                   (sci/add-class! internal-name mod)
+                                   (sci/add-import! current-ns internal-name as))))))
+                        (doseq [field refer]
+                          (let [mod-field (gobj/get mod (str field))
+                                ;; different namespaces can have different mappings
+                                internal-subname (str internal-name "$" current-ns-str "$" field)
+                                field (get rename field field)]
+                            (store/swap-ctx!
+                             (fn [sci-ctx]
+                               (-> sci-ctx
+                                   (sci/add-class! internal-subname mod-field)
+                                   (sci/add-import! current-ns internal-subname field))))))
+                        (handle-libspecs (next libspecs) ns-opts))
+                      mod (js/Promise.resolve
+                           (->
+                            (or
+                             ;; skip loading if module was already loaded
+                             (some-> (get @loaded-modules internal-name)
+                                     js/Promise.resolve)
+                             (load-js-module libname internal-name)
+                             ;; else load module and register in loaded-modules under internal-name
+                             )
+                            (.then (fn [mod]
+                                     (if properties
+                                       (gobj/getValueByKeys mod properties)
+                                       mod)))))]
+                  (-> mod
+                      (.then after-load)))
+                :else
+                ;; assume symbol
+                (if (sci/eval-form (store/get-ctx) (list 'clojure.core/find-ns (list 'quote libname)))
+                  ;; built-in namespace
+                  (do (sci/binding [sci/ns (:ns ns-opts)
+                                    sci/file (:file ns-opts)]
+                        (old-require fst))
                       (handle-libspecs (next libspecs) ns-opts))
-                    mod (js/Promise.resolve
-                         (->
-                          (or
-                           ;; skip loading if module was already loaded
-                           (some-> (get @loaded-modules internal-name)
-                                   js/Promise.resolve)
-                           (load-js-module libname internal-name)
-                           ;; else load module and register in loaded-modules under internal-name
-                           )
-                          (.then (fn [mod]
-                                   (if properties
-                                     (gobj/getValueByKeys mod properties)
-                                     mod)))))]
-                (-> mod
-                    (.then after-load)))
-              :else
-              ;; assume symbol
-              (if (sci/eval-form (store/get-ctx) (list 'clojure.core/find-ns (list 'quote libname)))
-                ;; built-in namespace
-                (do (sci/binding [sci/ns (:ns ns-opts)
-                                  sci/file (:file ns-opts)]
-                      (old-require fst))
-                    (handle-libspecs (next libspecs) ns-opts))
-                (if-let [the-file (find-file-on-classpath munged)]
-                  (-> (load-file the-file)
-                      (.then
-                       (fn [_]
-                         (sci/binding [sci/ns (:ns ns-opts)]
-                           (when as
-                             (sci/eval-form (store/get-ctx)
-                                            (list 'clojure.core/alias
-                                                  (list 'quote as)
-                                                  (list 'quote libname))))
-                           (when (seq refer)
-                             (sci/eval-form (store/get-ctx)
-                                            (list 'clojure.core/refer
-                                                  (list 'quote libname)
-                                                  :only (list 'quote refer)
-                                                  :rename (list 'quote rename)))))))
-                      (.then (fn [_]
-                               (handle-libspecs (next libspecs) ns-opts))))
-                  (js/Promise.reject (js/Error. (str "Could not find namespace: " libname))))))))))
+                  (if-let [the-file (find-file-on-classpath munged)]
+                    (-> (load-file the-file)
+                        (.then
+                         (fn [_]
+                           (sci/binding [sci/ns (:ns ns-opts)]
+                             (when as
+                               (sci/eval-form (store/get-ctx)
+                                              (list 'clojure.core/alias
+                                                    (list 'quote as)
+                                                    (list 'quote libname))))
+                             (when (seq refer)
+                               (sci/eval-form (store/get-ctx)
+                                              (list 'clojure.core/refer
+                                                    (list 'quote libname)
+                                                    :only (list 'quote refer)
+                                                    :rename (list 'quote rename)))))))
+                        (.then (fn [_]
+                                 (handle-libspecs (next libspecs) ns-opts))))
+                    (js/Promise.reject (js/Error. (str "Could not find namespace: " libname)))))))))))
     (js/Promise.resolve (:ns ns-opts))))
 
 (defn eval-ns-form [ns-form opts]
@@ -303,16 +307,15 @@
   (let [[_ns ns-name & ns-forms] ns-form
         grouped (group-by (fn [ns-form]
                             (and (seq? ns-form)
-                                 (= :require (first ns-form)))) ns-forms)
+                                 (let [fst (first ns-form)]
+                                   (or (= :require fst)
+                                       (= :require-macros fst))))) ns-forms)
         require-forms (get grouped true)
         other-forms (get grouped false)
         ;; ignore all :require-macros for now
-        other-forms (remove #(and (seq? %) (= :require-macros (first %)))
-                            other-forms)
         ns-obj (sci/binding [sci/ns @sci/ns]
                  (sci/eval-form (store/get-ctx) (list 'do (list* 'ns ns-name other-forms) '*ns*)))
-        libspecs (mapcat rest
-                         require-forms)
+        libspecs (mapcat rest require-forms)
         opts (assoc opts :ns ns-obj)]
     (handle-libspecs libspecs opts)))
 
@@ -437,7 +440,7 @@
                               sci/ns sci-ns]
                   (load-string %)))
         #_(.finally (fn []
-                    (prn :finally (str @sci/ns)))))))
+                      (prn :finally (str @sci/ns)))))))
 
 (defn register-plugin! [_plug-in-name sci-opts]
   (store/swap-ctx! sci/merge-opts sci-opts))
