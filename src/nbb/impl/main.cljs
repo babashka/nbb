@@ -104,37 +104,15 @@ Tooling:
   bundle: produce single JS file for usage with bundlers.
 "))
 
-
-(defn local-nbb-edn
-  "Finds a local nbb.edn file and reads it. Returns nil if none found."
-  []
-  (when (fs/existsSync "nbb.edn")
-    (edn/read-string (fs/readFileSync "nbb.edn" "utf8"))))
-
-
 (defn main []
   (let [[_ _ & args] js/process.argv
         opts (parse-args args)
-        opts (if (:config opts)
-               (assoc opts :config
-                      (edn/read-string
-                       (fs/readFileSync
-                        (:config opts)
-                        "utf8")))
-               (if-let [config (local-nbb-edn)]
-                 (assoc opts :config config)
-                 opts))
         _ (reset! common/opts opts)
         script-file (:script opts)
         expr (:expr opts)
         classpath (:classpath opts)
-        cwd (js/process.cwd)
-        _ (do (when classpath
-                (cp/add-classpath classpath))
-              (if-let [paths (get-in opts [:config :paths])]
-                (doseq [path paths]
-                  (cp/add-classpath path))
-                (cp/add-classpath cwd)))
+        _ (when classpath
+            (cp/add-classpath classpath))
         nrepl-server (:nrepl-server opts)
         repl? (or (:repl opts)
                   (:socket-repl opts)
@@ -147,14 +125,13 @@ Tooling:
     (when (:version opts)
       (println (str (nbb/cli-name) " v" (nbb/version)))
       (js/process.exit 0))
-    (reset! nbb/opts opts)
-    (when repl? (api/init-require (path/resolve "script.cljs")))
     (if (or script-file expr nrepl-server repl? bundle-opts)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
           (->
            (js/Promise.resolve
-            (when (:config opts)
-              (esm/dynamic-import "./nbb_deps.js")))
+            (api/initialize (if repl? (path/resolve "script.cljs")
+                                script-file)
+                            opts))
            (.then
             (fn []
               (-> (cond script-file

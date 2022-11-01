@@ -1,11 +1,14 @@
 (ns nbb.api
   (:require
+   ["fs" :as fs]
    ["import-meta-resolve" :as imr]
    ["module" :refer [createRequire]]
    ["path" :as path]
    ["url" :as url]
+   [clojure.edn :as edn]
    [nbb.classpath :as cp]
-   [nbb.core :as nbb]))
+   [nbb.core :as nbb]
+   [shadow.esm :as esm]))
 
 (def create-require
   (or createRequire
@@ -13,21 +16,54 @@
         (fn [_]
           (throw (js/Error. "createRequire is not defined, this is a no-op"))))))
 
-(defn init-require [path]
-  (let [require (create-require path)
-        path-url (str (url/pathToFileURL path))]
-    (set! (.-require goog/global) require)
-    (swap! nbb/ctx assoc :require require)
-    (swap! nbb/ctx assoc :resolve #(imr/resolve % path-url))))
+(def initialized? (atom false))
+
+(defn local-nbb-edn
+  "Finds a local nbb.edn file and reads it. Returns nil if none found."
+  []
+  (when (fs/existsSync "nbb.edn")
+    (edn/read-string (fs/readFileSync "nbb.edn" "utf8"))))
+
+(defn initialize [path opts]
+  (js/Promise.resolve
+   (when-not @initialized?
+     ;; (prn :path path)
+     (let [path (path/resolve (or path "script.cljs"))
+           opts (if (:config opts)
+                  (assoc opts :config
+                         (edn/read-string
+                          (fs/readFileSync
+                           (:config opts)
+                           "utf8")))
+                  (if-let [config (local-nbb-edn)]
+                    (assoc opts :config config)
+                    opts))
+           require (create-require path)
+           path-url (str (url/pathToFileURL path))]
+       (set! (.-require goog/global) require)
+       (swap! nbb/ctx assoc :require require)
+       (swap! nbb/ctx assoc :resolve #(imr/resolve % path-url))
+       (reset! nbb/opts opts)
+       (->
+        (js/Promise.resolve
+         (when-let [config (:config opts)]
+           (if-let [paths (:paths config)]
+             (doseq [path paths]
+               (cp/add-classpath path))
+             (cp/add-classpath (js/process.cwd)))
+           (esm/dynamic-import "./nbb_deps.js")))
+        (.then (fn [_]
+                 (reset! initialized? true))))))))
 
 (defn loadFile [script]
   (let [script-path (path/resolve script)]
-    (init-require script-path)
-    (nbb/load-file script-path)))
+    (-> (initialize script-path nil)
+        (.then #(nbb/load-file script-path)))))
 
 (defn loadString [expr]
-  (init-require (path/resolve "script.cljs"))
-  (nbb/load-string expr))
+  (-> (initialize nil nil)
+      (.then
+       #(nbb/load-string expr))))
 
 (defn addClassPath [cp]
   (cp/add-classpath cp))

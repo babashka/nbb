@@ -6,7 +6,6 @@
    [nbb.classpath :as cp]
    [nbb.core :as nbb :refer [opts]]))
 
-
 (def default-nbb-cache-path
   ".nbb/.cache")
 

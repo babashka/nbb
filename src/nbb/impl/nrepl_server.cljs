@@ -210,21 +210,21 @@
                                              (ifn? (:val m)) "function"
                                              :else "variable")
                                     "status" ["done"]}
-                                   doc (assoc "docstring" doc))
+                                 doc (assoc "docstring" doc))
                         (:info :lookup) (cond->
                                             {"ns" (:ns m)
                                              "name" (:name m)
                                              "arglists-str" (forms-join (:arglists m))
                                              "status" ["done"]}
-                                            doc (assoc "doc" doc)
-                                            file (assoc "file" file)
-                                            line (assoc "line" line)))]
+                                          doc (assoc "doc" doc)
+                                          file (assoc "file" file)
+                                          line (assoc "line" line)))]
             (send-fn request reply))))
       (catch js/Error e
         (let [status (cond->
                          #{"done"}
-                         (= mapping-type :eldoc)
-                         (conj "no-eldoc"))]
+                       (= mapping-type :eldoc)
+                       (conj "no-eldoc"))]
           (send-fn
            request
            {"status" status "ex" (str e)}))))))
@@ -307,36 +307,38 @@
 (defn start-server
   "Start nRepl server. Accepts options either as JS object or Clojure map."
   [opts]
-  (api/init-require (path/resolve "script.cljs"))
-  (let [port (or (:port opts)
-                 0)
-        host (or (:host opts)
-                 "127.0.0.1" ;; default
-                 )
-        _log_level (or (if (object? opts)
-                         (.-log_level ^Object opts)
-                         (:log_level opts))
-                       "info")
-        server (node-net/createServer
-                (partial on-connect {}))]
-    ;; Expose "app" key under js/app in the repl
-    (.listen server
-             port
-             host
-             (fn []
-               (let [addr (-> server (.address))
-                     port (-> addr .-port)
-                     host (-> addr .-address)]
-                 (println (str "nREPL server started on port " port " on host " host " - nrepl://" host ":" port))
-                 (try
-                   (.writeFileSync fs ".nrepl-port" (str port))
-                   (catch :default e
-                     (warn "Could not write .nrepl-port" e))))))
-    server)
-  #_(let [onExit (js/require "signal-exit")]
-      (onExit (fn [_code _signal]
-                (debug "Process exit, removing .nrepl-port")
-                (fs/unlinkSync ".nrepl-port")))))
+  (-> (js/Promise.resolve (api/initialize (path/resolve "script.cljs") nil))
+      (.then
+       (fn []
+         (let [port (or (:port opts)
+                        0)
+               host (or (:host opts)
+                        "127.0.0.1" ;; default
+                        )
+               _log_level (or (if (object? opts)
+                                (.-log_level ^Object opts)
+                                (:log_level opts))
+                              "info")
+               server (node-net/createServer
+                       (partial on-connect {}))]
+           ;; Expose "app" key under js/app in the repl
+           (.listen server
+                    port
+                    host
+                    (fn []
+                      (let [addr (-> server (.address))
+                            port (-> addr .-port)
+                            host (-> addr .-address)]
+                        (println (str "nREPL server started on port " port " on host " host " - nrepl://" host ":" port))
+                        (try
+                          (.writeFileSync fs ".nrepl-port" (str port))
+                          (catch :default e
+                            (warn "Could not write .nrepl-port" e))))))
+           server)))
+      #_(let [onExit (js/require "signal-exit")]
+          (onExit (fn [_code _signal]
+                    (debug "Process exit, removing .nrepl-port")
+                    (fs/unlinkSync ".nrepl-port"))))))
 
 (defn stop-server [server]
   (.close server
