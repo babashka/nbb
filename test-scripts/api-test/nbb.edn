@@ -1,0 +1,2 @@
+{:paths ["src"]
+ :deps {medley/medley {:mvn/version "1.4.0"}}}

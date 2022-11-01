@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 1.0.140 (2022-11-01)
+
+- Fix [#270](https://github.com/babashka/nbb/issues/270): respect nbb.edn when starting nbb from JS API
+
 ## 1.0.139
 
 - [#268](https://github.com/babashka/nbb/issues/268): Fix `:require-macros` (compatibility with [camel-snake-kebab](https://github.com/clj-commons/camel-snake-kebab))
