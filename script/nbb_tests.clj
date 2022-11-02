@@ -233,6 +233,10 @@
           :nss ["foo" "bar" "baz" "user"]}
          (nbb {:dir "test-scripts/local-js"} "-cp" "src" "-m" "script"))))
 
+(deftest malli-test
+  (is (= [{:prop "-server", :val [:s "foo"]} {:prop "-verbose", :val [:b true]} {:prop "-user", :val [:s "joe"]}]
+         (nbb {:dir "examples/metosin-malli"} "example.cljs"))))
+
 (defn parse-opts [opts]
   (let [[cmds opts] (split-with #(not (str/starts-with? % ":")) opts)]
     (into {:cmds cmds}

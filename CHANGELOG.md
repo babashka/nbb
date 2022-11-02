@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 1.0.141 (2022-11-02)
+
+- [#272](https://github.com/babashka/nbb/issues/272): malli doesn't run in nbb 1.0.140 due to stackoverflow
+
 ## 1.0.140 (2022-11-01)
 
 - Fix [#270](https://github.com/babashka/nbb/issues/270): respect nbb.edn when starting nbb from JS API
