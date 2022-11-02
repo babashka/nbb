@@ -1,0 +1,6 @@
+{
+ :deps {
+        metosin/malli
+        #:git{:url "https://github.com/borkdude/malli", :sha "e400bbcdab09b21dc42d82f90400f60f85af6bd9"}
+        }
+ }
