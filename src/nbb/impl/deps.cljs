@@ -44,6 +44,7 @@
                                unzipped-path
                                "\")"))
         (cproc/execSync (str "bb " (str extract-script)))
+        (fs/unlinkSync extract-script)
         (*print-err-fn* "Done.")))
     unzipped-path))
 
