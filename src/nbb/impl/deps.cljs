@@ -30,7 +30,10 @@
       (*print-err-fn* "Downloading dependencies...")
       (cproc/execSync (str "bb --config " deps-edn-path " uberjar " jar-path))
       (*print-err-fn* "Extracting dependencies...")
-      (cproc/execSync (str "bb -e '(fs/unzip \""
+      (cproc/execSync (str (if (= "win32" js/process.platform)
+                             "bb.exe"
+                             "bb")
+                           " -e '(fs/unzip \""
                            jar-path
                            "\" \""
                            unzipped-path
