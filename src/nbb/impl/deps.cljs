@@ -27,7 +27,9 @@
         unzipped-path (str deps-path "/nbb-deps")]
     (when-not (fs/existsSync unzipped-path)
       (let [bb (if (= "win32" js/process.platform)
-                 "bb" #_"bb.exe"
+                 "bb"
+                 ;; this wasn't necessary, so let's not do it yet
+                 #_"bb.exe"
                  "bb")
             extract-script (path/resolve nbb-path "extract.bb")]
         (fs/mkdirSync deps-path #js {:recursive true})
