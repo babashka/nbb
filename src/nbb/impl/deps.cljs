@@ -3,6 +3,7 @@
    ["child_process" :as cproc]
    ["crypto" :as crypto]
    ["fs" :as fs]
+   ["path" :as path]
    [nbb.classpath :as cp]
    [nbb.core :as nbb :refer [opts]]))
 
@@ -25,17 +26,26 @@
         jar-path (str deps-path "/nbb-deps.jar")
         unzipped-path (str deps-path "/nbb-deps")]
     (when-not (fs/existsSync unzipped-path)
-      (fs/mkdirSync deps-path #js {:recursive true})
-      (fs/writeFileSync deps-edn-path (str {:deps deps}))
-      (*print-err-fn* "Downloading dependencies...")
-      (cproc/execSync (str "bb --config " deps-edn-path " uberjar " jar-path))
-      (*print-err-fn* "Extracting dependencies...")
-      (cproc/execSync (str "bb -e '(fs/unzip \""
-                           jar-path
-                           "\" \""
-                           unzipped-path
-                           "\")'"))
-      (*print-err-fn* "Done."))
+      (let [bb (if (= "win32" js/process.platform)
+                 "bb"
+                 ;; this wasn't necessary, so let's not do it yet
+                 #_"bb.exe"
+                 "bb")
+            extract-script (path/resolve nbb-path "extract.bb")]
+        (fs/mkdirSync deps-path #js {:recursive true})
+        (fs/writeFileSync deps-edn-path (str {:deps deps}))
+        (*print-err-fn* "Downloading dependencies...")
+        (cproc/execSync (str bb " --config " deps-edn-path " uberjar " jar-path))
+        (*print-err-fn* "Extracting dependencies...")
+        (fs/writeFileSync extract-script
+                          (str "(fs/unzip \""
+                               jar-path
+                               "\" \""
+                               unzipped-path
+                               "\")"))
+        (cproc/execSync (str "bb " (str extract-script)))
+        (fs/unlinkSync extract-script)
+        (*print-err-fn* "Done.")))
     unzipped-path))
 
 
