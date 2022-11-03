@@ -25,20 +25,21 @@
         jar-path (str deps-path "/nbb-deps.jar")
         unzipped-path (str deps-path "/nbb-deps")]
     (when-not (fs/existsSync unzipped-path)
-      (fs/mkdirSync deps-path #js {:recursive true})
-      (fs/writeFileSync deps-edn-path (str {:deps deps}))
-      (*print-err-fn* "Downloading dependencies...")
-      (cproc/execSync (str "bb --config " deps-edn-path " uberjar " jar-path))
-      (*print-err-fn* "Extracting dependencies...")
-      (cproc/execSync (str (if (= "win32" js/process.platform)
-                             "bb.exe"
-                             "bb")
-                           " -e '(fs/unzip \""
-                           jar-path
-                           "\" \""
-                           unzipped-path
-                           "\")'"))
-      (*print-err-fn* "Done."))
+      (let [bb (if (= "win32" js/process.platform)
+                 "bb.exe"
+                 "bb")]
+        (fs/mkdirSync deps-path #js {:recursive true})
+        (fs/writeFileSync deps-edn-path (str {:deps deps}))
+        (*print-err-fn* "Downloading dependencies...")
+        (cproc/execSync (str bb " --config " deps-edn-path " uberjar " jar-path))
+        (*print-err-fn* "Extracting dependencies...")
+        (cproc/execSync (str bb
+                             " -e '(fs/unzip \""
+                             jar-path
+                             "\" \""
+                             unzipped-path
+                             "\")'"))
+        (*print-err-fn* "Done.")))
     unzipped-path))
 
 
