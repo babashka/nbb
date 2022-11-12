@@ -546,6 +546,7 @@ The following projects are using nbb or are supporting it as a development platf
 - [devsoutinho/labs](https://github.com/devsoutinho/labs): Flutter universal project + CLJS as backend web framework on top of GraphQL
 - [nbb-logseq](https://github.com/logseq/nbb-logseq): A custom version of nbb with additional features enabled
 - [graph-validator](https://github.com/logseq/graph-validator): Github action to validate logseq notes using nbb-logseq
+- [pg-unused-index-tui](https://github.com/darky/pg-unused-index-tui): TUI for showing unused indexes of Postgres
 
 ## Examples
 
