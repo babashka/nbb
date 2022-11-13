@@ -2,7 +2,7 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-Nbb: Scripting in Clojure on Node.js using SCI
+[Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
 ## 1.0.144 (2022-11-13)
 
