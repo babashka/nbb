@@ -2,6 +2,10 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
+## 1.0.143 (2022-11-13)
+
+- [#279](https://github.com/babashka/nbb/issues/279): nbb no longer has current directory on classpath by default
+
 ## 1.0.142 (2022-11-03)
 
 - [#274](https://github.com/babashka/nbb/issues/274): nbb.edn on Windows

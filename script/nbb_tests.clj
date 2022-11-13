@@ -237,6 +237,11 @@
   (is (= [{:prop "-server", :val [:s "foo"]} {:prop "-verbose", :val [:b true]} {:prop "-user", :val [:s "joe"]}]
          (nbb {:dir "examples/metosin-malli"} "example.cljs"))))
 
+(deftest default-classpath-test
+  (let [o (nbb* {:dir "test-scripts/default_classpath_test"} "test.cljs")]
+    (is (str/includes? o "TEST1"))
+    (is (str/includes? o "BAR"))))
+
 (defn parse-opts [opts]
   (let [[cmds opts] (split-with #(not (str/starts-with? % ":")) opts)]
     (into {:cmds cmds}
