@@ -555,9 +555,36 @@ The following projects are using nbb or are supporting it as a development platf
 - [nbb-action-example](https://github.com/borkdude/nbb-action-example): example
   of a Github action built with nbb.
 
-## API
+## Libraries
 
-See [API](doc/api.md) documentation with a list of built-in libraries.
+See [API](doc/api.md) documentation with a list of built-in Clojure libraries.
+
+
+## Calling nbb from JavaScript
+
+You can load `nbb` from JavaScript. Exposed functions are `loadFile`, `loadString`, `addClassPath` and `getClassPath`.
+
+An example:
+
+Clojure:
+``` clojure
+(ns example)
+
+(defn foo [] "Hello")
+
+#js {:foo foo}
+```
+
+JavaScript:
+``` jsvascript
+import { loadFile } from 'nbb'
+
+// destructure JS object returned from .cljs file:
+const { foo } = await loadFile('example.cljs')
+
+// execute the foo function
+foo();
+```
 
 ## Videos
 
