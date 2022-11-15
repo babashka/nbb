@@ -572,6 +572,7 @@ Clojure:
 
 (defn foo [] "Hello")
 
+;; this JS object is the return value of loadFile:
 #js {:foo foo}
 ```
 
