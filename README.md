@@ -576,7 +576,7 @@ Clojure:
 ```
 
 JavaScript:
-``` jsvascript
+``` javascript
 import { loadFile } from 'nbb'
 
 // destructure JS object returned from .cljs file:
