@@ -547,12 +547,29 @@ In a JavaScript project you can do the above through:
 
 ``` javascript
 import { loadString } from 'nbb'
+
+globalThis.inspectMyProcess = () => {
+  return {version: process.version};
+}
+
 await loadString(`
 
 (require '[nbb.nrepl-server :as nrepl])
 (nrepl/start-server! {:port 1337})
 
 `)
+```
+
+``` shell
+$ node scratch.mjs &
+nREPL server started on port 1337 on host 127.0.0.1 - nrepl://127.0.0.1:1337
+
+$ lein repl :connect 1337
+Connecting to nREPL at 127.0.0.1:1337
+user=> js/process.argv
+#js ["/Users/borkdude/.nvm/versions/node/v17.8.0/bin/node" "/Users/borkdude/dev/nbb/scratch.mjs"]
+user=> (js/inspectMyProcess)
+#js {:version "v17.8.0"}
 ```
 
 ## Projects using nbb
