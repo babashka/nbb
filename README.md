@@ -533,6 +533,28 @@ See also [this article](https://benjamin-asdf.github.io/faster-than-light-memes/
 
 See [this](https://twitter.com/uochan/status/1444417505506721793) tweet.
 
+### nREPL API
+
+You can programmatically start and stop an nREPL server through:
+
+``` clojure
+(require '[nbb.nrepl-server :as nrepl])
+(nrepl/start-server! {:port 1337})
+(nrepl/stop-server!)
+```
+
+In a JavaScript project you can do the above through:
+
+``` javascript
+import { loadString } from 'nbb'
+await loadString(`
+
+(require '[nbb.nrepl-server :as nrepl])
+(nrepl/start-server! {:port 1337})
+
+`)
+```
+
 ## Projects using nbb
 
 The following projects are using nbb or are supporting it as a development platform:

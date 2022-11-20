@@ -46,7 +46,8 @@
                        clojure.data "./nbb_data.js"
                        cljs.math "./nbb_math.js"
                        clojure.math "./nbb_math.js"
-                       clojure.zip "./nbb_zip.js"}))]
+                       clojure.zip "./nbb_zip.js"
+                       nbb.nrepl-server "./nbb_nrepl_server.js"}))]
     (list 'quote m)))
 
 (defmacro time

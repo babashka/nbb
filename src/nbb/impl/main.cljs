@@ -139,7 +139,10 @@ Tooling:
                         expr
                         (api/loadString expr)
                         (:nrepl-server opts)
-                        (esm/dynamic-import "./nbb_nrepl_server.js")
+                        (-> (esm/dynamic-import "./nbb_nrepl_server.js")
+                            (.then (fn [_mod]
+                                     ((-> (store/get-ctx) :env deref
+                                          :namespaces (get 'nbb.nrepl-server) (get 'start-server!)) opts))))
                         (and repl? (:socket-repl opts))
                         (-> (esm/dynamic-import "./nbb_repl.js")
                             (.then (fn [_mod]

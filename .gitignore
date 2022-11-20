@@ -25,3 +25,4 @@ doc/bundle/out.mjs
 .nbb/.cache/
 bun.lockb
 .nbb
+scratch.mjs

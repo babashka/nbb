@@ -304,13 +304,28 @@
            (debug "Connection lost")
            (debug "Connection closed")))))
 
-(defn start-server
+(def !server (atom nil))
+
+(defn start-server!
   "Start nRepl server. Accepts options either as JS object or Clojure map."
   [opts]
   (-> (js/Promise.resolve (api/initialize (path/resolve "script.cljs") nil))
       (.then
        (fn []
-         (let [port (or (:port opts)
+         (let [eval-require (fn
+                              [ns-form]
+                              (nbb/eval-require
+                               (list
+                                'quote
+                                (list 'quote ns-form))))
+               [ns1 ns2] nbb/repl-requires]
+           (->
+            (eval-require ns1)
+            (.then (fn [] (eval-require ns2)))))))
+      (.then
+       (fn []
+         (let [opts (merge @nbb/opts opts)
+               port (or (:port opts)
                         0)
                host (or (:host opts)
                         "127.0.0.1" ;; default
@@ -334,29 +349,29 @@
                           (.writeFileSync fs ".nrepl-port" (str port))
                           (catch :default e
                             (warn "Could not write .nrepl-port" e))))))
-           server)))
+           server
+           (reset! !server server))))
       #_(let [onExit (js/require "signal-exit")]
           (onExit (fn [_code _signal]
                     (debug "Process exit, removing .nrepl-port")
                     (fs/unlinkSync ".nrepl-port"))))))
 
-(defn stop-server [server]
-  (.close server
-          (fn []
-            (when (fs/existsSync ".nrepl-port")
-              (fs/unlinkSync ".nrepl-port")))))
+(defn stop-server!
+  ([] (stop-server! @!server))
+  ([server]
+   (.close server
+           (fn []
+             (when (fs/existsSync ".nrepl-port")
+               (fs/unlinkSync ".nrepl-port"))))))
+
+(def nns (sci/create-ns 'nbb.nrepl-server nil))
+
+(def nrepl-server-namespace {'start-server! (sci/copy-var start-server! nns)
+                             'stop-server! (sci/copy-var stop-server! nns)})
 
 (defn
   init
   []
-  (let [eval-require (fn
-                       [ns-form]
-                       (nbb/eval-require
-                        (list
-                         'quote
-                         (list 'quote ns-form))))
-        [ns1 ns2] nbb/repl-requires]
-    (->
-     (eval-require ns1)
-     (.then (fn [] (eval-require ns2)))
-     (.then (fn [] (start-server @nbb/opts))))))
+  (nbb/register-plugin!
+   ::nrepl-server
+   {:namespaces {'nbb.nrepl-server nrepl-server-namespace}}))

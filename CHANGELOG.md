@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.1.145 (2022-11-20)
+
+- [#132](https://github.com/babashka/nbb/issues/132): Expose `nbb.nrepl-server` API
+
 ## 1.0.144 (2022-11-13)
 
 - [#279](https://github.com/babashka/nbb/issues/279): fix regression: nbb no longer has current directory on classpath by default
