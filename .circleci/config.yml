@@ -33,7 +33,7 @@ jobs:
           name: Run Node tests
           command: |
             node -v
-            npm install -g npm@8.5.5
+            sudo npm install -g npm@8.5.5
             npm -v
             bb ci:test
       - run:
