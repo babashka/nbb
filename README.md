@@ -560,6 +560,22 @@ await loadString(`
 `)
 ```
 
+If you calling this from a CommonJS module, you can use dynamic import:
+
+``` javascript
+async function nREPL() {
+  const { loadString } = await import('nbb');
+  await loadString(`
+  (require '[nbb.nrepl-server :as nrepl])
+  (nrepl/start-server! {:port 1337})
+`);
+}
+
+nREPL();
+```
+
+And then you can connect with an nREPL client:
+
 ``` shell
 $ node scratch.mjs &
 nREPL server started on port 1337 on host 127.0.0.1 - nrepl://127.0.0.1:1337
