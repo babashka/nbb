@@ -1,6 +1,6 @@
 {
   "name": "nbb",
-  "version": "1.1.146",
+  "version": "1.1.147",
   "type": "module",
   "main": "index.mjs",
   "bin": {
@@ -9,15 +9,15 @@
   },
   "description": "Babashka-like tool for Node.js.",
   "dependencies": {
-    "import-meta-resolve": "^2.1.0",
-    "nbb": "."
+    "import-meta-resolve": "^2.1.0"
   },
   "devDependencies": {
     "ink": "^3.0.9",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "shadow-cljs": "^2.15.2",
-    "source-map-support": "^0.5.19"
+    "source-map-support": "^0.5.19",
+    "nbb": "."
   },
   "repository": {
     "type": "git",
