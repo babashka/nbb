@@ -523,10 +523,9 @@
 
 "nbb@.":
   "resolved" "file:"
-  "version" "1.1.146"
+  "version" "1.1.147"
   dependencies:
     "import-meta-resolve" "^2.1.0"
-    "nbb" "."
 
 "node-libs-browser@^2.2.1":
   "integrity" "sha512-h/zcD8H9kaDZ9ALUWwlBUDo6TKF8a7qBSCSEGfjTVIYeqsioSKaAX+BN7NgiMGp6iSIXZ3PxgCu8KS3b71YK5Q=="
