@@ -27,4 +27,4 @@
          :git/sha "98b118daae0b0c79c479ddfe5602237bdb334ca5"}
         #_{:local/root "/Users/borkdude/dev/babashka/sci"}
         io.github.babashka/sci.configs {:git/url "https://github.com/babashka/sci.configs"
-                                        :git/sha "f5f1bd84d96f6a4be93cc695861649a4a0b3e45b"}}}
+                                        :git/sha "2717e545e5a61d4cccd85350b9ad6265afc9146c"}}}
