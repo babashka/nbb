@@ -1,17 +1,17 @@
 {:paths ["src"]
  :aliases {:test {:extra-paths ["test"]}}
- :deps {thheller/shadow-cljs {:mvn/version "2.20.4"}
+ :deps {thheller/shadow-cljs {:mvn/version "2.20.12"}
         #_#_org.clojure/clojurescript {:mvn/version "1.11.51"}
         ;; reagent/reagent {:mvn/version "1.0.0"}
-        cljsjs/react {:mvn/version "18.2.0-0"}
-        cljsjs/react-dom {:mvn/version "18.2.0-0"}
-        cljsjs/react-dom-server {:mvn/version "18.2.0-0"}
+        cljsjs/react {:mvn/version "18.2.0-1"}
+        cljsjs/react-dom {:mvn/version "18.2.0-1"}
+        cljsjs/react-dom-server {:mvn/version "18.2.0-1"}
         io.nervous/cljs-nodejs-externs {:mvn/version "0.2.0"}
         reagent/reagent {:git/url "https://github.com/borkdude/nbb-reagent"
                          :git/sha "315d702436719ea3a9a356773d6a10038ce9ea75"}
-        funcool/promesa {:mvn/version "9.1.536"}
+        funcool/promesa {:mvn/version "9.2.541"}
         applied-science/js-interop {:mvn/version "0.3.3"}
-        cljs-bean/cljs-bean {:mvn/version "1.8.0"}
+        cljs-bean/cljs-bean {:mvn/version "1.9.0"}
         org.babashka/sci
         #_{:local/root "../babashka/sci"}
         #_{:mvn/version "0.3.5"}
@@ -24,7 +24,7 @@
         org.babashka/cli {:mvn/version "0.5.40"}
         babashka/sci
         {:git/url "https://github.com/babashka/sci"
-         :git/sha "98b118daae0b0c79c479ddfe5602237bdb334ca5"}
+         :git/sha "61d92ad3f08f83568fb25301c80fbd591f02f96b"}
         #_{:local/root "/Users/borkdude/dev/babashka/sci"}
         io.github.babashka/sci.configs {:git/url "https://github.com/babashka/sci.configs"
-                                        :git/sha "2717e545e5a61d4cccd85350b9ad6265afc9146c"}}}
+                                        :git/sha "0702ea5a21ad92e6d7cca6d36de84271083ea68f"}}}
