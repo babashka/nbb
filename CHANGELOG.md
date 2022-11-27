@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.1.150 (2022-11-27)
+
+- Downgrade shadow-cljs due to [#278](https://github.com/babashka/nbb/issues/278)
+
 ## 1.1.149 (2022-11-24)
 
 - Add `cljs.pprint/cl-format`
