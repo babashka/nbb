@@ -249,8 +249,7 @@
     (let [session (:new-session (read-msg (bencode/read-bencode in)))
           id (atom 0)
           new-id! #(swap! id inc)]
-      (doseq [pprint-fn ["clojure.pprint/pprint"
-                         "cider.nrepl.pprint/pprint"]]
+      (doseq [pprint-fn ["cider.nrepl.pprint/pprint"]]
         (testing "print"
           (bencode/write-bencode os {"op" "eval"
                                      "code" "(range 20)"

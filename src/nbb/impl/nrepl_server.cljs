@@ -73,9 +73,7 @@
 (def last-ns (atom nil))
 
 (def pretty-print-fns-map
-  {"clojure.core/prn" prn
-   "clojure.pprint/pprint" pp/pprint
-   "cider.nrepl.pprint/pprint" pp/pprint})
+  {"cider.nrepl.pprint/pprint" pp/write})
 
 (defn format-value [nrepl-pprint pprint-options value]
   (if nrepl-pprint
