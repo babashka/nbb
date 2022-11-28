@@ -6,7 +6,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 ## 1.1.150 (2022-11-27)
 
-- Downgrade shadow-cljs due to [#278](https://github.com/babashka/nbb/issues/278)
+- Downgrade shadow-cljs due to [#287](https://github.com/babashka/nbb/issues/287)
 
 ## 1.1.149 (2022-11-24)
 
