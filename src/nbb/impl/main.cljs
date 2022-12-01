@@ -1,9 +1,7 @@
 (ns nbb.impl.main
   (:require
-   ["fs" :as fs]
    ["path" :as path]
    [babashka.cli :as cli]
-   [clojure.edn :as edn]
    [clojure.string :as str]
    [nbb.api :as api]
    [nbb.classpath :as cp]
@@ -28,6 +26,29 @@
                               "2" main-fn)))]
     expr))
 
+(defn exec-expr
+  [exec-fn]
+  (let [exec-fn (symbol exec-fn)
+        ns (namespace exec-fn)
+        expr (str/replace "
+(require '[babashka.cli])
+(require '$1)
+(let [the-var (resolve '$2)
+      the-var-meta (meta the-var)
+      ns (:ns (meta the-var))
+      ns-meta (meta ns)
+      cli-opts (babashka.cli/merge-opts (:org.babashka/cli ns-meta)
+                                        (:org.babashka/cli the-var-meta))
+      opts (babashka.cli/parse-opts *command-line-args* cli-opts)]
+  (the-var opts))
+"
+                          #"\$(\d)"
+                          (fn [match]
+                            (case (second match)
+                              "1" ns
+                              "2" exec-fn)))]
+    expr))
+
 (defn parse-args [args]
   (loop [opts {}
          args args]
@@ -42,6 +63,10 @@
           ("-m" "--main")
           (assoc opts
                  :expr (main-expr (first nargs))
+                 :args (next nargs))
+          ("-x" "--exec")
+          (assoc opts
+                 :expr (exec-expr (first nargs))
                  :args (next nargs))
           ("-cp" "--classpath")
           (recur (assoc opts :classpath (first nargs))
@@ -87,8 +112,9 @@ Global options:
 
 Evaluation:
 
- -e: execute expression.
- -m / --main: execute main function.
+ -e: execute expression
+ -m / --main: execute main function
+ -x / --exec: execute function using babashka.cli
 
 REPL:
 
@@ -96,8 +122,8 @@ REPL:
  nrepl-server: start nrepl server. [1,2]
  socket-repl: start socket repl server. [1]
 
- 1: Provide :port <port> to specify port.
- 2: Provide :host <host> to specify host.
+ 1: Provide :port <port> to specify port
+ 2: Provide :host <host> to specify host
 
 Tooling:
 

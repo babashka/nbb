@@ -4,6 +4,12 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.1.151 (2022-12-01)
+
+- Add support for executing function using [babashka.cli](https://github.com/babashka/cli):
+
+    nbb -x foo.bar/baz --flag --option 1
+
 ## 1.1.150 (2022-11-27)
 
 - Downgrade shadow-cljs due to [#287](https://github.com/babashka/nbb/issues/287)

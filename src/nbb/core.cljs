@@ -4,6 +4,7 @@
    ["fs" :as fs]
    ["path" :as path]
    ["url" :as url]
+   [babashka.cli]
    [clojure.edn :as edn]
    [clojure.string :as str]
    [edamame.core]
@@ -525,6 +526,11 @@
    'transpose gobj/transpose
    'unsafeClone gobj/unsafeClone})
 
+(def cli-ns (sci/create-ns 'babashka.cli nil))
+
+(def cli-namespace
+  (sci/copy-ns babashka.cli cli-ns))
+
 (store/reset-ctx!
  (sci/init
   {:namespaces {'clojure.core {'*command-line-args* command-line-args
@@ -570,7 +576,8 @@
                 'nbb.classpath {'add-classpath (sci/copy-var cp/add-classpath cp-ns)
                                 'get-classpath (sci/copy-var cp/get-classpath cp-ns)}
                 'goog.object goog-object-ns
-                'edamame.core (sci/copy-ns edamame.core (sci/create-ns 'edamame.core))}
+                'edamame.core (sci/copy-ns edamame.core (sci/create-ns 'edamame.core))
+                'babashka.cli cli-namespace}
    :classes {'js universe :allow :all
              'goog.object (clj->js goog-object-ns)
              'ExceptionInfo ExceptionInfo
