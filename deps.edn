@@ -21,7 +21,7 @@
         com.cognitect/transit-cljs {:mvn/version "0.8.280"}
         #_#_prismatic/schema {:mvn/version "1.3.0"}
         #_#_metosin/malli {:mvn/version "0.8.8"}
-        org.babashka/cli {:mvn/version "0.5.40"}
+        org.babashka/cli {:mvn/version "0.6.41"}
         #_{:local/root "/Users/borkdude/dev/babashka/sci"}
         io.github.babashka/sci.configs {:git/url "https://github.com/babashka/sci.configs"
                                         :git/sha "0702ea5a21ad92e6d7cca6d36de84271083ea68f"}}}
