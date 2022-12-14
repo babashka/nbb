@@ -19,8 +19,11 @@
         syms (remove #(str/starts-with? (str %) "nbb.internal") syms)]
     syms))
 
+(defn literal-regex [s]
+  (re-pattern (str/replace s #"[.*+?^${}()|\[\]\\]" "\\$&")))
+
 (defn match [_alias->ns ns->alias query [sym-ns sym-name qualifier]]
-  (let [pat (re-pattern query)]
+  (let [pat (literal-regex query)]
     (or (when (and (= :unqualified qualifier) (re-find pat sym-name))
           [sym-ns sym-name])
         (when sym-ns

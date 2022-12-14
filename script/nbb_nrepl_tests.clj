@@ -180,6 +180,12 @@
               msg (read-reply in session @id)
               status (:status msg)
               _ (is (= ["done"] status))])
+        (bencode/write-bencode os {"op" "eval" "code" "(def *** 1)"
+                                   "session" session "id" (new-id!)})
+        (let [_ (read-reply in session @id)
+              msg (read-reply in session @id)
+              status (:status msg)
+              _ (is (= ["done"] status))])
         (testing "SCI var completions"
           (bencode/write-bencode os
                                  {"op" "complete" "symbol" "nbb/"
@@ -189,6 +195,15 @@
                 completions (set (map read-msg completions))]
             (is (contains? completions {:candidate "nbb/load-string", :ns "nbb.core"}))
             (is (contains? completions {:candidate "nbb/await",       :ns "nbb.core"}))))
+        (testing "special characters"
+          (bencode/write-bencode os
+                                 {"op" "complete" "symbol" "*"
+                                  "session" session "id" (new-id!)})
+          (let [msg (read-reply in session @id)
+                completions (:completions msg)
+                completions (set (map read-msg completions))]
+            (is (contains? completions {:candidate "***", :ns "user"}))
+            (is (contains? completions {:candidate "*print-readably*", :ns "clojure.core"}))))
         (testing "JS import completions"
           (bencode/write-bencode os
                                  {"op" "complete" "symbol" "fs/"
