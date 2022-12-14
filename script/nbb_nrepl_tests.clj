@@ -202,7 +202,6 @@
           (let [msg (read-reply in session @id)
                 completions (:completions msg)
                 completions (set (map read-msg completions))]
-            (prn completions)
             (is (contains? completions {:candidate "***", :ns "user"}))
             (is (contains? completions {:candidate "*print-readably*", :ns "clojure.core"}))))
         (testing "JS import completions"
