@@ -331,9 +331,7 @@
 (defn parse-next [reader]
   (sci/parse-next (store/get-ctx) reader
                   {:features #{:org.babashka/nbb
-                               :cljs}
-                   :readers {'queue (fn [x]
-                                      `(into cljs.core/PersistentQueue.EMPTY ~x))}}))
+                               :cljs}}))
 
 (declare eval-next)
 
@@ -581,8 +579,7 @@
    :classes {'js universe :allow :all
              'goog.object (clj->js goog-object-ns)
              'ExceptionInfo ExceptionInfo
-             'Math js/Math
-             'cljs.core #js {:PersistentQueue #js {:EMPTY cljs.core/PersistentQueue.EMPTY }}}}))
+             'Math js/Math}}))
 
 (def old-require (sci/eval-form (store/get-ctx) 'require))
 
