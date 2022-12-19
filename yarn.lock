@@ -523,7 +523,7 @@
 
 "nbb@.":
   "resolved" "file:"
-  "version" "1.1.151"
+  "version" "1.1.152"
   dependencies:
     "import-meta-resolve" "^2.1.0"
 
