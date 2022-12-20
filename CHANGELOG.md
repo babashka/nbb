@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.1.153
+
+- Upgrade SCI with performance improvements
+
 ## 1.1.152
 
 - [#288](https://github.com/babashka/nbb/issues/288): escape regex when searching for completions in REPL
