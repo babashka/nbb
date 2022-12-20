@@ -581,6 +581,8 @@
              'ExceptionInfo ExceptionInfo
              'Math js/Math}}))
 
+(sci/enable-unrestricted-access!)
+
 (def old-require (sci/eval-form (store/get-ctx) 'require))
 
 (def ^:dynamic *old-require* false)
