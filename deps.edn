@@ -16,7 +16,7 @@
         #_{:local/root "../babashka/sci"}
         #_{:mvn/version "0.3.5"}
         {:git/url "https://github.com/babashka/sci"
-         :git/sha "9293e65c77a4c288e89a8f9d2988c678ef335b8b"}
+         :git/sha "39ce36540eb4c2c6adc74c23ea76ac6330ca7835"}
         org.clojure/tools.cli {:mvn/version "1.0.214"}
         com.cognitect/transit-cljs {:mvn/version "0.8.280"}
         #_#_prismatic/schema {:mvn/version "1.3.0"}
