@@ -4,6 +4,11 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.1.154
+
+- Lazy load `cljs.pprint` for better startup time
+- Update SCI: faster field access
+
 ## 1.1.153
 
 - Upgrade SCI with performance improvements
