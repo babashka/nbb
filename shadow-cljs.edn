@@ -42,7 +42,7 @@
                     :depends-on #{:nbb_core}}
 
     :nbb_pprint {:init-fn nbb.pprint/init
-                 :depends-on #{ :nbb_core}
+                 :depends-on #{:nbb_core}
                  :entries [cljs.pprint]}
     :nbb_tools_cli {:init-fn nbb.impl.tools-cli/init
                     :depends-on #{:nbb_core :nbb_goog_string}}
