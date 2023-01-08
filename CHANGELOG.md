@@ -4,7 +4,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
-## Unreleased
+## 1.1.158
 
 - [#294](https://github.com/babashka/nbb/issues/294): support multiple values in code input in nREPL eval message
 
