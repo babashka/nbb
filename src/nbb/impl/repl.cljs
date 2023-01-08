@@ -7,8 +7,7 @@
    [nbb.api :as api]
    [nbb.core :as nbb]
    [nbb.impl.repl-utils :refer [handle-complete*]]
-   [sci.core :as sci]
-   [sci.ctx-store :as store])
+   [sci.core :as sci])
   (:require-macros [nbb.macros :as macros]))
 
 (def last-ns (atom @sci/ns))
@@ -111,22 +110,12 @@
             (do (erase-processed rdr)
                 (if-not (= :sci.core/eof the-val)
                   (macros/with-async-bindings {sci/ns @last-ns}
-                    ;; (prn :pending @pending)
                     (-> (eval-expr
                          socket
-                         #(nbb/eval-next nil nil
-                                         {:ns @last-ns
-                                          :file @sci/file
-                                          :wrap vector
-                                          ;; TODO this is a huge workaround
-                                          ;; we should instead re-organize the code in nbb.core
-                                          :parse-fn (let [realized? (atom false)]
-                                                      (fn [_]
-                                                        (if-not @realized?
-                                                          (do
-                                                            (reset! realized? true)
-                                                            the-val)
-                                                          :sci.core/eof)))}))
+                         #(nbb/eval-next* the-val
+                                          {:ns @last-ns
+                                           :file @sci/file
+                                           :wrap vector}))
                         (.then (fn [v]
                                  (let [[val {:keys [ns]}] v]
                                    (reset! last-ns ns)

@@ -4,9 +4,9 @@
    [babashka.wait :refer [wait-for-port]]
    [bencode.core :as bencode]
    [clojure.string :as str]
-   [clojure.test :as t :refer [deftest is testing]])
+   [clojure.test :as t :refer [deftest is testing]]
+   [test-utils])
   (:import [java.net Socket]))
-
 
 (def debug? false)
 
@@ -83,6 +83,7 @@
                                    "session" session "id" (new-id!)})
         (let [_msg (read-reply in session @id)
               _msg (read-reply in session @id)
+              _done-msg (read-reply in session @id)
               msg (read-reply in session @id)
               out (:out msg)
               _ (is (= "{:delayed-by \"1 second\"}" out))]))
@@ -375,6 +376,7 @@
                                    "(ns example)\n(defmacro foo [] 'lul)"
                                    "session" session "id" (new-id!)})
         (let [_ (read-reply in session @id)
+              _msg (read-reply in session @id)
               msg (read-reply in session @id)
               status (:status msg)
               _ (is (= ["done"] status))])
@@ -394,6 +396,34 @@
                                   "session" session "id" (new-id!)})
           (let [msg (read-reply in session @id)
                 _ (is (= (:expansion msg) "(if (quote foo) (do (quote bar)))"))])))
+      (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
+                                 "session" session "id" (new-id!)}))))
+
+(deftest eval-multiple-test
+  (nrepl-server)
+  (wait-for-port "localhost" @port)
+  (with-open [socket (Socket. "127.0.0.1" @port)
+              in (.getInputStream socket)
+              in (java.io.PushbackInputStream. in)
+              os (.getOutputStream socket)]
+    (bencode/write-bencode os {"op" "clone"})
+    (let [session (:new-session (read-msg (bencode/read-bencode in)))
+          id (atom 0)
+          new-id! #(swap! id inc)]
+      (testing "send multiple values to be evaluated"
+        (bencode/write-bencode os {"op" "eval"
+                                   "code"
+                                   "(+ 1 2 3) (ns dude) (defn foo [] 1) (foo)"
+                                   "session" session "id" (new-id!)})
+        (let [msg (read-reply in session @id)
+              _ (is (= "6" (:value msg)))
+              _msg (read-reply in session @id) ;; ns
+              msg (read-reply in session @id)
+              _ (is (= "#'dude/foo" (:value msg)))
+              msg (read-reply in session @id)
+              _ (is (= "1" (:value msg)))
+              msg (read-reply in session @id)
+              _ (is (= ["done"] (:status msg)))]))
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (new-id!)}))))
 

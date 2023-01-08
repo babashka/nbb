@@ -88,42 +88,58 @@
         (pr-str value)))
     (pr-str value)))
 
+(defn send-value [request send-fn v]
+  (let [[v opts] v
+        sci-ns (:ns opts)]
+    (reset! last-ns sci-ns)
+    (sci/alter-var-root sci/*3 (constantly @sci/*2))
+    (sci/alter-var-root sci/*2 (constantly @sci/*1))
+    (sci/alter-var-root sci/*1 (constantly v))
+    (let [v (format-value (:nrepl.middleware.print/print request)
+                          (:nrepl.middleware.print/options request)
+                          v)]
+      (send-fn request {"value" v
+                        "ns" (str sci-ns)}))))
+
 (defn do-handle-eval [{:keys [ns code file
                               _load-file? _line] :as request} send-fn]
-  (with-async-bindings
-    {sci/ns ns
-     sci/file file
-     sci/print-length @sci/print-length
-     sci/print-newline true}
-    ;; we alter-var-root this because the print-fn may go out of scope in case
-    ;; of returned delays
-    (sci/alter-var-root sci/print-fn (constantly
-                                      (fn [s]
-                                        (send-fn request {"out" s}))))
-    (-> (nbb/eval-next nil (sci/reader code) {:ns ns
-                                              :file file
-                                              :wrap vector})
-        (.then (fn [v]
-                 (let [[v opts] v
-                       sci-ns (:ns opts)]
-                   (reset! last-ns sci-ns)
-                   (sci/alter-var-root sci/*3 (constantly @sci/*2))
-                   (sci/alter-var-root sci/*2 (constantly @sci/*1))
-                   (sci/alter-var-root sci/*1 (constantly v))
-                   (let [v (format-value (:nrepl.middleware.print/print request)
-                                         (:nrepl.middleware.print/options request)
-                                         v)]
-                     (send-fn request {"value" v
-                                       "ns" (str sci-ns)})))
-                 (send-fn request {"status" ["done"]})))
-        (.catch (fn [e]
-                  (sci/alter-var-root sci/*e (constantly e))
-                  (let [data (ex-data e)]
-                    (when-let [message (or (:message data) (.-message e))]
-                      (send-fn request {"err" (str message "\n")}))
-                    (send-fn request {"ex" (str e)
-                                      "ns" (str @sci/ns)
-                                      "status" ["done"]})))))))
+  (let [rdr (sci/reader code)
+        loop-fn (fn loop-fn [prev-val]
+                  (let [ns (or (:ns (second prev-val)) @last-ns ns)
+                        next-val (nbb/read-next rdr {:ns ns
+                                                     :file file
+                                                     :wrap vector})]
+                    (if (= :sci.core/eof next-val)
+                      (js/Promise.resolve prev-val)
+                      (let [v (nbb/eval-next* next-val {:ns ns
+                                                        :file file
+                                                        :wrap vector})]
+                        (.then v
+                               (fn [v]
+                                 ;; (prn :v v)
+                                 (send-value request send-fn v)
+                                 (loop-fn v)))))))]
+    (with-async-bindings
+      {sci/ns ns
+       sci/file file
+       sci/print-length @sci/print-length
+       sci/print-newline true}
+      ;; we alter-var-root this because the print-fn may go out of scope in case
+      ;; of returned delays
+      (sci/alter-var-root sci/print-fn (constantly
+                                        (fn [s]
+                                          (send-fn request {"out" s}))))
+      (-> (loop-fn nil)
+          (.catch (fn [e]
+                    (sci/alter-var-root sci/*e (constantly e))
+                    (let [data (ex-data e)]
+                      (when-let [message (or (:message data) (.-message e))]
+                        (send-fn request {"err" (str message "\n")}))
+                      (send-fn request {"ex" (str e)
+                                        "ns" (str @sci/ns)}))))
+          (.finally (fn []
+                      (send-fn request {"ns" (str last-ns)
+                                        "status" ["done"]})))))))
 
 (defn handle-eval [{:keys [ns] :as request} send-fn]
   (do-handle-eval (assoc request :ns (or (when ns
