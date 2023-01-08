@@ -16,7 +16,8 @@
    [sci.impl.unrestrict :refer [*unrestricted*]]
    [sci.impl.vars :as vars]
    [sci.lang]
-   [shadow.esm :as esm])
+   [shadow.esm :as esm]
+   [cljs.tools.reader.reader-types])
   (:require-macros [nbb.macros :as macros]))
 
 (set! *unrestricted* true)
@@ -335,12 +336,12 @@
 
 (declare eval-next)
 
-(defn eval-seq [reader form opts]
+(defn eval-seq [reader form opts eval-next]
   (let [fst (first form)]
     (cond (= 'do fst)
           (reduce (fn [acc form]
                     (.then acc (fn [_]
-                                 (eval-seq reader form opts))))
+                                 (eval-seq reader form opts eval-next))))
                   (js/Promise.resolve nil)
                   (rest form))
           (= 'ns fst)
@@ -378,8 +379,6 @@
 
 (deftype Reject [v])
 
-(defn reader? [rdr]
-  (instance? cljs.tools.reader.reader-types/IndexingPushbackReader rdr))
 
 (defn read-next [reader opts]
   (try (sci/binding [sci/ns (:ns opts)]
@@ -392,14 +391,12 @@
 (defn eval-next
   "Evaluates top level forms asynchronously. Returns promise of last value."
   [prev-val reader opts]
-  (let [rdr? (reader? reader)
-        next-val (if rdr? (read-next reader opts) reader)]
+  (let [next-val (read-next reader opts)]
     (if (instance? js/Promise next-val)
       next-val
-      (if (or (and (not rdr?) (= :eval prev-val))
-              (and rdr? (not= :sci.core/eof next-val)))
+      (if (not= :sci.core/eof next-val)
         (if (seq? next-val)
-          (eval-seq reader next-val opts)
+          (eval-seq reader next-val opts eval-next)
           (let [v (try
                     (sci/binding [sci/ns (:ns opts)
                                   sci/file (:file opts)]
@@ -411,9 +408,40 @@
               (recur v reader opts))))
         ;; wrap normal value in promise
         (js/Promise.resolve
-         (let [wrap (or (:wrap opts)
-                        identity)]
-           (wrap prev-val {:ns (:ns opts)})))))))
+         prev-val)))))
+
+(defn reader? [rdr]
+  (instance? cljs.tools.reader.reader-types/IndexingPushbackReader rdr))
+
+(def init-sentinel (js/Object.))
+
+(defn -eval-next*
+  "Evaluates top level forms asynchronously. Has options for REPL."
+  [prev-val next-val opts]
+  (if (instance? js/Promise next-val)
+    next-val
+    (if (identical? init-sentinel prev-val)
+      (if (seq? next-val)
+        (eval-seq next-val next-val opts -eval-next*)
+        (let [v (try
+                  (sci/binding [sci/ns (:ns opts)
+                                sci/file (:file opts)]
+                    (sci/eval-form (store/get-ctx) next-val))
+                  (catch :default e
+                    (->Reject e)))]
+          (if (instance? Reject v)
+            (js/Promise.reject (.-v v))
+            (recur v next-val opts))))
+      ;; wrap normal value in promise
+      (js/Promise.resolve
+       (let [wrap (or (:wrap opts)
+                      identity)]
+         (wrap prev-val {:ns (:ns opts)}))))))
+
+(defn eval-next*
+  "Evaluates top level forms asynchronously. Has options for REPL."
+  [val opts]
+  (-eval-next* init-sentinel val opts))
 
 (defn eval-string* [s opts]
   (let [reader (sci/reader s)]

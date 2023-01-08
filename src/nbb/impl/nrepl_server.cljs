@@ -111,9 +111,9 @@
                                                      :wrap vector})]
                     (if (= :sci.core/eof next-val)
                       (js/Promise.resolve prev-val)
-                      (let [v (nbb/eval-next :eval next-val {:ns ns
-                                                             :file file
-                                                             :wrap vector})]
+                      (let [v (nbb/eval-next* next-val {:ns ns
+                                                        :file file
+                                                        :wrap vector})]
                         (.then v
                                (fn [v]
                                  ;; (prn :v v)

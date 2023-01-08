@@ -112,10 +112,10 @@
                   (macros/with-async-bindings {sci/ns @last-ns}
                     (-> (eval-expr
                          socket
-                         #(nbb/eval-next :eval the-val
-                                         {:ns @last-ns
-                                          :file @sci/file
-                                          :wrap vector}))
+                         #(nbb/eval-next* the-val
+                                          {:ns @last-ns
+                                           :file @sci/file
+                                           :wrap vector}))
                         (.then (fn [v]
                                  (let [[val {:keys [ns]}] v]
                                    (reset! last-ns ns)
