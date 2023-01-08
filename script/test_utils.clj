@@ -6,6 +6,8 @@
                   str/lower-case
                   (str/starts-with? "win")))
 
+(defmethod clojure.test/report :begin-test-var [m]
+  (println "====" (:name (meta (:var m)))))
 
 (defmethod clojure.test/report :end-test-var [_m]
   (when-let [rc *report-counters*]

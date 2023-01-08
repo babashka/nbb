@@ -4,9 +4,9 @@
    [babashka.wait :refer [wait-for-port]]
    [bencode.core :as bencode]
    [clojure.string :as str]
-   [clojure.test :as t :refer [deftest is testing]])
+   [clojure.test :as t :refer [deftest is testing]]
+   [test-utils])
   (:import [java.net Socket]))
-
 
 (def debug? false)
 
