@@ -114,16 +114,17 @@
                                          (:nrepl.middleware.print/options request)
                                          v)]
                      (send-fn request {"value" v
-                                       "ns" (str sci-ns)})))
-                 (send-fn request {"status" ["done"]})))
+                                       "ns" (str sci-ns)})))))
         (.catch (fn [e]
                   (sci/alter-var-root sci/*e (constantly e))
                   (let [data (ex-data e)]
                     (when-let [message (or (:message data) (.-message e))]
                       (send-fn request {"err" (str message "\n")}))
                     (send-fn request {"ex" (str e)
-                                      "ns" (str @sci/ns)
-                                      "status" ["done"]})))))))
+                                      "ns" (str @sci/ns)}))))
+        (.finally (fn []
+                    (send-fn request {"ns" (str last-ns)
+                                      "status" ["done"]}))))))
 
 (defn handle-eval [{:keys [ns] :as request} send-fn]
   (do-handle-eval (assoc request :ns (or (when ns
