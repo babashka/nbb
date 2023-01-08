@@ -378,18 +378,26 @@
 
 (deftype Reject [v])
 
+(defn reader? [rdr]
+  (instance? cljs.tools.reader.reader-types/IndexingPushbackReader rdr))
+
+(defn read-next [reader opts]
+  (try (sci/binding [sci/ns (:ns opts)]
+         (if-let [parse-fn (:parse-fn opts)]
+           (parse-fn reader)
+           (parse-next reader)))
+       (catch :default e
+         (js/Promise.reject e))))
+
 (defn eval-next
   "Evaluates top level forms asynchronously. Returns promise of last value."
   [prev-val reader opts]
-  (let [next-val (try (sci/binding [sci/ns (:ns opts)]
-                        (if-let [parse-fn (:parse-fn opts)]
-                          (parse-fn reader)
-                          (parse-next reader)))
-                      (catch :default e
-                        (js/Promise.reject e)))]
+  (let [rdr? (reader? reader)
+        next-val (if rdr? (read-next reader opts) reader)]
     (if (instance? js/Promise next-val)
       next-val
-      (if (not= :sci.core/eof next-val)
+      (if (or (and (not rdr?) (= :eval prev-val))
+              (and rdr? (not= :sci.core/eof next-val)))
         (if (seq? next-val)
           (eval-seq reader next-val opts)
           (let [v (try
