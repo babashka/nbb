@@ -105,7 +105,8 @@
                               _load-file? _line] :as request} send-fn]
   (let [rdr (sci/reader code)
         loop-fn (fn loop-fn [prev-val]
-                  (let [next-val (nbb/read-next rdr {:ns ns
+                  (let [ns (or (:ns (second prev-val)) @last-ns ns)
+                        next-val (nbb/read-next rdr {:ns ns
                                                      :file file
                                                      :wrap vector})]
                     (if (= :sci.core/eof next-val)
@@ -115,6 +116,7 @@
                                                              :wrap vector})]
                         (.then v
                                (fn [v]
+                                 ;; (prn :v v)
                                  (send-value request send-fn v)
                                  (loop-fn v)))))))]
     (with-async-bindings
