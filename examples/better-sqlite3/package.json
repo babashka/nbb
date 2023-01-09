@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "better-sqlite3": "^7.4.6"
+    "better-sqlite3": "^7.4.6",
+    "nbb": "^1.1.158"
   }
 }
-
