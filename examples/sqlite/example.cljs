@@ -1,6 +1,6 @@
 (ns example
   (:require
-   ["sqlite$default" :refer [open]]
+   ["sqlite" :refer [open]]
    ["sqlite3$default" :as sqlite]
    [promesa.core :as p]))
 
