@@ -595,7 +595,8 @@
                                'PersistentVector (sci/copy-var PersistentVector core-ns)
                                'IFn (sci/copy-var IFn core-ns)
                                'swap-vals! (sci/copy-var swap-vals! core-ns)
-                               'reset-vals! (sci/copy-var reset-vals! core-ns)}
+                               'reset-vals! (sci/copy-var reset-vals! core-ns)
+                               'iter (sci/copy-var iter core-ns)}
                 'cljs.reader {'read-string (sci/copy-var edn/read-string (sci/create-ns 'cljs.reader))}
                 'clojure.main {'repl-requires (sci/copy-var
                                                repl-requires
