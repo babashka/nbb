@@ -6,6 +6,8 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 ## 1.2.159
 
+- [#296](https://github.com/babashka/nbb/discussions/296): expose pretty printing errors in JS. See [docs](https://github.com/babashka/nbb#printing-errors).
+
 ## 1.1.158
 
 - [#294](https://github.com/babashka/nbb/issues/294): support multiple values in code input in nREPL eval message
