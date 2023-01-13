@@ -187,7 +187,7 @@ Tooling:
                              (prn val))
                            val))
                   (.catch (fn [err]
-                            (error/error-handler err opts)
+                            (error/print-error-report err opts)
                             (when (:debug opts)
                               (js/console.error err))
                             (throw (js/Error. (ex-message err))))))))))

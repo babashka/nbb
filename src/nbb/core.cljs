@@ -17,7 +17,8 @@
    [sci.impl.vars :as vars]
    [sci.lang]
    [shadow.esm :as esm]
-   [cljs.tools.reader.reader-types])
+   [cljs.tools.reader.reader-types]
+   [nbb.error :as nbb.error])
   (:require-macros [nbb.macros :as macros]))
 
 (set! *unrestricted* true)
@@ -565,6 +566,15 @@
 (def cli-namespace
   (sci/copy-ns babashka.cli cli-ns))
 
+(def ens
+  (sci/create-ns 'nbb.error))
+
+(defn print-error-report [e]
+  (nbb.error/print-error-report e @opts))
+
+(def sns
+  (sci/create-ns 'sci.core nil))
+
 (store/reset-ctx!
  (sci/init
   {:namespaces {'clojure.core {'*command-line-args* command-line-args
@@ -611,9 +621,12 @@
                            'time (sci/copy-var time* nbb-ns)}
                 'nbb.classpath {'add-classpath (sci/copy-var cp/add-classpath cp-ns)
                                 'get-classpath (sci/copy-var cp/get-classpath cp-ns)}
+                'nbb.error {'print-error-report (sci/copy-var print-error-report ens)}
                 'goog.object goog-object-ns
                 'edamame.core (sci/copy-ns edamame.core (sci/create-ns 'edamame.core))
-                'babashka.cli cli-namespace}
+                'babashka.cli cli-namespace
+                'sci.core {'stacktrace (sci/copy-var sci/stacktrace sns)
+                           'format-stacktrace (sci/copy-var sci/format-stacktrace sns)}}
    :classes {'js universe :allow :all
              'goog.object (clj->js goog-object-ns)
              'ExceptionInfo ExceptionInfo
