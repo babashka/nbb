@@ -650,7 +650,8 @@ Here's an example of how to print errors from the JS API:
 import { loadString, printErrorReport } from 'nbb'
 
 try {
-  await loadString(`(assoc :foo :bar)`) }
+  await loadString(`(assoc :foo :bar)`)
+}
 catch (e) {
   printErrorReport(e);
   process.exit(1);
