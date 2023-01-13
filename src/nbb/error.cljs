@@ -77,7 +77,7 @@
                        ;; print nil as nil
                        (prn v)))))))
 
-(defn error-handler [e opts]
+(defn print-error-report [e opts]
   (let [stacktrace (sci/stacktrace e)
         d (ex-data e)
         sci-error? (isa? (:type d) :sci/error)]

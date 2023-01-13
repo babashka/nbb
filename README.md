@@ -617,7 +617,7 @@ See [API](doc/api.md) documentation with a list of built-in Clojure libraries.
 
 ## Calling nbb from JavaScript
 
-You can load `nbb` from JavaScript. Exposed functions are `loadFile`, `loadString`, `addClassPath` and `getClassPath`.
+You can load `nbb` from JavaScript. Exposed functions are `loadFile`, `loadString`, `addClassPath`, `getClassPath` and `printErrorReport`.
 
 An example:
 
@@ -640,6 +640,21 @@ const { foo } = await loadFile('example.cljs')
 
 // execute the foo function
 foo();
+```
+
+### Printing errors
+
+Here's an example of how to print errors from the JS API:
+
+``` javascript
+import { loadString, printErrorReport } from 'nbb'
+
+try {
+  await loadString(`(assoc :foo :bar)`) }
+catch (e) {
+  printErrorReport(e);
+  process.exit(1);
+}
 ```
 
 ## Videos

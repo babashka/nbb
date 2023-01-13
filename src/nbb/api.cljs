@@ -80,3 +80,5 @@
 (defn registerModule [mod libname]
   (let [internal (nbb/libname->internal-name libname)]
     (nbb/register-module mod internal)))
+
+(def printErrorReport nbb/print-error-report)

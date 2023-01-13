@@ -22,6 +22,10 @@ the following namespaces:
   writes to socket. Accepts optional `opts` map with `:port`. Returns promise
   which is resolved when input is closed.
 
+### nbb.error
+
+- `(print-error-report e)`: print error report. Example: `(try (assoc :foo :bar) (catch ^:sci/error js/Error e (nbb.error/print-error-report e)))`
+
 ## Promesa
 
 See [promesa docs](https://cljdoc.org/d/funcool/promesa/6.0.2/doc/user-guide).

@@ -24,7 +24,8 @@
                         getClassPath nbb.api/getClassPath
                         addClassPath nbb.api/addClassPath
                         version nbb.api/version
-                        registerModule nbb.api/registerModule}
+                        registerModule nbb.api/registerModule
+                        printErrorReport nbb.api/printErrorReport}
               :depends-on #{:nbb_core}}
     :nbb_reagent {:init-fn nbb.impl.reagent/init
                   :entries [reagent.core]
