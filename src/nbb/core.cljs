@@ -569,8 +569,11 @@
 (def ens
   (sci/create-ns 'nbb.error))
 
-(defn print-error-report [e]
-  (nbb.error/print-error-report e @opts))
+(defn print-error-report
+  ([e]
+   (print-error-report e @opts))
+  ([e opts]
+   (nbb.error/print-error-report e opts)))
 
 (def sns
   (sci/create-ns 'sci.core nil))

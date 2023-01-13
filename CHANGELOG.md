@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.2.160
+
+- [#300](https://github.com/babashka/nbb/issues/300): write `print-error-report` to `*print-err-fn*`
+
 ## 1.2.159
 
 - [#296](https://github.com/babashka/nbb/discussions/296): expose pretty printing errors in JS. See [docs](https://github.com/babashka/nbb#printing-errors).

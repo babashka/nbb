@@ -26,3 +26,4 @@ doc/bundle/out.mjs
 bun.lockb
 .nbb
 scratch.mjs
+scratch.cljs

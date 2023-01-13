@@ -274,6 +274,25 @@
              (fn [val]
                (is (= #queue [1 2 3] val))))))
 
+(deftest-async print-error-report-test
+  (-> (nbb/load-string "
+(require '[nbb.error :refer [print-error-report]]
+         '[clojure.string :as str])
+
+(def result
+  (try
+    (assoc :foo :bar)
+    (catch ^:sci/error js/Error e
+      (let [lines (atom [])]
+        (binding [*print-err-fn* #(swap! lines conj %)]
+          (print-error-report e))
+        (str/join \"\n\" @lines)))))
+
+result")
+      (.then (fn [val]
+               (is (str/includes? val "Message:  No protocol method IAssociative"))
+               (is (str/includes? val "----- Error -----"))))))
+
 (defn init []
   (t/run-tests 'nbb.main-test 'nbb.test-test))
 

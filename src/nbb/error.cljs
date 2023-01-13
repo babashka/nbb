@@ -7,7 +7,7 @@
    [sci.core :as sci]))
 
 (defn println [& strs]
-  (.error js/console (str/join " " strs)))
+  (sci/print-err-fn (str/join " " strs)))
 
 (defn ruler [title]
   (println (apply str "----- " title " " (repeat (- 50 7 (count title)) \-))))
@@ -77,42 +77,44 @@
                        ;; print nil as nil
                        (prn v)))))))
 
-(defn print-error-report [e opts]
-  (let [stacktrace (sci/stacktrace e)
-        d (ex-data e)
-        sci-error? (isa? (:type d) :sci/error)]
-    (ruler "Error")
-    (when-let [name (.-name e)]
-      (when-not (= "Error" name)
-        (println "Type:    " name)))
-    (when-let [m (.-message e)]
-      (println (str "Message:  " m)))
-    (when (:debug opts)
-      (when-let [d (ex-data (ex-cause e) #_(.getCause e))]
-        (print (str "Data:     "))
-        (prn d)))
-    (let [{:keys [:file :line :column]} d]
-      (when line
-        (println (str "Location: "
-                      (when file (str file ":"))
-                      line ":" column""))))
-    (when-let [phase (:phase d)]
-      (println "Phase:   " phase))
-    (when-let [ec (when sci-error?
-                    (error-context e))]
-      (println)
-      (ruler "Context")
-      (println ec))
-    (when (:debug opts)
-      (when-let [locals (not-empty (:locals d))]
-        (ruler "Locals")
-        (print-locals locals)))
-    (when sci-error?
-      (when-let
-          [st (let [st (with-out-str
-                         (when stacktrace
-                           (print-stacktrace stacktrace nil #_src-map)))]
-                (when-not (str/blank? st) st))]
-        (println)
-        (ruler "Stack trace")
-        (println st)))))
+(defn print-error-report
+  ([e] (print-error-report e nil))
+  ([e opts]
+   (let [stacktrace (sci/stacktrace e)
+         d (ex-data e)
+         sci-error? (isa? (:type d) :sci/error)]
+     (ruler "Error")
+     (when-let [name (.-name e)]
+       (when-not (= "Error" name)
+         (println "Type:    " name)))
+     (when-let [m (.-message e)]
+       (println (str "Message:  " m)))
+     (when (:debug opts)
+       (when-let [d (ex-data (ex-cause e) #_(.getCause e))]
+         (print (str "Data:     "))
+         (prn d)))
+     (let [{:keys [:file :line :column]} d]
+       (when line
+         (println (str "Location: "
+                       (when file (str file ":"))
+                       line ":" column""))))
+     (when-let [phase (:phase d)]
+       (println "Phase:   " phase))
+     (when-let [ec (when sci-error?
+                     (error-context e))]
+       (println)
+       (ruler "Context")
+       (println ec))
+     (when (:debug opts)
+       (when-let [locals (not-empty (:locals d))]
+         (ruler "Locals")
+         (print-locals locals)))
+     (when sci-error?
+       (when-let
+           [st (let [st (with-out-str
+                          (when stacktrace
+                            (print-stacktrace stacktrace nil #_src-map)))]
+                 (when-not (str/blank? st) st))]
+         (println)
+         (ruler "Stack trace")
+         (println st))))))
