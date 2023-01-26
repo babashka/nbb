@@ -6,11 +6,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 ##  Unreleased
 
-- Upgrade sci configs to `bf8d209e`
-
 ## 1.2.161
 
 - [#302](https://github.com/babashka/nbb/issues/302): top level `do` expressions did not allow non-seq? values
+- Upgrade sci configs to `bf8d209e`
 
 ## 1.2.160
 
