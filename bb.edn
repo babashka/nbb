@@ -90,7 +90,8 @@
                    (run 'clean)
                    (run 'release)
                    (run 'run-tests)
-                   (run 'run-integration-tests))}
+                   (run 'run-integration-tests)
+                   (run 'nrepl-tests))}
 
   ci:test-build {:doc "Runs tests for build library"
                  :requires ([nbb-build-tests]

@@ -138,7 +138,7 @@
                       (send-fn request {"ex" (str e)
                                         "ns" (str @sci/ns)}))))
           (.finally (fn []
-                      (send-fn request {"ns" (str last-ns)
+                      (send-fn request {"ns" (str @last-ns)
                                         "status" ["done"]})))))))
 
 (defn handle-eval [{:keys [ns] :as request} send-fn]
