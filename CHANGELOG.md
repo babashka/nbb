@@ -4,7 +4,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
-##  Unreleased
+##  1.2.162
 
 - [#303](https://github.com/babashka/nbb/issues/303) nREPL server sends bad namespace value in eval responses.
 
