@@ -337,12 +337,19 @@
 
 (declare eval-next)
 
+(defn eval-simple [form opts]
+  (sci/binding [sci/ns (:ns opts)
+                sci/file (:file opts)]
+    (sci/eval-form (store/get-ctx) form)))
+
 (defn eval-seq [reader form opts eval-next]
   (let [fst (first form)]
     (cond (= 'do fst)
           (reduce (fn [acc form]
                     (.then acc (fn [_]
-                                 (eval-seq reader form opts eval-next))))
+                                 (if (seq? form)
+                                   (eval-seq reader form opts eval-next)
+                                   (eval-simple form opts)))))
                   (js/Promise.resolve nil)
                   (rest form))
           (= 'ns fst)
@@ -378,9 +385,6 @@
                (catch :default e
                  (js/Promise.reject e))))))
 
-(deftype Reject [v])
-
-
 (defn read-next [reader opts]
   (try (sci/binding [sci/ns (:ns opts)]
          (if-let [parse-fn (:parse-fn opts)]
@@ -398,15 +402,8 @@
       (if (not= :sci.core/eof next-val)
         (if (seq? next-val)
           (eval-seq reader next-val opts eval-next)
-          (let [v (try
-                    (sci/binding [sci/ns (:ns opts)
-                                  sci/file (:file opts)]
-                      (sci/eval-form (store/get-ctx) next-val))
-                    (catch :default e
-                      (->Reject e)))]
-            (if (instance? Reject v)
-              (js/Promise.reject (.-v v))
-              (recur v reader opts))))
+          (let [v (eval-simple next-val opts)]
+            (recur v reader opts)))
         ;; wrap normal value in promise
         (js/Promise.resolve
          prev-val)))))
@@ -424,15 +421,8 @@
     (if (identical? init-sentinel prev-val)
       (if (seq? next-val)
         (eval-seq next-val next-val opts -eval-next*)
-        (let [v (try
-                  (sci/binding [sci/ns (:ns opts)
-                                sci/file (:file opts)]
-                    (sci/eval-form (store/get-ctx) next-val))
-                  (catch :default e
-                    (->Reject e)))]
-          (if (instance? Reject v)
-            (js/Promise.reject (.-v v))
-            (recur v next-val opts))))
+        (let [v (eval-simple next-val opts)]
+          (recur v next-val opts)))
       ;; wrap normal value in promise
       (js/Promise.resolve
        (let [wrap (or (:wrap opts)

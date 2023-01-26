@@ -8,6 +8,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 - Upgrade sci configs to `bf8d209e`
 
+## 1.2.161
+
+- [#302](https://github.com/babashka/nbb/issues/302): top level `do` expressions did not allow non-seq? values
+
 ## 1.2.160
 
 - [#300](https://github.com/babashka/nbb/issues/300): write `print-error-report` to `*print-err-fn*`

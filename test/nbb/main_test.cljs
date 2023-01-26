@@ -293,6 +293,11 @@ result")
                (is (str/includes? val "Message:  No protocol method IAssociative"))
                (is (str/includes? val "----- Error -----"))))))
 
+(deftest-async do-simple-test
+  (is (.then (nbb/load-string "(do (def x (nbb.core/await (js/Promise.resolve 1))) x)")
+             (fn [val]
+               (is (= 1 val))))))
+
 (defn init []
   (t/run-tests 'nbb.main-test 'nbb.test-test))
 
