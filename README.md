@@ -524,7 +524,17 @@ In Calva connect to the REPL with:
 
 #### CIDER
 
-Currently CIDER needs the following
+Use `cider-jack-in-cljs` as usual to start the nbb nREPL server from within an nbb project
+
+or start an nREPL server from the command line with
+
+``` shell
+$ nbb nrepl-server
+```
+
+and use `cider-connect-cljs` with a ClojureScript REPL type of `nbb` to connect to it.
+
+CIDER prior to v1.6.0, needs the following
 [workaround](https://github.com/clojure-emacs/cider/issues/3061).
 
 See also [this article](https://benjamin-asdf.github.io/faster-than-light-memes/jacking-nbb.html) by Benjamin Scherdtner.

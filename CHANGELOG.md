@@ -6,6 +6,8 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 ##  Unreleased
 
+- [#303](https://github.com/babashka/nbb/issues/303) nREPL server sends bad namespace value in eval responses.
+
 ## 1.2.161
 
 - [#302](https://github.com/babashka/nbb/issues/302): top level `do` expressions did not allow non-seq? values

@@ -74,6 +74,8 @@
               v (:value msg)
               _ (is (= "nil" v))
               msg (read-reply in session @id)
+              ns (:ns msg)
+              _ (is (= "user" ns))
               status (:status msg)
               _ (is (= ["done"] status))]))
       (testing "print with delay"
