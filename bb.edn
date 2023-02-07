@@ -7,7 +7,8 @@
              [cheshire.core :as json]
              [clojure.edn :as edn]
              [clojure.pprint :as pp]
-             [clojure.string :as str])
+             [clojure.string :as str]
+             [proc-wrapper :refer [wrap]])
 
   :init (do
           (def ^:dynamic *test* (= "true" (System/getenv "NBB_TESTS")))
@@ -39,8 +40,9 @@
          (println "Starting shadow-cljs in watch mode.")
          (println "Run node lib/nbb_main.js to test nbb")
          (println "Run bb run-tests to run the tests")
-         (build/build (wrap-cmd "-M -m shadow.cljs.devtools.cli --force-spawn watch modules")
-                      *command-line-args*))}
+         (wrap "[shadow-cljs]"
+               ["clojure -M -m shadow.cljs.devtools.cli --force-spawn watch modules"
+                *command-line-args*]))}
 
   run-tests (shell "node lib/nbb_tests.js")
 
