@@ -101,24 +101,35 @@
       (send-fn request {"value" v
                         "ns" (str sci-ns)}))))
 
+(defn handle-error [send-fn request e]
+  (sci/alter-var-root sci/*e (constantly e))
+  (let [data (ex-data e)]
+    (when-let [message (or (:message data) (.-message e))]
+      (send-fn request {"err" (str message "\n")}))
+    (send-fn request {"ex" (str e)
+                      "ns" (str @sci/ns)})))
+
 (defn do-handle-eval [{:keys [ns code file
                               _load-file? _line] :as request} send-fn]
   (let [rdr (sci/reader code)
         loop-fn (fn loop-fn [prev-val]
-                  (let [ns (or (:ns (second prev-val)) @last-ns ns)
-                        next-val (nbb/read-next rdr {:ns ns
-                                                     :file file
-                                                     :wrap vector})]
-                    (if (= :sci.core/eof next-val)
-                      (js/Promise.resolve prev-val)
-                      (let [v (nbb/eval-next* next-val {:ns ns
-                                                        :file file
-                                                        :wrap vector})]
-                        (.then v
-                               (fn [v]
-                                 ;; (prn :v v)
-                                 (send-value request send-fn v)
-                                 (loop-fn v)))))))]
+                  (try (let [ns (or (:ns (second prev-val)) @last-ns ns)
+                             next-val (nbb/read-next rdr {:ns ns
+                                                          :file file
+                                                          :wrap vector})]
+                         (if (= :sci.core/eof next-val)
+                           (js/Promise.resolve prev-val)
+                           (let [v (nbb/eval-next* next-val {:ns ns
+                                                             :file file
+                                                             :wrap vector})]
+                             (.then v
+                                    (fn [v]
+                                     ;; (prn :v v)
+                                      (send-value request send-fn v)
+                                      (loop-fn v))))))
+                       (catch :default e
+                         (handle-error send-fn request e)
+                         (loop-fn nil))))]
     (with-async-bindings
       {sci/ns ns
        sci/file file
@@ -130,13 +141,7 @@
                                         (fn [s]
                                           (send-fn request {"out" s}))))
       (-> (loop-fn nil)
-          (.catch (fn [e]
-                    (sci/alter-var-root sci/*e (constantly e))
-                    (let [data (ex-data e)]
-                      (when-let [message (or (:message data) (.-message e))]
-                        (send-fn request {"err" (str message "\n")}))
-                      (send-fn request {"ex" (str e)
-                                        "ns" (str @sci/ns)}))))
+          (.catch (partial handle-error send-fn request))
           (.finally (fn []
                       (send-fn request {"ns" (str @last-ns)
                                         "status" ["done"]})))))))
@@ -171,7 +176,7 @@
      (assoc
       request
       :code
-      (str "( " expander "(quote "  code  "))"))
+      (str "( " expander "(quote " code "))"))
      (fn
        [request response]
        (send-fn
@@ -183,7 +188,6 @@
       (send-fn request {"ex" (str e)
                         "ns" (str @sci/ns)
                         "status" ["done"]}))))
-
 
 ;; compare [[babashka.nrepl.impl.server]]
 
@@ -217,26 +221,26 @@
                 line (:line m)
                 reply (case mapping-type
                         :eldoc (cond->
-                                   {"ns" (:ns m)
-                                    "name" (:name m)
-                                    "eldoc" (mapv #(mapv str %) (:arglists m))
-                                    "type" (cond
-                                             (ifn? (:val m)) "function"
-                                             :else "variable")
-                                    "status" ["done"]}
+                                {"ns" (:ns m)
+                                 "name" (:name m)
+                                 "eldoc" (mapv #(mapv str %) (:arglists m))
+                                 "type" (cond
+                                          (ifn? (:val m)) "function"
+                                          :else "variable")
+                                 "status" ["done"]}
                                  doc (assoc "docstring" doc))
                         (:info :lookup) (cond->
-                                            {"ns" (:ns m)
-                                             "name" (:name m)
-                                             "arglists-str" (forms-join (:arglists m))
-                                             "status" ["done"]}
+                                         {"ns" (:ns m)
+                                          "name" (:name m)
+                                          "arglists-str" (forms-join (:arglists m))
+                                          "status" ["done"]}
                                           doc (assoc "doc" doc)
                                           file (assoc "file" file)
                                           line (assoc "line" line)))]
             (send-fn request reply))))
       (catch js/Error e
         (let [status (cond->
-                         #{"done"}
+                      #{"done"}
                        (= mapping-type :eldoc)
                        (conj "no-eldoc"))]
           (send-fn
@@ -249,7 +253,6 @@
                          :load-file? true
                          :ns @sci/ns)
                   send-fn))
-
 
 ;;;; Completions, based on babashka.nrepl
 
@@ -363,7 +366,6 @@
                           (.writeFileSync fs ".nrepl-port" (str port))
                           (catch :default e
                             (warn "Could not write .nrepl-port" e))))))
-           server
            (reset! !server server))))
       #_(let [onExit (js/require "signal-exit")]
           (onExit (fn [_code _signal]

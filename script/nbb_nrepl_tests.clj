@@ -429,6 +429,32 @@
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (new-id!)}))))
 
+(deftest error-test
+  (nrepl-server)
+  (wait-for-port "localhost" @port)
+  (with-open [socket (Socket. "127.0.0.1" @port)
+              in (.getInputStream socket)
+              in (java.io.PushbackInputStream. in)
+              os (.getOutputStream socket)]
+    (bencode/write-bencode os {"op" "clone"})
+    (let [session (:new-session (read-msg (bencode/read-bencode in)))
+          id (atom 0)
+          new-id! #(swap! id inc)]
+      (testing "send multiple values to be evaluated"
+        (bencode/write-bencode os {"op" "eval"
+                                   "code"
+                                   "x (+ 1 2 3)"
+                                   "session" session "id" (new-id!)})
+        (let [msg (read-reply in session @id)
+              _ (is (str/includes? (:err msg) "x"))
+              msg (read-reply in session @id)
+              _ (is (:ex msg))
+              msg (read-reply in session @id)
+              _ (is (= "6" (:value msg)))
+              msg (read-reply in session @id)
+              _ (is (= ["done"] (:status msg)))]))
+      (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
+                                 "session" session "id" (new-id!)}))))
 
 (defn -main [& _]
   (let [{:keys [:error :fail]} (t/run-tests 'nbb-nrepl-tests)]
