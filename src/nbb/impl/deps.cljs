@@ -51,7 +51,9 @@
 
 (defn init
   []
-  (when-let [deps (get-in @opts [:config :deps])]
-    (-> deps
-        (download-and-extract-deps! default-nbb-cache-path)
-        (cp/add-classpath))))
+  (let [config-dir (get @opts :config-dir)
+        cache-path (path/resolve config-dir default-nbb-cache-path)]
+    (when-let [deps (get-in @opts [:config :deps])]
+      (-> deps
+          (download-and-extract-deps! cache-path)
+          (cp/add-classpath)))))
