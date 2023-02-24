@@ -298,10 +298,18 @@ result")
              (fn [val]
                (is (= 1 val))))))
 
-(deftest-async macro-with-referred-var-test
+(deftest-async macro-with-referred-js-function-test
   (is (.then (nbb/load-string "(ns foo (:require [\"fs\" :refer [readFileSync]]))
 (defmacro read [f] `(readFileSync ~f \"UTF-8\"))
 (read \"README.md\")")
+             (fn [val]
+               (is (string? val))))))
+
+(deftest-async macro-with-aliased-lib-test
+  (is (.then (nbb/load-string "(ns foo (:require [\"fs\" :as fs]))
+(defmacro read [f] `(fs/readFileSync ~f \"UTF-8\"))
+(ns bar (:require [foo]))
+(foo/read \"README.md\")")
              (fn [val]
                (is (string? val))))))
 
