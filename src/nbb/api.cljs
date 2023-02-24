@@ -18,11 +18,20 @@
 
 (def initialized? (atom false))
 
-(defn local-nbb-edn
+(defn resolve-nbb-edn
   "Finds a local nbb.edn file and reads it. Returns nil if none found."
-  []
-  (when (fs/existsSync "nbb.edn")
-    (edn/read-string (fs/readFileSync "nbb.edn" "utf8"))))
+  [path]
+  (if (and (fs/existsSync path)
+           (.isDirectory (fs/lstatSync path)))
+    (let [resolved (path/resolve path "nbb.edn")]
+      (if (fs/existsSync resolved)
+        (edn/read-string (fs/readFileSync resolved "utf8"))
+        (let [parent (path/dirname path)]
+          (when-not (= parent path)
+            (recur parent)))))
+    (let [parent (path/dirname path)]
+      (when-not (= parent path)
+        (recur parent)))))
 
 (defn initialize [path opts]
   (js/Promise.resolve
@@ -35,7 +44,7 @@
                           (fs/readFileSync
                            (:config opts)
                            "utf8")))
-                  (if-let [config (local-nbb-edn)]
+                  (if-let [config (resolve-nbb-edn path)]
                     (assoc opts :config config)
                     opts))
            require (create-require path)
