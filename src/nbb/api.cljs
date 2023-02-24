@@ -25,7 +25,7 @@
            (.isDirectory (fs/lstatSync path)))
     (let [resolved (path/resolve path "nbb.edn")]
       (if (fs/existsSync resolved)
-        (edn/read-string (fs/readFileSync resolved "utf8"))
+        resolved
         (let [parent (path/dirname path)]
           (when-not (= parent path)
             (recur parent)))))
@@ -44,8 +44,9 @@
                           (fs/readFileSync
                            (:config opts)
                            "utf8")))
-                  (if-let [config (resolve-nbb-edn path)]
-                    (assoc opts :config config)
+                  (if-let [config-file (resolve-nbb-edn path)]
+                    (let [config (edn/read-string (fs/readFileSync config-file "utf8"))]
+                      (assoc opts :config config :config-dir (path/dirname config-file)))
                     opts))
            require (create-require path)
            path-url (str (url/pathToFileURL path))]
@@ -57,8 +58,12 @@
         (js/Promise.resolve
          (if-let [config (:config opts)]
            (do (if-let [paths (:paths config)]
-                 (doseq [path paths]
-                   (cp/add-classpath path))
+                 (doseq [p paths]
+                   (if (not (path/isAbsolute p))
+                     (cp/add-classpath (if-let [config-dir (:config-dir opts)]
+                                         (path/resolve config-dir p)
+                                         p))
+                     (cp/add-classpath p)))
                  ;; default classpath
                  (cp/add-classpath (js/process.cwd)))
                (esm/dynamic-import "./nbb_deps.js"))
