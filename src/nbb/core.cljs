@@ -5,20 +5,20 @@
    ["path" :as path]
    ["url" :as url]
    [babashka.cli]
+   [cljs.tools.reader.reader-types]
    [clojure.edn :as edn]
    [clojure.string :as str]
    [edamame.core]
    [goog.object :as gobj]
    [nbb.classpath :as cp]
    [nbb.common :refer [core-ns]]
+   [nbb.error :as nbb.error]
    [sci.core :as sci]
    [sci.ctx-store :as store]
    [sci.impl.unrestrict :refer [*unrestricted*]]
    [sci.impl.vars :as vars]
    [sci.lang]
-   [shadow.esm :as esm]
-   [cljs.tools.reader.reader-types]
-   [nbb.error :as nbb.error])
+   [shadow.esm :as esm])
   (:require-macros [nbb.macros :as macros]))
 
 (set! *unrestricted* true)
@@ -47,7 +47,7 @@
 (def cwd (.cwd js/process))
 
 (def command-line-args (sci/new-dynamic-var '*command-line-args* nil {:ns core-ns}))
-(def warn-on-infer     (sci/new-dynamic-var '*warn-on-infer* false {:ns core-ns}))
+(def warn-on-infer (sci/new-dynamic-var '*warn-on-infer* false {:ns core-ns}))
 
 (def ctx (atom {}))
 
@@ -98,7 +98,7 @@
                                             :rename (list 'quote rename))))))
                  (handle-libspecs (next libspecs) opts))))))
 
-(def ^:private  windows?
+(def ^:private windows?
   (= "win32" js/process.platform))
 
 (defn set-react! [mod]
@@ -157,7 +157,7 @@
 
 (defn find-file-on-classpath [munged]
   (let [file (str/replace (str munged) #"\." "/")
-        files [(str file ".cljs") (str file ".cljc")]
+        files [(str file ".cljs") (str file ".cljc") (str file ".clj")]
         dirs @cp/classpath-entries]
     (reduce (fn [_ dir]
               (some (fn [f]
@@ -190,7 +190,7 @@
           current-ns (symbol current-ns-str)]
       (if
           ;; this handles the :require-macros self-require case
-          (= libname current-ns)
+       (= libname current-ns)
         (handle-libspecs (next libspecs) ns-opts)
         (if as-alias
           (do (old-require fst)
@@ -308,13 +308,24 @@
   ;; the parsing is still very crude, we only support a subset of the ns form
   ;; and ignore everything but (:require clauses)
   (let [[_ns ns-name & ns-forms] ns-form
-        grouped (group-by (fn [ns-form]
-                            (and (seq? ns-form)
-                                 (let [fst (first ns-form)]
-                                   (or (= :require fst)
-                                       (= :require-macros fst))))) ns-forms)
-        require-forms (get grouped true)
-        other-forms (get grouped false)
+        [require-forms other-forms] (reduce (fn [[require-forms other-forms] ns-form]
+                                              (if (seq? ns-form)
+                                                (let [fst (first ns-form)]
+                                                  (cond (or (= :require fst)
+                                                            (= :require-macros fst))
+                                                        [(conj require-forms ns-form)
+                                                         other-forms]
+                                                        (= :use fst)
+                                                        [(conj require-forms (map #(if (or (seq? %) (vector? %))
+                                                                                     (replace {:only :refer} %)
+                                                                                     %)
+                                                                                  ns-form))
+                                                         other-forms]
+                                                        :else [require-forms
+                                                               (conj other-forms ns-form)]))
+                                                [require-forms
+                                                 (conj other-forms ns-form)]))
+                                            [[] []] ns-forms)
         ;; ignore all :require-macros for now
         ns-obj (sci/binding [sci/ns @sci/ns]
                  (sci/eval-form (store/get-ctx) (list 'do (list* 'ns ns-name other-forms) '*ns*)))
@@ -652,7 +663,4 @@
 
 (comment
 
-  (vars/push-thread-bindings {sci/file "hello"})
-
-
-  )
+  (vars/push-thread-bindings {sci/file "hello"}))
