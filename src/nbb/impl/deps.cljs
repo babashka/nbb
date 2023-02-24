@@ -35,11 +35,11 @@
         (cproc/execSync (str bb " --config " deps-edn-path " uberjar " jar-path))
         (*print-err-fn* "Extracting dependencies...")
         (fs/writeFileSync extract-script
-                          (str "(fs/unzip \""
-                               jar-path
-                               "\" \""
-                               unzipped-path
-                               "\")"))
+                          (str "(fs/unzip "
+                               (pr-str jar-path)
+                               " "
+                               (pr-str unzipped-path)
+                               ")"))
         (cproc/execSync (str "bb " (str extract-script)))
         (fs/unlinkSync extract-script)
         (*print-err-fn* "Done.")))
