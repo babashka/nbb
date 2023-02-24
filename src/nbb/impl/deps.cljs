@@ -7,9 +7,6 @@
    [nbb.classpath :as cp]
    [nbb.core :as nbb :refer [opts]]))
 
-(def default-nbb-cache-path
-  ".nbb/.cache")
-
 (defn hash-deps
   "Given a map of dependencies, generates a unique hash of that map for
   caching purposes."
@@ -21,10 +18,10 @@
   '*nbb-path*/_deps/*hash-of-deps-map*/nbb-deps' and returns that full path."
   [deps nbb-path]
   (let [deps-hash (hash-deps deps)
-        deps-path (str nbb-path "/" deps-hash)
-        deps-edn-path (str deps-path "/deps.edn")
-        jar-path (str deps-path "/nbb-deps.jar")
-        unzipped-path (str deps-path "/nbb-deps")]
+        deps-path (path/resolve nbb-path deps-hash)
+        deps-edn-path (path/resolve deps-path "deps.edn")
+        jar-path (path/resolve deps-path "nbb-deps.jar")
+        unzipped-path (path/resolve deps-path "nbb-deps")]
     (when-not (fs/existsSync unzipped-path)
       (let [bb (if (= "win32" js/process.platform)
                  "bb"
@@ -51,7 +48,7 @@
 (defn init
   []
   (let [config-dir (get @opts :config-dir)
-        cache-path (path/resolve config-dir default-nbb-cache-path)]
+        cache-path (path/resolve config-dir ".nbb" ".cache")]
     (when-let [deps (get-in @opts [:config :deps])]
       (-> deps
           (download-and-extract-deps! cache-path)
