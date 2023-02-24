@@ -48,7 +48,6 @@
         (*print-err-fn* "Done.")))
     unzipped-path))
 
-
 (defn init
   []
   (let [config-dir (get @opts :config-dir)

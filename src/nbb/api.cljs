@@ -57,10 +57,10 @@
        (->
         (js/Promise.resolve
          (if-let [config (:config opts)]
-           (do #_(if-let [paths (:paths config)]
+           (do (if-let [paths (:paths config)]
                  (doseq [p paths]
                    (if (not (path/isAbsolute p))
-                     (cp/add-classpath (if-let [config-dir false #_(:config-dir config)]
+                     (cp/add-classpath (if-let [config-dir (:config-dir opts)]
                                          (path/resolve config-dir p)
                                          p))
                      (cp/add-classpath p)))
@@ -68,7 +68,7 @@
                  (cp/add-classpath (js/process.cwd)))
                (esm/dynamic-import "./nbb_deps.js"))
            ;; default classpath
-           #_(cp/add-classpath (js/process.cwd))))
+           (cp/add-classpath (js/process.cwd))))
         (.then (fn [_]
                  (reset! initialized? true))))))))
 
