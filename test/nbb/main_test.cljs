@@ -298,6 +298,13 @@ result")
              (fn [val]
                (is (= 1 val))))))
 
+(deftest-async macro-with-referred-var-test
+  (is (.then (nbb/load-string "(ns foo (:require [\"fs\" :refer [readFileSync]]))
+(defmacro read [f] `(readFileSync ~f \"UTF-8\"))
+(read \"README.md\")")
+             (fn [val]
+               (is (string? val))))))
+
 (defn init []
   (t/run-tests 'nbb.main-test 'nbb.test-test))
 

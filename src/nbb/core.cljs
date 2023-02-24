@@ -252,7 +252,7 @@
                         (doseq [field refer]
                           (let [mod-field (gobj/get mod (str field))
                                 ;; different namespaces can have different mappings
-                                internal-subname (str internal-name "$" current-ns-str "$" field)
+                                internal-subname (symbol (str internal-name "$" current-ns-str "$" field))
                                 field (get rename field field)]
                             (store/swap-ctx!
                              (fn [sci-ctx]
