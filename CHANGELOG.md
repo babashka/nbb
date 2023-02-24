@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.2.164 (2023-02-24)
+
+- [#201](https://github.com/babashka/nbb/issues/201): keyword arguments as map support
+
 ## 1.2.163 (2023-02-11)
 
 - [#306](https://github.com/babashka/nbb/issues/306): nREPL server exits on evaluation error
