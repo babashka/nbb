@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.2.169 (2023-02-25)
+
+- [#312](https://github.com/babashka/nbb/issues/312): same as [#311](https://github.com/babashka/nbb/issues/311) but with `$default`
+
 ## 1.2.168 (2023-02-24)
 
 - [#311](https://github.com/babashka/nbb/issues/311): allow macro to resolve class via alias

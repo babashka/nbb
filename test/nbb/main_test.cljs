@@ -313,6 +313,20 @@ result")
              (fn [val]
                (is (string? val))))))
 
+(deftest-async macro-with-aliased-lib-and-default-test
+  (is (.then (nbb/load-string "(ns scratch
+  (:require [\"moment$default\" :as moment]))
+
+(defmacro now []
+  `(.now moment))
+
+(ns yolo
+  (:require [scratch]))
+
+(scratch/now)")
+             (fn [val]
+               (is (number? val))))))
+
 (defn init []
   (t/run-tests 'nbb.main-test 'nbb.test-test))
 

@@ -229,7 +229,6 @@
               (cond
                 feat (load-module feat libname as refer rename libspecs ns-opts)
                 (string? libname)
-                ;; TODO: parse properties
                 (let [libname (if (str/starts-with? libname "./")
                                 (path/resolve (path/dirname (:file ns-opts)) libname)
                                 libname)
@@ -241,7 +240,7 @@
                       (fn [mod]
                         (let [internal-name
                               (if properties*
-                                (str internal-name "$" properties*)
+                                (symbol (str internal-name "$" properties*))
                                 internal-name)]
                           (when as
                             (store/swap-ctx!
