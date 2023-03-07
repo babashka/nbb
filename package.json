@@ -1,33 +1,33 @@
 {
-  "name": "nbb",
-  "version": "1.2.169",
-  "type": "module",
-  "main": "index.mjs",
-  "bin": {
-    "nbb": "cli.js",
-    "nbbun": "nbbun.js"
-  },
-  "description": "Babashka-like tool for Node.js.",
-  "dependencies": {
-    "import-meta-resolve": "^2.1.0"
-  },
-  "devDependencies": {
-    "ink": "^3.0.9",
-    "moment": "^2.29.4",
-    "nbb": ".",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "shadow-cljs": "^2.15.2",
-    "source-map-support": "^0.5.19"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/babashka/nbb"
-  },
-  "license": "EPL-1.0",
-  "files": [
-    "README.md",
-    "img",
-    "lib"
-  ]
+	"name": "nbb",
+	"version": "1.2.170",
+	"type": "module",
+	"main": "index.mjs",
+	"bin": {
+		"nbb": "cli.js",
+		"nbbun": "nbbun.js"
+	},
+	"description": "Babashka-like tool for Node.js.",
+	"dependencies": {
+		"import-meta-resolve": "^2.1.0"
+	},
+	"devDependencies": {
+		"ink": "^3.0.9",
+		"moment": "^2.29.4",
+		"nbb": ".",
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2",
+		"shadow-cljs": "^2.15.2",
+		"source-map-support": "^0.5.19"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/babashka/nbb"
+	},
+	"license": "EPL-1.0",
+	"files": [
+		"README.md",
+		"img",
+		"lib"
+	]
 }
