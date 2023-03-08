@@ -187,7 +187,7 @@
 
 (defn repl
   ([] (repl nil))
-  ([_opts]
+  ([opts]
    (when tty (.setRawMode js/process.stdin true))
    (let [eval-require (fn
                         [ns-form]
@@ -200,6 +200,7 @@
      (->
       (eval-require ns1)
       (.then (fn [] (eval-require ns2)))
+      (.then (:init opts identity))
       (.then (fn []
                (js/Promise. (fn [resolve]
                               (input-loop nil resolve)))))))))
