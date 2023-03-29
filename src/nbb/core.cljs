@@ -575,6 +575,10 @@
   ([e opts]
    (nbb.error/print-error-report e opts)))
 
+(def script-file (atom nil))
+(defn get-script-file []
+  @script-file)
+
 (def sns
   (sci/create-ns 'sci.core nil))
 
@@ -619,6 +623,7 @@
                            'alter-var-root (sci/copy-var sci/alter-var-root nbb-ns)
                            'slurp (sci/copy-var slurp nbb-ns)
                            '*file* sci/file
+                           'get-script-file get-script-file
                            'version (sci/copy-var version nbb-ns)
                            'await (sci/copy-var await nbb-ns)
                            'time (sci/copy-var time* nbb-ns)}

@@ -75,6 +75,7 @@
 
 (defn loadFile [script]
   (let [script-path (path/resolve script)]
+    (reset! nbb/script-file script-path)
     (-> (initialize script-path nil)
         (.then #(nbb/load-file script-path)))))
 
@@ -91,6 +92,7 @@
                      (if (fs/existsSync filename)
                        (path/resolve filename)
                        (recur (rest cp-entries))))))]
+    (reset! nbb/script-file script)
     (sci/binding [sci/file script]
       (-> (initialize script nil)
           (.then
