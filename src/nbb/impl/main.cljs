@@ -64,7 +64,6 @@
           (assoc opts
                  :main (first nargs)
                  :expr (main-expr (first nargs))
-                 :meta {:main-expr true}
                  :args (next nargs))
           ("-x" "--exec")
           (assoc opts
