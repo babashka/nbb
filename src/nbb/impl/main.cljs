@@ -12,20 +12,6 @@
    [sci.ctx-store :as store]
    [shadow.esm :as esm]))
 
-(defn main-expr [main-fn]
-  (let [main-fn (symbol main-fn)
-        main-fn (if (simple-symbol? main-fn)
-                  (symbol (str main-fn) "-main")
-                  main-fn)
-        ns (namespace main-fn)
-        expr (str/replace "(require '$1) (apply $2 *command-line-args*)"
-                          #"\$(\d)"
-                          (fn [match]
-                            (case (second match)
-                              "1" ns
-                              "2" main-fn)))]
-    expr))
-
 (defn exec-expr
   [exec-fn]
   (let [exec-fn (symbol exec-fn)
@@ -63,7 +49,6 @@
           ("-m" "--main")
           (assoc opts
                  :main (first nargs)
-                 :expr (main-expr (first nargs))
                  :args (next nargs))
           ("-x" "--exec")
           (assoc opts
@@ -153,7 +138,7 @@ Tooling:
     (when (:version opts)
       (println (str (nbb/cli-name) " v" (nbb/version)))
       (js/process.exit 0))
-    (if (or script-file expr nrepl-server repl? bundle-opts)
+    (if (or script-file main expr nrepl-server repl? bundle-opts)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
           (->
            (js/Promise.resolve
@@ -165,7 +150,7 @@ Tooling:
               (-> (cond script-file
                         (api/loadFile script-file)
                         main
-                        (api/loadMain main expr)
+                        (api/loadMain main)
                         expr
                         (api/loadString expr)
                         (:nrepl-server opts)

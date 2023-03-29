@@ -8,7 +8,6 @@
    [clojure.edn :as edn]
    [nbb.classpath :as cp]
    [nbb.core :as nbb]
-   [sci.core :as sci]
    [shadow.esm :as esm]))
 
 (def create-require
@@ -18,6 +17,15 @@
           (throw (js/Error. "createRequire is not defined, this is a no-op"))))))
 
 (def initialized? (atom false))
+
+(defn get-file-path-from-ns [some-ns]
+  (loop [cp-entries (cp/split-classpath (cp/get-classpath))]
+    (let [cp-entry (first cp-entries)
+          filename (str cp-entry "/" some-ns ".cljs")]
+      (when cp-entry
+        (if (fs/existsSync filename)
+          (path/resolve filename)
+          (recur (rest cp-entries)))))))
 
 (defn resolve-nbb-edn
   "Finds a local nbb.edn file and reads it. Returns nil if none found."
@@ -84,21 +92,12 @@
       (.then
        #(nbb/load-string expr))))
 
-(defn loadMain [main-path expr]
-  (let [script (loop [cp-entries (cp/split-classpath (cp/get-classpath))]
-                 (let [cp-entry (first cp-entries)
-                       filename (str cp-entry "/" main-path ".cljs")]
-                   (when cp-entry
-                     (if (fs/existsSync filename)
-                       (path/resolve filename)
-                       (recur (rest cp-entries))))))]
-    (reset! nbb/script-file script)
-    (sci/binding [sci/file script]
-      (-> (initialize script nil)
-          (.then
-           (fn []
-             (let [ sci-ns @sci/ns]
-               (nbb/eval-string* expr {:ns sci-ns :file script}))))))))
+(defn loadMain [main-ns]
+  (let [script-path (get-file-path-from-ns main-ns)]
+    (reset! nbb/script-file script-path)
+    (-> (initialize script-path nil)
+        (.then
+         #(nbb/load-main main-ns script-path)))))
 
 (defn addClassPath [cp]
   (cp/add-classpath cp))

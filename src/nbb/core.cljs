@@ -11,7 +11,7 @@
    [edamame.core]
    [goog.object :as gobj]
    [nbb.classpath :as cp]
-   [nbb.common :refer [core-ns]]
+   [nbb.common :refer [core-ns main-expr]]
    [nbb.error :as nbb.error]
    [sci.core :as sci]
    [sci.ctx-store :as store]
@@ -478,6 +478,10 @@
         (await)
         #_(.finally (fn []
                       (prn :finally (str @sci/ns)))))))
+
+(defn load-main [main-ns path]
+  (let [sci-ns @sci/ns]
+    (eval-string* (main-expr main-ns) {:ns sci-ns :file path})))
 
 (defn register-plugin! [_plug-in-name sci-opts]
   (store/swap-ctx! sci/merge-opts sci-opts))
