@@ -83,7 +83,7 @@
 
 (defn loadFile [script]
   (let [script-path (path/resolve script)]
-    (reset! nbb/script-file script-path)
+    (reset! nbb/-invoked-file script-path)
     (-> (initialize script-path nil)
         (.then #(nbb/load-file script-path)))))
 
@@ -94,7 +94,7 @@
 
 (defn loadMain [main-ns]
   (let [script-path (get-file-path-from-ns main-ns)]
-    (reset! nbb/script-file script-path)
+    (reset! nbb/-invoked-file script-path)
     (-> (initialize script-path nil)
         (.then
          #(nbb/load-main main-ns script-path)))))
