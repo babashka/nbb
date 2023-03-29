@@ -8,6 +8,7 @@
    [clojure.edn :as edn]
    [nbb.classpath :as cp]
    [nbb.core :as nbb]
+   [sci.core :as sci]
    [shadow.esm :as esm]))
 
 (def create-require
@@ -81,6 +82,21 @@
   (-> (initialize nil nil)
       (.then
        #(nbb/load-string expr))))
+
+(defn loadMain [main-path expr]
+  (let [script (loop [cp-entries (cp/split-classpath (cp/get-classpath))]
+                 (let [cp-entry (first cp-entries)
+                       filename (str cp-entry "/" main-path ".cljs")]
+                   (when cp-entry
+                     (if (fs/existsSync filename)
+                       (path/resolve filename)
+                       (recur (rest cp-entries))))))]
+    (sci/binding [sci/file script]
+      (-> (initialize script nil)
+          (.then
+           (fn []
+             (let [ sci-ns @sci/ns]
+               (nbb/eval-string* expr {:ns sci-ns :file script}))))))))
 
 (defn addClassPath [cp]
   (cp/add-classpath cp))

@@ -62,7 +62,9 @@
                       (next nargs))
           ("-m" "--main")
           (assoc opts
+                 :main (first nargs)
                  :expr (main-expr (first nargs))
+                 :meta {:main-expr true}
                  :args (next nargs))
           ("-x" "--exec")
           (assoc opts
@@ -136,6 +138,7 @@ Tooling:
         _ (reset! common/opts opts)
         script-file (:script opts)
         expr (:expr opts)
+        main (:main opts)
         classpath (:classpath opts)
         _ (when classpath
             (cp/add-classpath classpath))
@@ -162,6 +165,8 @@ Tooling:
             (fn []
               (-> (cond script-file
                         (api/loadFile script-file)
+                        main
+                        (api/loadMain main expr)
                         expr
                         (api/loadString expr)
                         (:nrepl-server opts)
