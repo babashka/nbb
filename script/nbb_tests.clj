@@ -121,7 +121,7 @@
             {:dir "test-scripts/invoked-file-test"}
             "src/script.cljs"))))
   (testing "calling with -m"
-    (is (= :invoked
+    (is (= :not-invoked
            (nbb {:dir "test-scripts/invoked-file-test"}
                 "-m" "core"))))
   (testing "calling with -e"
