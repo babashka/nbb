@@ -50,7 +50,7 @@
   (is (= {:script "foo.cljs", :args nil} (main/parse-args ["foo.cljs"])))
   (is (= {:script "foo.cljs", :args '("1" "2" "3")} (main/parse-args ["foo.cljs" "1" "2" "3"])))
   (is (= {:classpath "src", :script "foo.cljs", :args nil} (main/parse-args ["--classpath" "src" "foo.cljs"])))
-  (is (= {:main "foo", :args '("1" "2" "3")}
+  (is (= {:expr "(require 'foo) (apply foo/-main *command-line-args*)", :args '("1" "2" "3")}
          (main/parse-args ["-m" "foo" "1" "2" "3"])))
   (is (= {:nrepl-server true, :port "0.0.0.0"}
       (main/parse-args ["nrepl-server" "--port" "0.0.0.0" ])))
