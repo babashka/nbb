@@ -18,15 +18,6 @@
 
 (def initialized? (atom false))
 
-(defn get-file-path-from-ns [some-ns]
-  (loop [cp-entries (cp/split-classpath (cp/get-classpath))]
-    (let [cp-entry (first cp-entries)
-          filename (str cp-entry "/" some-ns ".cljs")]
-      (when cp-entry
-        (if (fs/existsSync filename)
-          (path/resolve filename)
-          (recur (rest cp-entries)))))))
-
 (defn resolve-nbb-edn
   "Finds a local nbb.edn file and reads it. Returns nil if none found."
   [path]
@@ -91,13 +82,6 @@
   (-> (initialize nil nil)
       (.then
        #(nbb/load-string expr))))
-
-(defn loadMain [main-ns]
-  (let [script-path (get-file-path-from-ns main-ns)]
-    (reset! nbb/-invoked-file script-path)
-    (-> (initialize script-path nil)
-        (.then
-         #(nbb/load-main main-ns script-path)))))
 
 (defn addClassPath [cp]
   (cp/add-classpath cp))
