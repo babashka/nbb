@@ -127,7 +127,7 @@
   (testing "calling with -e"
     (is (= :not-invoked
            (nbb {:dir "test-scripts/invoked-file-test"}
-                "-e" "(require [nbb.core :refer [*file* invoked-file])
+                "-e" "(require [nbb.core :refer [*file* invoked-file]])
 (if (= *file* (invoked-file))
   :invoked
   :not-invoked)")))))
