@@ -575,6 +575,12 @@
   ([e opts]
    (nbb.error/print-error-report e opts)))
 
+(def -invoked-file (atom nil))
+(defn invoked-file
+  "Return an absolute path for the file where nbb was invoked"
+  []
+  @-invoked-file)
+
 (def sns
   (sci/create-ns 'sci.core nil))
 
@@ -619,6 +625,7 @@
                            'alter-var-root (sci/copy-var sci/alter-var-root nbb-ns)
                            'slurp (sci/copy-var slurp nbb-ns)
                            '*file* sci/file
+                           'invoked-file invoked-file
                            'version (sci/copy-var version nbb-ns)
                            'await (sci/copy-var await nbb-ns)
                            'time (sci/copy-var time* nbb-ns)}

@@ -74,6 +74,7 @@
 
 (defn loadFile [script]
   (let [script-path (path/resolve script)]
+    (reset! nbb/-invoked-file script-path)
     (-> (initialize script-path nil)
         (.then #(nbb/load-file script-path)))))
 

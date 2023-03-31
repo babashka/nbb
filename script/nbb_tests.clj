@@ -114,6 +114,23 @@
     (is (thrown? Exception
                  (nbb {:dir "test-scripts/paths-test"} "src/project_dir_not_on_classpath.cljs")))))
 
+(deftest invoked-file-test
+  (testing "calling as a script"
+    (is (= :invoked
+           (nbb
+            {:dir "test-scripts/invoked-file-test"}
+            "src/script.cljs"))))
+  (testing "calling with -m"
+    (is (= :not-invoked
+           (nbb {:dir "test-scripts/invoked-file-test"}
+                "-m" "core"))))
+  (testing "calling with -e"
+    (is (= :not-invoked
+           (nbb "-e" "(require '[nbb.core :refer [*file* invoked-file]])
+(if (and (some? *file*) (= *file* (invoked-file)))
+  :invoked
+  :not-invoked)")))))
+
 (deftest medley-test
   (let [deps '{medley/medley {:git/url "https://github.com/weavejester/medley"
                               :git/tag "1.4.0"
