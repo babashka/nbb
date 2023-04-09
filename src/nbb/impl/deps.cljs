@@ -16,7 +16,7 @@
 (defn download-and-extract-deps!
   "Given a map of dependencies and a path, downloads all dependencies to
   '*nbb-path*/_deps/*hash-of-deps-map*/nbb-deps' and returns that full path."
-  [deps nbb-path]
+  [deps nbb-path config-dir]
   (let [deps-hash (hash-deps deps)
         deps-path (path/resolve nbb-path deps-hash)
         deps-edn-path (path/resolve deps-path "deps.edn")
@@ -32,7 +32,10 @@
         (fs/mkdirSync deps-path #js {:recursive true})
         (fs/writeFileSync deps-edn-path (str {:deps deps}))
         (*print-err-fn* "Downloading dependencies...")
-        (cproc/execSync (str bb " --config " deps-edn-path " uberjar " jar-path))
+        (cproc/execSync (str bb
+                             " --config " deps-edn-path
+                             " --deps-root " config-dir
+                             " uberjar " jar-path))
         (*print-err-fn* "Extracting dependencies...")
         (fs/writeFileSync extract-script
                           (str "(fs/unzip "
@@ -50,6 +53,6 @@
   (let [config-dir (get @opts :config-dir)
         cache-path (path/resolve config-dir ".nbb" ".cache")]
     (when-let [deps (get-in @opts [:config :deps])]
-      (-> deps
-          (download-and-extract-deps! cache-path)
-          (cp/add-classpath)))))
+      (->
+       (download-and-extract-deps! deps cache-path config-dir)
+       (cp/add-classpath)))))

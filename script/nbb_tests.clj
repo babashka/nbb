@@ -259,6 +259,10 @@
     (is (str/includes? o "TEST1"))
     (is (str/includes? o "BAR"))))
 
+(deftest local-root-test
+  (let [o (nbb* "test-scripts/local-root-test/run.cljs")]
+    (is (str/includes? o "{:a 1}"))))
+
 (defn parse-opts [opts]
   (let [[cmds opts] (split-with #(not (str/starts-with? % ":")) opts)]
     (into {:cmds cmds}
