@@ -281,7 +281,7 @@
                   (println "Testing" o)
                   (binding [t/*report-counters* (ref t/*initial-report-counters*)]
                     (t/test-var (resolve o))
-                    (doto @t/*report-counters* prn)))
+                    @t/*report-counters*))
                 (t/run-tests o)))))]
     (when (pos? (+ error fail))
       (throw (ex-info "Tests failed" {:babashka/exit 1})))))
