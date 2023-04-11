@@ -279,7 +279,7 @@
               (if (qualified-symbol? o)
                 (do
                   (println "Testing" o)
-                  (binding [t/*report-counters* (atom t/*initial-report-counters*)]
+                  (binding [t/*report-counters* (ref t/*initial-report-counters*)]
                     (t/test-var (resolve o))
                     @t/*report-counters*))
                 (t/run-tests o)))))]
