@@ -280,7 +280,8 @@
                 (do
                   (println "Testing" o)
                   (binding [t/*report-counters* (ref t/*initial-report-counters*)]
-                    (t/test-var (resolve o))
+                    (doto (t/test-var (resolve o))
+                      prn)
                     @t/*report-counters*))
                 (t/run-tests o)))))]
     (when (pos? (+ error fail))
