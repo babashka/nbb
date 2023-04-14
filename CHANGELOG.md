@@ -4,6 +4,8 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+- [#320](https://github.com/babashka/nbb/issues/318): Add `--print-classpath` global option to print a classpath checking `nbb.edn` file
+
 ## 1.2.173
 
 - [#318](https://github.com/babashka/nbb/issues/318): fix `:local/root` deps in `nbb.edn` when not invoked from current directory
