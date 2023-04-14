@@ -55,7 +55,9 @@
   (is (= {:nrepl-server true, :port "0.0.0.0"}
       (main/parse-args ["nrepl-server" "--port" "0.0.0.0" ])))
   (is (= {:config "../foo/nbb.edn"}
-         (main/parse-args ["--config" "../foo/nbb.edn"]))))
+         (main/parse-args ["--config" "../foo/nbb.edn"])))
+  (is (= {:print-classpath true}
+         (main/parse-args ["--print-classpath"]))))
 
 (deftest-async simple-require-test
   (-> (nbb/load-string "(ns foo (:require cljs.core clojure.set))
