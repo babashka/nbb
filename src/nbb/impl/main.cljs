@@ -1,5 +1,6 @@
 (ns nbb.impl.main
   (:require
+   ["child_process" :as cproc]
    ["path" :as path]
    [babashka.cli :as cli]
    [clojure.string :as str]
@@ -58,6 +59,7 @@
         (case farg
           ("--help" "-h") (assoc opts :help true)
           ("--version" "-v") (assoc opts :version true)
+          "--print-classpath" (assoc opts :print-classpath true)
           "-e" (recur (assoc opts :expr (first nargs))
                       (next nargs))
           ("-m" "--main")
@@ -109,6 +111,7 @@ Global options:
 
  --debug: print additional debug info.
  -cp / --classpath: set the classpath.
+ --print-classpath: prints the classpath string of deps used by nbb.
 
 Evaluation:
 
@@ -150,6 +153,9 @@ Tooling:
       (js/process.exit 0))
     (when (:version opts)
       (println (str (nbb/cli-name) " v" (nbb/version)))
+      (js/process.exit 0))
+    (when (:print-classpath opts)
+      (println (.toString (cproc/execSync "bb --config nbb.edn print-deps --format classpath")))
       (js/process.exit 0))
     (if (or script-file expr nrepl-server repl? bundle-opts)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
