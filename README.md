@@ -602,6 +602,8 @@ user=> (js/inspectMyProcess)
 
 The following projects are using nbb or are supporting it as a development platform:
 
+- [nbb-test-runner](https://github.com/nextjournal/nbb-test-runner): Test runner to run nbb tests, like cognitect-labs/test-runner.
+- [publish-spa](https://github.com/logseq/publish-spa): Github action to publish Logseq SPAs using nbb-logseq.
 - [obsidian-babashka](https://github.com/filipesilva/obsidian-babashka): Run Obsidian Clojure(Script) codeblocks in Babashka and Nbb.
 - [c64core](https://github.com/chr15m/c64core): retrocompute aesthetics twitter bot.
 - [sitefox](https://github.com/chr15m/sitefox): Node.js + CLJS backend web framework.
