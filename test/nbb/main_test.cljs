@@ -270,7 +270,10 @@
                (is (= 6 res))))))
 
 (deftest-async queue-test
-  (is (.then (nbb/load-string "#queue [1 2 3]")
+  (-> (.then (nbb/load-string "#queue [1 2 3]")
+             (fn [val]
+               (is (= #queue [1 2 3] val))))
+      (.then (nbb/load-string "(into cljs.core/PersistentQueue.EMPTY [1 2 3])")
              (fn [val]
                (is (= #queue [1 2 3] val))))))
 

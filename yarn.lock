@@ -528,7 +528,7 @@
 
 "nbb@.":
   "resolved" "file:"
-  "version" "1.2.168"
+  "version" "1.2.173"
   dependencies:
     "import-meta-resolve" "^2.1.0"
 
