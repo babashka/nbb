@@ -4,9 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
-## Unreleased
+## 1.2.174
 
 - [#323](https://github.com/babashka/nbb/issues/323): regression: `cljs.core/PersistentQueue.EMPTY` no longer works
+- Remove offending but unused code for [bun](https://bun.sh)
 
 ## 1.2.173
 
