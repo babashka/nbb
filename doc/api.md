@@ -26,6 +26,10 @@ the following namespaces:
 
 - `(print-error-report e)`: print error report. Example: `(try (assoc :foo :bar) (catch ^:sci/error js/Error e (nbb.error/print-error-report e)))`
 
+## babashka.cli
+
+See the [babashka.cli API](https://github.com/babashka/cli/blob/main/API.md).
+
 ## Promesa
 
 See [promesa docs](https://cljdoc.org/d/funcool/promesa/6.0.2/doc/user-guide).

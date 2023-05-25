@@ -34,6 +34,10 @@ Additional goals and features are:
 
 Nbb requires Node.js v14 or newer.
 
+Additionally, in the case of downloading [Clojure
+dependencies](#Clojure-dependencies), it requires the installation of
+[babashka](https://babashka.org/).
+
 ## How does this tool work?
 
 CLJS code is evaluated through [SCI](https://github.com/borkdude/sci), the same
@@ -194,6 +198,10 @@ invoked via `npx` this adds another 300ms or so, so for faster startup, either
 use a globally installed `nbb` or use `$(npm bin)/nbb script.cljs` to bypass
 `npx`.
 
+## Libraries
+
+See [API](doc/api.md) documentation with a list of built-in Clojure libraries.
+
 ## Dependencies
 
 ### NPM dependencies
@@ -203,6 +211,10 @@ using the [Reagent](#reagent) module, React is resolved in the same way as any
 other NPM library.
 
 ### Clojure dependencies
+
+Note: this feature relies on the presence of the
+[babashka](https://github.com/babashka/babashka) `bb` executable in
+the system's PATH.
 
 To load dependencies from the Clojure ecosystem, you can create an `nbb.edn`:
 
@@ -622,11 +634,6 @@ The following projects are using nbb or are supporting it as a development platf
 - [gallery.cljs](https://gist.github.com/borkdude/05c4f4ce81a988f90917dc295d8f306e): script to download walpapers from [windowsonearth.org](https://www.windowsonearth.org).
 - [nbb-action-example](https://github.com/borkdude/nbb-action-example): example
   of a Github action built with nbb.
-
-## Libraries
-
-See [API](doc/api.md) documentation with a list of built-in Clojure libraries.
-
 
 ## Calling nbb from JavaScript
 
