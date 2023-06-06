@@ -82,7 +82,7 @@
                               ["socket-repl" ":port" "1337"]))
                     (merge {:inherit true
                             :dir (or dir ".")}
-                           opts))]
+                           (dissoc opts :cmd)))]
      (wait-for-port "localhost" 1337)
      (with-open [socket (Socket. "127.0.0.1" 1337)
                  in (.getInputStream socket)
