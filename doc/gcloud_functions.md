@@ -4,7 +4,7 @@ This article is based on [this](https://gist.github.com/jackrusher/1cc61e0ca0e92
 
 ## Creating an nbb google cloud function
 
-All you need to do to get nbb running on AWS Lambda is the following:
+All you need to do to get nbb running on GCP Cloud Functions is the following:
 
 package.json:
 ``` json
@@ -15,8 +15,8 @@ package.json:
     },
     "main": "index.mjs",
     "dependencies": {
-        "nbb": "0.2.8",
-        "@google-cloud/functions-framework": "~1.9.0"
+        "nbb": "~1.2.174",
+        "@google-cloud/functions-framework": "~3.2.0"
     }
 }
 ```
@@ -38,13 +38,14 @@ hello.cljs:
   (js/console.log req)
   (.send res "hello world"))
 
+;; export
 #js {:hello hello}
 ```
 
 Then deploy the function with:
 
 ```
-$ gcloud functions deploy hello --runtime nodejs14 --trigger-http
+$ gcloud functions deploy hello --runtime nodejs20 --trigger-http
 ```
 
 Also see [Nbb on AWS Lambda](aws_lambda.md).
