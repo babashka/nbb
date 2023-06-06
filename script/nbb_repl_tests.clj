@@ -17,7 +17,7 @@
                    :out :string
                    :in input
                    :err :inherit}
-                  opts)))
+                  (dissoc opts :cmd))))
 
 (defn repl
   ([input] (repl input nil))
