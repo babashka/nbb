@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "cli-spinners": "^2.9.0",
+    "ink": "^4.2.0",
+    "ink-task-list": "^2.0.0",
+    "nbb": "^1.2.174"
+  },
+  "scripts": {
+    "repl": "nbb nrepl-server :port 1337"
+  }
+}
