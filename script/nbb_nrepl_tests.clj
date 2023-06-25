@@ -89,6 +89,17 @@
               msg (read-reply in session @id)
               out (:out msg)
               _ (is (= "{:delayed-by \"1 second\"}" out))]))
+      (testing "async println"
+        (bencode/write-bencode os {"op" "eval" "code"
+                                   "(js/setTimeout #(do (println 123)) 10)"
+                                   "session" session "id" (new-id!)})
+        (let [_tm (read-reply in session @id)
+              done (read-reply in session @id)
+              _ (is (= ["done"] (:status done)))
+              msg (read-reply in session @id)
+              _ (is (= "123" (:out msg)))
+              nl (read-reply in session @id)
+              _ (is (= "\n" (:out nl)))]))
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (new-id!)}))))
 

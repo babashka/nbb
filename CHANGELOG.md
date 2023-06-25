@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## Unreleased
+
+- [#330](https://github.com/babashka/nbb/issues/330): Update nREPL server to always have `println` to emit the final newline to nREPL clients even from inside async calls such as `js/setTimeout`.
+
 ## 1.2.174
 
 - [#323](https://github.com/babashka/nbb/issues/323): regression: `cljs.core/PersistentQueue.EMPTY` no longer works
