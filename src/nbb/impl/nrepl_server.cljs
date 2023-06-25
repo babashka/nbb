@@ -362,6 +362,28 @@
                             port (-> addr .-port)
                             host (-> addr .-address)]
                         (println (str "nREPL server started on port " port " on host " host " - nrepl://" host ":" port))
+                        ;; `println` does not normally emit a final
+                        ;; newline in cljs because it is redirected to
+                        ;; the `js/console` which explicitly adds
+                        ;; it. This behavior is controlled by the
+                        ;; dynamic variable
+                        ;; `cljs.core/*print-newline*` which
+                        ;; `sci/print-newline` is set to.
+                        ;;
+                        ;; When sending output to an nREPL client, the
+                        ;; `do-handle-eval` bindings set the
+                        ;; corresponding var to true, so that a final
+                        ;; newline is sent to the client. However, if
+                        ;; the client does a `println` in an async
+                        ;; call such as `js/setTimeout`, the old
+                        ;; binding is used and no newline is sent to
+                        ;; the client.
+                        ;;
+                        ;; As a workaround, the dynamic root binding
+                        ;; is changed so that when the nREPL is up, a
+                        ;; final newline is always sent with
+                        ;; `println`.
+                        (sci/alter-var-root sci/print-newline (constantly true))
                         (try
                           (.writeFileSync fs ".nrepl-port" (str port))
                           (catch :default e
@@ -377,6 +399,10 @@
   ([server]
    (.close server
            (fn []
+             ;; restore dynamic vars assumed root values changed
+             ;; by server.
+             (sci/alter-var-root sci/print-fn (constantly cljs.core/*print-fn*))
+             (sci/alter-var-root sci/print-newline (constantly cljs.core/*print-newline*))
              (when (fs/existsSync ".nrepl-port")
                (fs/unlinkSync ".nrepl-port"))))))
 
