@@ -7,6 +7,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 ## Unreleased
 
 - [#330](https://github.com/babashka/nbb/issues/330): Update nREPL server to always have `println` to emit the final newline to nREPL clients even from inside async calls such as `js/setTimeout`.
+- Bump sci.configs to include `promesa/timeout`
 
 ## 1.2.174
 
