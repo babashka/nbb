@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.2.176
+
+- Bump sci.configs, fixes bug in `cljs.test/run-all-tests`
+
 ## 1.2.175
 
 - [#330](https://github.com/babashka/nbb/issues/330): Update nREPL server to always have `println` to emit the final newline to nREPL clients even from inside async calls such as `js/setTimeout`.
