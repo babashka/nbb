@@ -24,4 +24,4 @@
         org.babashka/cli {:mvn/version "0.6.41"}
         #_{:local/root "/Users/borkdude/dev/babashka/sci"}
         io.github.babashka/sci.configs {:git/url "https://github.com/babashka/sci.configs"
-                                        :git/sha "64342798713d355244d86ee6c311725d0c58e682"}}}
+                                        :git/sha "07866bbe0ebd82f884b1d1fb08a9acb34842b73f"}}}
