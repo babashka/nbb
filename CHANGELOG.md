@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.2.178
+
+- More promesa fixes
+
 ## 1.2.177
 
 - Bump sci.configs, adds promesa fixes/updates
