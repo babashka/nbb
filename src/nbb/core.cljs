@@ -26,14 +26,16 @@
 (def await-counter 0)
 
 (defn await [p]
-  (if (instance? js/Promise p)
+  (if (and (not (nil? p))
+           (unchecked-get p "then"))
     (do (set! await-counter (inc await-counter))
         (set! (.-__nbb_await_promise_result ^js p) true)
         p)
     p))
 
 (defn await? [p]
-  (and (instance? js/Promise p)
+  (and (not (nil? p))
+       (unchecked-get p "then")
        (.-__nbb_await_promise_result ^js p)))
 
 (def opts (atom nil))
