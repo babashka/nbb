@@ -9,7 +9,8 @@
         io.nervous/cljs-nodejs-externs {:mvn/version "0.2.0"}
         reagent/reagent {:git/url "https://github.com/borkdude/nbb-reagent"
                          :git/sha "315d702436719ea3a9a356773d6a10038ce9ea75"}
-        funcool/promesa {:mvn/version "e503874b154224ce85b223144e80b697df91d18e"}
+        funcool/promesa {:git/url "https://github.com/funcool/promesa"
+                         :git/sha "e503874b154224ce85b223144e80b697df91d18e"}
         applied-science/js-interop {:mvn/version "0.3.3"}
         cljs-bean/cljs-bean {:mvn/version "1.9.0"}
         org.babashka/sci
