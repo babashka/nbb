@@ -1,6 +1,4 @@
 (ns dotenv.example
-  (:require ["dotenv" :as dotenv]))
-
-(dotenv/config)
+  (:require ["dotenv/config"]))
 
 (prn js/process.env.DATABASE_URL)
