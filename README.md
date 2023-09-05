@@ -267,8 +267,12 @@ $ npm install ink
 
 (defonce state (r/atom 0))
 
-(doseq [n (range 1 11)]
-  (js/setTimeout #(swap! state inc) (* n 500)))
+(def count
+  (js/setInterval
+   #(if (< @state 10)
+      (swap! state inc)
+      (js/clearInterval count))
+   500))
 
 (defn hello []
   [:> Text {:color "green"} "Hello, world! " @state])
