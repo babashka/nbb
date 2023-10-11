@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "fastify": "4.23.2"
+  },
+  "devDependencies": {
+    "nbb": "1.2.179"
+  }
+}
