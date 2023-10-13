@@ -1,0 +1,8 @@
+p, role:editor, shop, read
+p, role:editor, shop, write
+p, role:admin, user, read
+p, role:admin, user, write
+
+g, role:admin, role:editor
+g, editor1, role:editor
+g, admin1, role:admin
