@@ -1,10 +1,11 @@
 {
   "type": "module",
   "scripts": {
-    "start": "nbb -cp ./src -m fastify-nbb.core"
+    "start": "nbb -cp ./src -m fnbb.core"
   },
   "dependencies": {
     "@fastify/cookie": "9.1.0",
+    "@fastify/static": "6.11.2",
     "bcrypt": "5.1.1",
     "casbin": "5.27.1",
     "dayjs": "1.11.10",

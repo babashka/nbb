@@ -1,6 +1,6 @@
-(ns fastify-nbb.plugins.htmx
+(ns fnbb.plugins.htmx
   (:require [applied-science.js-interop :as j]
-            [fastify-nbb.utils :refer [get-header]]))
+            [fnbb.utils :refer [get-header]]))
 
 
 (defn register

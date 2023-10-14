@@ -1,4 +1,4 @@
-(ns fastify-nbb.utils
+(ns fnbb.utils
   (:require [applied-science.js-interop :as j]
             [reagent.dom.server :refer [render-to-static-markup]]))
 

@@ -1,4 +1,4 @@
-(ns fastify-nbb.config)
+(ns fnbb.config)
 
 (def config {:host (or js/process.env.HOST "127.0.0.1")
              :port (or js/process.env.PORT 3000)

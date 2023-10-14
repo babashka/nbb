@@ -1,4 +1,4 @@
-(ns fastify-nbb.plugins.layout)
+(ns fnbb.plugins.layout)
 
 (defn layout
   [children & {:keys [title] :or {title "Fastify nbb Example"}}]

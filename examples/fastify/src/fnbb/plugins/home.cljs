@@ -1,6 +1,6 @@
-(ns fastify-nbb.plugins.home
-  (:require [fastify-nbb.plugins.layout :refer [layout]]
-            [fastify-nbb.utils :refer [render]]))
+(ns fnbb.plugins.home
+  (:require [fnbb.plugins.layout :refer [layout]]
+            [fnbb.utils :refer [render]]))
 
 (defn template
   []

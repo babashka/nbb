@@ -1,12 +1,12 @@
-(ns fastify-nbb.plugins.rbac
+(ns fnbb.plugins.rbac
   (:require
    [nbb.core :refer [await slurp]]
    [applied-science.js-interop :as j]
    ["casbin$default" :refer [newEnforcer, newModel, StringAdapter]]))
 
-(def model-txt (await (slurp "src/fastify_nbb/plugins/rbac-model.txt")))
+(def model-txt (await (slurp "src/fnbb/plugins/rbac-model.txt")))
 
-(def adapter-txt (await (slurp "src/fastify_nbb/plugins/rbac-adapter.txt")))
+(def adapter-txt (await (slurp "src/fnbb/plugins/rbac-adapter.txt")))
 
 (def model (newModel model-txt))
 

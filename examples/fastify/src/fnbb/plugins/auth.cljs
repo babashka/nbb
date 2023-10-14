@@ -1,28 +1,26 @@
-(ns fastify-nbb.plugins.auth
+(ns fnbb.plugins.auth
   (:require [applied-science.js-interop :as j]
-            [fastify-nbb.config :refer [config]]
-            [fastify-nbb.plugins.layout :refer [layout]]
-            [fastify-nbb.utils :refer [render]]
+            [fnbb.config :refer [config]]
+            [fnbb.plugins.layout :refer [layout]]
+            [fnbb.utils :refer [render]]
             ["url" :refer [URL]]
             ["@fastify/cookie$default" :as cookie]
-            ["fast-jwt$default"
-             :refer [createSigner createVerifier]
-             :rename {createSigner create-jwt-signer createVerifier create-jwt-verifier}]))
+            ["fast-jwt$default" :refer [createSigner createVerifier]]))
 
-(def jwt-sign-sync (create-jwt-signer (j/lit {:key (:jwt-secret config)
-                                              :algorithm "HS256"
-                                              :expiresIn (* 3600 1000 24) ;; 1 day in ms
-                                              })))
+(def jwt-sign-sync (createSigner (j/lit {:key (:jwt-secret config)
+                                         :algorithm "HS256"
+                                         :expiresIn (* 3600 1000 24) ;; 1 day in ms
+                                         })))
 
-(def jwt-verify-sync (create-jwt-verifier (j/lit {:key (:jwt-secret config)
-                                                  :algorithms ["HS256"]
-                                                  :allowedIss "babashka"})))
+(def jwt-verify-sync (createVerifier (j/lit {:key (:jwt-secret config)
+                                             :algorithms ["HS256"]
+                                             :allowedIss "babashka"})))
 
 (def pathname-whitelist #{"/login" "/logout"})
 
 (defn pathname-whitelisted?
-  [pathname]
-  (let [url (new URL (str "http://example.com" pathname))]
+  [original-path]
+  (let [url (new URL (str "http://example.com" original-path))]
     (contains? pathname-whitelist (j/get url :pathname))))
 
 (defn pre-handler
@@ -47,16 +45,20 @@
    [:div [:input {:name "password" :type "password" :placeholder "password"}]]
    [:button {:type "submit"} "Login"]])
 
-(defn handler-login
+(defn handler-login-get
   [req reply]
+  (println (j/get req :url))
+  (let [html (layout (template) :title "Home")]
+    (-> reply
+        (.header "content-type" "text/html")
+        (.status 200)
+        (.send (render html)))))
 
-  (if (= (j/get req :method) "GET")
-    (let [html (layout (template) :title "Home")]
-      (-> reply
-          (.header "content-type" "text/html")
-          (.status 200)
-          (.send (render html))))
-    (js/JSON.stringify (j/get req :body))))
+(defn handler-login-post
+  [req reply]
+  (println (j/get req :body))
+  (.send reply "ok"))
+
 
 (defn handler-logout
   [_ reply]
