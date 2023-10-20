@@ -5,7 +5,6 @@
             [fnbb.config :refer [config]]
             [fnbb.plugins.statics :refer [register] :rename {register register-statics}]
             [fnbb.plugins.htmx :refer [register] :rename {register register-htmx}]
-            [fnbb.plugins.rbac :refer [register] :rename {register register-rbac}]
             [fnbb.plugins.auth :refer [register handler-login-get handler-login-post handler-logout] :rename {register register-auth}]
             [fnbb.plugins.home :refer [handler-home]]))
 
@@ -15,7 +14,6 @@
 ;; plugins
 (await (.register server (fp register-statics)))
 (await (.register server (fp register-htmx)))
-(await (.register server (fp register-rbac)))
 (await (.register server (fp register-auth)))
 
 ;; routes

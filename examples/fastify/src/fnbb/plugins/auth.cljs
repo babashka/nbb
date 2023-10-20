@@ -7,6 +7,17 @@
             ["@fastify/cookie$default" :as cookie]
             ["fast-jwt$default" :refer [createSigner createVerifier]]))
 
+;; password = bcrypt.hashSync("qwerty123456", bcrypt.genSaltSync(10))
+(def users (j/lit [{:username "user1"
+                    :password "$2b$10$tsXmxjFIutqTO5K71lbvnuS.Fia5BPiG8d5KwSFjBN5XqWm6dwp5q"
+                    :roles []}
+                   {:username "editor1"
+                    :password "$2b$10$tsXmxjFIutqTO5K71lbvnuS.Fia5BPiG8d5KwSFjBN5XqWm6dwp5q"
+                    :roles ["editor"]}
+                   {:username "admin"
+                    :password "$2b$10$tsXmxjFIutqTO5K71lbvnuS.Fia5BPiG8d5KwSFjBN5XqWm6dwp5q"
+                    :roles ["admin"]}]))
+
 (def jwt-sign-sync (createSigner (j/lit {:key (:jwt-secret config)
                                          :algorithm "HS256"
                                          :expiresIn (* 3600 1000 24) ;; 1 day in ms
@@ -16,16 +27,19 @@
                                              :algorithms ["HS256"]
                                              :allowedIss "babashka"})))
 
-(def pathname-whitelist #{"/login" "/logout"})
+(def prefix-whitelist #js["/login" "/logout" "/public/"])
 
-(defn pathname-whitelisted?
+(defn prefix-whitelisted?
   [original-path]
-  (let [url (new URL (str "http://example.com" original-path))]
-    (contains? pathname-whitelist (j/get url :pathname))))
+  (let [url (new URL (str "http://example.com" original-path)) pathname (j/get url :pathname)]
+    (if (.find prefix-whitelist (fn [prefix]
+                                  (.startsWith pathname prefix)))
+      true
+      false)))
 
 (defn pre-handler
-  [req _ done]
-  (if (pathname-whitelisted? (j/get req :url))
+  [req reply done]
+  (if (prefix-whitelisted? (j/get req :url))
     :default
     (let [cookies (j/get req :cookies)]
       (if-let [signed-cookie (j/get cookies :token)]
@@ -33,22 +47,29 @@
           (if (j/get unsigned-cookie :valid)
             (if-let [token (jwt-verify-sync (j/get unsigned-cookie :value))]
               (println "--->>>" token)
-              (throw (js/Error "ERR_UNAUTHORIZED")))
-            (throw (js/Error "ERR_UNAUTHORIZED"))))
-        (throw (js/Error "ERR_UNAUTHORIZED")))))
+              (-> reply
+                  (.redirect "/login")
+                  (.status 401)))
+            (-> reply
+                (.redirect "/login")
+                (.status 401))))
+        (-> reply
+            (.redirect "/login")
+            (.status 401)))))
   (done))
 
 (defn template
   []
-  [:form {"hx-post" "/login" "hx-ext" "json-enc"}
-   [:div [:input {:name "username" :type "text" :placeholder "username"}]]
-   [:div [:input {:name "password" :type "password" :placeholder "password"}]]
-   [:button {:type "submit"} "Login"]])
+  [:fieldset
+   [:legend "Login"]
+   [:form {"hx-post" "/login" "hx-ext" "json-enc"}
+    [:div [:input {:name "username" :type "text" :placeholder "username"}]]
+    [:div [:input {:name "password" :type "password" :placeholder "password"}]]
+    [:button {:type "submit"} "Login"]]])
 
 (defn handler-login-get
-  [req reply]
-  (println (j/get req :url))
-  (let [html (layout (template) :title "Home")]
+  [_ reply]
+  (let [html (layout (template) :title "Login")]
     (-> reply
         (.header "content-type" "text/html")
         (.status 200)

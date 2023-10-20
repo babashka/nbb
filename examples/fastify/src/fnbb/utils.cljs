@@ -7,7 +7,6 @@
   (let [headers (j/get req :headers)]
     (j/get headers key)))
 
-
 (defn render
   [& args]
   (apply render-to-static-markup args))
