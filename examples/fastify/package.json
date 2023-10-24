@@ -1,6 +1,17 @@
 {
+  "type": "module",
+  "scripts": {
+    "start": "nbb --debug -cp ./src -m fnbb.core"
+  },
   "dependencies": {
-    "fastify": "4.23.2"
+    "@fastify/cookie": "9.1.0",
+    "@fastify/static": "6.11.2",
+    "bcrypt": "5.1.1",
+    "dayjs": "1.11.10",
+    "fast-jwt": "3.3.1",
+    "fastify": "4.24.3",
+    "fastify-plugin": "4.5.1",
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
     "nbb": "1.2.179"

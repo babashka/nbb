@@ -1,0 +1,35 @@
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-size: 16px;
+  padding: 1rem;
+  margin: 0;
+}
+
+*, *:before, *:after {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+form {
+  margin: 0;
+}
+
+input {
+  margin-bottom: 1rem;
+}
+
+fieldset {
+  padding: 1rem;
+  border: 1px solid #444;
+}
+
+legend {
+  background-color: #444;
+  color: #fff;
+  padding: 0.2rem 0.6rem;
+}
+
+.form-error {
+  color: red;
+  margin-bottom: 0.5rem;
+}
