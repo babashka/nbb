@@ -4,7 +4,8 @@
 
 (defn template
   []
-  [:div [:h1 "Home"]])
+  [:div [:h1 "Home"]
+   [:a {:href "/logout"} "Logout"]])
 
 (defn handler-home
   [_ reply]

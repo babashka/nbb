@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "start": "nbb -cp ./src -m fnbb.core"
+    "start": "nbb --debug -cp ./src -m fnbb.core"
   },
   "dependencies": {
     "@fastify/cookie": "9.1.0",
