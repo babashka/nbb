@@ -11,9 +11,9 @@
 ### Features
 - fastify web server
 - authentication using
-  - [bcrypt](https://www.npmjs.com/package/bcrypt) hashing
-  - [fast-jwt](https://www.npmjs.com/package/fast-jwt)
-  - [@fastify/cookie](https://www.npmjs.com/package/@fastify/cookie)
+  - [bcrypt](https://www.npmjs.com/package/bcrypt) password hashing
+  - [fast-jwt](https://www.npmjs.com/package/fast-jwt) token signing/verification
+  - [@fastify/cookie](https://www.npmjs.com/package/@fastify/cookie) storage for token
 - template rendering using built-in `reagent`
 - frontend interactivity using [htmx](https://htmx.org/)
 - static asset serving with [@fastify/static](https://www.npmjs.com/package/@fastify/static)
