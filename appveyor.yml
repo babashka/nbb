@@ -5,7 +5,7 @@ version: "v-{build}"
 image: Visual Studio 2017
 
 environment:
-  nodejs_version: "Current"
+  nodejs_version: "19.9.0"
 
   matrix:
     - JDK: JDK11
