@@ -596,6 +596,7 @@
                                'add-tap (sci/copy-var add-tap core-ns)
                                'remove-tap (sci/copy-var remove-tap core-ns)
                                'uuid (sci/copy-var uuid core-ns)
+                               'Atom (sci/copy-var Atom core-ns)
                                'IEditableCollection (sci/copy-var IEditableCollection core-ns)
                                'MapEntry (sci/copy-var MapEntry core-ns)
                                'UUID (sci/copy-var UUID core-ns)

@@ -301,6 +301,11 @@ result")
              (fn [val]
                (is (= 1 val))))))
 
+(deftest-async atom-instance-test
+  (is (.then (nbb/load-string "(instance? cljs.core/Atom (atom {}))")
+             (fn [val]
+               (is (true? val))))))
+
 (deftest-async macro-with-referred-js-function-test
   (is (.then (nbb/load-string "(ns foo (:require [\"fs\" :refer [readFileSync]]))
 (defmacro read [f] `(readFileSync ~f \"UTF-8\"))
