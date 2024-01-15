@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## Unreleased
+
+- Add cljs.core/Atom
+
 ## 1.2.179 (2023-10-05)
 
 - Expose `sci.core` in nbb
