@@ -691,7 +691,7 @@ catch (e) {
 
 ## Articles
 
-- [https://yogthos.net/posts/2023-05-12-nbb-resume.html](Making a resume with nbb) by Dmitri Sotnikov
+- [Making a resume with nbb](https://yogthos.net/posts/2023-05-12-nbb-resume.html) by Dmitri Sotnikov
 - [Post an image to mastodon using nbb](https://mccormick.cx/news/entries/post-an-image-to-mastodon-using-nbb) by Chris McCormick
 - [Jack-in nbb](https://benjamin-asdf.github.io/faster-than-light-memes/jacking-nbb.html)
 - [Implementing a comments feature for my blog with nbb, htmx, Serverless Framework, and DynamoDB](https://nickcellino.com/blog/2022-09-03-nbb-comments.html) by Nick Cellino
