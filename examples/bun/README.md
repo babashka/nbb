@@ -1,6 +1,6 @@
 # Bun examples
 
-To run example, invoke `bun run.mjs <example.cljs>`.
+To run example, invoke `bun run --bun nbb <example.cljs>`.
 
 ## FFI
 
@@ -11,3 +11,13 @@ install ncurses on mac using `brew install ncurses`. See it in action in
 ## Blipgloss
 
 See it in action in [this tweet](https://twitter.com/borkdude/status/1551685556106629125).
+
+## Sqlite
+
+[sqlite.cljs](sqlite.cljs) shows working with bun's [sqlite3-driver](https://bun.sh/docs/api/sqlite).
+
+For interactive development, make sure to run the nrepl-server using bun:
+
+```shell
+bun run --bun nbb nrepl-server
+```
