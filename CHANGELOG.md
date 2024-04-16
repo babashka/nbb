@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## Unreleased
+
+- [#351](https://github.com/babashka/nbb/issues/351): Update bun docs/example.
+
 ## 1.2.187 (2024-03-04)
 
 - Add `cljs.core/exists?`
