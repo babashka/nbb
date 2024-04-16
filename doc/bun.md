@@ -1,6 +1,6 @@
 # Bun
 
-According to their [website](https://github.com/Jarred-Sumner/bun), bun is an
+According to their [website](https://bun.sh/), bun is an
 
 > Incredibly fast JavaScript runtime, bundler, transpiler and package manager – all in one.
 
@@ -8,28 +8,27 @@ This document contains best practices to use nbb with bun. Bun is still experime
 
 ## Installing nbb
 
-`package.json`:
+<sub>Tested with bun v1.1.3</sub>
+
+```shell
+$ bun add nbb
+```
+
+which should yield a `package.json` like:
 
 ```
 {
   "dependencies": {
-    "nbb": "^0.5.121"
+    "nbb": "^1.2.187"
   }
 }
 ```
 
-Run `bun install` to install nbb.
+Test it:
 
-## JS wrapper
-
-To run scripts with bun, you need to write a JS wrapper, else bun is going to
-invoke Node.js, since the nbb entrypoint has a Node.js shebang.
-
-Write an `index.mjs` like this:
-
-``` javascript
-import { loadFile } from 'nbb'
-await loadFile('index.cljs')
+```sh
+$ bun run --bun nbb -e '(prn "Hello World!")'
+"Hello World!"
 ```
 
 With `index.cljs` as:
@@ -43,8 +42,8 @@ With `index.cljs` as:
 
 you can now run:
 
-```
-bun run index.mjs
+```shell
+$ bun run --bun nbb index.cljs
 ```
 
 and you should see:
@@ -52,8 +51,6 @@ and you should see:
 ```
 :hello
 ```
-
-For faster startup time, run `bun bun index.mjs`.
 
 ## Examples
 
