@@ -21,3 +21,10 @@ For interactive development, make sure to run the nrepl-server using bun:
 ```shell
 bun run --bun nbb nrepl-server
 ```
+
+## Single-file executable
+
+``` shell
+bun run --bun nbb bundle <example.cljs> -o out.mjs
+bun build out.mjs --compile --outfile cli
+```

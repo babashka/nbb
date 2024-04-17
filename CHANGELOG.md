@@ -6,6 +6,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 ## Unreleased
 
+- bundled `loadString` will ignore config
 - [#351](https://github.com/babashka/nbb/issues/351): Update bun docs/example.
 
 ## 1.2.187 (2024-03-04)

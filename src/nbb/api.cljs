@@ -56,7 +56,7 @@
        (reset! nbb/opts opts)
        (->
         (js/Promise.resolve
-         (if-let [config (:config opts)]
+         (if-let [config (and (not (:disableConfig opts)) (:config opts))]
            (do (if-let [paths (:paths config)]
                  (doseq [p paths]
                    (if (not (path/isAbsolute p))
@@ -72,16 +72,22 @@
         (.then (fn [_]
                  (reset! initialized? true))))))))
 
-(defn loadFile [script]
-  (let [script-path (path/resolve script)]
-    (reset! nbb/-invoked-file script-path)
-    (-> (initialize script-path nil)
-        (.then #(nbb/load-file script-path)))))
+(defn loadFile
+  ([script] (loadFile script nil))
+  ([script opts]
+   (let [opts (js->clj opts :keywordize-keys true)
+         script-path (path/resolve script)]
+     (reset! nbb/-invoked-file script-path)
+     (-> (initialize script-path opts)
+         (.then #(nbb/load-file script-path))))))
 
-(defn loadString [expr]
-  (-> (initialize nil nil)
-      (.then
-       #(nbb/load-string expr))))
+(defn loadString
+  ([expr] (loadString expr nil))
+  ([expr opts]
+   (let [opts (js->clj opts :keywordize-keys true)]
+     (-> (initialize nil opts)
+         (.then
+          #(nbb/load-string expr))))))
 
 (defn addClassPath [cp]
   (cp/add-classpath cp))
