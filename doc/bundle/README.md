@@ -33,6 +33,17 @@ This produces a file `dist/index.mjs` which can run without `node_modules`.
 
 See an example [Github Action](https://github.com/borkdude/nbb-action-example) written using nbb which uses the bundle command.
 
+## Bun
+
+With `bun`, produce a single-file executable with:
+
+```
+$ bun build out.mjs --compile --outfile cli
+```
+
+For more information see [the bun docs](https://bun.sh/docs/bundler/executables).
+
+
 ## Rollup
 
 With rollup, produce the `dist/index.mjs` file with:

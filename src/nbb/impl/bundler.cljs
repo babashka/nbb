@@ -201,7 +201,7 @@ Options:
         (doseq [lib (distinct @built-ins)]
           (print! (gstring/format "import '%s/lib/%s'" (nbb/npm-lib-name) lib)))
         (doseq [expr (distinct @expressions)]
-          (print! (gstring/format "await loadString(%s)" (pr-str expr))))
+          (print! (gstring/format "await loadString(%s, {disableConfig: true})" (pr-str expr))))
         (if-let [out-file (:out parsed-opts)]
           (fs/writeFileSync out-file @out "utf-8")
           (println @out))))))
