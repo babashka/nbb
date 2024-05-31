@@ -249,6 +249,13 @@ The name of the file that is currently being executed is available via
 (prn (:file (meta #'f))) ;; "/private/tmp/foo.cljs"
 ```
 
+In Python scripts there is a well-known pattern to check if the current file was the file invoked from the command line, 
+or loaded from another file: the __name__ == "__main__" pattern. In nbb this pattern can be implemented with:
+
+```clojure
+(= nbb.core/*file* (nbb.core/invoked-file))
+```
+
 ## Reagent
 
 Nbb includes `reagent.core` which will be lazily loaded when required. You
