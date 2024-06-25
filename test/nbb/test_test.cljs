@@ -53,11 +53,11 @@
     (ns foo-are (:require [clojure.test :as t :refer [deftest is are testing]]))
     (defmethod t/report [:cljs.test/default :end-run-tests] [m])
     (t/deftest foo (t/are [x] (= x 2) 1 2 3)) (t/run-tests 'foo-are)")
-          (.then (fn [_]
-                   (is (str/includes? @output "expected: (= 3 2)  actual: (not (= 3 2))"))))
-          (.then (fn [_]
-                   (reset! output "")
-                   (nbb/load-string "
+       (.then (fn [_]
+                (is (str/includes? @output "expected: (= 3 2)  actual: (not (= 3 2))"))))
+       (.then (fn [_]
+                (reset! output "")
+                (nbb/load-string "
     (ns foo-are2 (:require [clojure.test :as t :refer [deftest is are testing]]))
     (deftest are-test
     (are [x y] (= x y)
@@ -71,8 +71,8 @@
        2 (inc 1)
        2 (inc 1)))
     (t/run-tests 'foo-are2)")))
-          (.then (fn [_]
-                   (is (str/includes? @output " 9 assertions"))))))))
+       (.then (fn [_]
+                (is (str/includes? @output " 9 assertions"))))))))
 
 (deftest async-test-test
   (async done
@@ -96,7 +96,7 @@
            (let [f (fn f [t]
                      (js/setTimeout (fn []
                                       (cond (and (str/includes? @output "expected: (= 1 2)")
-                                               (str/includes? @output "actual: (not (= 1 2))"))
+                                                 (str/includes? @output "actual: (not (= 1 2))"))
                                             (do (is (= :expected-output :expected-output))
                                                 (restore)
                                                 (done))
@@ -217,3 +217,14 @@
               (fn [m]
                 (is (= :hello m))
                 (done))))))
+
+(deftest-async testing-test
+  (let [output (atom "")]
+    (-> (with-async-bindings
+          {sci/print-fn (fn [s]
+                          (swap! output str s))}
+          (nbb/load-string "
+    (ns foo0 (:require [clojure.test :as t :refer [deftest is testing]]))
+    (t/deftest foo (testing \"Testing macro test\" (t/is (= 1 2)))) (t/run-tests 'foo0)"))
+        (.then (fn [_]
+                 (is (str/includes? @output "Testing macro test")))))))

@@ -4,6 +4,11 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.3.0 (2024-06-25)
+
+- Removed cljs.test/_testing-contexts_
+- Fixed testing macro to update env testing-contexts
+
 ## 1.2.188 (2024-04-17)
 
 - nbb bundle JS output will ignore `nbb.edn`
@@ -87,7 +92,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 - [#306](https://github.com/babashka/nbb/issues/306): nREPL server exits on evaluation error
 
-##  1.2.162
+## 1.2.162
 
 - [#303](https://github.com/babashka/nbb/issues/303) nREPL server sends bad namespace value in eval responses.
 
@@ -134,7 +139,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 - Add support for executing function using [babashka.cli](https://github.com/babashka/cli):
 
-    nbb -x foo.bar/baz --flag --option 1
+  nbb -x foo.bar/baz --flag --option 1
 
 ## 1.1.150 (2022-11-27)
 
@@ -326,6 +331,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 - Fix [#180](https://github.com/babashka/nbb/issues/180): namespace resolution in REPL
 
 ## 0.3.10
+
 - Migrate features support to classpath approach
 - Provide build bb library for building features
 - Include `reagent.core/reactify-component`
