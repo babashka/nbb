@@ -218,7 +218,13 @@
                 (is (= :hello m))
                 (done))))))
 
-(deftest testing-test
-  (t/testing "Testing macro test"
-    (is (= (first (get-in (t/get-current-env) [:testing-contexts]))
-           "Testing macro test"))))
+(deftest-async testing-test
+  (let [output (atom "")]
+    (-> (with-async-bindings
+          {sci/print-fn (fn [s]
+                          (swap! output str s))}
+          (nbb/load-string "
+    (ns foo0 (:require [clojure.test :as t :refer [deftest is testing]]))
+    (t/deftest foo (testing \"Testing macro test\" (t/is (= 1 2)))) (t/run-tests 'foo0)"))
+        (.then (fn [_]
+                 (is (str/includes? @output "Testing macro test")))))))
