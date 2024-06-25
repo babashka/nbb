@@ -24,5 +24,5 @@
         org.babashka/cli {:mvn/version "0.7.53"}
         #_{:local/root "/Users/borkdude/dev/babashka/sci"}
         io.github.babashka/sci.configs #_{:local/root "../sci.configs"}
-                                       {:git/url "https://github.com/jaidetree/sci.configs"
-                                        :git/sha "59fb40b2e21c5e5053829884f0e0819cf2348e6e"}}}
+                                       {:git/url "https://github.com/babashka/sci.configs"
+                                        :git/sha "ccd66249ca6be59b2892ee7cf075c81aa6e6ff3d"}}}
