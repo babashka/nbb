@@ -4,10 +4,9 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
-## 1.3.0 (2024-06-25)
+## 1.2.189 (2024-06-26)
 
-- Removed cljs.test/_testing-contexts_
-- Fixed testing macro to update env testing-contexts
+- Fixed `cljs.test/testing` macro to display strings correctly on test failure ([@jaidetree](https://github.com/jaidetree))
 
 ## 1.2.188 (2024-04-17)
 
