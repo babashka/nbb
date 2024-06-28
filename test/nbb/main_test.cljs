@@ -267,7 +267,7 @@
       (.then (fn [res]
                (is (= 100 res))))
       (.then (fn [_]
-               (nbb/load-string (str (str/join "\n" (map str (repeat 10000 '(+ 1 2 3))))))))
+               (nbb/load-string (str/join "\n" (map str (repeat 10000 '(+ 1 2 3)))))))
       (.then (fn [res]
                (is (= 6 res))))))
 
