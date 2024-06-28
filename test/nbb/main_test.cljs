@@ -219,11 +219,13 @@
     (is (= 35 (count @#'nbb/goog-object-ns)))))
 
 (deftest-async with-out-str-test
-  (-> (nbb/load-string "[(with-out-str (println :hello))
-                         (with-out-str (prn :hello))
-                         (with-out-str (print :hello))]")
+  (-> (nbb/load-string "(require '[cljs.pprint :as pp])
+[(with-out-str (println :hello))
+ (with-out-str (prn :hello))
+ (with-out-str (print :hello))
+ (with-out-str (pp/print-table [{:a 1} {:a 2}]))]")
       (.then (fn [val]
-               (is (= [":hello\n" ":hello\n" ":hello"]
+               (is (= [":hello\n" ":hello\n" ":hello" "\n| :a |\n|----|\n|  1 |\n|  2 |\n"]
                       val))))))
 
 (deftest-async no-op-vars-test
