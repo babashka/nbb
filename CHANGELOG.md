@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.2.190 (2024-06-28)
+
+- Fix `cljs.pprint/print-table` + `with-out-str`
+
 ## 1.2.189 (2024-06-26)
 
 - Fixed `cljs.test/testing` macro to display strings correctly on test failure ([@jaidetree](https://github.com/jaidetree))
