@@ -4,9 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
-## unreleased
+## 1.2.191
 
 - Bump org.babashka/cli
+- Bump SCI
 
 ## 1.2.190 (2024-06-28)
 
