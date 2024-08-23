@@ -143,7 +143,9 @@
                ((.-resolve (:require @ctx)) libname))))
         (js/Promise.resolve ((.-resolve (:require @ctx)) libname)))
       (.then (fn [path]
-               (let [path (if reload?
+               (let [path (if (and reload?
+                                   ;; "node:fs" etc
+                                   (not= libname path))
                             (str path "?uuid=" (random-uuid))
                             path)]
                  (esm/dynamic-import
