@@ -338,8 +338,10 @@
         ns-obj (sci/binding [sci/ns @sci/ns]
                  (sci/eval-form (store/get-ctx) (list 'do (list* 'ns ns-name other-forms) '*ns*)))
         libspecs (mapcat rest require-forms)
+        ns-opts (into #{} (filter keyword? libspecs))
+        libspecs (remove keyword? libspecs)
         opts (assoc opts :ns ns-obj)]
-    (handle-libspecs libspecs opts)))
+    (handle-libspecs libspecs (assoc opts :opts ns-opts))))
 
 (defn eval-require [require-form]
   (let [args (rest require-form)
