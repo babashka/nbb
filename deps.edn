@@ -25,4 +25,4 @@
         #_{:local/root "/Users/borkdude/dev/babashka/sci"}
         io.github.babashka/sci.configs #_{:local/root "../sci.configs"}
                                        {:git/url "https://github.com/babashka/sci.configs"
-                                        :git/sha "b87302d5569852ce4410271d089bc4cc3da7050a"}}}
+                                        :git/sha "33575ca723f54af3e5bd5a643e51b480a157054b"}}}

@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.2.192 (unreleased)
+
+- Make `promesa.core/do` exception safe
+
 ## 1.2.191
 
 - Bump org.babashka/cli
