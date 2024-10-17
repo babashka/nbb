@@ -584,6 +584,8 @@
   []
   @-invoked-file)
 
+(def main-ns (sci/create-ns 'clojure.main))
+
 (store/reset-ctx!
  (sci/init
   {:namespaces {'clojure.core {'*command-line-args* command-line-args
@@ -618,11 +620,14 @@
                                'reset-vals! (sci/copy-var reset-vals! core-ns)
                                'PersistentQueue (let [x PersistentQueue]
                                                   (gobj/set x "EMPTY" cljs.core/PersistentQueue.EMPTY)
-                                                  x)}
+                                                  x)
+                               'demunge (sci/copy-var demunge core-ns)
+                               'IWithMeta (sci/copy-var IWithMeta core-ns)}
                 'cljs.reader {'read-string (sci/copy-var edn/read-string (sci/create-ns 'cljs.reader))}
                 'clojure.main {'repl-requires (sci/copy-var
                                                repl-requires
-                                               (sci/create-ns 'clojure.main))}
+                                               main-ns)
+                               'demunge (sci/copy-var demunge main-ns)}
 
                 'nbb.core {'load-string (sci/copy-var load-string nbb-ns)
                            'load-file (sci/copy-var load-file nbb-ns)
