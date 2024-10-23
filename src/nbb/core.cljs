@@ -68,9 +68,12 @@
 (declare handle-libspecs)
 
 (def normalize-libname
-  {'clojure.pprint 'cljs.pprint
-   'clojure.test 'cljs.test
-   'clojure.math 'cljs.math})
+  '{clojure.pprint cljs.pprint
+    clojure.test cljs.test
+    clojure.math cljs.math
+    clojure.spec.alpha cljs.spec.alpha
+    clojure.spec.gen.alpha cljs.spec.gen.alpha
+    clojure.spec.test.alpha cljs.spec.test.alpha})
 
 (def sci-find-ns (delay (sci/eval-form (store/get-ctx) 'find-ns)))
 
@@ -79,7 +82,7 @@
         (js/Promise.resolve nil)
         (esm/dynamic-import m))
       (.then (fn [_module]
-               (let [nlib (normalize-libname libname)]
+               (let [nlib libname]
                  (sci/binding [sci/ns (:ns opts)]
                    (when (and as nlib
                               (not= nlib libname))
@@ -190,7 +193,8 @@
           rename (:rename opts)
           munged (munge libname)
           current-ns-str (str (:ns ns-opts))
-          current-ns (symbol current-ns-str)]
+          current-ns (symbol current-ns-str)
+          libname (normalize-libname libname libname)]
       (if
           ;; this handles the :require-macros self-require case
        (= libname current-ns)
