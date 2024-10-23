@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.3.193 (2024-10-23)
+
+- Include `cljs.spec.alpha`, `cljs.spec.gen.alpha`, `cljs.spec.test.alpha`
+
 ## 1.2.192 (2024-09-01)
 
 - Make `promesa.core/do` exception safe
