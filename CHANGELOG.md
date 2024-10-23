@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.3.194 (2024-10-23)
+
+- Fix issue with loading `cljs.spec.alpha` by upgrading shadow-cljs
+
 ## 1.3.193 (2024-10-23)
 
 - Include `cljs.spec.alpha`, `cljs.spec.gen.alpha`, `cljs.spec.test.alpha`
