@@ -14,7 +14,7 @@
         cljs-bean/cljs-bean {:mvn/version "1.9.0"}
         org.babashka/sci
         #_{:local/root "../babashka/sci"}
-        {:mvn/version "0.8.41"}
+        {:mvn/version "0.9.44"}
         #_{:git/url "https://github.com/babashka/sci"
          :git/sha "a39073922c10638f6a5afd0ade139d6bcde24535"}
         org.clojure/tools.cli {:mvn/version "1.0.214"}
@@ -25,4 +25,4 @@
         #_{:local/root "/Users/borkdude/dev/babashka/sci"}
         io.github.babashka/sci.configs #_{:local/root "../sci.configs"}
                                        {:git/url "https://github.com/babashka/sci.configs"
-                                        :git/sha "33575ca723f54af3e5bd5a643e51b480a157054b"}}}
+                                        :git/sha "eb1fcaacf6f98c27adf22002173d40ae4f9cfcb0"}}}

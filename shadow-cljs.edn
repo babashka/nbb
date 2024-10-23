@@ -65,7 +65,9 @@
     :nbb_deps {:init-fn nbb.impl.deps/init
                :depends-on #{:nbb_core}}
     :nbb_zip {:init-fn nbb.impl.zip/init
-              :depends-on #{:nbb_core}}}
+              :depends-on #{:nbb_core}}
+    :nbb_spec {:init-fn nbb.impl.spec/init
+               :depends-on #{:nbb_core :nbb_pprint}}}
    :build-hooks [(shadow.cljs.build-report/hook
                   {:output-to "report.html"})
                  (nbb.impl.shadow-hooks/hook
