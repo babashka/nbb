@@ -513,9 +513,14 @@
                     v#)))))
 
 (def sci-sym (delay (sci/eval-form (ctx/get-ctx) 'cljs.core/symbol)))
+(def sci-var? (delay (sci/eval-form (ctx/get-ctx) 'cljs.core/var?)))
 
 (defn ^:macro implements?* [_ _ psym x]
-  (if-let [resolved (sci/resolve (ctx/get-ctx) psym)]
+  (if-let [resolved (let [res (sci/resolve (ctx/get-ctx) psym)]
+                      (if (@sci-var? res)
+                        res
+                        ;; workaround for resolve on `my.ns.Protocol` resolving to protocol map
+                        (:name res)))]
     (let [psym (@sci-sym resolved)]
       ;; hardcoded implementation of implements? for js-interop destructure which
       ;; uses implements?
