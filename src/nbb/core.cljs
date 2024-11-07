@@ -149,13 +149,13 @@
                (let [file (if (str/starts-with? path "file:")
                             (url/fileURLToPath path)
                             path)
-                     file? (fs/existsSync file)
+                     file? (delay (fs/existsSync file))
                      path* (if (and reload?
                                    ;; not "node:fs" etc
-                                   file?)
+                                   @file?)
                             (str file "?uuid=" (random-uuid))
                             path)
-                     path (if (and windows? file?)
+                     path (if (and windows? @file?)
                             (str (url/pathToFileURL path*))
                             path*)]
                  (esm/dynamic-import path))))
