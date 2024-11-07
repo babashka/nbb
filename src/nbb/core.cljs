@@ -149,10 +149,10 @@
              (fn [_]
                ((.-resolve (:require @ctx)) libname))))
         (js/Promise.resolve ((.-resolve (:require @ctx)) libname)))
-      (.then (fn [path] 
+      (.then (fn [path]
                (let [file-url (if (str/starts-with? (str path) "file:")
                                 path
-                                (when (fs/existsSync path) 
+                                (when (and (or windows? reload?) (fs/existsSync path))
                                   (str (url/pathToFileURL path))))
                      path (if (and reload?
                                    ;; not "node:fs" etc
