@@ -138,6 +138,11 @@
 (defn register-module [mod internal-name]
   (swap! loaded-modules assoc internal-name mod))
 
+#_(if (str/starts-with? libname "./")
+  (path/resolve (path/dirname (or (:file ns-opts) "."))
+                libname)
+  libname)
+
 (defn load-js-module [libname internal-name reload?]
   (-> (if-let [resolve (:resolve @ctx)]
         (-> (resolve libname)
@@ -243,10 +248,7 @@
               (cond
                 feat (load-module feat libname as refer rename libspecs ns-opts)
                 (string? libname)
-                (let [libname (if (str/starts-with? libname "./")
-                                (path/resolve (path/dirname (or (:file ns-opts) "."))
-                                              libname)
-                                libname)
+                (let [libname libname
                       [libname properties*] (split-libname libname)
                       munged (munge libname)
                       properties (when properties* (.split properties* "."))
