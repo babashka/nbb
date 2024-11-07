@@ -150,16 +150,17 @@
                             (url/fileURLToPath path)
                             path)
                      file? (fs/existsSync file)
-                     path (if (and reload?
+                     path* (if (and reload?
                                    ;; not "node:fs" etc
                                    file?)
                             (str file "?uuid=" (random-uuid))
-                            path)]
-                 (esm/dynamic-import
-                  (let [path (if (and windows? (fs/existsSync path))
-                               (str (url/pathToFileURL path))
-                               path)]
-                    path)))))
+                            path)
+                     path (if (and windows? (fs/existsSync path*))
+                            (str (url/pathToFileURL path*))
+                            path*)]
+                 (when windows?
+                   (prn :path path :reload reload? :path* path*))
+                 (esm/dynamic-import path))))
       (.then (fn [mod]
                (register-module mod internal-name)
                mod))))
