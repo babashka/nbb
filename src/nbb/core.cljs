@@ -291,7 +291,8 @@
                       (.then after-load)))
                 :else
                 ;; assume symbol
-                (if (sci/eval-form (ctx/get-ctx) (list 'clojure.core/find-ns (list 'quote libname)))
+                (if (and (not (contains? (:opts ns-opts) :reload))
+                         (sci/eval-form (ctx/get-ctx) (list 'clojure.core/find-ns (list 'quote libname))))
                   ;; built-in namespace
                   (do (sci/binding [sci/ns (:ns ns-opts)
                                     sci/file (:file ns-opts)]
