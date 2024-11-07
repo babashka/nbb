@@ -146,11 +146,13 @@
                ((.-resolve (:require @ctx)) libname))))
         (js/Promise.resolve ((.-resolve (:require @ctx)) libname)))
       (.then (fn [path]
-               (let [path (if (and reload?
-                                   ;; "node:fs" etc
-                                   (and (not= libname path)
-                                        (or (not windows?)
-                                            (fs/existsSync path))))
+               (let [file (if (str/starts-with? path "file:")
+                            (url/fileURLToPath path)
+                            path)
+                     file? (fs/existsSync file)
+                     path (if (and reload?
+                                   ;; not "node:fs" etc
+                                   file?)
                             (str path "?uuid=" (random-uuid))
                             path)]
                  (esm/dynamic-import
