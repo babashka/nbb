@@ -153,7 +153,7 @@
                      path (if (and reload?
                                    ;; not "node:fs" etc
                                    file?)
-                            (str path "?uuid=" (random-uuid))
+                            (str file "?uuid=" (random-uuid))
                             path)]
                  (esm/dynamic-import
                   (let [path (if (and windows? (fs/existsSync path))
