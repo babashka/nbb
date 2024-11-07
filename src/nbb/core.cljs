@@ -138,6 +138,10 @@
 (defn register-module [mod internal-name]
   (swap! loaded-modules assoc internal-name mod))
 
+(defn debug [& xs]
+  (binding [*print-fn* *print-err-fn*]
+    (apply prn xs)))
+
 (defn load-js-module [libname internal-name reload?]
   (-> (if-let [resolve (:resolve @ctx)]
         (-> (resolve libname)
@@ -145,17 +149,16 @@
              (fn [_]
                ((.-resolve (:require @ctx)) libname))))
         (js/Promise.resolve ((.-resolve (:require @ctx)) libname)))
-      (.then (fn [path]
-               ;; (prn :path path)
-               (let [file-url (if (str/starts-with? path "file:")
+      (.then (fn [path] 
+               (let [file-url (if (str/starts-with? (str path) "file:")
                                 path
-                                (when (fs/existsSync path)
-                                  (url/pathToFileURL path)))
+                                (when (fs/existsSync path) 
+                                  (str (url/pathToFileURL path))))
                      path (if (and reload?
                                    ;; not "node:fs" etc
                                    file-url)
                              (str file-url "?uuid=" (random-uuid))
-                            path)]
+                             (or file-url path))]
                  (esm/dynamic-import path))))
       (.then (fn [mod]
                (register-module mod internal-name)
