@@ -4,9 +4,12 @@ on: [push, pull_request]
 
 jobs:
   build:
+
     runs-on: windows-latest
+
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
@@ -34,8 +37,8 @@ jobs:
           cli: latest
           bb: latest
 
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
+      # - name: Setup tmate session
+      #   uses: mxschmitt/action-tmate@v3
 
       - name: Run tests
         run: |

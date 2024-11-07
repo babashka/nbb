@@ -138,7 +138,11 @@
 (defn register-module [mod internal-name]
   (swap! loaded-modules assoc internal-name mod))
 
-(defn load-js-module [libname internal-name]
+(defn debug [& xs]
+  (binding [*print-fn* *print-err-fn*]
+    (apply prn xs)))
+
+(defn load-js-module [libname internal-name reload?]
   (-> (if-let [resolve (:resolve @ctx)]
         (-> (resolve libname)
             (.catch
@@ -146,11 +150,16 @@
                ((.-resolve (:require @ctx)) libname))))
         (js/Promise.resolve ((.-resolve (:require @ctx)) libname)))
       (.then (fn [path]
-               (esm/dynamic-import
-                (let [path (if (and windows? (fs/existsSync path))
-                             (str (url/pathToFileURL path))
-                             path)]
-                  path))))
+               (let [file-url (if (str/starts-with? (str path) "file:")
+                                path
+                                (when (and (or windows? reload?) (fs/existsSync path))
+                                  (str (url/pathToFileURL path))))
+                     path (if (and reload?
+                                   ;; not "node:fs" etc
+                                   file-url)
+                             (str file-url "?uuid=" (random-uuid))
+                             (or file-url path))]
+                 (esm/dynamic-import path))))
       (.then (fn [mod]
                (register-module mod internal-name)
                mod))))
@@ -237,7 +246,8 @@
                 feat (load-module feat libname as refer rename libspecs ns-opts)
                 (string? libname)
                 (let [libname (if (str/starts-with? libname "./")
-                                (path/resolve (path/dirname (:file ns-opts)) libname)
+                                (path/resolve (path/dirname (or (:file ns-opts) "."))
+                                              libname)
                                 libname)
                       [libname properties*] (split-libname libname)
                       munged (munge libname)
@@ -266,24 +276,27 @@
                                    (sci/add-class! internal-subname mod-field)
                                    (sci/add-import! current-ns internal-subname field))))))
                         (handle-libspecs (next libspecs) ns-opts))
-                      mod (js/Promise.resolve
-                           (->
-                            (or
-                             ;; skip loading if module was already loaded
-                             (some-> (get @loaded-modules internal-name)
-                                     js/Promise.resolve)
-                             (load-js-module libname internal-name)
-                             ;; else load module and register in loaded-modules under internal-name
-                             )
-                            (.then (fn [mod]
-                                     (if properties
-                                       (gobj/getValueByKeys mod properties)
-                                       mod)))))]
+                      mod (let [reload? (contains? (:opts ns-opts) :reload)]
+                            (js/Promise.resolve
+                             (->
+                              (or
+                               ;; skip loading if module was already loaded
+                               (and (not reload?)
+                                    (some-> (get @loaded-modules internal-name)
+                                            js/Promise.resolve))
+                               (load-js-module libname internal-name reload?)
+                               ;; else load module and register in loaded-modules under internal-name
+                               )
+                              (.then (fn [mod]
+                                       (if properties
+                                         (gobj/getValueByKeys mod properties)
+                                         mod))))))]
                   (-> mod
                       (.then after-load)))
                 :else
                 ;; assume symbol
-                (if (sci/eval-form (ctx/get-ctx) (list 'clojure.core/find-ns (list 'quote libname)))
+                (if (and (not (contains? (:opts ns-opts) :reload))
+                         (sci/eval-form (ctx/get-ctx) (list 'clojure.core/find-ns (list 'quote libname))))
                   ;; built-in namespace
                   (do (sci/binding [sci/ns (:ns ns-opts)
                                     sci/file (:file ns-opts)]
@@ -336,11 +349,14 @@
         ns-obj (sci/binding [sci/ns @sci/ns]
                  (sci/eval-form (ctx/get-ctx) (list 'do (list* 'ns ns-name other-forms) '*ns*)))
         libspecs (mapcat rest require-forms)
+        ns-opts (into #{} (filter keyword? libspecs))
+        libspecs (remove keyword? libspecs)
         opts (assoc opts :ns ns-obj)]
-    (handle-libspecs libspecs opts)))
+    (handle-libspecs libspecs (assoc opts :opts ns-opts))))
 
 (defn eval-require [require-form]
   (let [args (rest require-form)
+        args (remove keyword? args)
         libspecs (mapv #(sci/eval-form (ctx/get-ctx) %) args)
         sci-ns @sci/ns
         sci-file @sci/file]
@@ -681,8 +697,11 @@
          (if *old-require*
            (apply old-require args)
            (await (.then (identity ;; with-async-bindings {sci/file @sci/file}
-                          (handle-libspecs args {:ns @sci/ns
-                                                 :file @sci/file}))
+                          (let [opts (into #{} (filter keyword? args))
+                                args  (remove keyword? args)]
+                            (handle-libspecs args {:ns @sci/ns
+                                                   :file @sci/file
+                                                   :opts opts})))
                          (fn [_]))))))
 
 (def ^:dynamic *file* sci/file) ;; make clj-kondo+lsp happy

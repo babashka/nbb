@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.3.195 (2024-11-07)
+
+- [#343](https://github.com/babashka/nbb/issues/343): support `:reload` for reloading CLJS namespaces and JS code
+
 ## 1.3.194 (2024-10-23)
 
 - Fix issue with loading `cljs.spec.alpha` by upgrading shadow-cljs

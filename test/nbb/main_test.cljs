@@ -337,6 +337,14 @@ result")
              (fn [val]
                (is (number? val))))))
 
+(deftest-async reload-test
+  (is (.then (nbb/load-string "(require 'reload)
+(require 'reload :reload)
+
+[@reload/my-atom reload/x]")
+             (fn [val]
+               (is (= [2 2] val))))))
+
 (defn init []
   (t/run-tests 'nbb.main-test 'nbb.test-test))
 
