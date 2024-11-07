@@ -28,3 +28,4 @@ bun.lockb
 scratch.mjs
 scratch.cljs
 *.bun-build
+scratch
