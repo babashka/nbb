@@ -138,11 +138,6 @@
 (defn register-module [mod internal-name]
   (swap! loaded-modules assoc internal-name mod))
 
-#_(if (str/starts-with? libname "./")
-  (path/resolve (path/dirname (or (:file ns-opts) "."))
-                libname)
-  libname)
-
 (defn load-js-module [libname internal-name reload?]
   (-> (if-let [resolve (:resolve @ctx)]
         (-> (resolve libname)
@@ -151,13 +146,13 @@
                ((.-resolve (:require @ctx)) libname))))
         (js/Promise.resolve ((.-resolve (:require @ctx)) libname)))
       (.then (fn [path]
-               (prn :libname libname :path path)
                (let [path (if (and reload?
                                    ;; "node:fs" etc
-                                   (not= libname path))
+                                   (and (not= libname path)
+                                        (or (not windows?)
+                                            (fs/existsSync path))))
                             (str path "?uuid=" (random-uuid))
                             path)]
-                 (prn :path path)
                  (esm/dynamic-import
                   (let [path (if (and windows? (fs/existsSync path))
                                (str (url/pathToFileURL path))
@@ -248,7 +243,10 @@
               (cond
                 feat (load-module feat libname as refer rename libspecs ns-opts)
                 (string? libname)
-                (let [libname libname
+                (let [libname (if (str/starts-with? libname "./")
+                                (path/resolve (path/dirname (or (:file ns-opts) "."))
+                                              libname)
+                                libname)
                       [libname properties*] (split-libname libname)
                       munged (munge libname)
                       properties (when properties* (.split properties* "."))
