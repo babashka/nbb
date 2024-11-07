@@ -146,18 +146,16 @@
                ((.-resolve (:require @ctx)) libname))))
         (js/Promise.resolve ((.-resolve (:require @ctx)) libname)))
       (.then (fn [path]
-               (let [file (if (str/starts-with? path "file:")
-                            (url/fileURLToPath path)
-                            path)
-                     file? (delay (fs/existsSync file))
-                     path* (if (and reload?
+               ;; (prn :path path)
+               (let [file-url (if (str/starts-with? path "file:")
+                                path
+                                (when (fs/existsSync path)
+                                  (url/pathToFileURL path)))
+                     path (if (and reload?
                                    ;; not "node:fs" etc
-                                   @file?)
-                            (str file "?uuid=" (random-uuid))
-                            path)
-                     path (if (and windows? @file?)
-                            (str (url/pathToFileURL path*))
-                            path*)]
+                                   file-url)
+                             (str file-url "?uuid=" (random-uuid))
+                            path)]
                  (esm/dynamic-import path))))
       (.then (fn [mod]
                (register-module mod internal-name)
