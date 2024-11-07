@@ -155,11 +155,9 @@
                                    file?)
                             (str file "?uuid=" (random-uuid))
                             path)
-                     path (if (and windows? (fs/existsSync path*))
+                     path (if (and windows? file?)
                             (str (url/pathToFileURL path*))
                             path*)]
-                 (when windows?
-                   (prn :path path :reload reload? :path* path*))
                  (esm/dynamic-import path))))
       (.then (fn [mod]
                (register-module mod internal-name)
