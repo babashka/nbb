@@ -425,8 +425,8 @@ See the [example](examples/js-interop/example.cljs) of what is currently support
 
 ## Reader conditionals
 
-Nbb supports the following reader conditional features: `:org.babashka/nbb` and
-`:cljs` in that order of priority:
+Nbb supports the following reader conditional platform tags: `:org.babashka/nbb` and
+`:cljs`.  Whichever is first takes priority:
 
 ``` clojure
 #?(:org.babashka/nbb 1 :cljs 2) ;;=> 1
