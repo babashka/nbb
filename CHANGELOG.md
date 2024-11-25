@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## Unreleased
+
+- Add `locking` macro for compatibility with CLJS
+
 ## 1.3.195 (2024-11-07)
 
 - [#343](https://github.com/babashka/nbb/issues/343): support `:reload` for reloading CLJS namespaces and JS code
