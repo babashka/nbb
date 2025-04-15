@@ -18,7 +18,7 @@ jobs:
           submodules: 'true'
 
       - name: Cache deps
-        uses: actions/cache@v2
+        uses: actions/cache@latest
         id: cache-deps
         with:
           path: ~/.m2/repository
