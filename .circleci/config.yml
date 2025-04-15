@@ -30,10 +30,22 @@ jobs:
             chmod +x install
             sudo ./install
       - run:
+          name: Install node
+          command: |
+            set +e
+            wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            nvm install v18
+            nvm alias default 18
+
+            echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
+            echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
+      - run:
           name: Run Node tests
           command: |
             node -v
-            sudo npm install -g npm@8.5.5
             npm -v
             bb ci:test
       - run:
