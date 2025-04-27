@@ -48,7 +48,7 @@
 
 (def universe goog/global)
 
-(def cwd (.cwd process))
+(def cwd (process/cwd))
 
 (def command-line-args (sci/new-dynamic-var '*command-line-args* nil {:ns core-ns}))
 (def warn-on-infer (sci/new-dynamic-var '*warn-on-infer* false {:ns core-ns}))
@@ -106,7 +106,7 @@
                  (handle-libspecs (next libspecs) opts))))))
 
 (def ^:private windows?
-  (= "win32" (aget process "platform")))
+  (= "win32" process/platform))
 
 (defn set-react! [mod]
   (set! ^js (.-nbb$internal$react goog/global) mod))

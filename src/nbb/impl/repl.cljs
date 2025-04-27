@@ -54,15 +54,15 @@
         edited (when line (subs line col))]
     (reset! pending-input (str/join "\n" (cons edited lines)))))
 
-(def tty (and (-> process .-stdout .-isTTY)
-              (-> process .-stdin .-setRawMode)))
+(def tty (and (-> process/stdout.isTTY)
+              (-> process/stdin.setRawMode)))
 
 (defn eval-expr [socket f]
   (let [ctx #js {:f f}
         _ (.createContext vm ctx)]
     (try
       (when (and tty (not socket))
-        (.setRawMode (-> process .-stdin) false))
+        (.setRawMode (-> process/stdin) false))
       (-> (.runInContext vm "f()" ctx
                          #js {:displayErrors true
                               ;; :timeout 1000
@@ -82,10 +82,10 @@
                                          :microtaskMode "afterEvaluate"}))))
           (.finally (fn []
                       (when (and tty (not socket))
-                        (.setRawMode (-> process .-stdin) true)))))
+                        (.setRawMode process/stdin true)))))
       (catch :default e
         (when (and tty (not socket))
-          (.setRawMode (-> process .-stdin) true))
+          (.setRawMode process/stdin true))
         (js/Promise.reject e)))))
 
 (defn eval-next [socket rl]

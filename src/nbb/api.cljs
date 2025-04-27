@@ -66,10 +66,10 @@
                                          p))
                      (cp/add-classpath p)))
                  ;; default classpath
-                 (cp/add-classpath (.cwd process)))
+                 (cp/add-classpath (process/cwd)))
                (esm/dynamic-import "./nbb_deps.js"))
            ;; default classpath
-           (cp/add-classpath (.cwd process))))
+           (cp/add-classpath (process/cwd))))
         (.then (fn [_]
                  (reset! initialized? true))))))))
 

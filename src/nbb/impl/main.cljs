@@ -132,7 +132,7 @@ Tooling:
 "))
 
 (defn main []
-  (let [[_ _ & args] (aget process "argv")
+  (let [[_ _ & args] process/argv
         opts (parse-args args)
         _ (reset! common/opts opts)
         script-file (:script opts)
