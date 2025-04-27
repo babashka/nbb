@@ -1,6 +1,6 @@
 (ns nbb.impl.repl
   (:require
-   ["net" :as net]
+   ["node:net" :as net]
    ["readline" :as readline]
    ["vm" :as vm]
    [clojure.string :as str]

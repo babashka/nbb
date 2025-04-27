@@ -2,7 +2,7 @@
 ;; Also uses svg-to-pdfkit for loading SVG
 ;; Produces 'output.pdf' on run
 (ns example
-  (:require ["fs" :as fs]
+  (:require ["node:fs" :as fs]
             ["pdfkit$default" :as PDFDocument]
             ["svg-to-pdfkit$default" :as SVGtoPDF]))
 

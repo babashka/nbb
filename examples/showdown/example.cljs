@@ -1,5 +1,5 @@
 (ns example
-  (:require ["fs" :as fs]
+  (:require ["node:fs" :as fs]
             ["showdown$default" :as showdown]))
 
 (let [converter (showdown/Converter.)

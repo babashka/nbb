@@ -1,6 +1,6 @@
 (ns nbb.impl.main
   (:require
-   ["path" :as path]
+   ["node:path" :as path]
    [babashka.cli :as cli]
    [clojure.string :as str]
    [nbb.api :as api]

@@ -1,7 +1,7 @@
 (ns nbb.main-test
   (:require
    ["module" :refer [createRequire]]
-   ["path" :as path]
+   ["node:path" :as path]
    [clojure.string :as str]
    [clojure.test :as t :refer [deftest is testing]]
    [nbb.classpath :as cp]

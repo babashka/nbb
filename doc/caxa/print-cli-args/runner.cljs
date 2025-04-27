@@ -1,5 +1,5 @@
 (ns runner
-  (:require ["path" :as path]
+  (:require ["node:path" :as path]
             [nbb.classpath :refer [add-classpath]]
             [nbb.core :refer [*file*]]))
 

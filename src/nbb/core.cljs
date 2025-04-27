@@ -1,9 +1,9 @@
 (ns nbb.core
   (:refer-clojure :exclude [load-file time])
   (:require
-   ["fs" :as fs]
-   ["path" :as path]
-   ["url" :as url]
+   ["node:fs" :as fs]
+   ["node:path" :as path]
+   ["node:url" :as url]
    [babashka.cli]
    [cljs.tools.reader.reader-types]
    [clojure.edn :as edn]

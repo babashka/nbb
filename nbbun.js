@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { loadString, loadFile, addClassPath } from './index.mjs';
-import { existsSync } from "fs";
+import { existsSync } from "node:fs";
 
 const prn = await loadString('prn');
 const nonNil = await loadString('some?');

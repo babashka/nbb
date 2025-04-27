@@ -1,9 +1,9 @@
 (ns nbb.impl.nrepl-server
   "Original implementation taken from https://github.com/viesti/nrepl-cljs-sci."
   (:require
-   ["fs" :as fs]
-   ["net" :as node-net]
-   ["path" :as path]
+   ["node:fs" :as fs]
+   ["node:net" :as node-net]
+   ["node:path" :as path]
    [clojure.pprint :as pp]
    [clojure.string :as str]
    [goog.string :as gstring]

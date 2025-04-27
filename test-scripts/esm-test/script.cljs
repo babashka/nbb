@@ -1,7 +1,7 @@
 (ns script
   (:require ["csv-parse/lib/sync$default" :as csv-parse]
-            ["fs" :as fs]
-            ["path" :as path]
+            ["node:fs" :as fs]
+            ["node:path" :as path]
             ["shelljs$default" :as sh]
             ["term-size$default" :as term-size]
             ;; This is an important test, do not change:

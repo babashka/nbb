@@ -1,5 +1,5 @@
 (ns example
-  (:require ["net" :as net]))
+  (:require ["node:net" :as net]))
 
 (def port 1337)
 

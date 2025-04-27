@@ -2,7 +2,7 @@
   (:require
    [clojure.string :refer [capitalize]]
    [promesa.core :as p]
-   ["fs" :refer [writeFileSync]]
+   ["node:fs" :refer [writeFileSync]]
    ["node-fetch$default" :as fetch]
    ["uuid" :refer [v4] :rename {v4 uuid}]))
 

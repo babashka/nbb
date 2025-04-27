@@ -1,5 +1,5 @@
 (ns nbb.classpath
-  (:require ["path" :as path]
+  (:require ["node:path" :as path]
             [clojure.string :as str]))
 
 (def classpath-entries (atom []))
