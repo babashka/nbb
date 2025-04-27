@@ -2,7 +2,7 @@
   (:require
    [nbb.core :refer [*file*]]
    ["@fastify/static$default" :as statics]
-   ["path" :as path]))
+   ["node:path" :as path]))
 
 
 (def __filename *file*)

@@ -3,8 +3,8 @@
 (ns birch
   "Birch code adapted from https://github.com/lambdaisland/birch/blob/master/src/birch/core.cljs.")
 
-(def node-fs (js/require "fs"))
-(def node-path (js/require "path"))
+(def node-fs (js/require "node:fs"))
+(def node-path (js/require "node:path"))
 
 (def read-dir (.-readdirSync node-fs))
 (def stat (.-statSync node-fs))

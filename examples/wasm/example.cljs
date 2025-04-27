@@ -1,5 +1,5 @@
 (ns example
-  (:require ["fs" :as fs]
+  (:require ["node:fs" :as fs]
             [promesa.core :as p]))
 
 ;; example derived from https://www.tutorialspoint.com/webassembly/webassembly_examples.htm

@@ -1,8 +1,9 @@
 (ns nbb.impl.repl
   (:require
-   ["net" :as net]
-   ["readline" :as readline]
-   ["vm" :as vm]
+   ["node:net" :as net]
+   ["node:readline" :as readline]
+   ["node:vm" :as vm]
+   ["node:process" :as process]
    [clojure.string :as str]
    [nbb.api :as api]
    [nbb.core :as nbb]
@@ -53,15 +54,15 @@
         edited (when line (subs line col))]
     (reset! pending-input (str/join "\n" (cons edited lines)))))
 
-(def tty (and js/process.stdout.isTTY
-              js/process.stdin.setRawMode))
+(def tty (and (-> process/stdout.isTTY)
+              (-> process/stdin.setRawMode)))
 
 (defn eval-expr [socket f]
   (let [ctx #js {:f f}
         _ (.createContext vm ctx)]
     (try
       (when (and tty (not socket))
-        (.setRawMode js/process.stdin false))
+        (.setRawMode (-> process/stdin) false))
       (-> (.runInContext vm "f()" ctx
                          #js {:displayErrors true
                               ;; :timeout 1000
@@ -81,10 +82,10 @@
                                          :microtaskMode "afterEvaluate"}))))
           (.finally (fn []
                       (when (and tty (not socket))
-                        (.setRawMode js/process.stdin true)))))
+                        (.setRawMode process/stdin true)))))
       (catch :default e
         (when (and tty (not socket))
-          (.setRawMode js/process.stdin true))
+          (.setRawMode process/stdin true))
         (js/Promise.reject e)))))
 
 (defn eval-next [socket rl]
@@ -139,8 +140,8 @@
 
 (defn create-rl []
   (.createInterface
-   readline #js {:input js/process.stdin
-                 :output js/process.stdout
+   readline #js {:input (-> process/stdin)
+                 :output (-> process/stdout)
                  :completer completer}))
 
 (defn create-socket-rl [socket]
@@ -186,7 +187,7 @@
 (defn repl
   ([] (repl nil))
   ([opts]
-   (when tty (.setRawMode js/process.stdin true))
+   (when tty (.setRawMode process/stdin true))
    (let [eval-require (fn
                         [ns-form]
                         (nbb/eval-require

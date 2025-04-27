@@ -1,7 +1,7 @@
 (ns example
   {:clj-kondo/config '{:lint-as {promesa.core/let clojure.core/let}}}
   (:require
-   ["fs" :as fs]
+   ["node:fs" :as fs]
    ["ssh2" :refer [Client]]
    ["ssh2-promise$default" :as SSH2Promise]
    [promesa.core :as p]))

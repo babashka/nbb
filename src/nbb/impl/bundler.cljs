@@ -1,7 +1,7 @@
 (ns nbb.impl.bundler
   "Mostly a copy of babashka uberscript, but generating an .mjs file for Node to execute"
   (:require
-   ["fs" :as fs]
+   ["node:fs" :as fs]
    [clojure.string :as str]
    [goog.string :as gstring]
    [goog.string.format]

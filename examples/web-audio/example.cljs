@@ -1,6 +1,6 @@
 (ns example
   (:require
-   ["fs" :as fs]
+   ["node:fs" :as fs]
    ["web-audio-api$default" :as wa]))
 
 (def ^:dynamic context (wa/AudioContext.))

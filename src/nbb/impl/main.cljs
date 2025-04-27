@@ -1,6 +1,7 @@
 (ns nbb.impl.main
   (:require
-   ["path" :as path]
+   ["node:path" :as path]
+   ["node:process" :as process]
    [babashka.cli :as cli]
    [clojure.string :as str]
    [nbb.api :as api]
@@ -131,7 +132,8 @@ Tooling:
 "))
 
 (defn main []
-  (let [[_ _ & args] js/process.argv
+  (let [[_ _ & args] (or js/globalThis.nbb_args
+                         process/argv)
         opts (parse-args args)
         _ (reset! common/opts opts)
         script-file (:script opts)
@@ -147,10 +149,10 @@ Tooling:
         bundle-opts (:bundle-opts opts)]
     (when (:help opts)
       (print-help)
-      (js/process.exit 0))
+      (process/exit 0))
     (when (:version opts)
       (println (str (nbb/cli-name) " v" (nbb/version)))
-      (js/process.exit 0))
+      (process/exit 0))
     (if (or script-file expr nrepl-server repl? bundle-opts)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
           (->

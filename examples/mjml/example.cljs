@@ -2,7 +2,7 @@
   (:require [reagent.core :as r]
             ["react-dom/server" :as dom-server]
             ["mjml$default" :as mjml2html]
-            ["fs" :as fs]))
+            ["node:fs" :as fs]))
 
 (def example-email
   [:mjml

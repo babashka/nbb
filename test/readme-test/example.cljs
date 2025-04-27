@@ -1,7 +1,7 @@
 (ns example
   (:require ["csv-parse/sync" :as csv]
-            ["fs" :as fs]
-            ["path" :as path]
+            ["node:fs" :as fs]
+            ["node:path" :as path]
             ["shelljs$default" :as sh]
             ["term-size$default" :as term-size]
             ["zx" :refer [$]]

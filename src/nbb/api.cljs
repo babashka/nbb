@@ -1,10 +1,11 @@
 (ns nbb.api
   (:require
-   ["fs" :as fs]
    ["import-meta-resolve" :as imr]
-   ["module" :refer [createRequire]]
-   ["path" :as path]
-   ["url" :as url]
+   ["node:fs" :as fs]
+   ["node:module" :refer [createRequire]]
+   ["node:path" :as path]
+   ["node:process" :as process]
+   ["node:url" :as url]
    [clojure.edn :as edn]
    [nbb.classpath :as cp]
    [nbb.core :as nbb]
@@ -65,10 +66,10 @@
                                          p))
                      (cp/add-classpath p)))
                  ;; default classpath
-                 (cp/add-classpath (js/process.cwd)))
+                 (cp/add-classpath (process/cwd)))
                (esm/dynamic-import "./nbb_deps.js"))
            ;; default classpath
-           (cp/add-classpath (js/process.cwd))))
+           (cp/add-classpath (process/cwd))))
         (.then (fn [_]
                  (reset! initialized? true))))))))
 

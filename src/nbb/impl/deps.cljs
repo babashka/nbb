@@ -2,8 +2,8 @@
   (:require
    ["child_process" :as cproc]
    ["crypto" :as crypto]
-   ["fs" :as fs]
-   ["path" :as path]
+   ["node:fs" :as fs]
+   ["node:path" :as path]
    [nbb.classpath :as cp]
    [nbb.core :as nbb :refer [opts]]))
 

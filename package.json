@@ -9,12 +9,13 @@
   },
   "description": "Babashka-like tool for Node.js.",
   "dependencies": {
+    "@luca/cases": "npm:@jsr/luca__cases@^1.0.0",
     "import-meta-resolve": "^2.1.0"
   },
   "devDependencies": {
     "ink": "^3.0.9",
     "moment": "^2.29.4",
-    "nbb": ".",
+    "nbb": "file:.",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "shadow-cljs": "^2.15.2",

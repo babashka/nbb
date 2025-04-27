@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@luca/cases@npm:@jsr/luca__cases@^1.0.0":
+  version "1.0.0"
+  resolved "https://npm.jsr.io/~/11/@jsr/luca__cases/1.0.0.tgz"
+  integrity sha512-h3nOT3+JVCXBsLd+st9cytZO+iqJYTTsm3rOrtZZXBgJ0nzBA5mDR9dI3k8wBDQ5AAqqJjD3UkhLxoRCEKwzgg==
+
 "@types/yoga-layout@1.9.2":
   version "1.9.2"
   resolved "https://registry.npmjs.org/@types/yoga-layout/-/yoga-layout-1.9.2.tgz"
@@ -526,8 +531,8 @@ moment@^2.29.4:
   resolved "https://registry.npmjs.org/moment/-/moment-2.29.4.tgz"
   integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
 
-nbb@.:
-  version "1.3.193"
+"nbb@file:.":
+  version "1.3.196"
   resolved "file:"
   dependencies:
     import-meta-resolve "^2.1.0"

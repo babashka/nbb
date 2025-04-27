@@ -2,7 +2,7 @@
   {:no-doc true}
   (:refer-clojure :exclude [println])
   (:require
-   ["fs" :as fs]
+   ["node:fs" :as fs]
    [clojure.string :as str]
    [sci.core :as sci]))
 

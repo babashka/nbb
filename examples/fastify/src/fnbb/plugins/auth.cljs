@@ -4,7 +4,7 @@
             [fnbb.utils :refer [render]]
             [fnbb.users :as d]
             [fnbb.plugins.layout :refer [layout]]
-            ["url" :refer [URL]]
+            ["node:url" :refer [URL]]
             ["@fastify/cookie$default" :as cookie]
             ["fast-jwt$default" :refer [createSigner createVerifier]]
             ["bcrypt$default" :as bcrypt]))

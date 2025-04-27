@@ -1,9 +1,10 @@
 (ns nbb.impl.nrepl-server
   "Original implementation taken from https://github.com/viesti/nrepl-cljs-sci."
   (:require
-   ["fs" :as fs]
-   ["net" :as node-net]
-   ["path" :as path]
+   ["node:fs" :as fs]
+   ["node:net" :as node-net]
+   ["node:path" :as path]
+   ["node:process" :as process]
    [clojure.pprint :as pp]
    [clojure.string :as str]
    [goog.string :as gstring]
@@ -64,7 +65,7 @@
 (defn handle-describe [request send-fn]
   (send-fn request
            {"versions" {"nbb-nrepl" (version-string->data "TODO")
-                        "node" (version-string->data js/process.version)}
+                        "node" (version-string->data process/version)}
             "aux" {}
             "ops" (zipmap (map name (keys ops)) (repeat {}))
             "status" ["done"]}))
