@@ -14,7 +14,7 @@
   "devDependencies": {
     "ink": "^3.0.9",
     "moment": "^2.29.4",
-    "nbb": ".",
+    "nbb": "file:.",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "shadow-cljs": "^2.15.2",

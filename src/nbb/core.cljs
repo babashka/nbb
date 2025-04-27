@@ -3,6 +3,7 @@
   (:require
    ["node:fs" :as fs]
    ["node:path" :as path]
+   ["node:process" :as process]
    ["node:url" :as url]
    [babashka.cli]
    [cljs.tools.reader.reader-types]
@@ -13,11 +14,11 @@
    [nbb.classpath :as cp]
    [nbb.common :refer [core-ns]]
    [nbb.error :as nbb.error]
+   [nbb.impl.sci :as sci-cfg]
    [sci.core :as sci]
    [sci.ctx-store :as ctx]
    [sci.impl.unrestrict :refer [*unrestricted*]]
    [sci.impl.vars :as vars]
-   [nbb.impl.sci :as sci-cfg]
    [sci.lang]
    [shadow.esm :as esm])
   (:require-macros [nbb.macros :as macros]))
@@ -47,7 +48,7 @@
 
 (def universe goog/global)
 
-(def cwd (.cwd js/process))
+(def cwd (.cwd process))
 
 (def command-line-args (sci/new-dynamic-var '*command-line-args* nil {:ns core-ns}))
 (def warn-on-infer (sci/new-dynamic-var '*warn-on-infer* false {:ns core-ns}))
@@ -105,7 +106,7 @@
                  (handle-libspecs (next libspecs) opts))))))
 
 (def ^:private windows?
-  (= "win32" js/process.platform))
+  (= "win32" (aget process "platform")))
 
 (defn set-react! [mod]
   (set! ^js (.-nbb$internal$react goog/global) mod))

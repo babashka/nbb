@@ -1,6 +1,7 @@
 (ns nbb.impl.main
   (:require
    ["node:path" :as path]
+   ["node:process" :as process]
    [babashka.cli :as cli]
    [clojure.string :as str]
    [nbb.api :as api]
@@ -131,7 +132,7 @@ Tooling:
 "))
 
 (defn main []
-  (let [[_ _ & args] js/process.argv
+  (let [[_ _ & args] (aget process "argv")
         opts (parse-args args)
         _ (reset! common/opts opts)
         script-file (:script opts)
