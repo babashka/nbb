@@ -1,7 +1,8 @@
 (ns nbb.main-test
   (:require
-   ["module" :refer [createRequire]]
+   ["node:module" :refer [createRequire]]
    ["node:path" :as path]
+   ["node:process" :as process]
    [clojure.string :as str]
    [clojure.test :as t :refer [deftest is testing]]
    [nbb.classpath :as cp]
@@ -18,13 +19,13 @@
 (def old-fail (get-method t/report [:cljs.test/default :fail]))
 
 (defmethod t/report [:cljs.test/default :fail] [m]
-  (set! js/process.exitCode 1)
+  (set! process/exitCode 1)
   (old-fail m))
 
 (def old-error (get-method t/report [:cljs.test/default :fail]))
 
 (defmethod t/report [:cljs.test/default :error] [m]
-  (set! js/process.exitCode 1)
+  (set! process/exitCode 1)
   (old-error m))
 
 (cp/add-classpath "test-scripts")
@@ -34,13 +35,13 @@
 ;; See https://clojurescript.org/tools/testing#async-testing.
 
 (defn with-args [args f]
-  (let [old-args js/process.argv
+  (let [old-args (or js/globalThis.nbb_args process/argv)
         args (into-array (list* nil nil args))]
-    (set! (.-argv js/process) args)
+    (set! js/globalThis.nbb_args args)
     (-> (f)
         (js/Promise.resolve)
         (.finally (fn []
-                    (set! (.-argv js/process) old-args))))))
+                    (set! js/globalThis.nbb_args old-args))))))
 
 (defn main-with-args [args]
   (with-args args main/main))

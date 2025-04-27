@@ -132,7 +132,8 @@ Tooling:
 "))
 
 (defn main []
-  (let [[_ _ & args] process/argv
+  (let [[_ _ & args] (or js/globalThis.nbb_args
+                         process/argv)
         opts (parse-args args)
         _ (reset! common/opts opts)
         script-file (:script opts)
