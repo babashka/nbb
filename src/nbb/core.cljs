@@ -144,14 +144,16 @@
     (apply prn xs)))
 
 (defn load-js-module [libname internal-name reload?]
-  (-> (-> (if-let [resolve (:resolve @ctx)]
-            (-> (resolve libname)
-                (.catch
-                 (fn [_]
-                   ((.-resolve (:require @ctx)) libname))))
-            (js/Promise.resolve ((.-resolve (:require @ctx)) libname)))
-          (.catch (fn [_]
-                    libname)))
+
+  (-> (-> (if (str/starts-with? libname "jsr:")
+            ;; fix for deno
+            (js/Promise.resolve libname)
+            (if-let [resolve (:resolve @ctx)]
+              (-> (resolve libname)
+                  (.catch
+                   (fn [_]
+                     ((.-resolve (:require @ctx)) libname))))
+              (js/Promise.resolve ((.-resolve (:require @ctx)) libname)))))
       (.then (fn [path]
                (let [file-url (if (str/starts-with? (str path) "file:")
                                 path

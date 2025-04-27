@@ -9,6 +9,7 @@
   },
   "description": "Babashka-like tool for Node.js.",
   "dependencies": {
+    "@luca/cases": "npm:@jsr/luca__cases@^1.0.0",
     "import-meta-resolve": "^2.1.0"
   },
   "devDependencies": {

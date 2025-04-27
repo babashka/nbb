@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.3.197 (2025-11-27)
+
+- [#379](https://github.com/babashka/nbb/issues/379): Support `:require` + `jsr:` dependencies in Deno
+
 ## 1.3.196 (2024-11-25)
 
 - Add `locking` macro for compatibility with CLJS

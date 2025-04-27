@@ -3,6 +3,7 @@
   "packages": {
     "specifiers": {
       "jsr:@luca/cases@1.0.0": "jsr:@luca/cases@1.0.0",
+      "npm:@jsr/luca__cases@^1.0.0": "npm:@jsr/luca__cases@1.0.0",
       "npm:import-meta-resolve@^2.1.0": "npm:import-meta-resolve@2.2.2",
       "npm:ink@^3.0.9": "npm:ink@3.2.0_react@17.0.2",
       "npm:moment@^2.29.4": "npm:moment@2.30.1",
@@ -17,6 +18,10 @@
       }
     },
     "npm": {
+      "@jsr/luca__cases@1.0.0": {
+        "integrity": "sha512-h3nOT3+JVCXBsLd+st9cytZO+iqJYTTsm3rOrtZZXBgJ0nzBA5mDR9dI3k8wBDQ5AAqqJjD3UkhLxoRCEKwzgg==",
+        "dependencies": {}
+      },
       "@types/yoga-layout@1.9.2": {
         "integrity": "sha512-S9q47ByT2pPvD65IvrWp7qppVMpk9WGMbVq9wbWZOHg6tnXSD4vyhao6nOSBwwfDdV2p3Kx9evA9vI+XWTfDvw==",
         "dependencies": {}
@@ -1039,6 +1044,7 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:@jsr/luca__cases@^1.0.0",
         "npm:import-meta-resolve@^2.1.0",
         "npm:ink@^3.0.9",
         "npm:moment@^2.29.4",
