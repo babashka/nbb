@@ -30,3 +30,6 @@ scratch.cljs
 *.bun-build
 scratch
 .npmrc
+deno.lock
+package-lock.json
+yarn.lock
