@@ -19,13 +19,17 @@
 (def old-fail (get-method t/report [:cljs.test/default :fail]))
 
 (defmethod t/report [:cljs.test/default :fail] [m]
-  (set! process/exitCode 1)
+  (set! (.-exitCode (or js/globalThis.Deno
+                        js/process))
+        1)
   (old-fail m))
 
 (def old-error (get-method t/report [:cljs.test/default :fail]))
 
 (defmethod t/report [:cljs.test/default :error] [m]
-  (set! process/exitCode 1)
+  (set! (.-exitCode (or js/globalThis.Deno
+                        js/process))
+        1)
   (old-error m))
 
 (cp/add-classpath "test-scripts")

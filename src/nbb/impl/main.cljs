@@ -149,10 +149,10 @@ Tooling:
         bundle-opts (:bundle-opts opts)]
     (when (:help opts)
       (print-help)
-      (js/process.exit 0))
+      (process/exit 0))
     (when (:version opts)
       (println (str (nbb/cli-name) " v" (nbb/version)))
-      (js/process.exit 0))
+      (process/exit 0))
     (if (or script-file expr nrepl-server repl? bundle-opts)
       (do (sci/alter-var-root nbb/command-line-args (constantly (:args opts)))
           (->
