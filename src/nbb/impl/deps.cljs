@@ -1,7 +1,7 @@
 (ns nbb.impl.deps
   (:require
-   ["child_process" :as cproc]
-   ["crypto" :as crypto]
+   ["node:child_process" :as cproc]
+   ["node:crypto" :as crypto]
    ["node:fs" :as fs]
    ["node:path" :as path]
    [nbb.classpath :as cp]
