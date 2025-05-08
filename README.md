@@ -749,6 +749,42 @@ See [Nbb on Google Cloud Functions](doc/gcloud_functions.md).
 
 See [Deploying an nbb app to fly.io](doc/fly_io).
 
+## Nbb with Deno
+
+Nbb has [Deno](https://deno.com/) support although some features may not work
+properly depending on Node-compatibility of Deno. You can run the below script
+which uses dependencies from npm and [jsr](http://jsr.io/) using a single
+command, without manually installing dependencies:
+
+``` javascript
+deno run -A jsr:@babashka/nbb@1.3.201 /tmp/script.cljs
+```
+
+``` clojure
+;; /tmp/script.cljs
+(ns script
+  (:require ["npm:react"]
+            ["npm:react-dom/server"]
+            ["jsr:@hono/hono" :as h]
+            [reagent.core :as r]
+            [reagent.dom.server :refer [render-to-string]]))
+
+(defonce state (r/atom 0))
+
+(prn (render-to-string [:div [:p "Hello"]]))
+
+(def app  (new h/Hono))
+
+(.get
+ app
+ "/"
+ (fn [ctx]
+   (.html ctx (render-to-string [:div [:p "Hello"]])
+)))
+
+(js/Deno.serve app.fetch)
+```
+
 ## Build
 
 Prequisites:
