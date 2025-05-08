@@ -8,6 +8,50 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: 'true'
+
+      - name: Cache deps
+        uses: actions/cache@v4.2.3
+        id: cache-deps
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('deps.edn') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: Prepare java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt-hotspot'
+          java-version: '19'
+
+      - name: Install clojure tools
+        uses: DeLaGuardo/setup-clojure@5.0
+        with:
+          cli: latest
+          bb: latest
+
+      # - name: Setup tmate session
+      #   uses: mxschmitt/action-tmate@v3
+
+      - name: Run tests
+        run: |
+          bb ci:test
+
+  jsr-publish:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs: build
     permissions:
       contents: read
       id-token: write # The OIDC ID token is used for authentication with JSR.
@@ -45,13 +89,9 @@ jobs:
       # - name: Setup tmate session
       #   uses: mxschmitt/action-tmate@v3
 
-      # - name: Run tests
-      #   run: |
-      #     bb ci:test
-
       - name: Publish
         if: ${{ matrix.os }} == 'ubuntu-latest'
-        # if: github.ref == 'refs/heads/main' && ${{ matrix.os }} == 'ubuntu-latest'
+        if: github.ref == 'refs/heads/main' && ${{ matrix.os }} == 'ubuntu-latest'
         run: |
           bb clean
           bb release
