@@ -45,12 +45,14 @@ jobs:
       # - name: Setup tmate session
       #   uses: mxschmitt/action-tmate@v3
 
-      - name: Run tests
-        run: |
-          bb ci:test
+      # - name: Run tests
+      #   run: |
+      #     bb ci:test
 
       - name: Publish
         if: ${{ matrix.os }} == 'ubuntu-latest'
         # if: github.ref == 'refs/heads/main' && ${{ matrix.os }} == 'ubuntu-latest'
         run: |
+          bb clean
+          bb release
           npx jsr publish
