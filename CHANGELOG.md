@@ -2,13 +2,12 @@
 
 For a list of breaking changes, check [here](#breaking-changes).
 
-- [#382](https://github.com/babashka/nbb/issues/382): Prefix all node imports with `node:`
-
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
 ## 1.3.201 (2025-05-08)
 
-- Deno improvements
+- Deno improvements for loading `jsr:` and `npm:` deps, including react in combination with reagent
+- [#382](https://github.com/babashka/nbb/issues/382): prefix all node imports with `node:`
 
 ## 1.3.198 (2025-04-27)
 
