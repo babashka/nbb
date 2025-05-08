@@ -112,18 +112,37 @@
   (set! ^js (.-nbb$internal$react goog/global) mod))
 
 (defn load-react []
-  (let [internal-name (symbol "nbb.internal.react")
-        mod
-        ;; NOTE: react could already have been loaded by requiring it
-        ;; directly, in that case it's part of loaded-modules already
-        (or (get @loaded-modules internal-name)
-            (let [mod ((:require @ctx) "react")]
-              (swap! loaded-modules assoc internal-name mod)
-              mod))]
-    ;; To make sure reagent sees the required react, we set it here Wwe
-    ;; could make reagent directly use loaded-modules via a global so we
-    ;; don't have to hardcode this.
-    (set-react! mod)))
+  (or (.-nbb$internal$react goog/global)
+      (let [internal-name (symbol "nbb.internal.react")
+            mod
+            ;; NOTE: react could already have been loaded by requiring it
+            ;; directly, in that case it's part of loaded-modules already
+            (or (get @loaded-modules internal-name)
+                (let [mod ((:require @ctx) "react")]
+                  (swap! loaded-modules assoc internal-name mod)
+                  mod))]
+        ;; To make sure reagent sees the required react, we set it here Wwe
+        ;; could make reagent directly use loaded-modules via a global so we
+        ;; don't have to hardcode this.
+        (set-react! mod))))
+
+(defn set-react-dom! [mod]
+  (set! ^js (.-nbb$internal$react-dom-server goog/global) mod))
+
+(defn load-react-dom []
+  (or (.-nbb$internal$react-dom-server goog/global)
+      (let [internal-name (symbol "nbb.internal.react-dom-server")]
+        (let [mod
+              ;; NOTE: react could already have been loaded by requiring it
+              ;; directly, in that case it's part of loaded-modules already
+              (or (get @loaded-modules internal-name)
+                  (let [mod ((:require @ctx) "react-dom/server")]
+                    (swap! loaded-modules assoc internal-name mod)
+                    mod))]
+          ;; To make sure reagent sees the required react, we set it here Wwe
+          ;; could make reagent directly use loaded-modules via a global so we
+          ;; don't have to hardcode this.
+          (set-react-dom! mod)))))
 
 (declare old-require)
 
@@ -144,29 +163,34 @@
     (apply prn xs)))
 
 (defn load-js-module [libname internal-name reload?]
-  (-> (if (str/starts-with? (str libname) "jsr:")
-        ;; fix for deno
-        (js/Promise.resolve libname)
-        (if-let [resolve (:resolve @ctx)]
-          (-> (resolve libname)
-              (.catch
-               (fn [_]
-                 ((.-resolve (:require @ctx)) libname))))
-          (js/Promise.resolve ((.-resolve (:require @ctx)) libname))))
-      (.then (fn [path]
-               (let [file-url (if (str/starts-with? (str path) "file:")
-                                path
-                                (when (and (or windows? reload?) (fs/existsSync path))
-                                  (str (url/pathToFileURL path))))
-                     path (if (and reload?
-                                   ;; not "node:fs" etc
-                                   file-url)
-                             (str file-url "?uuid=" (random-uuid))
-                             (or file-url path))]
-                 (esm/dynamic-import path))))
-      (.then (fn [mod]
-               (register-module mod internal-name)
-               mod))))
+  (let [react? (re-matches #"(.*:)?react(@.*)?" libname)
+        react-dom? (re-matches #"(.*:)?react-dom(@.*)?" libname)]
+    (-> (if (or (str/starts-with? (str libname) "jsr:")
+                (str/starts-with? (str libname) "npm:"))
+          ;; fix for deno
+          (js/Promise.resolve libname)
+          (if-let [resolve (:resolve @ctx)]
+            (-> (resolve libname)
+                (.catch
+                 (fn [_]
+                   ((.-resolve (:require @ctx)) libname))))
+            (js/Promise.resolve ((.-resolve (:require @ctx)) libname))))
+        (.then (fn [path]
+                 (let [file-url (if (str/starts-with? (str path) "file:")
+                                  path
+                                  (when (and (or windows? reload?) (fs/existsSync path))
+                                    (str (url/pathToFileURL path))))
+                       path (if (and reload?
+                                     ;; not "node:fs" etc
+                                     file-url)
+                              (str file-url "?uuid=" (random-uuid))
+                              (or file-url path))]
+                   (esm/dynamic-import path))))
+        (.then (fn [mod]
+                 (when react? (set-react! mod))
+                 (when react-dom? (set-react-dom! mod))
+                 (register-module mod internal-name)
+                 mod)))))
 
 (defn munged->internal [munged]
   (symbol (str "nbb.internal." munged)))
@@ -226,19 +250,8 @@
             (reagent.dom.server)
             (do
               (load-react)
-              (let [internal-name (symbol "nbb.internal.react-dom-server")]
-                (let [mod
-                      ;; NOTE: react could already have been loaded by requiring it
-                      ;; directly, in that case it's part of loaded-modules already
-                      (or (get @loaded-modules internal-name)
-                          (let [mod ((:require @ctx) "react-dom/server")]
-                            (swap! loaded-modules assoc internal-name mod)
-                            mod))]
-                  ;; To make sure reagent sees the required react, we set it here Wwe
-                  ;; could make reagent directly use loaded-modules via a global so we
-                  ;; don't have to hardcode this.
-                  (set! ^js (.-nbb$internal$react-dom-server goog/global) mod))
-                (load-module "./nbb_reagent_dom_server.js" libname as refer rename libspecs ns-opts)))
+              (load-react-dom)
+              (load-module "./nbb_reagent_dom_server.js" libname as refer rename libspecs ns-opts))
             ;; (schema.core)
             ;; (load-module ((.-resolve (:require @ctx)) "@babashka/nbb-prismatic-schema/index.mjs")
             ;;              libname as refer rename libspecs)
