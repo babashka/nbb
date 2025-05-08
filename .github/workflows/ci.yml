@@ -4,8 +4,10 @@ on: [push, pull_request]
 
 jobs:
   build:
-
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -43,3 +45,16 @@ jobs:
       - name: Run tests
         run: |
           bb ci:test
+
+      - name: Publish
+        if: ${{ matrix.os }} == 'ubuntu-latest'
+        # if: github.ref == 'refs/heads/main' && ${{ matrix.os }} == 'ubuntu-latest'
+        permissions:
+          contents: read
+          id-token: write # The OIDC ID token is used for authentication with JSR.
+        run: |
+          npx jsr publish
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
