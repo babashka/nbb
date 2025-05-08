@@ -8,6 +8,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      id-token: write # The OIDC ID token is used for authentication with JSR.
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -49,8 +52,5 @@ jobs:
       - name: Publish
         if: ${{ matrix.os }} == 'ubuntu-latest'
         # if: github.ref == 'refs/heads/main' && ${{ matrix.os }} == 'ubuntu-latest'
-        permissions:
-          contents: read
-          id-token: write # The OIDC ID token is used for authentication with JSR.
         run: |
           npx jsr publish
