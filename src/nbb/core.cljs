@@ -112,7 +112,7 @@
   (set! ^js (.-nbb$internal$react goog/global) mod))
 
 (defn load-react []
-  (or (.-nbb$internal$react goog/global)
+  (or (.-nbb$internal$react ^js goog/global)
       (let [internal-name (symbol "nbb.internal.react")
             mod
             ;; NOTE: react could already have been loaded by requiring it
@@ -130,19 +130,14 @@
   (set! ^js (.-nbb$internal$react-dom-server goog/global) mod))
 
 (defn load-react-dom []
-  (or (.-nbb$internal$react-dom-server goog/global)
-      (let [internal-name (symbol "nbb.internal.react-dom-server")]
-        (let [mod
-              ;; NOTE: react could already have been loaded by requiring it
-              ;; directly, in that case it's part of loaded-modules already
-              (or (get @loaded-modules internal-name)
-                  (let [mod ((:require @ctx) "react-dom/server")]
-                    (swap! loaded-modules assoc internal-name mod)
-                    mod))]
-          ;; To make sure reagent sees the required react, we set it here Wwe
-          ;; could make reagent directly use loaded-modules via a global so we
-          ;; don't have to hardcode this.
-          (set-react-dom! mod)))))
+  (or (.-nbb$internal$react-dom-server ^js goog/global)
+      (let [internal-name (symbol "nbb.internal.react-dom-server")
+            mod
+            (or (get @loaded-modules internal-name)
+                (let [mod ((:require @ctx) "react-dom/server")]
+                  (swap! loaded-modules assoc internal-name mod)
+                  mod))]
+        (set-react-dom! mod))))
 
 (declare old-require)
 
