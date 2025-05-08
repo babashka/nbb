@@ -159,7 +159,7 @@
 
 (defn load-js-module [libname internal-name reload?]
   (let [react? (re-matches #"(.*:)?react(@.*)?" libname)
-        react-dom? (re-matches #"(.*:)?react-dom(@.*)?" libname)]
+        react-dom? (re-matches #"(.*:)?react-dom(@.*)?/server" libname)]
     (-> (if (or (str/starts-with? (str libname) "jsr:")
                 (str/starts-with? (str libname) "npm:"))
           ;; fix for deno
@@ -185,7 +185,10 @@
                  (when react? (set-react! mod))
                  (when react-dom? (set-react-dom! mod))
                  (register-module mod internal-name)
-                 mod)))))
+                 mod))
+        #_(.catch (fn [err]
+                  (js/console.log err)
+                  (throw err))))))
 
 (defn munged->internal [munged]
   (symbol (str "nbb.internal." munged)))
