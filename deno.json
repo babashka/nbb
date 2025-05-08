@@ -1,0 +1,17 @@
+{
+  "name": "@babashka/nbb",
+  "version": "1.3.200.test1",
+  "exports": {
+    ".": "./api.mjs",
+    "./reagent.core": "./reagent.mjs"
+  },
+  "nodeModulesDir": "auto",
+  "publish": {
+    "exclude": [
+      "!lib/",
+      "doc/*",
+      "examples/*",
+      "test/*",
+      "test-scripts/*"]
+  }
+}

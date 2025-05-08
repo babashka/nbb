@@ -33,4 +33,3 @@ scratch
 deno.lock
 package-lock.json
 yarn.lock
-deno.json
