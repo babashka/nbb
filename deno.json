@@ -2,7 +2,7 @@
   "name": "@babashka/nbb",
   "version": "1.3.200-test-2",
   "exports": {
-    ".": "./cli.mjs"
+    ".": "./cli.js"
   },
   "nodeModulesDir": "auto",
   "publish": {
