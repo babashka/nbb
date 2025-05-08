@@ -130,7 +130,7 @@
   (set! ^js (.-nbb$internal$react-dom-server goog/global) mod))
 
 (defn load-react-dom []
-  (or (.-nbb$internal$react-dom-server ^js goog/global)
+  (or ^js (.-nbb$internal$react-dom-server goog/global)
       (let [internal-name (symbol "nbb.internal.react-dom-server")
             mod
             (or (get @loaded-modules internal-name)
