@@ -18,3 +18,4 @@ ratomGeneration
 destroy
 # end with-let
 nbb$internal$react
+nbb$internal$react-dom-server
