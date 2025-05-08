@@ -769,8 +769,6 @@ deno run -A jsr:@babashka/nbb@1.3.201 /tmp/script.cljs
             [reagent.core :as r]
             [reagent.dom.server :refer [render-to-string]]))
 
-(defonce state (r/atom 0))
-
 (prn (render-to-string [:div [:p "Hello"]]))
 
 (def app  (new h/Hono))
@@ -779,8 +777,7 @@ deno run -A jsr:@babashka/nbb@1.3.201 /tmp/script.cljs
  app
  "/"
  (fn [ctx]
-   (.html ctx (render-to-string [:div [:p "Hello"]])
-)))
+   (.html ctx (render-to-string [:div [:p "Hello"]]))))
 
 (js/Deno.serve app.fetch)
 ```
