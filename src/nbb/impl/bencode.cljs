@@ -59,7 +59,7 @@
 (defn read-bencode [string] (first (decode string)))
 
 (defn utf8-bytes [s]
-  (.-length (.encode (new js/TextEncode) s)))
+  (.-length (.encode (new js/TextEncoder) s)))
 
 (defn encode [data]
   (cond
