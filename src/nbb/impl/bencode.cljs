@@ -1,5 +1,6 @@
 (ns nbb.impl.bencode
-  "Bencode support, taken from https://github.com/djblue/nrepl-cljs/blob/master/src/nrepl/bencode.cljs")
+  "Bencode support, taken from https://github.com/djblue/nrepl-cljs/blob/master/src/nrepl/bencode.cljs"
+  (:require ["node:buffer" :as buf]))
 
 (defn- index-of [s c]
   (let [i (.indexOf s c)]
@@ -59,7 +60,7 @@
 (defn read-bencode [string] (first (decode string)))
 
 (defn utf8-bytes [s]
-  (.-length (js/Buffer.from s)))
+  (.-length (buf/from s)))
 
 (defn encode [data]
   (cond
