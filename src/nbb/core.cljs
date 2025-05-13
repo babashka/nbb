@@ -161,14 +161,14 @@
   (let [react? (re-matches #"(.*:)?react(@.*)?" libname)
         react-dom? (re-matches #"(.*:)?react-dom(@.*)?/server" libname)]
     (-> (if (or (str/starts-with? (str libname) "jsr:")
-                (str/starts-with? (str libname) "npm:"))
+                (str/starts-with? (str libname) "npm:")
+                (str/starts-with? (str libname) "node:"))
           ;; fix for deno
           (js/Promise.resolve libname)
           (if-let [resolve (:resolve @ctx)]
-            (-> (resolve libname)
-                (.catch
-                 (fn [_]
-                   ((.-resolve (:require @ctx)) libname))))
+            (-> (js/Promise.resolve (resolve libname))
+                (.catch (fn [_err]
+                          ((.-resolve (:require @ctx)) libname))))
             (js/Promise.resolve ((.-resolve (:require @ctx)) libname))))
         (.then (fn [path]
                  (let [file-url (if (str/starts-with? (str path) "file:")
