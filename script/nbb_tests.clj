@@ -48,7 +48,7 @@
 (deftest expression-test
   (is (= 6 (nbb "-e" "(+ 1 2 3)")))
   (testing "nil doesn't print return value"
-    (is (= (str "6\n") (nbb* "-e" "(prn (+ 1 2 3))")))))
+    (is (= "6\n" (nbb* "-e" "(prn (+ 1 2 3))")))))
 
 (defn npm [cmd]
   (str (if windows?

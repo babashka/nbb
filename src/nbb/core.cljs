@@ -60,8 +60,7 @@
 (set! (.-import goog/global)
       (fn [what]
         ;; need to resolve based on the current file
-        (-> ((:resolve @ctx) what)
-            (.then #(esm/dynamic-import %)))))
+        (esm/dynamic-import ((:resolve @ctx) what))))
 
 (def loaded-modules (atom {}))
 
@@ -166,9 +165,8 @@
           ;; fix for deno
           (js/Promise.resolve libname)
           (if-let [resolve (:resolve @ctx)]
-            (-> (js/Promise.resolve (resolve libname))
-                (.catch (fn [_err]
-                          ((.-resolve (:require @ctx)) libname))))
+            (try (js/Promise.resolve (resolve libname))
+                 (catch :default _ ((.-resolve (:require @ctx)) libname)))
             (js/Promise.resolve ((.-resolve (:require @ctx)) libname))))
         (.then (fn [path]
                  (let [file-url (if (str/starts-with? (str path) "file:")
