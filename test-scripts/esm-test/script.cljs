@@ -1,5 +1,5 @@
 (ns script
-  (:require ["csv-parse/lib/sync$default" :as csv-parse]
+  (:require ["csv-parse/sync" :as csv-parse]
             ["node:fs" :as fs]
             ["node:path" :as path]
             ["shelljs$default" :as sh]
@@ -19,7 +19,7 @@
 
 (prn (sh/ls "."))
 
-(prn (csv-parse "foo,bar"))
+(prn (csv-parse/parse "foo,bar"))
 
 (prn (zxfs/existsSync *file*))
 
