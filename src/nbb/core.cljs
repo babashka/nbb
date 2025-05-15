@@ -165,8 +165,9 @@
           ;; fix for deno
           (js/Promise.resolve libname)
           (if-let [resolve (:resolve @ctx)]
-            (try (js/Promise.resolve (resolve libname))
-                 (catch :default _ ((.-resolve (:require @ctx)) libname)))
+            (js/Promise.resolve
+             (try (resolve libname)
+                  (catch :default _ ((.-resolve (:require @ctx)) libname))))
             (js/Promise.resolve ((.-resolve (:require @ctx)) libname))))
         (.then (fn [path]
                  (let [file-url (if (str/starts-with? (str path) "file:")
