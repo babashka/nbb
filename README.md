@@ -539,6 +539,12 @@ Running nREPL in Docker container is supported with the optional `:host` argumen
 $ nbb nrepl-server :port 1337 :host 0.0.0.0
 ```
 
+If using [vim-fireplace](https://github.com/tpope/vim-fireplace/) you need to tell it this is a ClojureScript repl:
+
+```
+:CljEval (ns cljs.user)
+```
+
 #### Calva
 
 In Calva connect to the REPL with:
