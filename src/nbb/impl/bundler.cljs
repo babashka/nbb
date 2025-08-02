@@ -2,6 +2,7 @@
   "Mostly a copy of babashka uberscript, but generating an .mjs file for Node to execute"
   (:require
    ["node:fs" :as fs]
+   ["esbuild" :as esbuild]
    [clojure.string :as str]
    [goog.string :as gstring]
    [goog.string.format]
@@ -116,6 +117,27 @@
                     (recur))
                   (recur))))))))))
 
+(defn build-executable [bundled-js output-file]
+  (let [tmp-file (str "./.nbb-tmp-" (random-uuid) ".mjs")]
+    (fs/writeFileSync tmp-file bundled-js)
+    (-> (esbuild/build
+          (clj->js {:entryPoints [tmp-file]
+                    :bundle true
+                    :platform "node"
+                    :minify true
+                    :format "esm"
+                    :banner {:js "import { createRequire } from 'module';const require = createRequire(import.meta.url);"}
+                    :write false}))
+        (.then (fn [esbuild-result]
+                 (let [output-file-obj (first (aget esbuild-result "outputFiles"))
+                       esbuild-code (aget output-file-obj "contents")]
+                   (fs/writeFileSync output-file
+                                     "#!/usr/bin/env -S node --experimental-default-type=module\n")
+                   (fs/appendFileSync output-file esbuild-code)
+                   (fs/chmodSync output-file 0755)
+                   (fs/unlinkSync tmp-file)
+                   (println (str "Single file executable created: " output-file))))))))
+
 (defn print-help []
   (println "
 Bundle: produce single JS file for usage with bundlers.
@@ -126,7 +148,8 @@ Usage:
 
 Options:
 
- -o, --out [file]  Write to file instead of stdout"))
+ -o, --out [file]  Write to file instead of stdout.
+ --shrinkwrap      Create a single file executable with node deps compiled in."))
 
 (defn init []
   (let [{:keys [bundle-opts]} @opts
@@ -202,6 +225,18 @@ Options:
           (print! (gstring/format "import '%s/lib/%s'" (nbb/npm-lib-name) lib)))
         (doseq [expr (distinct @expressions)]
           (print! (gstring/format "await loadString(%s, {disableConfig: true})" (pr-str expr))))
-        (if-let [out-file (:out parsed-opts)]
-          (fs/writeFileSync out-file @out "utf-8")
-          (println @out))))))
+        (let [out-file (:out parsed-opts)
+              shrinkwrap? (:shrinkwrap parsed-opts)]
+          (cond shrinkwrap?
+                (if out-file
+                  (build-executable @out out-file)
+                  (do (js/console.error "Error: --out option is required when using --shrinkwrap.")
+                      (js/Promise.resolve)))
+
+                out-file
+                (do (fs/writeFileSync out-file @out "utf-8")
+                    (js/Promise.resolve))
+
+                :else
+                (do (println @out)
+                    (js/Promise.resolve))))))))

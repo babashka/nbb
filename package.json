@@ -12,6 +12,7 @@
     "import-meta-resolve": "^4.1.0"
   },
   "devDependencies": {
+    "esbuild": "^0.25.8",
     "ink": "^3.0.9",
     "moment": "^2.29.4",
     "nbb": "file:.",
