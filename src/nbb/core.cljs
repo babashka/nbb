@@ -670,7 +670,8 @@
                                'IWithMeta (sci/copy-var IWithMeta core-ns)
                                'IMeta (sci/copy-var IMeta core-ns)
                                'ISeq (sci/copy-var ISeq core-ns)
-                               'INamed (sci/copy-var INamed core-ns)}
+                               'INamed (sci/copy-var INamed core-ns)
+                               'ILookup (sci/copy-var ILookup core-ns)}
                 'cljs.reader {'read-string (sci/copy-var edn/read-string (sci/create-ns 'cljs.reader))}
                 'clojure.main {'repl-requires (sci/copy-var
                                                repl-requires
