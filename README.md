@@ -788,7 +788,7 @@ deno run -A jsr:@babashka/nbb@1.3.201 /tmp/script.cljs
 ```
 
 Note that when you require libraries from `node_modules` you might have to add
-the `--node-modules-dir=manual` argument. See Deno issue
+the `--node-modules-dir=auto` argument. See Deno issue
 [#30547](https://github.com/denoland/deno/issues/30547).
 
 ## Build
