@@ -787,6 +787,10 @@ deno run -A jsr:@babashka/nbb@1.3.201 /tmp/script.cljs
 (js/Deno.serve app.fetch)
 ```
 
+Note that when you require libraryes from `node_modules` you might have to add
+the `--node-modules-dir=manual` argument. See Deno issue
+[#30547](https://github.com/denoland/deno/issues/30547).
+
 ## Build
 
 Prequisites:
