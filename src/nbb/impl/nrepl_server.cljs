@@ -159,7 +159,7 @@
                     "status" ["done"]}))
 
 (defn handle-close [request send-fn]
-  (send-fn request {"status" ["done"]}))
+  (send-fn request {"status" ["done" "session-closed"]}))
 
 (defn
   handle-classpath [request send-fn]

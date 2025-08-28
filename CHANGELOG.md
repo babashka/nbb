@@ -4,6 +4,8 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+- [#395](https://github.com/babashka/nbb/issues/395): fix `vim-fireplace` infinite loop on nREPL session close.
+
 ## 1.3.204 (2025-05-15)
 
 - [#389](https://github.com/babashka/nbb/issues/389): fix regression caused by [#387](https://github.com/babashka/nbb/issues/387)
