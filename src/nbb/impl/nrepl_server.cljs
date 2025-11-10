@@ -274,7 +274,8 @@
    :macroexpand handle-macroexpand
    :classpath handle-classpath
    :load-file handle-load-file
-   :complete handle-complete})
+   :complete handle-complete
+   :completions handle-complete})
 
 (defn handle-request [{:keys [op] :as request} send-fn]
   (if-let [op-fn (get ops op)]
