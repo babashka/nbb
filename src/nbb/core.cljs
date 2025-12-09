@@ -671,7 +671,9 @@
                                'IMeta (sci/copy-var IMeta core-ns)
                                'ISeq (sci/copy-var ISeq core-ns)
                                'INamed (sci/copy-var INamed core-ns)
-                               'ILookup (sci/copy-var ILookup core-ns)}
+                               'ILookup (sci/copy-var ILookup core-ns)
+                               'abs (sci/copy-var abs core-ns)
+                               'Cons cljs.core/Cons}
                 'cljs.reader {'read-string (sci/copy-var edn/read-string (sci/create-ns 'cljs.reader))}
                 'clojure.main {'repl-requires (sci/copy-var
                                                repl-requires
