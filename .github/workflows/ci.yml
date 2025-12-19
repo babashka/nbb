@@ -31,7 +31,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt-hotspot'
-          java-version: '19'
+          java-version: '25'
 
       - name: Install clojure tools
         uses: DeLaGuardo/setup-clojure@5.0
@@ -78,7 +78,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt-hotspot'
-          java-version: '19'
+          java-version: '25'
 
       - name: Install clojure tools
         uses: DeLaGuardo/setup-clojure@5.0

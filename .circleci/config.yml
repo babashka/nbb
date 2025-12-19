@@ -6,7 +6,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: cimg/clojure:1.12.0-openjdk-17.0-node
+      - image: cimg/clojure:1.12.0-openjdk-21.0-node
     working_directory: ~/repo
     environment:
       LEIN_ROOT: "true"

@@ -4,7 +4,12 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.3.205 (2025-12-19)
+
 - [#395](https://github.com/babashka/nbb/issues/395): fix `vim-fireplace` infinite loop on nREPL session close.
+- Add `ILookup` and `Cons`
+- Add `abs`
+- nREPL: support `"completions"` op
 
 ## 1.3.204 (2025-05-15)
 
