@@ -177,95 +177,96 @@
                                  "session" session "id" (new-id!)}))))
 
 (deftest complete-test
-  (nrepl-server)
-  (wait-for-port "localhost" @port)
-  (with-open [socket (Socket. "127.0.0.1" @port)
-              in (.getInputStream socket)
-              in (java.io.PushbackInputStream. in)
-              os (.getOutputStream socket)]
-    (bencode/write-bencode os {"op" "clone"})
-    (let [session (:new-session (read-msg (bencode/read-bencode in)))
-          id (atom 0)
-          new-id! #(swap! id inc)]
-      (testing "complete"
-        (bencode/write-bencode os {"op" "eval" "code" "(require '[nbb.core :as nbb] '[\"fs\" :as fs])"
-                                   "session" session "id" (new-id!)})
-        (let [_ (read-reply in session @id)
-              msg (read-reply in session @id)
-              status (:status msg)
-              _ (is (= ["done"] status))])
-        (bencode/write-bencode os {"op" "eval" "code" "(def *** 1)"
-                                   "session" session "id" (new-id!)})
-        (let [_ (read-reply in session @id)
-              msg (read-reply in session @id)
-              status (:status msg)
-              _ (is (= ["done"] status))])
-        (testing "SCI var completions"
+  (doseq [op ["complete" "completions"]]
+    (nrepl-server)
+    (wait-for-port "localhost" @port)
+    (with-open [socket (Socket. "127.0.0.1" @port)
+                in (.getInputStream socket)
+                in (java.io.PushbackInputStream. in)
+                os (.getOutputStream socket)]
+      (bencode/write-bencode os {"op" "clone"})
+      (let [session (:new-session (read-msg (bencode/read-bencode in)))
+            id (atom 0)
+            new-id! #(swap! id inc)]
+        (testing "complete"
+          (bencode/write-bencode os {"op" "eval" "code" "(require '[nbb.core :as nbb] '[\"fs\" :as fs])"
+                                     "session" session "id" (new-id!)})
+          (let [_ (read-reply in session @id)
+                msg (read-reply in session @id)
+                status (:status msg)
+                _ (is (= ["done"] status))])
+          (bencode/write-bencode os {"op" "eval" "code" "(def *** 1)"
+                                     "session" session "id" (new-id!)})
+          (let [_ (read-reply in session @id)
+                msg (read-reply in session @id)
+                status (:status msg)
+                _ (is (= ["done"] status))])
+          (testing "SCI var completions"
+            (bencode/write-bencode os
+                                   {"op" op "symbol" "nbb/"
+                                    "session" session "id" (new-id!)})
+            (let [msg (read-reply in session @id)
+                  completions (:completions msg)
+                  completions (set (map read-msg completions))]
+              (is (contains? completions {:candidate "nbb/load-string", :ns "nbb.core"}))
+              (is (contains? completions {:candidate "nbb/await",       :ns "nbb.core"}))))
+          (testing "special characters"
+            (bencode/write-bencode os
+                                   {"op" op "symbol" "*"
+                                    "session" session "id" (new-id!)})
+            (let [msg (read-reply in session @id)
+                  completions (:completions msg)
+                  completions (set (map read-msg completions))]
+              (is (contains? completions {:candidate "***", :ns "user"}))
+              (is (contains? completions {:candidate "*print-readably*", :ns "clojure.core"}))))
+          (testing "JS import completions"
+            (bencode/write-bencode os
+                                   {"op" op "symbol" "fs/"
+                                    "session" session "id" (new-id!)})
+            (let [msg (read-reply in session @id)
+                  completions (:completions msg)
+                  completions (set (map read-msg completions))]
+              (is (contains? completions {:candidate "fs/readlink"}))))
+          (testing "JS import completions with property access"
+            (bencode/write-bencode os
+                                   {"op" op "symbol" "fs/constants."
+                                    "session" session "id" (new-id!)})
+            (let [msg (read-reply in session @id)
+                  completions (:completions msg)
+                  completions (set (map read-msg completions))]
+              (is (contains? completions {:candidate "fs/constants.COPYFILE_EXCL"})))
+            (bencode/write-bencode os
+                                   {"op" op "symbol" "fs/constants.C"
+                                    "session" session "id" (new-id!)})
+            (let [msg (read-reply in session @id)
+                  completions (:completions msg)
+                  completions (set (map read-msg completions))]
+              (is (contains? completions {:candidate "fs/constants.COPYFILE_EXCL"})))))
+        (testing "js global"
           (bencode/write-bencode os
-                                 {"op" "complete" "symbol" "nbb/"
+                                 {"op" op "symbol" "js/"
                                   "session" session "id" (new-id!)})
           (let [msg (read-reply in session @id)
                 completions (:completions msg)
                 completions (set (map read-msg completions))]
-            (is (contains? completions {:candidate "nbb/load-string", :ns "nbb.core"}))
-            (is (contains? completions {:candidate "nbb/await",       :ns "nbb.core"}))))
-        (testing "special characters"
-          (bencode/write-bencode os
-                                 {"op" "complete" "symbol" "*"
-                                  "session" session "id" (new-id!)})
-          (let [msg (read-reply in session @id)
-                completions (:completions msg)
-                completions (set (map read-msg completions))]
-            (is (contains? completions {:candidate "***", :ns "user"}))
-            (is (contains? completions {:candidate "*print-readably*", :ns "clojure.core"}))))
-        (testing "JS import completions"
-          (bencode/write-bencode os
-                                 {"op" "complete" "symbol" "fs/"
-                                  "session" session "id" (new-id!)})
-          (let [msg (read-reply in session @id)
-                completions (:completions msg)
-                completions (set (map read-msg completions))]
-            (is (contains? completions {:candidate "fs/readlink"}))))
-        (testing "JS import completions with property access"
-          (bencode/write-bencode os
-                                 {"op" "complete" "symbol" "fs/constants."
-                                  "session" session "id" (new-id!)})
-          (let [msg (read-reply in session @id)
-                completions (:completions msg)
-                completions (set (map read-msg completions))]
-            (is (contains? completions {:candidate "fs/constants.COPYFILE_EXCL"})))
-          (bencode/write-bencode os
-                                 {"op" "complete" "symbol" "fs/constants.C"
-                                  "session" session "id" (new-id!)})
-          (let [msg (read-reply in session @id)
-                completions (:completions msg)
-                completions (set (map read-msg completions))]
-            (is (contains? completions {:candidate "fs/constants.COPYFILE_EXCL"})))))
-      (testing "js global"
-        (bencode/write-bencode os
-                               {"op" "complete" "symbol" "js/"
-                                "session" session "id" (new-id!)})
-        (let [msg (read-reply in session @id)
-              completions (:completions msg)
-              completions (set (map read-msg completions))]
-          (is (contains? completions {:candidate "js/console"})))
-        (testing "property access"
-          (bencode/write-bencode os
-                                 {"op" "complete" "symbol" "js/console."
-                                  "session" session "id" (new-id!)})
-          (let [msg (read-reply in session @id)
-                completions (:completions msg)
-                completions (set (map read-msg completions))]
-            (is (contains? completions {:candidate "js/console.log"})))
-          (bencode/write-bencode os
-                                 {"op" "complete" "symbol" "js/console.l"
-                                  "session" session "id" (new-id!)})
-          (let [msg (read-reply in session @id)
-                completions (:completions msg)
-                completions (set (map read-msg completions))]
-            (is (contains? completions {:candidate "js/console.log"})))))
-      (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
-                                 "session" session "id" (new-id!)}))))
+            (is (contains? completions {:candidate "js/console"})))
+          (testing "property access"
+            (bencode/write-bencode os
+                                   {"op" op "symbol" "js/console."
+                                    "session" session "id" (new-id!)})
+            (let [msg (read-reply in session @id)
+                  completions (:completions msg)
+                  completions (set (map read-msg completions))]
+              (is (contains? completions {:candidate "js/console.log"})))
+            (bencode/write-bencode os
+                                   {"op" op "symbol" "js/console.l"
+                                    "session" session "id" (new-id!)})
+            (let [msg (read-reply in session @id)
+                  completions (:completions msg)
+                  completions (set (map read-msg completions))]
+              (is (contains? completions {:candidate "js/console.log"})))))
+        (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
+                                   "session" session "id" (new-id!)})))))
 
 (deftest pprint-test
   (nrepl-server)
