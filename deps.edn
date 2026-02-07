@@ -1,6 +1,6 @@
 {:paths ["src"]
  :aliases {:test {:extra-paths ["test"]}}
- :deps {thheller/shadow-cljs {:mvn/version "3.3.4"}
+ :deps {thheller/shadow-cljs {:mvn/version "3.3.5"}
         #_#_org.clojure/clojurescript {:mvn/version "1.11.51"}
         ;; reagent/reagent {:mvn/version "1.0.0"}
         cljsjs/react {:mvn/version "18.2.0-1"}
@@ -14,8 +14,8 @@
         cljs-bean/cljs-bean {:mvn/version "1.9.0"}
         org.babashka/sci
         #_{:local/root "../babashka/sci"}
-        #_{:mvn/version "0.9.44"}
-        {:git/url "https://github.com/babashka/sci"
+        {:mvn/version "0.12.51"}
+        #_{:git/url "https://github.com/babashka/sci"
          :git/sha "33995afb71d58dae270f1a8035e21196ea2157f0"}
         org.clojure/tools.cli {:mvn/version "1.0.214"}
         com.cognitect/transit-cljs {:mvn/version "0.8.280"}

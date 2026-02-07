@@ -4,6 +4,11 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## 1.4.206 (2026-02-07)
+
+- Support async/await. See [docs](https://github.com/babashka/sci/blob/master/doc/async-await.md) for syntax.
+- Print promise result value in REPL/nREPL: `(js/Promise.resolve 1) ;;=> #<Promise 1>`
+
 ## 1.3.205 (2025-12-19)
 
 - [#395](https://github.com/babashka/nbb/issues/395): fix `vim-fireplace` infinite loop on nREPL session close.

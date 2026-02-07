@@ -96,11 +96,15 @@
     (sci/alter-var-root sci/*3 (constantly @sci/*2))
     (sci/alter-var-root sci/*2 (constantly @sci/*1))
     (sci/alter-var-root sci/*1 (constantly v))
-    (let [v (format-value (:nrepl.middleware.print/print request)
-                          (:nrepl.middleware.print/options request)
-                          v)]
-      (send-fn request {"value" v
-                        "ns" (str sci-ns)}))))
+    (if (instance? js/Promise v)
+      (.then v (fn [resolved]
+                 (send-fn request {"value" (str "#<Promise " (pr-str resolved) ">")
+                                   "ns" (str sci-ns)})))
+      (let [v (format-value (:nrepl.middleware.print/print request)
+                            (:nrepl.middleware.print/options request)
+                            v)]
+        (send-fn request {"value" v
+                          "ns" (str sci-ns)})))))
 
 (defn handle-error [send-fn request e]
   (sci/alter-var-root sci/*e (constantly e))
@@ -126,8 +130,8 @@
                              (.then v
                                     (fn [v]
                                      ;; (prn :v v)
-                                      (send-value request send-fn v)
-                                      (loop-fn v))))))
+                                      (-> (js/Promise.resolve (send-value request send-fn v))
+                                          (.then #(loop-fn v))))))))
                        (catch :default e
                          (handle-error send-fn request e)
                          (loop-fn nil))))]

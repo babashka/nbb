@@ -72,8 +72,12 @@
                    (let [ctx #js {:f (if socket (fn [] wrapper)
                                          (fn []
                                            (let [v (first wrapper)]
-                                             (prn v)
-                                             wrapper)))}
+                                             (if (instance? js/Promise v)
+                                               (.then v (fn [resolved]
+                                                          (println (str "#<Promise " (pr-str resolved) ">"))
+                                                          wrapper))
+                                               (do (prn v)
+                                                   wrapper)))))}
                          _ (.createContext vm ctx)]
                      (.runInContext vm "f()" ctx
                                     #js {:displayErrors true
@@ -121,10 +125,13 @@
                                    (sci/alter-var-root sci/*3 (constantly @sci/*2))
                                    (sci/alter-var-root sci/*2 (constantly @sci/*1))
                                    (sci/alter-var-root sci/*1 (constantly val))
-                                   (when socket
-                                     (.write socket (prn-str val))
-                                     #_(prn val))
-                                   (continue rl socket))))
+                                   (if (and socket (instance? js/Promise val))
+                                     (.then val (fn [resolved]
+                                                  (.write socket (str "#<Promise " (pr-str resolved) ">\n"))
+                                                  (continue rl socket)))
+                                     (do (when socket
+                                           (.write socket (prn-str val)))
+                                         (continue rl socket))))))
                         (.catch (fn [err]
                                   (prn (str err))
                                   (sci/alter-var-root sci/*e (constantly err))
