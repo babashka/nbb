@@ -350,6 +350,13 @@ result")
              (fn [val]
                (is (= [2 2] val))))))
 
+(def ^:private exit-on-complete (atom false))
+
+(defmethod t/report [:cljs.test/default :end-run-tests] [_m]
+  (when @exit-on-complete
+    (js/process.exit (or (.-exitCode js/process) 0))))
+
 (defn init []
+  (reset! exit-on-complete true)
   (t/run-tests 'nbb.main-test 'nbb.test-test))
 

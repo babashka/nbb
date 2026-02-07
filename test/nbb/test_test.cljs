@@ -16,7 +16,8 @@
     (defmethod t/report [:cljs.test/default :end-run-tests] [m])
     (t/deftest foo (t/is (= 1 2))) (t/run-tests 'foo0)"))
         (.then (fn [_]
-                 (is (str/includes? @output "expected: (= 1 2)  actual: (not (= 1 2))")))))))
+                 (is (str/includes? @output "expected: (= 1 2)"))
+                 (is (str/includes? @output "actual: (not (= 1 2))")))))))
 
 (deftest-async cljs-test-test
   (let [output (atom "")]
@@ -29,7 +30,8 @@
     (t/deftest foo (t/is (= 1 2)))
     (cljs.test/deftest bar (t/is (= 1 2))) (t/run-tests 'foo01)"))
         (.then (fn [_]
-                 (is (str/includes? @output "expected: (= 1 2)  actual: (not (= 1 2))")))))))
+                 (is (str/includes? @output "expected: (= 1 2)"))
+                 (is (str/includes? @output "actual: (not (= 1 2))")))))))
 
 (deftest-async refer-macros-test
   (let [output (atom "")]
@@ -41,7 +43,8 @@
     (defmethod t/report [:cljs.test/default :end-run-tests] [m])
     (deftest foo (is (= 1 2))) (t/run-tests 'foo02)"))
         (.then (fn [_]
-                 (is (str/includes? @output "expected: (= 1 2)  actual: (not (= 1 2))")))))))
+                 (is (str/includes? @output "expected: (= 1 2)"))
+                 (is (str/includes? @output "actual: (not (= 1 2))")))))))
 
 (deftest-async are-test
   (let [output (atom "")]
@@ -54,7 +57,8 @@
     (defmethod t/report [:cljs.test/default :end-run-tests] [m])
     (t/deftest foo (t/are [x] (= x 2) 1 2 3)) (t/run-tests 'foo-are)")
        (.then (fn [_]
-                (is (str/includes? @output "expected: (= 3 2)  actual: (not (= 3 2))"))))
+                (is (str/includes? @output "expected: (= 3 2)"))
+                (is (str/includes? @output "actual: (not (= 3 2))"))))
        (.then (fn [_]
                 (reset! output "")
                 (nbb/load-string "
