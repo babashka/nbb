@@ -56,6 +56,7 @@
                        fs/parent))]
     (when building-outside-nbb?
       (fs/copy (fs/file nbb-dir "shadow-cljs.edn") "shadow-cljs.edn"))
+    (prn (build-cmd cmd (str nbb-dir)))
     (apply clojure (build-cmd cmd (str nbb-dir)) args)
     (when building-outside-nbb?
       (fs/delete "shadow-cljs.edn"))))
@@ -70,7 +71,9 @@
 (defn release
   "Compiles release build."
   [args & {:keys [wrap-cmd-fn] :or {wrap-cmd-fn identity}}]
-  (build (wrap-cmd-fn "-M -m shadow.cljs.devtools.cli --force-spawn release modules")
+  (build (cond-> (wrap-cmd-fn "-M -m shadow.cljs.devtools.cli --force-spawn release modules")
+           (fs/exists? "shadow-release.edn")
+           (str " --config-merge shadow-release.edn"))
          args)
   #_(spit "lib/nbb_core.js"
         (str/replace (slurp "lib/nbb_core.js") (re-pattern "self") "globalThis"))

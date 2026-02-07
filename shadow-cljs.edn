@@ -10,8 +10,7 @@
    :modules
    {:nbb_core {:init-fn nbb.core/init}
     :nbb_goog_string {:init-fn nbb.impl.gstring/init
-                      :depends-on #{:nbb_core}
-                      :entries [goog.string.format]}
+                      :depends-on #{:nbb_core}}
     :nbb_goog_crypt {:init-fn nbb.impl.gcrypt/init
                      :depends-on #{:nbb_core}
                      :entries [goog.crypt]}
@@ -43,12 +42,10 @@
                     :depends-on #{:nbb_core}}
 
     :nbb_pprint {:init-fn nbb.pprint/init
-                 :depends-on #{:nbb_core}
-                 :entries [cljs.pprint]}
+                 :depends-on #{:nbb_core}}
     :nbb_tools_cli {:init-fn nbb.impl.tools-cli/init
                     :depends-on #{:nbb_core :nbb_goog_string}}
     :nbb_transit {:init-fn nbb.impl.transit/init
-                  :entries [cognitect.transit]
                   :depends-on #{:nbb_core}}
     :nbb_nrepl_server {:init-fn nbb.impl.nrepl-server/init
                        :depends-on #{:nbb_core :nbb_api :nbb_goog_string :nbb_pprint}}

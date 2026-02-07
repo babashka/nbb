@@ -1,0 +1,6 @@
+{;; Entries removed from shadow-cljs.edn to work around shadow-cljs 3.x
+ ;; pulling these into :nbb_core during dev. Added back here for release
+ ;; builds to be explicit about module ownership.
+ :modules {:nbb_goog_string {:entries [goog.string.format]}
+           :nbb_pprint {:entries [cljs.pprint]}
+           :nbb_transit {:entries [cognitect.transit]}}}
