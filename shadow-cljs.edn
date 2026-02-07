@@ -7,6 +7,7 @@
    :target :esm
    :runtime :node
    :output-dir "lib"
+   :devtools {:enabled false}
    :modules
    {:nbb_core {:init-fn nbb.core/init}
     :nbb_goog_string {:init-fn nbb.impl.gstring/init
