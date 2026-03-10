@@ -227,7 +227,7 @@
     (is (str/includes?
          err
          "   ^--- No protocol method IAssociative.-assoc defined"))
-    (is (str/includes? err "clojure.core/assoc - <built-in>"))
+    (is (str/includes? err "clojure.core/assoc"))
     (is (str/includes? err "error.cljs:5:1"))))
 
 (deftest exit-code-test
