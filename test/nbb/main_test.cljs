@@ -350,6 +350,18 @@ result")
              (fn [val]
                (is (= [2 2] val))))))
 
+(deftest-async defrecord-ifn-test
+  (-> (nbb/load-string "(defrecord Dude [] IFn (-invoke [_] 1))")
+      (.then (fn [_]
+               (nbb/load-string "((->Dude))")))
+      (.then (fn [val]
+               (is (= 1 val))))))
+
+(deftest-async reify-ifn-test
+  (-> (nbb/load-string "((reify IFn (-invoke [_] 1)))")
+      (.then (fn [val]
+               (is (= 1 val))))))
+
 (defn init []
   (t/run-tests 'nbb.main-test 'nbb.test-test))
 

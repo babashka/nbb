@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## Unreleased
+
+- [#408](https://github.com/babashka/nbb/issues/408): support `IFn` on `defrecord` and `reify`
+
 ## 1.4.206 (2026-02-07)
 
 - Support async/await. See [docs](https://github.com/babashka/sci/blob/master/doc/async-await.md) for syntax.
