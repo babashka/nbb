@@ -7,6 +7,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 ## Unreleased
 
 - [#408](https://github.com/babashka/nbb/issues/408): support `IFn` on `defrecord` and `reify`
+- Fix REPL and nREPL not awaiting promesa thenables (e.g. `p/then` results)
 
 ## 1.4.206 (2026-02-07)
 

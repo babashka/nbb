@@ -36,6 +36,9 @@
   (is (str/includes?
        (:out (repl "(js/Promise.resolve 10)"))
        "Promise"))
+  (testing "Promesa thenable is awaited in REPL"
+    (let [out (:out (repl "(require '[promesa.core :as p]) (-> (js/Promise.resolve 42) (p/then (fn [v] v)))"))]
+      (is (str/includes? out "#<Promise 42>"))))
   (shell {:dir "examples/handlebars"} (if tu/windows?
                                         "npm.cmd install"
                                         "npm install"))
@@ -115,6 +118,9 @@
   (is (str/includes?
        (:out (socket-repl "(js/Promise.resolve 10)"))
        "Promise"))
+  (testing "Promesa thenable is awaited in socket REPL"
+    (let [out (:out (socket-repl "(require '[promesa.core :as p]) (-> (js/Promise.resolve 42) (p/then (fn [v] v)))" "#<Promise 42>"))]
+      (is (str/includes? out "#<Promise 42>"))))
   (testing "launch socket REPL in script"
     (let [out (-> (socket-repl "(+ 1 2 3)" "6" "."
                                {:out :string

@@ -27,17 +27,19 @@
 
 (def await-counter 0)
 
+(defn thenable? [p]
+  (and (some? p)
+       (unchecked-get p "then")))
+
 (defn await [p]
-  (if (and (not (nil? p))
-           (unchecked-get p "then"))
+  (if (thenable? p)
     (do (set! await-counter (inc await-counter))
         (set! (.-__nbb_await_promise_result ^js p) true)
         p)
     p))
 
 (defn await? [p]
-  (and (not (nil? p))
-       (unchecked-get p "then")
+  (and (thenable? p)
        (.-__nbb_await_promise_result ^js p)))
 
 (def opts (atom nil))

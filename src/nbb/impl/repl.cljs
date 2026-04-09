@@ -72,7 +72,7 @@
                    (let [ctx #js {:f (if socket (fn [] wrapper)
                                          (fn []
                                            (let [v (first wrapper)]
-                                             (if (instance? js/Promise v)
+                                             (if (nbb/thenable? v)
                                                (.then v (fn [resolved]
                                                           (println (str "#<Promise " (pr-str resolved) ">"))
                                                           wrapper))
@@ -125,7 +125,7 @@
                                    (sci/alter-var-root sci/*3 (constantly @sci/*2))
                                    (sci/alter-var-root sci/*2 (constantly @sci/*1))
                                    (sci/alter-var-root sci/*1 (constantly val))
-                                   (if (and socket (instance? js/Promise val))
+                                   (if (and socket (nbb/thenable? val))
                                      (.then val (fn [resolved]
                                                   (.write socket (str "#<Promise " (pr-str resolved) ">\n"))
                                                   (continue rl socket)))

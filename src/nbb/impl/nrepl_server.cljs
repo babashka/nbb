@@ -96,7 +96,7 @@
     (sci/alter-var-root sci/*3 (constantly @sci/*2))
     (sci/alter-var-root sci/*2 (constantly @sci/*1))
     (sci/alter-var-root sci/*1 (constantly v))
-    (if (instance? js/Promise v)
+    (if (nbb/thenable? v)
       (.then v (fn [resolved]
                  (send-fn request {"value" (str "#<Promise " (pr-str resolved) ">")
                                    "ns" (str sci-ns)})))
