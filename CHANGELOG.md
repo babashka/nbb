@@ -4,7 +4,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
-## Unreleased
+## 1.4.207 (2026-04-09)
 
 - [#408](https://github.com/babashka/nbb/issues/408): support `IFn` on `defrecord` and `reify`
 - Fix REPL and nREPL not awaiting promesa thenables (e.g. `p/then` results)
