@@ -83,11 +83,9 @@
                                    "(require '[promesa.core :as p])
                                     (p/->> (p/delay 1000 {:delayed-by \"1 second\"}) prn)"
                                    "session" session "id" (new-id!)})
-        (let [_msg (read-reply in session @id)
-              _msg (read-reply in session @id)
-              _done-msg (read-reply in session @id)
-              msg (read-reply in session @id)
-              out (:out msg)
+        (let [_require-val (read-reply in session @id)
+              out-msg (read-reply in session @id)
+              out (:out out-msg)
               _ (is (= "{:delayed-by \"1 second\"}" out))]))
       (testing "async println"
         (bencode/write-bencode os {"op" "eval" "code"
