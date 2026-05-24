@@ -362,6 +362,19 @@ result")
       (.then (fn [val]
                (is (= 1 val))))))
 
+(deftest-async cross-ns-record-symbol-test
+  ;; https://github.com/babashka/nbb/issues/410: a defrecord/deftype type symbol
+  ;; referenced via a namespace alias must resolve.
+  (-> (nbb/load-string "(ns myrec)
+(defrecord Foo [a])
+(deftype Bar [b])
+(ns main (:require [myrec :as r]))
+[(instance? r/Foo (r/->Foo 1))
+ (instance? r/Bar (r/->Bar 2))
+ (into {} (r/Foo. 3))]")
+      (.then (fn [val]
+               (is (= [true true {:a 3}] val))))))
+
 (defn init []
   (t/run-tests 'nbb.main-test 'nbb.test-test))
 

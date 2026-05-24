@@ -4,6 +4,10 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## Unreleased
+
+- [#410](https://github.com/babashka/nbb/issues/410): fix regression where a `defrecord`/`deftype` type symbol referenced via a namespace alias (e.g. `(instance? r/Foo x)`) failed to resolve
+
 ## 1.4.207 (2026-04-09)
 
 - [#408](https://github.com/babashka/nbb/issues/408): support `IFn` on `defrecord` and `reify`
