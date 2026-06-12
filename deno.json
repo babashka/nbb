@@ -1,6 +1,6 @@
 {
   "name": "@babashka/nbb",
-  "version": "1.4.207",
+  "version": "1.4.208",
   "exports": {
     ".": "./cli.js"
   },
