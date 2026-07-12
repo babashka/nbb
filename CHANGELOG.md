@@ -4,6 +4,11 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## Unreleased
+
+- Add `babashka.fs` as a built-in library, including the `with-temp-dir` macro
+- Bump `babashka.cli` to 0.12.75
+
 ## 1.4.209 (2026-07-12)
 
 - Bump SCI to 0.14.55. Support implementing CLJS protocols (e.g. `ILookup`, etc) on `deftype` and `defrecord`
