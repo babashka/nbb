@@ -109,6 +109,22 @@
       (.then (fn [v]
                (is (= :hello v))))))
 
+(deftest-async babashka-fs-test
+  (-> (nbb/load-string "(require '[babashka.fs :as bfs])
+                        [(bfs/exists? \"deps.edn\") (bfs/file-name \"/a/b.txt\")]")
+      (.then (fn [v]
+               (is (= [true "b.txt"] v))))))
+
+(deftest-async babashka-fs-with-temp-dir-test
+  (-> (nbb/load-string "(require '[babashka.fs :as bfs])
+                        (let [captured (atom nil)]
+                          (bfs/with-temp-dir [d]
+                            (reset! captured (str d))
+                            {:inside (bfs/exists? d)})
+                          {:inside true :after (bfs/exists? @captured)})")
+      (.then (fn [v]
+               (is (= {:inside true :after false} v))))))
+
 (deftest-async as-alias
   (-> (nbb/load-string "(require '[rando.ns :as-alias dude]) ::dude/foo")
       (.then (fn [v]
