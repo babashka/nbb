@@ -111,8 +111,12 @@
     (is (= "success"
          (nbb {:dir "test-scripts/paths-test"} "runner.cljs"))))
   (testing "project dir is removed from classpath when `:paths` present in `nbb.edn`"
+    (println "(the following \"Could not find namespace: runner\" error is expected)")
+    ;; :err :string swallows the nbb subprocess stderr so the expected error
+    ;; doesn't leak into the test output and look like a real failure
     (is (thrown? Exception
-                 (nbb {:dir "test-scripts/paths-test"} "src/project_dir_not_on_classpath.cljs")))))
+                 (nbb {:dir "test-scripts/paths-test" :err :string}
+                      "src/project_dir_not_on_classpath.cljs")))))
 
 (deftest invoked-file-test
   (testing "calling as a script"
