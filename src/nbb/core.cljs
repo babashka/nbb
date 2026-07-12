@@ -646,7 +646,6 @@
                                'remove-tap (sci/copy-var remove-tap core-ns)
                                'uuid (sci/copy-var uuid core-ns)
                                'Atom (sci/copy-var Atom core-ns)
-                               'IEditableCollection (sci/copy-var IEditableCollection core-ns)
                                'MapEntry (sci/copy-var MapEntry core-ns)
                                'UUID (sci/copy-var UUID core-ns)
                                'update-vals (sci/copy-var update-vals core-ns)
@@ -662,18 +661,12 @@
                                'Keyword (sci/copy-var Keyword core-ns)
                                'Symbol (sci/copy-var Symbol core-ns)
                                'PersistentVector PersistentVector
-                               'IFn (sci/copy-var IFn core-ns)
                                'swap-vals! (sci/copy-var swap-vals! core-ns)
                                'reset-vals! (sci/copy-var reset-vals! core-ns)
                                'PersistentQueue (let [x PersistentQueue]
                                                   (gobj/set x "EMPTY" cljs.core/PersistentQueue.EMPTY)
                                                   x)
                                'demunge (sci/copy-var demunge core-ns)
-                               'IWithMeta (sci/copy-var IWithMeta core-ns)
-                               'IMeta (sci/copy-var IMeta core-ns)
-                               'ISeq (sci/copy-var ISeq core-ns)
-                               'INamed (sci/copy-var INamed core-ns)
-                               'ILookup (sci/copy-var ILookup core-ns)
                                'abs (sci/copy-var abs core-ns)
                                'Cons cljs.core/Cons}
                 'cljs.reader {'read-string (sci/copy-var edn/read-string (sci/create-ns 'cljs.reader))}
