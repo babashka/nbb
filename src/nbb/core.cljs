@@ -674,6 +674,8 @@
                                'ISeq (sci/copy-var ISeq core-ns)
                                'INamed (sci/copy-var INamed core-ns)
                                'ILookup (sci/copy-var ILookup core-ns)
+                               'IAssociative (sci/copy-var IAssociative core-ns)
+                               'ICounted (sci/copy-var ICounted core-ns)
                                'abs (sci/copy-var abs core-ns)
                                'Cons cljs.core/Cons}
                 'cljs.reader {'read-string (sci/copy-var edn/read-string (sci/create-ns 'cljs.reader))}
