@@ -17,13 +17,10 @@
    [nbb.impl.sci :as sci-cfg]
    [sci.core :as sci]
    [sci.ctx-store :as ctx]
-   [sci.impl.unrestrict :refer [*unrestricted*]]
    [sci.impl.vars :as vars]
    [sci.lang]
    [shadow.esm :as esm])
   (:require-macros [nbb.macros :as macros]))
-
-(set! *unrestricted* true)
 
 (def await-counter 0)
 
@@ -704,9 +701,8 @@
    :classes {'js universe :allow :all
              'goog.object (clj->js goog-object-ns)
              'ExceptionInfo ExceptionInfo
-             'Math js/Math}}))
-
-(sci/enable-unrestricted-access!)
+             'Math js/Math}
+   :unrestricted true}))
 
 (def old-require (sci/eval-form (ctx/get-ctx) 'require))
 
