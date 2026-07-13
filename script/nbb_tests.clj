@@ -118,6 +118,21 @@
                  (nbb {:dir "test-scripts/paths-test" :err :string}
                       "src/project_dir_not_on_classpath.cljs")))))
 
+(deftest editscript-test
+  (let [deps '{io.github.juji-io/editscript {:git/sha "b493ccf2e987fed84a05badb2626eebae4b91328"}}
+        _ (deps/add-deps {:deps deps})
+        cp (cp/get-classpath)]
+    (is (= [[[[:a :b] :r 2] [[:a :c 3] :+ 4] [[:x] :-] [[:y] :+ 6]] true true]
+           (nbb "--classpath" cp
+                "-e"
+                "(require '[editscript.core :as e])
+                 (let [a {:a {:b 1 :c [1 2 3]} :x 5}
+                       b {:a {:b 2 :c [1 2 3 4]} :y 6}
+                       d (e/diff a b)]
+                   [(e/get-edits d)
+                    (= b (e/patch a d))
+                    (= b (e/patch a (e/diff a b {:algo :quick})))])")))))
+
 (deftest invoked-file-test
   (testing "calling as a script"
     (is (= :invoked
