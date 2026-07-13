@@ -15,6 +15,8 @@
     :nbb_goog_crypt {:init-fn nbb.impl.gcrypt/init
                      :depends-on #{:nbb_core}
                      :entries [goog.crypt]}
+    :nbb_goog_math {:init-fn nbb.impl.gmath/init
+                    :depends-on #{:nbb_core}}
     :nbb_impl_main {:init-fn nbb.impl.main/init
                     :depends-on #{:nbb_core :nbb_api}}
     :nbb_main {:init-fn nbb.main/main

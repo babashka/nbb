@@ -668,7 +668,16 @@
                                                   x)
                                'demunge (sci/copy-var demunge core-ns)
                                'abs (sci/copy-var abs core-ns)
-                               'Cons cljs.core/Cons}
+                               'Cons cljs.core/Cons
+                               'List cljs.core/List
+                               'EmptyList cljs.core/EmptyList
+                               'PersistentArrayMap cljs.core/PersistentArrayMap
+                               'PersistentHashMap cljs.core/PersistentHashMap
+                               'PersistentTreeMap cljs.core/PersistentTreeMap
+                               'Subvec cljs.core/Subvec
+                               'PersistentHashSet cljs.core/PersistentHashSet
+                               'PersistentTreeSet cljs.core/PersistentTreeSet
+                               'write-all (sci/copy-var write-all core-ns)}
                 'cljs.reader {'read-string (sci/copy-var edn/read-string (sci/create-ns 'cljs.reader))}
                 'clojure.main {'repl-requires (sci/copy-var
                                                repl-requires

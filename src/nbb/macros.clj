@@ -43,6 +43,7 @@
                        goog.string "./nbb_goog_string.js"
                        goog.string.format "./nbb_goog_string.js"
                        goog.crypt "./nbb_goog_crypt.js"
+                       goog.math.Long "./nbb_goog_math.js"
                        cognitect.transit "./nbb_transit.js"
                        clojure.data "./nbb_data.js"
                        cljs.math "./nbb_math.js"
