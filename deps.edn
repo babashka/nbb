@@ -15,7 +15,7 @@
         org.babashka/sci
         #_{:local/root "../babashka/sci"}
         {:git/url "https://github.com/babashka/sci"
-         :git/sha "1bb7ed8ff421ad5db40813741783b1d4cbac1351"}
+         :git/sha "908c92dfff24037ef95e1f4dbc6d38fc1f9d96b0"}
         #_{:mvn/version "0.14.55"}
         org.clojure/tools.cli {:mvn/version "1.0.214"}
         com.cognitect/transit-cljs {:mvn/version "0.8.280"}
