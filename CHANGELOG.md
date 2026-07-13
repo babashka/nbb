@@ -6,6 +6,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 ## Unreleased
 
+- Support [editscript](https://github.com/juji-io/editscript): bump SCI (CLJS `deftype`/`defrecord` field interop, `set!` on `^:unsynchronized-mutable` fields), add `cljs.core` type classes like `PersistentHashMap`, `write-all` and `goog.math.Long`
 - Add `babashka.fs` as a built-in library, including the `with-temp-dir` macro
 - Bump `babashka.cli` to 0.12.75
 
