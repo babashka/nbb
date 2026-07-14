@@ -30,6 +30,10 @@ the following namespaces:
 
 See the [babashka.cli API](https://github.com/babashka/cli/blob/main/API.md).
 
+## babashka.fs
+
+See the [babashka.fs API](https://github.com/babashka/fs/blob/master/API.md).
+
 ## Promesa
 
 See [promesa docs](https://cljdoc.org/d/funcool/promesa/6.0.2/doc/user-guide).

@@ -4,11 +4,28 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
-## Unreleased
+## 1.5.210 (2026-07-14)
 
-- Support [editscript](https://github.com/juji-io/editscript): bump SCI (CLJS `deftype`/`defrecord` field interop, `set!` on `^:unsynchronized-mutable` fields), add `cljs.core` type classes like `PersistentHashMap`, `write-all` and `goog.math.Long`
-- Add `babashka.fs` as a built-in library, including the `with-temp-dir` macro
-- Bump `babashka.cli` to 0.12.75
+Highlight:
+
+### ClojureScript: JIT compilation.
+
+Nbb now bundles a SCI that compiles interpreted function bodies to JavaScript at runtime via `js/Function`. This is enabled by default and needs no configuration. When JIT is enabled, loops and numerical computations become much faster (and, in unrestricted contexts, JS interop too).
+
+``` clojure
+$ nbb -e "(time (loop [i 0 j 10000000] (if (zero? j) i (recur (inc i) (dec j)))))"
+;; interpreter:  ~175 ms
+;; JIT (default):  ~7 ms   — over 20x faster
+```
+
+### Babashka.fs
+
+Nbb now ships [babashka.fs](https://github.com/babashka/fs) as a built-in library. The full file system API (`glob`, `copy`, `move`, `create-dirs`, `delete-tree`, `with-temp-dir`, path helpers and more) is available via `(require '[babashka.fs :as fs])`, matching Babashka.
+
+
+- Bump SCI to `0.15.56` (ClojureScript JIT, see above)
+- Support [editscript](https://github.com/juji-io/editscript): CLJS `deftype`/`defrecord` field interop, `set!` on `^:unsynchronized-mutable` fields, add `cljs.core` type classes like `PersistentHashMap`, `write-all` and `goog.math.Long`
+- Bump `babashka.cli` to 0.12.76
 
 ## 1.4.209 (2026-07-12)
 
