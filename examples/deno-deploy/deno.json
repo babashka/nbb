@@ -1,0 +1,6 @@
+{
+  "tasks": {
+    "dev": "deno serve -A --port 8000 main.ts"
+  },
+  "nodeModulesDir": "auto"
+}
