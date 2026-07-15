@@ -1,6 +1,5 @@
 (ns handler
-  ;; @hono/hono is imported natively and registered in main.ts, so we
-  ;; require it here by the bare name rather than a "jsr:" specifier.
+  ;; registered in main.ts, so required by bare name (not "jsr:@hono/hono")
   (:require ["@hono/hono" :refer [Hono]]))
 
 (def app (Hono.))
@@ -15,6 +14,5 @@
           (.json ctx #js {:hello name
                           :runtime "nbb + deno"}))))
 
-;; Returned to the JS wrapper (main.ts), which re-exports it as the
-;; module's default export so Deno Deploy / `deno serve` can find `fetch`.
+;; main.ts re-exports this as the module default so Deploy finds fetch
 #js {:fetch (.-fetch app)}
