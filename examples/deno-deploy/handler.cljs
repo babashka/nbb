@@ -1,5 +1,7 @@
 (ns handler
-  (:require ["jsr:@hono/hono" :refer [Hono]]))
+  ;; @hono/hono is imported natively and registered in main.ts, so we
+  ;; require it here by the bare name rather than a "jsr:" specifier.
+  (:require ["@hono/hono" :refer [Hono]]))
 
 (def app (Hono.))
 
