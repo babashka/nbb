@@ -1,5 +1,6 @@
 (ns nbb-nrepl-tests
   (:require
+   [babashka.fs :as fs]
    [babashka.process :refer [process]]
    [babashka.wait :refer [wait-for-port]]
    [bencode.core :as bencode]
@@ -78,6 +79,15 @@
               _ (is (= "user" ns))
               status (:status msg)
               _ (is (= ["done"] status))]))
+      (testing "do form"
+        (bencode/write-bencode os {"op" "eval" "code" "(do (println :in-do) :foo)"
+                                   "session" session "id" (new-id!)})
+        (let [_out (read-reply in session @id)
+              _nl (read-reply in session @id)
+              msg (read-reply in session @id)
+              _ (is (= ":foo" (:value msg)))
+              msg (read-reply in session @id)
+              _ (is (= ["done"] (:status msg)))]))
       (testing "print with delay"
         (bencode/write-bencode os {"op" "eval" "code"
                                    "(require '[promesa.core :as p])
@@ -465,6 +475,39 @@
               _ (is (= ["done"] (:status msg)))]))
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (new-id!)}))))
+
+(deftest print-outside-eval-test
+  (let [script (fs/file (fs/create-temp-file {:prefix "nbb-nrepl" :suffix ".cljs"}))
+        out-file (fs/file (fs/create-temp-file {:prefix "nbb-nrepl-out" :suffix ".txt"}))
+        port (swap! port inc)
+        ticks #(count (re-seq #":tick" (slurp out-file)))]
+    (spit script (str "(require '[nbb.nrepl-server :as nrepl])
+                       (js/setInterval #(println :tick) 50)
+                       (nrepl/start-server! {:port " port "})"))
+    (process ["node" "lib/nbb_main.js" (str script)]
+             {:out :write :out-file out-file :err :inherit})
+    (wait-for-port "localhost" port)
+    (with-open [socket (Socket. "127.0.0.1" port)
+                in (.getInputStream socket)
+                in (java.io.PushbackInputStream. in)
+                os (.getOutputStream socket)]
+      (bencode/write-bencode os {"op" "clone"})
+      (let [session (:new-session (read-msg (bencode/read-bencode in)))]
+        (bencode/write-bencode os {"op" "eval" "code" "(println :hello)"
+                                   "session" session "id" 1})
+        (testing "output of an eval goes to the client"
+          (is (= ":hello" (:out (read-reply in session 1)))))
+        (loop []
+          (when-not (= ["done"] (:status (read-reply in session 1)))
+            (recur)))
+        (testing "code that does not run in an eval keeps printing to stdout"
+          (let [before (ticks)]
+            (Thread/sleep 500)
+            (is (> (ticks) before))))
+        (testing "output of an eval is not printed to stdout"
+          (is (not (str/includes? (slurp out-file) ":hello"))))
+        (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
+                                   "session" session "id" 2})))))
 
 (defn -main [& _]
   (let [{:keys [:error :fail]} (t/run-tests 'nbb-nrepl-tests)]

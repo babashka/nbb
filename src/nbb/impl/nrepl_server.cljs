@@ -1,6 +1,7 @@
 (ns nbb.impl.nrepl-server
   "Original implementation taken from https://github.com/viesti/nrepl-cljs-sci."
   (:require
+   ["node:async_hooks" :refer [AsyncLocalStorage]]
    ["node:fs" :as fs]
    ["node:net" :as node-net]
    ["node:path" :as path]
@@ -114,6 +115,22 @@
     (send-fn request {"ex" (str e)
                       "ns" (str @sci/ns)})))
 
+;; async code started by an eval inherits the store, code that runs outside of
+;; an eval has none
+(def eval-storage (AsyncLocalStorage.))
+
+(defn install-print-fn!
+  "Sets the root binding of `*print-fn*`. Output of an eval is sent to the
+  client that started it, other output goes to the console."
+  []
+  (let [console-print-fn @sci/print-fn]
+    (sci/alter-var-root sci/print-fn
+                        (constantly
+                         (fn [s]
+                           (if-let [{:keys [request send-fn]} (.getStore eval-storage)]
+                             (send-fn request {"out" s})
+                             (console-print-fn s)))))))
+
 (defn do-handle-eval [{:keys [ns code file
                               _load-file? _line] :as request} send-fn]
   (let [rdr (sci/reader code)
@@ -135,21 +152,18 @@
                        (catch :default e
                          (handle-error send-fn request e)
                          (loop-fn nil))))]
-    (with-async-bindings
-      {sci/ns ns
-       sci/file file
-       sci/print-length @sci/print-length
-       sci/print-newline true}
-      ;; we alter-var-root this because the print-fn may go out of scope in case
-      ;; of returned delays
-      (sci/alter-var-root sci/print-fn (constantly
-                                        (fn [s]
-                                          (send-fn request {"out" s}))))
-      (-> (loop-fn nil)
-          (.catch (partial handle-error send-fn request))
-          (.finally (fn []
-                      (send-fn request {"ns" (str @last-ns)
-                                        "status" ["done"]})))))))
+    (.run eval-storage {:request request :send-fn send-fn}
+          (fn []
+            (with-async-bindings
+              {sci/ns ns
+               sci/file file
+               sci/print-length @sci/print-length
+               sci/print-newline true}
+              (-> (loop-fn nil)
+                  (.catch (partial handle-error send-fn request))
+                  (.finally (fn []
+                              (send-fn request {"ns" (str @last-ns)
+                                                "status" ["done"]})))))))))
 
 (defn handle-eval [{:keys [ns] :as request} send-fn]
   (do-handle-eval (assoc request :ns (or (when ns
@@ -390,6 +404,7 @@
                         ;; final newline is always sent with
                         ;; `println`.
                         (sci/alter-var-root sci/print-newline (constantly true))
+                        (install-print-fn!)
                         (try
                           (.writeFileSync fs ".nrepl-port" (str port))
                           (catch :default e
