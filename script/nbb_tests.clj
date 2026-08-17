@@ -50,6 +50,18 @@
   (testing "nil doesn't print return value"
     (is (= "6\n" (nbb* "-e" "(prn (+ 1 2 3))")))))
 
+(deftest top-level-do-test
+  (testing "forms in a do are evaluated before the next top level form"
+    (is (= "1\n2\n3\n4\n5\n"
+           (nbb* "-e" "(do (prn 1) (prn 2)) (prn 3) (do (prn 4) (do (prn 5)))"))))
+  (testing "a do form waits for async code in its body"
+    (is (= ":a\n:b\n:c\n"
+           (nbb* "-e" "(require '[promesa.core :as p])
+                       (do (prn :a) (p/delay 100) (prn :b))
+                       (prn :c)"))))
+  (testing "a do form returns the value of its last form"
+    (is (= :foo (nbb "-e" "(do 1 :foo)")))))
+
 (defn npm [cmd]
   (str (if windows?
          "npm.cmd" "npm")
