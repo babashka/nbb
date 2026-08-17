@@ -388,16 +388,29 @@
                 sci/file (:file opts)]
     (sci/eval-form (ctx/get-ctx) form)))
 
+(defn return-value
+  "Continuation for `eval-seq` that returns the value of the form that was
+  evaluated last, together with the opts it was evaluated with, instead of
+  reading the next top level form."
+  [v _reader opts]
+  (.then (js/Promise.resolve v)
+         (fn [v] {:value v :opts opts})))
+
 (defn eval-seq [reader form opts eval-next]
   (let [fst (first form)]
     (cond (= 'do fst)
-          (reduce (fn [acc form]
-                    (.then acc (fn [_]
-                                 (if (seq? form)
-                                   (eval-seq reader form opts eval-next)
-                                   (eval-simple form opts)))))
-                  (js/Promise.resolve nil)
-                  (rest form))
+          ;; the body must not read ahead in reader, the next top level form is
+          ;; read when the whole do form is done
+          (-> (reduce (fn [acc form]
+                        (.then acc (fn [{:keys [opts]}]
+                                     (if (seq? form)
+                                       (eval-seq reader form opts return-value)
+                                       (return-value (eval-simple form opts)
+                                                     reader opts)))))
+                      (js/Promise.resolve {:opts opts})
+                      (rest form))
+              (.then (fn [{:keys [value opts]}]
+                       (eval-next value reader opts))))
           (= 'ns fst)
           (.then (eval-ns-form form opts)
                  (fn [ns-obj]
