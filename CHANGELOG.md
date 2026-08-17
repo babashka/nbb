@@ -7,6 +7,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 ## Unreleased
 
 - [#416](https://github.com/babashka/nbb/issues/416): Fix problem with `prn` in nREPL
+- Upgrade SCI to 0.15.58
 
 ## 1.5.211 (2026-07-14)
 
