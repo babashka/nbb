@@ -390,9 +390,11 @@
 
 (defn return-value
   "Continuation for `eval-seq` that returns the value of the form that was
-  evaluated last instead of reading the next top level form."
-  [v _reader _opts]
-  (js/Promise.resolve v))
+  evaluated last, together with the opts it was evaluated with, instead of
+  reading the next top level form."
+  [v _reader opts]
+  (.then (js/Promise.resolve v)
+         (fn [v] {:value v :opts opts})))
 
 (defn eval-seq [reader form opts eval-next]
   (let [fst (first form)]
@@ -400,14 +402,15 @@
           ;; the body must not read ahead in reader, the next top level form is
           ;; read when the whole do form is done
           (-> (reduce (fn [acc form]
-                        (.then acc (fn [_]
+                        (.then acc (fn [{:keys [opts]}]
                                      (if (seq? form)
                                        (eval-seq reader form opts return-value)
-                                       (eval-simple form opts)))))
-                      (js/Promise.resolve nil)
+                                       (return-value (eval-simple form opts)
+                                                     reader opts)))))
+                      (js/Promise.resolve {:opts opts})
                       (rest form))
-              (.then (fn [v]
-                       (eval-next v reader opts))))
+              (.then (fn [{:keys [value opts]}]
+                       (eval-next value reader opts))))
           (= 'ns fst)
           (.then (eval-ns-form form opts)
                  (fn [ns-obj]

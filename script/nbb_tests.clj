@@ -60,7 +60,10 @@
                        (do (prn :a) (p/delay 100) (prn :b))
                        (prn :c)"))))
   (testing "a do form returns the value of its last form"
-    (is (= :foo (nbb "-e" "(do 1 :foo)")))))
+    (is (= :foo (nbb "-e" "(do 1 :foo)"))))
+  (testing "an ns form in a do applies to the rest of the body"
+    (is (= "\"foo\"\n\"foo\"\n"
+           (nbb* "-e" "(do (ns foo) (prn (str *ns*))) (prn (str *ns*))")))))
 
 (defn npm [cmd]
   (str (if windows?

@@ -119,17 +119,21 @@
 ;; an eval has none
 (def eval-storage (AsyncLocalStorage.))
 
+(def ^:private print-fn-installed? (atom false))
+
 (defn install-print-fn!
   "Sets the root binding of `*print-fn*`. Output of an eval is sent to the
-  client that started it, other output goes to the console."
+  client that started it, other output goes to the console. Does nothing when
+  called again."
   []
-  (let [console-print-fn @sci/print-fn]
-    (sci/alter-var-root sci/print-fn
-                        (constantly
-                         (fn [s]
-                           (if-let [{:keys [request send-fn]} (.getStore eval-storage)]
-                             (send-fn request {"out" s})
-                             (console-print-fn s)))))))
+  (when (compare-and-set! print-fn-installed? false true)
+    (let [console-print-fn @sci/print-fn]
+      (sci/alter-var-root sci/print-fn
+                          (constantly
+                           (fn [s]
+                             (if-let [{:keys [request send-fn]} (.getStore eval-storage)]
+                               (send-fn request {"out" s})
+                               (console-print-fn s))))))))
 
 (defn do-handle-eval [{:keys [ns code file
                               _load-file? _line] :as request} send-fn]
