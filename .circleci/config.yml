@@ -2,6 +2,8 @@
 #
 # Check https://circleci.com/docs/2.0/language-clojure/ for more details
 #
+version: 2.1
+
 jobs:
   build:
     docker:
@@ -68,7 +70,6 @@ jobs:
           key: v1-dependencies-{{ checksum "deps.edn" }}
 
 workflows:
-  version: 2
   ci:
     jobs:
       - build
