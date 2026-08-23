@@ -128,14 +128,8 @@ Options:
 
  -o, --out [file]  Write to file instead of stdout"))
 
-(defn init []
-  (let [{:keys [bundle-opts]} @opts
-        {:keys [cmds args]
-         parsed-opts :opts} bundle-opts
-        help (:help parsed-opts)
-        bundle-file (or (first cmds)
-                        (first args))
-        js-libs (atom ())
+(defn bundle-script [input-path output-path]
+  (let [js-libs (atom ())
         built-ins (atom [])
         expressions (atom ())
         out (atom "")
@@ -184,24 +178,37 @@ Options:
                                                                :expressions
                                                                [file]}))))
                                         {})})]
+    (binding [nbb/*old-require* true]
+      (let [file-content (fs/readFileSync input-path "utf-8")]
+        (swap! expressions conj file-content)
+        (uberscript {:ctx ctx
+                     :expressions [file-content]})))
+    (print! (gstring/format "import { loadFile, loadString, registerModule } from '%s'"
+                            (nbb/npm-lib-name)))
+    (doseq [lib (distinct @js-libs)]
+      (let [internal (munge lib)
+            js-internal (str/replace (str internal) "." "_dot_")]
+        (print! (gstring/format "import * as %s from '%s'" js-internal lib))
+        (print! (gstring/format "registerModule(%s, '%s')" js-internal lib))))
+    (doseq [lib (distinct @built-ins)]
+      (print! (gstring/format "import '%s/lib/%s'" (nbb/npm-lib-name) lib)))
+    (doseq [expr (distinct @expressions)]
+      (print! (gstring/format "await loadString(%s, {disableConfig: true})" (pr-str expr))))
+    (if output-path
+      (do (fs/writeFileSync output-path @out "utf-8")
+          nil)
+      @out)))
+
+(defn init []
+  (let [{:keys [bundle-opts]} @opts
+        {:keys [cmds args]
+         parsed-opts :opts} bundle-opts
+        help (:help parsed-opts)
+        input-file-path (or (first cmds)
+                            (first args))
+        output-file-path (:out parsed-opts)]
     (if help
       (print-help)
-      (binding [nbb/*old-require* true]
-        (let [file (fs/readFileSync bundle-file "utf-8")]
-          (swap! expressions conj file)
-          (uberscript {:ctx ctx
-                       :expressions [file]}))
-        (print! (gstring/format "import { loadFile, loadString, registerModule } from '%s'"
-                                (nbb/npm-lib-name)))
-        (doseq [lib (distinct @js-libs)]
-          (let [internal (munge lib)
-                js-internal (str/replace (str internal) "." "_dot_")]
-            (print! (gstring/format "import * as %s from '%s'" js-internal lib))
-            (print! (gstring/format "registerModule(%s, '%s')" js-internal lib))))
-        (doseq [lib (distinct @built-ins)]
-          (print! (gstring/format "import '%s/lib/%s'" (nbb/npm-lib-name) lib)))
-        (doseq [expr (distinct @expressions)]
-          (print! (gstring/format "await loadString(%s, {disableConfig: true})" (pr-str expr))))
-        (if-let [out-file (:out parsed-opts)]
-          (fs/writeFileSync out-file @out "utf-8")
-          (println @out))))))
+      (let [result (bundle-script input-file-path output-file-path)]
+        (when (string? result)
+          (println result))))))
