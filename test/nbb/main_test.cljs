@@ -125,6 +125,24 @@
       (.then (fn [v]
                (is (= {:inside true :after false} v))))))
 
+(def node-ffi? (some? (js/process.getBuiltinModule "node:ffi")))
+
+(deftest-async babashka-ffi-test
+  (if-not node-ffi?
+    (js/Promise.resolve (is true "node:ffi requires Node.js 26.1 or newer"))
+    (-> (nbb/load-string "(require '[babashka.ffi :as ffi])
+                          (ffi/defcfn strlen \"strlen\" [:string] :size_t)
+                          (let [abs* (ffi/cfn \"abs\" [:int] :int)]
+                            {:strlen (strlen \"hello\")
+                             :abs (abs* -5)
+                             :backend (:babashka.ffi/backend (meta abs*))
+                             :read (ffi/with-open [arena (ffi/confined-arena)]
+                                     (let [p (ffi/alloc arena :int)]
+                                       (ffi/write p :int 42)
+                                       (ffi/read p :int)))})")
+        (.then (fn [v]
+                 (is (= {:strlen 5 :abs 5 :backend :node :read 42} v)))))))
+
 (deftest-async as-alias
   (-> (nbb/load-string "(require '[rando.ns :as-alias dude]) ::dude/foo")
       (.then (fn [v]

@@ -34,6 +34,17 @@ See the [babashka.cli API](https://github.com/babashka/cli/blob/main/API.md).
 
 See the [babashka.fs API](https://github.com/babashka/fs/blob/master/API.md).
 
+## babashka.ffi
+
+Use `babashka.ffi` to call C functions in shared libraries. Experimental.
+Requires Node.js 26.1 or newer.
+
+See the [babashka.ffi API](https://github.com/babashka/ffi/blob/main/API.md)
+and [Node.js guide](https://github.com/babashka/ffi/blob/main/doc/guide.md#on-nodejs).
+
+Bindings reject structs passed by value, variadic signatures and function
+pointers used as symbols.
+
 ## Promesa
 
 See [promesa docs](https://cljdoc.org/d/funcool/promesa/6.0.2/doc/user-guide).
