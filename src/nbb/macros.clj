@@ -40,6 +40,7 @@
                        nbb.repl "./nbb_repl.js"
                        clojure.tools.cli "./nbb_tools_cli.js"
                        babashka.fs "./nbb_fs.js"
+                       babashka.ffi "./nbb_ffi.js"
                        goog.string "./nbb_goog_string.js"
                        goog.string.format "./nbb_goog_string.js"
                        goog.crypt "./nbb_goog_crypt.js"
