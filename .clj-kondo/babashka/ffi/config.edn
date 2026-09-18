@@ -1,0 +1,2 @@
+{:hooks {:analyze-call {babashka.ffi/defcfn hooks.babashka.ffi/defcfn}}
+ :lint-as {babashka.ffi/with-open clojure.core/with-open}}

@@ -23,7 +23,7 @@
         #_#_metosin/malli {:mvn/version "0.8.8"}
         org.babashka/cli {:mvn/version "0.12.86"}
         babashka/fs {:mvn/version "0.5.34"}
-        org.babashka/ffi {:mvn/version "0.1.1"}
+        org.babashka/ffi {:mvn/version "0.1.2"}
         #_{:local/root "/Users/borkdude/dev/babashka/sci"}
         io.github.babashka/sci.configs #_{:local/root "../sci.configs"}
                                        {:git/url "https://github.com/babashka/sci.configs"

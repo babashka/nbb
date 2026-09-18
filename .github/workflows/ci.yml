@@ -46,6 +46,52 @@ jobs:
         run: |
           bb ci:test
 
+  ffi-smoke:
+    # babashka.ffi needs node:ffi, which arrived in Node.js 26.1. The rest of
+    # the suite runs on LTS, where the babashka.ffi test skips itself.
+    runs-on: ubuntu-latest
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: 'true'
+
+      - name: Cache deps
+        uses: actions/cache@v4.2.3
+        id: cache-deps
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('deps.edn') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: Prepare java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt-hotspot'
+          java-version: '25'
+
+      - name: Prepare node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+
+      - name: Install clojure tools
+        uses: DeLaGuardo/setup-clojure@5.0
+        with:
+          cli: latest
+          bb: latest
+
+      - name: Build
+        run: bb release
+
+      - name: Run ffi smoke test
+        run: node lib/nbb_main.js test-scripts/ffi_smoke.cljs
+
   jsr-publish:
     strategy:
       matrix:
