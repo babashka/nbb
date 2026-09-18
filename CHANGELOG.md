@@ -6,7 +6,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 ## Unreleased
 
-- Add `babashka.ffi` as built-in library for calling C functions. Needs Node.js 26.1 or newer. Experimental
+- Add experimental `babashka.ffi` built-in library for calling C functions. Requires Node.js 26.1 or newer
 - Bump SCI: faster multi-arity function dispatch, bumps edamame to `1.6.44`
 
 ## 1.5.212 (2026-08-18)

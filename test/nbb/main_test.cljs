@@ -129,7 +129,7 @@
 
 (deftest-async babashka-ffi-test
   (if-not node-ffi?
-    (js/Promise.resolve (is true "node:ffi needs Node.js 26.1 or newer"))
+    (js/Promise.resolve (is true "node:ffi requires Node.js 26.1 or newer"))
     (-> (nbb/load-string "(require '[babashka.ffi :as ffi])
                           (ffi/defcfn strlen \"strlen\" [:string] :size_t)
                           (let [abs* (ffi/cfn \"abs\" [:int] :int)]

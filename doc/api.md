@@ -36,15 +36,14 @@ See the [babashka.fs API](https://github.com/babashka/fs/blob/master/API.md).
 
 ## babashka.ffi
 
-Calls C functions in shared libraries. Needs Node.js 26.1 or newer, which
-provides `node:ffi`. Experimental.
+Use `babashka.ffi` to call C functions in shared libraries. Experimental.
+Requires Node.js 26.1 or newer.
 
 See the [babashka.ffi API](https://github.com/babashka/ffi/blob/main/API.md)
-and the [guide](https://github.com/babashka/ffi/blob/main/doc/guide.md). The
-[On Node.js](https://github.com/babashka/ffi/blob/main/doc/guide.md#on-nodejs)
-section lists what differs from the JVM. A struct by value, a variadic
-signature and a function pointer as the symbol are rejected when the binding
-is created.
+and [Node.js guide](https://github.com/babashka/ffi/blob/main/doc/guide.md#on-nodejs).
+
+Bindings reject structs passed by value, variadic signatures and function
+pointers used as symbols.
 
 ## Promesa
 

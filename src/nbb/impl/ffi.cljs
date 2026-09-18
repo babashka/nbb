@@ -6,9 +6,7 @@
 
 (def fns (sci/create-ns 'babashka.ffi nil))
 
-;; The ClojureScript compiler emits nothing for a defmacro in babashka.ffi, so
-;; copy-ns can't copy defcfn and with-open. Reinterpret them here as SCI macros
-;; over the expansion functions the namespace exposes for this.
+;; Wrap babashka.ffi macros for SCI since copy-ns only copies runtime vars.
 (defn ^:macro defcfn [_ _ name & args]
   (ffi/defcfn-form name args))
 
