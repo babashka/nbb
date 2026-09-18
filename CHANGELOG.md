@@ -4,9 +4,9 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
-## Unreleased
+## 1.6.213 (2026-09-18)
 
-- Add experimental `babashka.ffi` built-in library for calling C functions. Requires Node.js 26.1 or newer
+- Add `babashka.ffi` built-in library for calling C functions. Requires Node.js 26.1 or newer
 - Bump SCI: faster multi-arity function dispatch, bumps edamame to `1.6.44`
 
 ## 1.5.212 (2026-08-18)
