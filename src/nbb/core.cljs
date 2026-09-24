@@ -643,6 +643,36 @@
 
 (def main-ns (sci/create-ns 'clojure.main))
 
+;; cljs.core/ArrayList declares its methods on Object, so Closure may rename
+;; them under :advanced. SCI interop resolves members by their source names at
+;; runtime, so publish stable aliases once on the prototype.
+;;
+;; The reads below must stay literal `.-member` forms. Closure rewrites those
+;; to whatever it renamed the method to, while the string keys are left alone
+;; -- that asymmetry is the whole trick. Collapsing this into a loop over the
+;; name strings (`(gobj/get proto m)`) reads the *unrenamed* name, gets nil,
+;; and silently breaks `.isEmpty` in release builds while dev builds stay green.
+;;
+;; Only `isEmpty` is renameable today: `add`, `clear` and `size` are reserved by
+;; Closure's standard ES externs and `toArray` by externs/modules.txt, so those
+;; four aliases are currently self-assignments. They cost nothing after
+;; optimization and keep this correct if those externs ever change.
+;;
+;; The aliases are non-enumerable so that embedders of the nbb_api module don't
+;; see five extra keys when walking an ArrayList with `for..in`/`gobj/forEach`.
+(let [^js proto (.-prototype cljs.core/ArrayList)
+      alias! (fn [k f]
+               (js/Object.defineProperty
+                proto k #js {:value f
+                             :writable true
+                             :enumerable false
+                             :configurable true}))]
+  (alias! "add" (.-add proto))
+  (alias! "size" (.-size proto))
+  (alias! "clear" (.-clear proto))
+  (alias! "isEmpty" (.-isEmpty proto))
+  (alias! "toArray" (.-toArray proto)))
+
 (ctx/reset-ctx!
  (sci/init
   {:namespaces {'clojure.core {'*command-line-args* command-line-args
@@ -651,6 +681,8 @@
                                'system-time (sci/copy-var system-time core-ns)
                                'implements? (sci/copy-var implements?* core-ns)
                                'array (sci/copy-var array core-ns)
+                               'array-list (sci/copy-var array-list core-ns)
+                               'ArrayList cljs.core/ArrayList
                                'tap> (sci/copy-var tap> core-ns)
                                'add-tap (sci/copy-var add-tap core-ns)
                                'remove-tap (sci/copy-var remove-tap core-ns)

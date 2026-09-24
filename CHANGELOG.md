@@ -4,6 +4,11 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
+## Unreleased
+
+- [babashka/sci#1097](https://github.com/babashka/sci/issues/1097): Add `array-list` to `clojure.core`, e.g. for medley `1.10.0`'s `partition-between`. `ArrayList` is exposed too, so `instance?` and type checks work; construct with `(array-list)`.
+  As in ClojureScript, `.toArray` returns the live backing array rather than a copy, and `.clear` rebinds it rather than emptying it in place. Copy with `into []` if you keep the result past the next mutation: `vec` aliases the array.
+
 ## 1.6.213 (2026-09-18)
 
 - Add `babashka.ffi` built-in library for calling C functions. Requires Node.js 26.1 or newer
