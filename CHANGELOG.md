@@ -4,7 +4,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
-## Unreleased
+## 1.6.214 (2026-09-25)
 
 - [babashka/sci#1097](https://github.com/babashka/sci/issues/1097): Add `array-list` to `clojure.core`, e.g. for medley `1.10.0`'s `partition-between`. `ArrayList` is exposed too, so `instance?` and type checks work; construct with `(array-list)`.
 
