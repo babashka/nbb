@@ -110,13 +110,6 @@
                (is (= :hello v))))))
 
 (deftest-async array-list-test
-  ;; `snap` uses `into []`, not `vec`: `vec` aliases a JS array instead of
-  ;; copying it, so a `vec` snapshot would only survive the `.clear` below by
-  ;; accident -- cljs's `ArrayList.clear` rebinds `arr` to a fresh array rather
-  ;; than truncating the old one. That is deliberate cljs.core behaviour (and
-  ;; what makes the `vec`-then-`clear` idiom in `partition-by` and medley's
-  ;; `partition-between` safe), but it is not what this test is pinning, so
-  ;; take a real copy and let the assertion be about `array-list` itself.
   (-> (nbb/load-string "
 (let [xs (array-list)
       e0 (.isEmpty xs)
@@ -130,12 +123,6 @@
       (.then (fn [v]
                (is (= [true true 0 1 2 [1 2] true 0 [] [1 2]] v))))))
 
-;; `ArrayList` is exposed so `instance?` works; `(array-list)` is the supported
-;; way to build one. The constructor below is cljs.core's own and takes the
-;; *backing array* -- there is no `java.util.ArrayList`-style capacity arity, and
-;; the wrong shape constructs fine and only fails on first use. Pinned so the
-;; behaviour is visible to maintainers, not because it is public API: if
-;; ClojureScript changes it, this test follows rather than blocks.
 (deftest-async array-list-ctor-test
   (-> (nbb/load-string "
 (let [xs (ArrayList. (array 1 2))]

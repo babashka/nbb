@@ -7,7 +7,6 @@ For a list of breaking changes, check [here](#breaking-changes).
 ## Unreleased
 
 - [babashka/sci#1097](https://github.com/babashka/sci/issues/1097): Add `array-list` to `clojure.core`, e.g. for medley `1.10.0`'s `partition-between`. `ArrayList` is exposed too, so `instance?` and type checks work; construct with `(array-list)`.
-  As in ClojureScript, `.toArray` returns the live backing array rather than a copy, and `.clear` rebinds it rather than emptying it in place. Copy with `into []` if you keep the result past the next mutation: `vec` aliases the array.
 
 ## 1.6.213 (2026-09-18)
 

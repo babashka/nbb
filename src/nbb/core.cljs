@@ -643,23 +643,8 @@
 
 (def main-ns (sci/create-ns 'clojure.main))
 
-;; cljs.core/ArrayList declares its methods on Object, so Closure may rename
-;; them under :advanced. SCI interop resolves members by their source names at
-;; runtime, so publish stable aliases once on the prototype.
-;;
-;; The reads below must stay literal `.-member` forms. Closure rewrites those
-;; to whatever it renamed the method to, while the string keys are left alone
-;; -- that asymmetry is the whole trick. Collapsing this into a loop over the
-;; name strings (`(gobj/get proto m)`) reads the *unrenamed* name, gets nil,
-;; and silently breaks `.isEmpty` in release builds while dev builds stay green.
-;;
-;; Only `isEmpty` is renameable today: `add`, `clear` and `size` are reserved by
-;; Closure's standard ES externs and `toArray` by externs/modules.txt, so those
-;; four aliases are currently self-assignments. They cost nothing after
-;; optimization and keep this correct if those externs ever change.
-;;
-;; The aliases are non-enumerable so that embedders of the nbb_api module don't
-;; see five extra keys when walking an ArrayList with `for..in`/`gobj/forEach`.
+;; Publish ArrayList methods under stable names so SCI interop survives :advanced renaming.
+;; Keep the literal .-member reads: Closure renames those, not the string keys.
 (let [^js proto (.-prototype cljs.core/ArrayList)
       alias! (fn [k f]
                (js/Object.defineProperty
