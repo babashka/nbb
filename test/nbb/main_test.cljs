@@ -173,6 +173,15 @@
       (.then (fn [v]
                (is (= :rando.ns/foo v))))))
 
+(deftest-async in-ns-test
+  (-> (nbb/load-string "(in-ns 'in-ns-a)
+                        (def x (ns-name *ns*))
+                        (do (in-ns 'in-ns-b)
+                            (def y (ns-name *ns*)))
+                        [in-ns-a/x y (ns-name *ns*)]")
+      (.then (fn [v]
+               (is (= '[in-ns-a in-ns-b in-ns-b] v))))))
+
 (deftest-async load-string-file-test
   (-> (nbb/load-string "(ns foo) (defn foo [] (+ 1 2 3)) (ns-name *ns*)")
       (.then (fn [ns-name]

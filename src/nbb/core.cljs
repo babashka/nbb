@@ -417,9 +417,11 @@
                    (eval-next ns-obj reader (assoc opts :ns ns-obj))))
           :else
           (try (let [pre-await await-counter
-                     next-val (sci/binding [sci/ns (:ns opts)
-                                            sci/file (:file opts)]
-                                (sci/eval-form (ctx/get-ctx) form))
+                     [next-val ns-after] (sci/binding [sci/ns (:ns opts)
+                                                       sci/file (:file opts)]
+                                           (let [v (sci/eval-form (ctx/get-ctx) form)]
+                                             [v @sci/ns]))
+                     opts (assoc opts :ns ns-after)
                      post-await await-counter]
                  (if (= pre-await post-await)
                    (.then (js/Promise.resolve nil)

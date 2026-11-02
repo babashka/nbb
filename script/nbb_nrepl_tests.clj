@@ -509,6 +509,50 @@
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (new-id!)}))))
 
+(deftest namespace-test
+  (nrepl-server)
+  (wait-for-port "localhost" @port)
+  (with-open [socket (Socket. "127.0.0.1" @port)
+              in (.getInputStream socket)
+              in (java.io.PushbackInputStream. in)
+              os (.getOutputStream socket)]
+    (bencode/write-bencode os {"op" "clone"})
+    (let [session (:new-session (read-msg (bencode/read-bencode in)))
+          id (atom 0)
+          eval! (fn [msg]
+                  (let [id (swap! id inc)]
+                    (bencode/write-bencode os (assoc msg "op" "eval"
+                                                     "session" session "id" id))
+                    (loop [values []]
+                      (let [{:keys [value status ns]} (read-reply in session id)
+                            values (cond-> values value (conj value))]
+                        (if (some #{"done"} status)
+                          {:values values :ns ns}
+                          (recur values))))))
+          current-ns "(str *ns*)"]
+      (eval! {"code" "(ns foo)"})
+      (testing ":ns selects the namespace after an ns form"
+        (is (= {:values ["\"user\""] :ns "user"}
+               (eval! {"code" current-ns "ns" "user"}))))
+      (testing ":ns leaves the session namespace unchanged"
+        (is (= {:values ["\"foo\""] :ns "foo"}
+               (eval! {"code" current-ns}))))
+      (testing "an ns form in an eval with :ns leaves the session namespace unchanged"
+        (is (= "\"bar\"" (peek (:values (eval! {"code" "(ns bar) (str *ns*)" "ns" "user"})))))
+        (is (= {:values ["\"foo\""] :ns "foo"}
+               (eval! {"code" current-ns}))))
+      (testing "in-ns changes the namespace of the next form"
+        (is (= "\"baz\"" (peek (:values (eval! {"code" "(in-ns 'baz) (str *ns*)"}))))))
+      (testing "in-ns changes the session namespace"
+        (is (= {:values ["\"baz\""] :ns "baz"}
+               (eval! {"code" current-ns}))))
+      (testing "a form after an error runs in the namespace of the form before it"
+        (is (= "\"qux\"" (peek (:values (eval! {"code" "(ns qux) undefined-symbol (str *ns*)"})))))
+        (is (= {:values ["\"qux\""] :ns "qux"}
+               (eval! {"code" current-ns}))))
+      (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
+                                 "session" session "id" (swap! id inc)}))))
+
 (deftest print-outside-eval-test
   (let [script (fs/file (fs/create-temp-file {:prefix "nbb-nrepl" :suffix ".cljs"}))
         out-file (fs/file (fs/create-temp-file {:prefix "nbb-nrepl-out" :suffix ".txt"}))

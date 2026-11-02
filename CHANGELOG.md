@@ -7,6 +7,8 @@ For a list of breaking changes, check [here](#breaking-changes).
 ## Unreleased
 
 - [#425](https://github.com/babashka/nbb/issues/425): nREPL: send `eval-error` status with `ex` and `root-ex` exception classes for code that throws
+- [#426](https://github.com/babashka/nbb/issues/426): nREPL: `eval` runs in the namespace of its `:ns` after an `ns` form, and `:ns` leaves the session namespace unchanged
+- [#427](https://github.com/babashka/nbb/issues/427): `in-ns` changes the namespace of the forms after it
 
 ## 1.6.214 (2026-09-25)
 
