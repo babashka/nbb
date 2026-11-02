@@ -116,7 +116,7 @@
 (defn- sci-error? [e]
   (isa? (:type (ex-data e)) :sci/error))
 
-(defn handle-error [send-fn request e]
+(defn handle-error [send-fn request ns e]
   (sci/alter-var-root sci/*e (constantly e))
   (let [data (ex-data e)
         causes (take-while some? (iterate ex-cause e))
@@ -126,7 +126,7 @@
       (send-fn request {"err" (str message "\n")}))
     (send-fn request {"ex" (ex-class thrown)
                       "root-ex" (ex-class root)
-                      "ns" (str @sci/ns)
+                      "ns" (str ns)
                       "status" ["eval-error"]})))
 
 ;; async code started by an eval inherits the store, code that runs outside of
@@ -170,7 +170,7 @@
                                       (-> (js/Promise.resolve (send-value request send-fn v))
                                           (.then #(loop-fn))))))))
                        (catch :default e
-                         (handle-error send-fn request e)
+                         (handle-error send-fn request @current-ns e)
                          (loop-fn))))]
     (.run eval-storage {:request request :send-fn send-fn}
           (fn []
@@ -180,17 +180,18 @@
                sci/print-length @sci/print-length
                sci/print-newline true}
               (-> (loop-fn)
-                  (.catch (partial handle-error send-fn request))
+                  (.catch #(handle-error send-fn request @current-ns %))
                   (.finally (fn []
                               (send-fn request {"ns" (str @current-ns)
                                                 "status" ["done"]})))))))))
 
 (defn handle-eval [{:keys [ns] :as request} send-fn]
-  (do-handle-eval (assoc request :eval-ns (or (when ns
-                                                (the-sci-ns (store/get-ctx) (symbol ns)))
-                                              @last-ns
-                                              @sci/ns))
-                  send-fn))
+  (if-let [eval-ns (if ns
+                     (the-sci-ns (store/get-ctx) (symbol ns))
+                     (or @last-ns @sci/ns))]
+    (do-handle-eval (assoc request :eval-ns eval-ns) send-fn)
+    (send-fn request {"ns" ns
+                      "status" ["error" "namespace-not-found" "done"]})))
 
 (defn handle-clone [request send-fn]
   (send-fn request {"new-session" (str (random-uuid))
