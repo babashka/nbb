@@ -469,10 +469,43 @@
               _ (is (str/includes? (:err msg) "x"))
               msg (read-reply in session @id)
               _ (is (:ex msg))
+              _ (is (= ["eval-error"] (:status msg)))
               msg (read-reply in session @id)
               _ (is (= "6" (:value msg)))
               msg (read-reply in session @id)
               _ (is (= ["done"] (:status msg)))]))
+      (doseq [[code ex root-ex]
+              [["(throw (ex-info \"boom\" {}))"
+                "class cljs.core.ExceptionInfo" "class cljs.core.ExceptionInfo"]
+               ["(throw (js/TypeError. \"boom\"))"
+                "class TypeError" "class TypeError"]
+               ["(throw (ex-info \"boom\" {} (js/RangeError. \"cause\")))"
+                "class cljs.core.ExceptionInfo" "class RangeError"]
+               ["(.foo nil)"
+                "class TypeError" "class TypeError"]
+               ["(throw \"boom\")"
+                "class String" "class String"]
+               ["undefined-symbol"
+                "class cljs.core.ExceptionInfo" "class cljs.core.ExceptionInfo"]
+               ["(+ 1"
+                "class cljs.core.ExceptionInfo" "class cljs.core.ExceptionInfo"]
+               ["(js/Promise.reject (js/TypeError. \"boom\"))"
+                "class TypeError" "class TypeError"]
+               ["(js/Promise.reject nil)"
+                "class nil" "class nil"]]]
+        (testing (str code " sends eval-error with the exception class")
+          (bencode/write-bencode os {"op" "eval" "code" code
+                                     "session" session "id" (new-id!)})
+          (let [msgs (loop [msgs []]
+                       (let [msg (read-reply in session @id)
+                             msgs (conj msgs msg)]
+                         (if (some #{"done"} (:status msg))
+                           msgs
+                           (recur msgs))))
+                msg (first (filter :ex msgs))]
+            (is (= ex (:ex msg)))
+            (is (= root-ex (:root-ex msg)))
+            (is (= ["eval-error"] (:status msg))))))
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (new-id!)}))))
 

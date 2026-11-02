@@ -107,13 +107,26 @@
         (send-fn request {"value" v
                           "ns" (str sci-ns)})))))
 
+(defn- ex-class [e]
+  (str "class " (if (instance? ExceptionInfo e)
+                  "cljs.core.ExceptionInfo"
+                  (or (some-> e .-constructor .-name) "nil"))))
+
+(defn- sci-error? [e]
+  (isa? (:type (ex-data e)) :sci/error))
+
 (defn handle-error [send-fn request e]
   (sci/alter-var-root sci/*e (constantly e))
-  (let [data (ex-data e)]
-    (when-let [message (or (:message data) (.-message e))]
+  (let [data (ex-data e)
+        causes (take-while some? (iterate ex-cause e))
+        root (last causes)
+        thrown (or (first (remove sci-error? causes)) root)]
+    (when-let [message (or (:message data) (some-> e .-message))]
       (send-fn request {"err" (str message "\n")}))
-    (send-fn request {"ex" (str e)
-                      "ns" (str @sci/ns)})))
+    (send-fn request {"ex" (ex-class thrown)
+                      "root-ex" (ex-class root)
+                      "ns" (str @sci/ns)
+                      "status" ["eval-error"]})))
 
 ;; async code started by an eval inherits the store, code that runs outside of
 ;; an eval has none
