@@ -30,6 +30,7 @@
   (is (str/includes? (:out (repl "(+ 1 2 3)")) "6\n"))
   (is (str/includes? (:out (repl "(+\n 1\n 2\n 3\n)")) "6\n"))
   (is (str/includes? (:out (repl "(ns foo) (= \"foo\" (str *ns*))")) "true"))
+  (is (str/includes? (:out (repl "(in-ns 'foo) (= \"foo\" (str *ns*))")) "true"))
   (is (str/includes?
        (:out (repl "(ns foo (:require [\"fs\" :as fs])) (fs/existsSync \"README.md\")"))
        "true\n"))

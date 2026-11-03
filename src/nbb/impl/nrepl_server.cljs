@@ -93,7 +93,8 @@
 (defn send-value [request send-fn v]
   (let [[v opts] v
         sci-ns (:ns opts)]
-    (reset! last-ns sci-ns)
+    (when-not (:ns request)
+      (reset! last-ns sci-ns))
     (sci/alter-var-root sci/*3 (constantly @sci/*2))
     (sci/alter-var-root sci/*2 (constantly @sci/*1))
     (sci/alter-var-root sci/*1 (constantly v))
@@ -115,7 +116,7 @@
 (defn- sci-error? [e]
   (isa? (:type (ex-data e)) :sci/error))
 
-(defn handle-error [send-fn request e]
+(defn handle-error [send-fn request ns e]
   (sci/alter-var-root sci/*e (constantly e))
   (let [data (ex-data e)
         causes (take-while some? (iterate ex-cause e))
@@ -125,7 +126,7 @@
       (send-fn request {"err" (str message "\n")}))
     (send-fn request {"ex" (ex-class thrown)
                       "root-ex" (ex-class root)
-                      "ns" (str @sci/ns)
+                      "ns" (str ns)
                       "status" ["eval-error"]})))
 
 ;; async code started by an eval inherits the store, code that runs outside of
@@ -148,46 +149,49 @@
                                (send-fn request {"out" s})
                                (console-print-fn s))))))))
 
-(defn do-handle-eval [{:keys [ns code file
+(defn do-handle-eval [{:keys [eval-ns code file
                               _load-file? _line] :as request} send-fn]
   (let [rdr (sci/reader code)
-        loop-fn (fn loop-fn [prev-val]
-                  (try (let [ns (or (:ns (second prev-val)) @last-ns ns)
+        current-ns (volatile! eval-ns)
+        loop-fn (fn loop-fn []
+                  (try (let [ns @current-ns
                              next-val (nbb/read-next rdr {:ns ns
                                                           :file file
                                                           :wrap vector})]
                          (if (= :sci.core/eof next-val)
-                           (js/Promise.resolve prev-val)
+                           (js/Promise.resolve nil)
                            (let [v (nbb/eval-next* next-val {:ns ns
                                                              :file file
                                                              :wrap vector})]
                              (.then v
                                     (fn [v]
                                      ;; (prn :v v)
+                                      (vreset! current-ns (:ns (second v)))
                                       (-> (js/Promise.resolve (send-value request send-fn v))
-                                          (.then #(loop-fn v))))))))
+                                          (.then #(loop-fn))))))))
                        (catch :default e
-                         (handle-error send-fn request e)
-                         (loop-fn nil))))]
+                         (handle-error send-fn request @current-ns e)
+                         (loop-fn))))]
     (.run eval-storage {:request request :send-fn send-fn}
           (fn []
             (with-async-bindings
-              {sci/ns ns
+              {sci/ns eval-ns
                sci/file file
                sci/print-length @sci/print-length
                sci/print-newline true}
-              (-> (loop-fn nil)
-                  (.catch (partial handle-error send-fn request))
+              (-> (loop-fn)
+                  (.catch #(handle-error send-fn request @current-ns %))
                   (.finally (fn []
-                              (send-fn request {"ns" (str @last-ns)
+                              (send-fn request {"ns" (str @current-ns)
                                                 "status" ["done"]})))))))))
 
 (defn handle-eval [{:keys [ns] :as request} send-fn]
-  (do-handle-eval (assoc request :ns (or (when ns
-                                           (the-sci-ns (store/get-ctx) (symbol ns)))
-                                         @last-ns
-                                         @sci/ns))
-                  send-fn))
+  (if-let [eval-ns (if ns
+                     (the-sci-ns (store/get-ctx) (symbol ns))
+                     (or @last-ns @sci/ns))]
+    (do-handle-eval (assoc request :eval-ns eval-ns) send-fn)
+    (send-fn request {"ns" ns
+                      "status" ["error" "namespace-not-found" "done"]})))
 
 (defn handle-clone [request send-fn]
   (send-fn request {"new-session" (str (random-uuid))
@@ -284,10 +288,11 @@
            {"status" status "ex" (str e)}))))))
 
 (defn handle-load-file [{:keys [file] :as request} send-fn]
-  (do-handle-eval (assoc request
-                         :code file
-                         :load-file? true
-                         :ns @sci/ns)
+  (do-handle-eval (-> request
+                      (dissoc :ns)
+                      (assoc :code file
+                             :load-file? true
+                             :eval-ns (or @last-ns @sci/ns)))
                   send-fn))
 
 ;;;; Completions, based on babashka.nrepl
