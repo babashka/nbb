@@ -287,10 +287,11 @@
            request
            {"status" status "ex" (str e)}))))))
 
-(defn handle-load-file [{:keys [file] :as request} send-fn]
+(defn handle-load-file [{:keys [file file-path file-name] :as request} send-fn]
   (do-handle-eval (-> request
                       (dissoc :ns)
                       (assoc :code file
+                             :file (or file-path file-name)
                              :load-file? true
                              :eval-ns (or @last-ns @sci/ns)))
                   send-fn))
