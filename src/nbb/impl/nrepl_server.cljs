@@ -259,7 +259,10 @@
                 doc (:doc m)
                 file (:file m)
                 line (:line m)
-                reply (case mapping-type
+                reply (case (when m mapping-type)
+                        nil {"status" ["done" (if (= :eldoc mapping-type)
+                                                "no-eldoc"
+                                                "no-info")]}
                         :eldoc (cond->
                                 {"ns" (:ns m)
                                  "name" (:name m)

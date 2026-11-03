@@ -11,6 +11,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 - nREPL: reply `namespace-not-found` to an `eval` with an unknown `:ns`
 - [#427](https://github.com/babashka/nbb/issues/427): `in-ns` changes the namespace of the forms after it
 - [#430](https://github.com/babashka/nbb/issues/430): nREPL: `load-file` sets the `:file` of the vars it defines to `file-path`, or `file-name` without it
+- [#431](https://github.com/babashka/nbb/issues/431): nREPL: reply `no-info` to `info` and `lookup` and `no-eldoc` to `eldoc` for an unresolved symbol
 
 ## 1.6.214 (2026-09-25)
 

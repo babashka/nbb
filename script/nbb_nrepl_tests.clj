@@ -381,6 +381,27 @@
                 _ (is (= (:ns msg) "clojure.core"))])))
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (new-id!)}))))
+(deftest lookup-not-found-test
+  (nrepl-server)
+  (wait-for-port "localhost" @port)
+  (with-open [socket (Socket. "127.0.0.1" @port)
+              in (.getInputStream socket)
+              in (java.io.PushbackInputStream. in)
+              os (.getOutputStream socket)]
+    (bencode/write-bencode os {"op" "clone"})
+    (let [session (:new-session (read-msg (bencode/read-bencode in)))
+          id (atom 0)]
+      (doseq [[op status] [["info" "no-info"]
+                           ["lookup" "no-info"]
+                           ["eldoc" "no-eldoc"]]]
+        (testing (str op " on an unknown symbol replies " status)
+          (bencode/write-bencode os {"op" op "ns" "user" "sym" "nope"
+                                     "session" session "id" (swap! id inc)})
+          (is (= {:status ["done" status]}
+                 (dissoc (read-reply in session @id) :id :session)))))
+      (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
+                                 "session" session "id" (swap! id inc)}))))
+
 (deftest macroexpand-test
   (nrepl-server)
   (wait-for-port "localhost" @port)
