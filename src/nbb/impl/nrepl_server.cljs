@@ -190,17 +190,22 @@
                              next-val (nbb/read-next rdr {:ns ns
                                                           :file file
                                                           :wrap vector})]
-                         (if (= :sci.core/eof next-val)
+                         (cond
+                           (= :sci.core/eof next-val)
                            (js/Promise.resolve nil)
-                           (let [v (nbb/eval-next* next-val {:ns ns
-                                                             :file file
-                                                             :wrap vector})]
-                             (.then v
-                                    (fn [v]
-                                     ;; (prn :v v)
-                                      (vreset! current-ns (:ns (second v)))
-                                      (-> (js/Promise.resolve (send-value request send-fn v))
-                                          (.then #(loop-fn))))))))
+                           (instance? js/Promise next-val)
+                           next-val
+                           :else
+                           (-> (nbb/eval-next* next-val {:ns ns
+                                                         :file file
+                                                         :wrap vector})
+                               (.then (fn [v]
+                                        (vreset! current-ns (:ns (second v)))
+                                        (send-value request send-fn v)))
+                               (.then (fn [_] (loop-fn))
+                                      (fn [e]
+                                        (handle-error send-fn request @current-ns e)
+                                        (loop-fn))))))
                        (catch :default e
                          (handle-error send-fn request @current-ns e)
                          (loop-fn))))]

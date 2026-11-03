@@ -527,6 +527,21 @@
             (is (= ex (:ex msg)))
             (is (= root-ex (:root-ex msg)))
             (is (= ["eval-error"] (:status msg))))))
+      (doseq [[code values] [["(throw (ex-info \"boom\" {})) (+ 1 2 3)" ["6"]]
+                             ["(undefined-fn) :after" [":after"]]
+                             ["(js/Promise.reject (js/Error. \"boom\")) :after" [":after"]]
+                             ["1 ) 2" ["1"]]]]
+        (testing (str code " sends one ex and the values " values)
+          (bencode/write-bencode os {"op" "eval" "code" code
+                                     "session" session "id" (new-id!)})
+          (let [msgs (loop [msgs []]
+                       (let [msg (read-reply in session @id)
+                             msgs (conj msgs msg)]
+                         (if (some #{"done"} (:status msg))
+                           msgs
+                           (recur msgs))))]
+            (is (= 1 (count (filter :ex msgs))))
+            (is (= values (keep :value msgs))))))
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (new-id!)}))))
 
