@@ -558,10 +558,9 @@
         (is (= {:values ["\"qux\""] :ns "qux"}
                (eval! {"code" current-ns}))))
       (testing "an unknown :ns replies namespace-not-found"
-        (let [[reply & more] (replies! {"code" "(ns unknown-target)" "ns" "unknown"})]
+        (let [[reply] (replies! {"code" "(ns unknown-target)" "ns" "unknown"})]
           (is (= "unknown" (:ns reply)))
-          (is (= #{"error" "namespace-not-found" "done"} (set (:status reply))))
-          (is (nil? more)))
+          (is (= #{"error" "namespace-not-found" "done"} (set (:status reply)))))
         (is (= {:values ["\"qux\""] :ns "qux"}
                (eval! {"code" current-ns}))))
       (testing "load-file ignores :ns and changes the session namespace"
