@@ -572,6 +572,42 @@
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (swap! id inc)}))))
 
+(deftest load-file-test
+  (nrepl-server)
+  (wait-for-port "localhost" @port)
+  (with-open [socket (Socket. "127.0.0.1" @port)
+              in (.getInputStream socket)
+              in (java.io.PushbackInputStream. in)
+              os (.getOutputStream socket)]
+    (bencode/write-bencode os {"op" "clone"})
+    (let [session (:new-session (read-msg (bencode/read-bencode in)))
+          id (atom 0)
+          request! (fn [msg]
+                     (let [id (swap! id inc)]
+                       (bencode/write-bencode os (assoc msg "session" session "id" id))
+                       (loop [replies []]
+                         (let [reply (read-reply in session id)
+                               replies (conj replies reply)]
+                           (if (some #{"done"} (:status reply))
+                             replies
+                             (recur replies))))))
+          info (fn [sym]
+                 (first (request! {"op" "info" "ns" "user" "sym" sym})))]
+      (testing "load-file sets the :file of a var to file-path"
+        (request! {"op" "load-file"
+                   "file" "(ns load-file-a)\n(defn f [x] x)\n"
+                   "file-path" "/tmp/load_file_a.cljs"
+                   "file-name" "load_file_a.cljs"})
+        (is (= {:file "/tmp/load_file_a.cljs" :line 2}
+               (select-keys (info "load-file-a/f") [:file :line]))))
+      (testing "load-file without file-path sets the :file of a var to file-name"
+        (request! {"op" "load-file"
+                   "file" "(ns load-file-b)\n(defn g [x] x)\n"
+                   "file-name" "load_file_b.cljs"})
+        (is (= "load_file_b.cljs" (:file (info "load-file-b/g")))))
+      (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
+                                 "session" session "id" (swap! id inc)}))))
+
 (deftest print-outside-eval-test
   (let [script (fs/file (fs/create-temp-file {:prefix "nbb-nrepl" :suffix ".cljs"}))
         out-file (fs/file (fs/create-temp-file {:prefix "nbb-nrepl-out" :suffix ".txt"}))

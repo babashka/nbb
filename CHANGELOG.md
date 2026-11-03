@@ -10,6 +10,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 - [#426](https://github.com/babashka/nbb/issues/426): nREPL: `eval` runs in the namespace of its `:ns` after an `ns` form, and `:ns` leaves the session namespace unchanged
 - nREPL: reply `namespace-not-found` to an `eval` with an unknown `:ns`
 - [#427](https://github.com/babashka/nbb/issues/427): `in-ns` changes the namespace of the forms after it
+- [#430](https://github.com/babashka/nbb/issues/430): nREPL: `load-file` sets the `:file` of the vars it defines to `file-path`, or `file-name` without it
 
 ## 1.6.214 (2026-09-25)
 
