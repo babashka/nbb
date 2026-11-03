@@ -16,9 +16,8 @@
    [nbb.impl.bencode :refer [decode-all encode]]
    [nbb.impl.repl-utils :as utils :refer [the-sci-ns]]
    [sci.core :as sci]
-   [sci.ctx-store :as store])
-  (:require-macros
-   [nbb.macros :refer [with-async-bindings]]))
+   [sci.ctx-store :as store]
+   [sci.impl.vars :as vars]))
 
 (defn debug [& strs]
   (when (:debug @nbb/opts)
@@ -71,8 +70,13 @@
             "ops" (zipmap (map name (keys ops)) (repeat {}))
             "status" ["done"]}))
 
-;; TODO: this should not be global
-(def last-ns (atom nil))
+(def ^:private sessions (atom {}))
+
+(defn- session [request]
+  (get @sessions (:session request)))
+
+(defn- update-session! [request f & args]
+  (swap! sessions update (:session request) #(apply f % args)))
 
 (def pretty-print-fns-map
   {"cider.nrepl.pprint/pprint" pp/write})
@@ -93,11 +97,12 @@
 (defn send-value [request send-fn v]
   (let [[v opts] v
         sci-ns (:ns opts)]
-    (when-not (:ns request)
-      (reset! last-ns sci-ns))
-    (sci/alter-var-root sci/*3 (constantly @sci/*2))
-    (sci/alter-var-root sci/*2 (constantly @sci/*1))
-    (sci/alter-var-root sci/*1 (constantly v))
+    (sci/set! sci/*3 @sci/*2)
+    (sci/set! sci/*2 @sci/*1)
+    (sci/set! sci/*1 v)
+    (update-session! request
+                     #(cond-> (assoc % :*1 v :*2 @sci/*2 :*3 @sci/*3)
+                        (not (:ns request)) (assoc :ns sci-ns)))
     (if (nbb/thenable? v)
       (.then v (fn [resolved]
                  (send-fn request {"value" (str "#<Promise " (pr-str resolved) ">")
@@ -117,7 +122,8 @@
   (isa? (:type (ex-data e)) :sci/error))
 
 (defn handle-error [send-fn request ns e]
-  (sci/alter-var-root sci/*e (constantly e))
+  (sci/set! sci/*e e)
+  (update-session! request assoc :*e e)
   (let [data (ex-data e)
         causes (take-while some? (iterate ex-cause e))
         root (last causes)
@@ -133,6 +139,32 @@
 ;; an eval has none
 (def eval-storage (AsyncLocalStorage.))
 
+(deftype ^:private AsyncFrame [fallback ^:mutable last-store]
+  IDeref
+  (-deref [_]
+    (let [store (.getStore eval-storage)]
+      ;; jitted call sites cache var derefs on the epoch
+      (when-not (identical? store last-store)
+        (set! last-store store)
+        (vars/bump-var-epoch!))
+      (if store
+        (.-frame ^js store)
+        @fallback)))
+  IVolatile
+  (-vreset! [_ frame]
+    (if-let [store (.getStore eval-storage)]
+      (set! (.-frame ^js store) frame)
+      (vreset! fallback frame))))
+
+(def ^:private async-frames-installed? (atom false))
+
+(defn install-async-frames!
+  "Keeps the binding frame of each eval in its async context.
+  Does nothing when called again."
+  []
+  (when (compare-and-set! async-frames-installed? false true)
+    (set! vars/dvals (AsyncFrame. vars/dvals nil))))
+
 (def ^:private print-fn-installed? (atom false))
 
 (defn install-print-fn!
@@ -145,8 +177,8 @@
       (sci/alter-var-root sci/print-fn
                           (constantly
                            (fn [s]
-                             (if-let [{:keys [request send-fn]} (.getStore eval-storage)]
-                               (send-fn request {"out" s})
+                             (if-let [store (.getStore eval-storage)]
+                               ((.-sendFn ^js store) (.-request ^js store) {"out" s})
                                (console-print-fn s))))))))
 
 (defn do-handle-eval [{:keys [eval-ns code file
@@ -172,32 +204,41 @@
                        (catch :default e
                          (handle-error send-fn request @current-ns e)
                          (loop-fn))))]
-    (.run eval-storage {:request request :send-fn send-fn}
+    (.run eval-storage #js {:request request
+                            :sendFn send-fn
+                            :frame (vars/get-thread-binding-frame)}
           (fn []
-            (with-async-bindings
-              {sci/ns eval-ns
-               sci/file file
-               sci/print-length @sci/print-length
-               sci/print-newline true}
-              (-> (loop-fn)
-                  (.catch #(handle-error send-fn request @current-ns %))
-                  (.finally (fn []
-                              (send-fn request {"ns" (str @current-ns)
-                                                "status" ["done"]})))))))))
+            (let [{:keys [*1 *2 *3 *e]} (session request)]
+              (vars/push-thread-bindings {sci/ns eval-ns
+                                          sci/file file
+                                          sci/print-length @sci/print-length
+                                          sci/print-newline true
+                                          sci/*1 *1
+                                          sci/*2 *2
+                                          sci/*3 *3
+                                          sci/*e *e}))
+            (-> (loop-fn)
+                (.catch #(handle-error send-fn request @current-ns %))
+                (.finally (fn []
+                            (send-fn request {"ns" (str @current-ns)
+                                              "status" ["done"]}))))))))
 
 (defn handle-eval [{:keys [ns] :as request} send-fn]
   (if-let [eval-ns (if ns
                      (the-sci-ns (store/get-ctx) (symbol ns))
-                     (or @last-ns @sci/ns))]
+                     (or (:ns (session request)) @sci/ns))]
     (do-handle-eval (assoc request :eval-ns eval-ns) send-fn)
     (send-fn request {"ns" ns
                       "status" ["error" "namespace-not-found" "done"]})))
 
 (defn handle-clone [request send-fn]
-  (send-fn request {"new-session" (str (random-uuid))
-                    "status" ["done"]}))
+  (let [id (str (random-uuid))]
+    (swap! sessions assoc id (when (:session request) (session request)))
+    (send-fn request {"new-session" id
+                      "status" ["done"]})))
 
 (defn handle-close [request send-fn]
+  (swap! sessions dissoc (:session request))
   (send-fn request {"status" ["done" "session-closed"]}))
 
 (defn
@@ -243,7 +284,7 @@
             sci-ns
             (or (when ns
                   (the-sci-ns (store/get-ctx) (symbol ns)))
-                @last-ns
+                (:ns (session request))
                 @sci/ns)]
         (sci/binding [sci/ns sci-ns]
           (let [m (sci/eval-string* (store/get-ctx) (gstring/format "
@@ -296,7 +337,7 @@
                       (assoc :code file
                              :file (or file-path file-name)
                              :load-file? true
-                             :eval-ns (or @last-ns @sci/ns)))
+                             :eval-ns (or (:ns (session request)) @sci/ns)))
                   send-fn))
 
 ;;;; Completions, based on babashka.nrepl
@@ -431,6 +472,7 @@
                         ;; `println`.
                         (sci/alter-var-root sci/print-newline (constantly true))
                         (install-print-fn!)
+                        (install-async-frames!)
                         (try
                           (.writeFileSync fs ".nrepl-port" (str port))
                           (catch :default e
