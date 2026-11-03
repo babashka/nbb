@@ -629,6 +629,60 @@
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (swap! id inc)}))))
 
+(defn- read-until-done [in ids]
+  (loop [replies {} pending (set ids)]
+    (if (empty? pending)
+      replies
+      (let [{:keys [id status] :as msg} (read-msg (bencode/read-bencode in))]
+        (recur (update replies id (fnil conj []) msg)
+               (cond-> pending (some #{"done"} status) (disj id)))))))
+
+(deftest session-test
+  (nrepl-server)
+  (wait-for-port "localhost" @port)
+  (with-open [socket (Socket. "127.0.0.1" @port)
+              in (.getInputStream socket)
+              in (java.io.PushbackInputStream. in)
+              os (.getOutputStream socket)]
+    (let [id (atom 0)
+          send! (fn [msg]
+                  (let [id (swap! id inc)]
+                    (bencode/write-bencode os (assoc msg "id" id))
+                    id))
+          clone! (fn [msg]
+                   (:new-session (first (get (read-until-done in [(send! (assoc msg "op" "clone"))])
+                                             @id))))
+          values (fn [session code]
+                   (let [id (send! {"op" "eval" "session" session "code" code})]
+                     (keep :value (get (read-until-done in [id]) id))))
+          a (clone! {})
+          b (clone! {})]
+      (values a "(ns foo) 42")
+      (values a "(throw (ex-info \"boom\" {}))")
+      (testing "an eval in session a leaves the namespace, *1 and *e of session b unchanged"
+        (is (= ["[\"user\" nil false]"] (values b "[(str *ns*) *1 (some? *e)]"))))
+      (testing "session a keeps its namespace, *1 and *e"
+        (is (= ["[\"foo\" 42 true]"] (values a "[(str *ns*) *1 (some? *e)]"))))
+      (testing "*1 and *2 change with each form of an eval"
+        (is (= ["1" "2" "[2 1]"] (values b "1 2 [*1 *2]"))))
+      (testing "clone with session copies the namespace and *1 of that session"
+        (let [c (clone! {"session" a})]
+          (is (= ["[\"foo\" true]"] (values c "[(str *ns*) (vector? *1)]")))))
+      (testing "overlapping async evals keep their own bindings"
+        (values a "(ns aaa)")
+        (values b "(ns bbb)")
+        (let [later (fn [ms] (str "(js/Promise. (fn [resolve] (js/setTimeout #(resolve (str *ns*)) " ms ")))"))
+              id-a (send! {"op" "eval" "session" a "code" (later 100)})
+              id-b (send! {"op" "eval" "session" b "code" (later 800)})
+              replies (read-until-done in [id-a id-b])]
+          (is (= ["#<Promise \"aaa\">"] (keep :value (get replies id-a))))
+          (is (= ["#<Promise \"bbb\">"] (keep :value (get replies id-b))))))
+      (testing "close removes the session"
+        (let [c (clone! {"session" a})]
+          (read-until-done in [(send! {"op" "close" "session" c})])
+          (is (= ["\"user\""] (values c "(str *ns*)")))))
+      (send! {"op" "eval" "code" "(js/process.exit 0)" "session" a}))))
+
 (deftest print-outside-eval-test
   (let [script (fs/file (fs/create-temp-file {:prefix "nbb-nrepl" :suffix ".cljs"}))
         out-file (fs/file (fs/create-temp-file {:prefix "nbb-nrepl-out" :suffix ".txt"}))
