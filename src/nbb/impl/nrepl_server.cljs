@@ -414,7 +414,8 @@
 
 (defn make-send-fn [socket]
   (fn [_request response]
-    (.write socket (encode response))))
+    (when (.-writable ^node-net/Socket socket)
+      (.write socket (encode response)))))
 
 (defn make-reponse-handler [socket]
   (-> (make-send-fn socket)
@@ -439,6 +440,9 @@
                (reset! pending unprocessed))
              (doseq [request requests]
                (handler request response-handler))))))
+  (.on ^node-net/Socket socket "error"
+       (fn [e]
+         (debug "Connection error:" (.-message e))))
   (.on ^node-net/Socket socket "close"
        (fn [had-error?]
          (if had-error?

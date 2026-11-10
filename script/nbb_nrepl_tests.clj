@@ -723,6 +723,25 @@
           (is (= ["\"user\""] (values c "(str *ns*)")))))
       (send! {"op" "eval" "code" "(js/process.exit 0)" "session" a}))))
 
+(deftest disconnect-test
+  (let [server (nrepl-server)]
+    (wait-for-port "localhost" @port)
+    (with-open [socket (Socket. "127.0.0.1" @port)]
+      (.setSoLinger socket true 0)
+      (bencode/write-bencode (.getOutputStream socket)
+                             {"op" "eval" "id" 1
+                              "code" "(js/Promise. (fn [resolve] (js/setTimeout #(resolve (println :late)) 200)))"}))
+    (Thread/sleep 500)
+    (testing "a connection reset during an eval leaves the server running"
+      (is (.isAlive ^Process (:proc server))))
+    (with-open [socket (Socket. "127.0.0.1" @port)
+                in (java.io.PushbackInputStream. (.getInputStream socket))
+                os (.getOutputStream socket)]
+      (bencode/write-bencode os {"op" "eval" "code" "(+ 1 2)" "id" 2})
+      (testing "a new connection evaluates (+ 1 2) after the reset"
+        (is (= ["3"] (keep :value (get (read-until-done in [2]) 2)))))
+      (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)" "id" 3}))))
+
 (deftest print-outside-eval-test
   (let [script (fs/file (fs/create-temp-file {:prefix "nbb-nrepl" :suffix ".cljs"}))
         out-file (fs/file (fs/create-temp-file {:prefix "nbb-nrepl-out" :suffix ".txt"}))
