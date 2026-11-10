@@ -49,6 +49,14 @@
           (when debug? (prn "skipping over msg" msg))
           (recur))))))
 
+(defn- read-until-done [in ids]
+  (loop [replies {} pending (set ids)]
+    (if (empty? pending)
+      replies
+      (let [{:keys [id status] :as msg} (read-msg (bencode/read-bencode in))]
+        (recur (update replies id (fnil conj []) msg)
+               (cond-> pending (some #{"done"} status) (disj id)))))))
+
 (deftest print-test
   (nrepl-server)
   (wait-for-port "localhost" @port)
@@ -283,23 +291,42 @@
               in (.getInputStream socket)
               in (java.io.PushbackInputStream. in)
               os (.getOutputStream socket)]
-    (bencode/write-bencode os {"op" "clone"})
-    (let [session (:new-session (read-msg (bencode/read-bencode in)))
-          id (atom 0)
-          new-id! #(swap! id inc)]
-      (doseq [pprint-fn ["cider.nrepl.pprint/pprint"]]
-        (testing "print"
-          (bencode/write-bencode os {"op" "eval"
-                                     "code" "(range 20)"
-                                     "nrepl.middleware.print/print" pprint-fn
-                                     "nrepl.middleware.print/options" {:length 10}
-                                     "session" session "id" (new-id!)})
-
-          (let [reply (read-reply in session @id)
-                {:keys [value]} reply]
-            (is (= "(0 1 2 3 4 5 6 7 8 9 ...)" (str/trim value))))))
-      (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
-                                 "session" session "id" (new-id!)}))))
+    (let [id (atom 0)
+          send! (fn [msg]
+                  (let [id (swap! id inc)]
+                    (bencode/write-bencode os (assoc msg "id" id))
+                    id))
+          clone! (fn []
+                   (:new-session (first (get (read-until-done in [(send! {"op" "clone"})])
+                                             @id))))
+          values (fn [msg]
+                   (let [id (send! (assoc msg "op" "eval"))]
+                     (keep :value (get (read-until-done in [id]) id))))
+          a (clone!)
+          b (clone!)]
+      (doseq [printer ["cider.nrepl.pprint/pprint"
+                       "cider.nrepl.pprint/clojure-pprint"
+                       "nrepl.util.print/pprint"]]
+        (testing (str printer " prints with :length 10")
+          (is (= ["(0 1 2 3 4 5 6 7 8 9 ...)"]
+                 (values {"session" a "code" "(range 20)"
+                          "nrepl.middleware.print/print" printer
+                          "nrepl.middleware.print/options" {:length 10}})))))
+      (testing "nrepl.util.print/pr prints with :print-length 3"
+        (is (= ["(0 1 2 ...)"]
+               (values {"session" a "code" "(range 10)"
+                        "nrepl.middleware.print/print" "nrepl.util.print/pr"
+                        "nrepl.middleware.print/options" {:print-length 3}}))))
+      (values {"session" a "code" "(set! *print-length* 3)"})
+      (testing "set! *print-length* applies to the next eval of the session"
+        (is (= ["(0 1 2 ...)"] (values {"session" a "code" "(range 10)"}))))
+      (testing "nrepl.util.print/pprint without :length uses the *print-length* of the session"
+        (is (= ["(0 1 2 ...)"]
+               (values {"session" a "code" "(range 10)"
+                        "nrepl.middleware.print/print" "nrepl.util.print/pprint"}))))
+      (testing "set! *print-length* in session a leaves session b unchanged"
+        (is (= ["(0 1 2 3 4 5 6 7 8 9)"] (values {"session" b "code" "(range 10)"}))))
+      (send! {"op" "eval" "code" "(js/process.exit 0)" "session" a}))))
 
 (deftest eldoc-test
   (nrepl-server)
@@ -643,14 +670,6 @@
         (is (= "load_file_b.cljs" (:file (info "load-file-b/g")))))
       (bencode/write-bencode os {"op" "eval" "code" "(js/process.exit 0)"
                                  "session" session "id" (swap! id inc)}))))
-
-(defn- read-until-done [in ids]
-  (loop [replies {} pending (set ids)]
-    (if (empty? pending)
-      replies
-      (let [{:keys [id status] :as msg} (read-msg (bencode/read-bencode in))]
-        (recur (update replies id (fnil conj []) msg)
-               (cond-> pending (some #{"done"} status) (disj id)))))))
 
 (deftest session-test
   (nrepl-server)
