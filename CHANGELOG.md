@@ -14,6 +14,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 - [#431](https://github.com/babashka/nbb/issues/431): nREPL: reply `no-info` to `info` and `lookup` and `no-eldoc` to `eldoc` for an unresolved symbol
 - [#429](https://github.com/babashka/nbb/issues/429): nREPL: each session keeps its own namespace, `*1`, `*2`, `*3` and `*e`
 - [#418](https://github.com/babashka/nbb/issues/418): nREPL: overlapping async evals keep their own dynamic bindings
+- nREPL: `eval` continues with the next form after a form throws, and stops after a read error
 
 ## 1.6.214 (2026-09-25)
 
