@@ -41,8 +41,9 @@
 
 (defn continue [rl socket]
   (reset! in-progress false)
-  (.setPrompt ^js rl (str @last-ns "=> "))
-  (.prompt rl)
+  (when-not (.-closed ^js rl)
+    (.setPrompt ^js rl (str @last-ns "=> "))
+    (.prompt rl))
   (when-not (str/blank? @pending-input)
     (eval-next socket rl)))
 
