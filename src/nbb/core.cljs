@@ -336,6 +336,11 @@
                     (js/Promise.reject (js/Error. (str "Could not find namespace: " libname)))))))))))
     (js/Promise.resolve (:ns ns-opts))))
 
+(defn- track-ns!
+  "Resets the :current-ns volatile in opts, if present, to ns."
+  [opts ns]
+  (some-> (:current-ns opts) (vreset! ns)))
+
 (defn eval-ns-form [ns-form opts]
   ;; the parsing is still very crude, we only support a subset of the ns form
   ;; and ignore everything but (:require clauses)
@@ -361,6 +366,7 @@
         ;; ignore all :require-macros for now
         ns-obj (sci/binding [sci/ns @sci/ns]
                  (sci/eval-form (ctx/get-ctx) (list 'do (list* 'ns ns-name other-forms) '*ns*)))
+        _ (track-ns! opts ns-obj)
         libspecs (mapcat rest require-forms)
         ns-opts (into #{} (filter keyword? libspecs))
         libspecs (remove keyword? libspecs)
@@ -396,11 +402,6 @@
   (.then (js/Promise.resolve v)
          (fn [v] {:value v :opts opts})))
 
-(defn- track-ns!
-  "Resets the :current-ns volatile in opts, if present, to ns."
-  [opts ns]
-  (some-> (:current-ns opts) (vreset! ns)))
-
 (defn eval-seq [reader form opts eval-next]
   (let [fst (first form)]
     (cond (= 'do fst)
@@ -419,7 +420,6 @@
           (= 'ns fst)
           (.then (eval-ns-form form opts)
                  (fn [ns-obj]
-                   (track-ns! opts ns-obj)
                    (eval-next ns-obj reader (assoc opts :ns ns-obj))))
           :else
           (try (let [pre-await await-counter

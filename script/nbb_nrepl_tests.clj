@@ -742,7 +742,9 @@
                                             @id)))]
       (doseq [[code ns] [["(do (ns thr-a) (throw (ex-info \"boom\" {})))" "thr-a"]
                          ["(do (in-ns 'thr-b) (throw (ex-info \"boom\" {})))" "thr-b"]
-                         ["(do (ns thr-c) (js/Promise.reject (js/Error. \"boom\")))" "thr-c"]]]
+                         ["(do (ns thr-c) (js/Promise.reject (js/Error. \"boom\")))" "thr-c"]
+                         ["(ns thr-e (:require [does.not.exist]))" "thr-e"]
+                         ["(ns thr-f (:require [\"no-such-npm-pkg\"]))" "thr-f"]]]
         (testing (str code " replies with ns " ns)
           (let [msgs (replies session code)]
             (is (= [ns] (keep :ns (filter :ex msgs))))
