@@ -17,6 +17,7 @@
    [nbb.impl.repl-utils :as utils :refer [the-sci-ns]]
    [sci.core :as sci]
    [sci.ctx-store :as store]
+   [sci.impl.io :as sio]
    [sci.impl.vars :as vars]))
 
 (defn debug [& strs]
@@ -78,21 +79,49 @@
 (defn- update-session! [request f & args]
   (swap! sessions update (:session request) #(apply f % args)))
 
-(def pretty-print-fns-map
-  {"cider.nrepl.pprint/pprint" pp/write})
+(def ^:private session-print-vars
+  [sci/print-length sci/print-level sci/print-meta sci/print-namespace-maps])
 
-(defn format-value [nrepl-pprint pprint-options value]
-  (if nrepl-pprint
-    (if-let [pprint-fn (pretty-print-fns-map nrepl-pprint)]
-      (let [{:keys [right-margin length level]} pprint-options]
-        (binding [*print-length* length
-                  *print-level* level
-                  pp/*print-right-margin* right-margin]
-          (with-out-str (pprint-fn value))))
-      (do
-        (debug "Pretty-Printing is only supported for clojure.core/prn and clojure.pprint/pprint.")
-        (pr-str value)))
-    (pr-str value)))
+(defn- print-bindings []
+  (into {} (map (fn [v] [v @v])) session-print-vars))
+
+(defn- pprint-value [options value]
+  (let [option (fn [k default] (if (contains? options k) (get options k) default))]
+    (binding [*print-length* (option :length @sci/print-length)
+              *print-level* (option :level @sci/print-level)
+              *print-namespace-maps* @sci/print-namespace-maps
+              pp/*print-right-margin* (option :right-margin pp/*print-right-margin*)]
+      (with-out-str (pp/write value)))))
+
+(def ^:private pr-option-vars
+  {:print-length sci/print-length
+   :print-level sci/print-level
+   :print-meta sci/print-meta
+   :print-namespace-maps sci/print-namespace-maps
+   :print-readably sci/print-readably
+   :print-dup sci/print-dup})
+
+(defn- pr-value [options value]
+  (sci/with-bindings (into {}
+                           (keep (fn [[k v]]
+                                   (when-let [var (pr-option-vars k)]
+                                     [var v])))
+                           options)
+    (sio/pr-str value)))
+
+(def ^:private printers
+  {"cider.nrepl.pprint/pprint" pprint-value
+   "cider.nrepl.pprint/clojure-pprint" pprint-value
+   "nrepl.util.print/pprint" pprint-value
+   "nrepl.util.print/pr" pr-value})
+
+(defn format-value [printer options value]
+  (if-let [print-value (printers printer)]
+    (print-value options value)
+    (do
+      (when printer
+        (debug "Unsupported printer:" printer))
+      (sio/pr-str value))))
 
 (defn send-value [request send-fn v]
   (let [[v opts] v
@@ -105,7 +134,7 @@
                         (not (:ns request)) (assoc :ns sci-ns)))
     (if (nbb/thenable? v)
       (.then v (fn [resolved]
-                 (send-fn request {"value" (str "#<Promise " (pr-str resolved) ">")
+                 (send-fn request {"value" (str "#<Promise " (sio/pr-str resolved) ">")
                                    "ns" (str sci-ns)})))
       (let [v (format-value (:nrepl.middleware.print/print request)
                             (:nrepl.middleware.print/options request)
@@ -213,18 +242,21 @@
                             :sendFn send-fn
                             :frame (vars/get-thread-binding-frame)}
           (fn []
-            (let [{:keys [*1 *2 *3 *e]} (session request)]
-              (vars/push-thread-bindings {sci/ns eval-ns
-                                          sci/file file
-                                          sci/print-length @sci/print-length
-                                          sci/print-newline true
-                                          sci/*1 *1
-                                          sci/*2 *2
-                                          sci/*3 *3
-                                          sci/*e *e}))
+            (let [{:keys [*1 *2 *3 *e] :as state} (session request)]
+              (vars/push-thread-bindings (merge (print-bindings)
+                                                (:print-bindings state)
+                                                {sci/ns eval-ns
+                                                 sci/file file
+                                                 sci/print-newline true
+                                                 sci/*1 *1
+                                                 sci/*2 *2
+                                                 sci/*3 *3
+                                                 sci/*e *e})))
             (-> (loop-fn)
                 (.catch #(handle-error send-fn request @current-ns %))
                 (.finally (fn []
+                            ;; of two overlapping evals in a session, the last to finish wins
+                            (update-session! request assoc :print-bindings (print-bindings))
                             (send-fn request {"ns" (str @current-ns)
                                               "status" ["done"]}))))))))
 
