@@ -227,12 +227,15 @@
                            :else
                            (-> (nbb/eval-next* next-val {:ns ns
                                                          :file file
-                                                         :wrap vector})
+                                                         :wrap vector
+                                                         :current-ns current-ns})
                                (.then (fn [v]
                                         (vreset! current-ns (:ns (second v)))
                                         (send-value request send-fn v)))
                                (.then (fn [_] (loop-fn))
                                       (fn [e]
+                                        (when-not (:ns request)
+                                          (update-session! request assoc :ns @current-ns))
                                         (handle-error send-fn request @current-ns e)
                                         (loop-fn))))))
                        (catch :default e

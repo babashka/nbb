@@ -396,6 +396,11 @@
   (.then (js/Promise.resolve v)
          (fn [v] {:value v :opts opts})))
 
+(defn- track-ns!
+  "Resets the :current-ns volatile in opts, if present, to ns."
+  [opts ns]
+  (some-> (:current-ns opts) (vreset! ns)))
+
 (defn eval-seq [reader form opts eval-next]
   (let [fst (first form)]
     (cond (= 'do fst)
@@ -414,13 +419,17 @@
           (= 'ns fst)
           (.then (eval-ns-form form opts)
                  (fn [ns-obj]
+                   (track-ns! opts ns-obj)
                    (eval-next ns-obj reader (assoc opts :ns ns-obj))))
           :else
           (try (let [pre-await await-counter
                      [next-val ns-after] (sci/binding [sci/ns (:ns opts)
                                                        sci/file (:file opts)]
-                                           (let [v (sci/eval-form (ctx/get-ctx) form)]
-                                             [v @sci/ns]))
+                                           (try
+                                             (let [v (sci/eval-form (ctx/get-ctx) form)]
+                                               [v @sci/ns])
+                                             (finally
+                                               (track-ns! opts @sci/ns))))
                      opts (assoc opts :ns ns-after)
                      post-await await-counter]
                  (if (= pre-await post-await)
