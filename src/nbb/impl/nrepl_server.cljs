@@ -89,6 +89,7 @@
   (let [option (fn [k default] (if (contains? options k) (get options k) default))]
     (binding [*print-length* (option :length @sci/print-length)
               *print-level* (option :level @sci/print-level)
+              *print-namespace-maps* @sci/print-namespace-maps
               pp/*print-right-margin* (option :right-margin pp/*print-right-margin*)]
       (with-out-str (pp/write value)))))
 
@@ -97,6 +98,7 @@
    :print-level sci/print-level
    :print-meta sci/print-meta
    :print-namespace-maps sci/print-namespace-maps
+   :print-readably sci/print-readably
    :print-dup sci/print-dup})
 
 (defn- pr-value [options value]
@@ -253,6 +255,7 @@
             (-> (loop-fn)
                 (.catch #(handle-error send-fn request @current-ns %))
                 (.finally (fn []
+                            ;; of two overlapping evals in a session, the last to finish wins
                             (update-session! request assoc :print-bindings (print-bindings))
                             (send-fn request {"ns" (str @current-ns)
                                               "status" ["done"]}))))))))

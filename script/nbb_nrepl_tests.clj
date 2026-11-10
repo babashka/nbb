@@ -326,6 +326,12 @@
                         "nrepl.middleware.print/print" "nrepl.util.print/pprint"}))))
       (testing "set! *print-length* in session a leaves session b unchanged"
         (is (= ["(0 1 2 3 4 5 6 7 8 9)"] (values {"session" b "code" "(range 10)"}))))
+      (values {"session" a "code" "(set! *print-namespace-maps* true)"})
+      (doseq [printer [nil "nrepl.util.print/pr" "cider.nrepl.pprint/pprint"]]
+        (testing (str (or printer "the default printer") " uses the *print-namespace-maps* of the session")
+          (is (= ["#:a{:b 1, :c 2}"]
+                 (values (cond-> {"session" a "code" "{:a/b 1 :a/c 2}"}
+                           printer (assoc "nrepl.middleware.print/print" printer)))))))
       (send! {"op" "eval" "code" "(js/process.exit 0)" "session" a}))))
 
 (deftest eldoc-test
