@@ -4,7 +4,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 
 [Nbb](https://github.com/babashka/nbb): Scripting in Clojure on Node.js using [SCI](https://github.com/babashka/sci)
 
-## Unreleased
+## 1.6.215 (2026-11-12)
 
 - [#425](https://github.com/babashka/nbb/issues/425): nREPL: send `eval-error` status with `ex` and `root-ex` exception classes for code that throws
 - [#426](https://github.com/babashka/nbb/issues/426): nREPL: `eval` runs in the namespace of its `:ns` after an `ns` form, and `:ns` leaves the session namespace unchanged
