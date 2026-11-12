@@ -16,6 +16,7 @@ For a list of breaking changes, check [here](#breaking-changes).
 - [#418](https://github.com/babashka/nbb/issues/418): nREPL: overlapping async evals keep their own dynamic bindings
 - nREPL: `eval` continues with the next form after a form throws, and stops after a read error
 - [#436](https://github.com/babashka/nbb/issues/436): nREPL: print values with `nrepl.util.print/pprint`, `nrepl.util.print/pr` and `cider.nrepl.pprint/clojure-pprint`, and keep a session's `*print-length*`, `*print-level*`, `*print-meta*` and `*print-namespace-maps*` across evals
+- nREPL: keep the namespace set by `ns` or `in-ns` when the same form throws
 - REPL: do not prompt after stdin closes, fixing `ERR_USE_AFTER_CLOSE` on Node 24
 
 ## 1.6.214 (2026-09-25)

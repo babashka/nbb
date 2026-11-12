@@ -723,6 +723,39 @@
           (is (= ["\"user\""] (values c "(str *ns*)")))))
       (send! {"op" "eval" "code" "(js/process.exit 0)" "session" a}))))
 
+(deftest ns-after-throw-test
+  (nrepl-server)
+  (wait-for-port "localhost" @port)
+  (with-open [socket (Socket. "127.0.0.1" @port)
+              in (.getInputStream socket)
+              in (java.io.PushbackInputStream. in)
+              os (.getOutputStream socket)]
+    (let [id (atom 0)
+          send! (fn [msg]
+                  (let [id (swap! id inc)]
+                    (bencode/write-bencode os (assoc msg "id" id))
+                    id))
+          replies (fn [session code]
+                    (let [id (send! {"op" "eval" "session" session "code" code})]
+                      (get (read-until-done in [id]) id)))
+          session (:new-session (first (get (read-until-done in [(send! {"op" "clone"})])
+                                            @id)))]
+      (doseq [[code ns] [["(do (ns thr-a) (throw (ex-info \"boom\" {})))" "thr-a"]
+                         ["(do (in-ns 'thr-b) (throw (ex-info \"boom\" {})))" "thr-b"]
+                         ["(do (ns thr-c) (js/Promise.reject (js/Error. \"boom\")))" "thr-c"]
+                         ["(ns thr-e (:require [does.not.exist]))" "thr-e"]
+                         ["(ns thr-f (:require [\"no-such-npm-pkg\"]))" "thr-f"]]]
+        (testing (str code " replies with ns " ns)
+          (let [msgs (replies session code)]
+            (is (= [ns] (keep :ns (filter :ex msgs))))
+            (is (= [ns] (keep :ns (filter #(some #{"done"} (:status %)) msgs))))))
+        (testing (str "the session keeps ns " ns " after " code)
+          (is (= [(pr-str ns)] (keep :value (replies session "(str *ns*)"))))))
+      (testing "the form after a throwing (ns thr-d) form runs in ns thr-d"
+        (is (= ["\"thr-d\""]
+               (keep :value (replies session "(do (ns thr-d) (throw (ex-info \"boom\" {}))) (str *ns*)")))))
+      (send! {"op" "eval" "code" "(js/process.exit 0)" "session" session}))))
+
 (deftest print-outside-eval-test
   (let [script (fs/file (fs/create-temp-file {:prefix "nbb-nrepl" :suffix ".cljs"}))
         out-file (fs/file (fs/create-temp-file {:prefix "nbb-nrepl-out" :suffix ".txt"}))

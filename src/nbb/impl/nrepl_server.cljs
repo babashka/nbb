@@ -214,6 +214,10 @@
                               _load-file? _line] :as request} send-fn]
   (let [rdr (sci/reader code)
         current-ns (volatile! eval-ns)
+        on-error (fn [e]
+                   (when-not (:ns request)
+                     (update-session! request assoc :ns @current-ns))
+                   (handle-error send-fn request @current-ns e))
         loop-fn (fn loop-fn []
                   (try (let [ns @current-ns
                              next-val (nbb/read-next rdr {:ns ns
@@ -227,16 +231,17 @@
                            :else
                            (-> (nbb/eval-next* next-val {:ns ns
                                                          :file file
-                                                         :wrap vector})
+                                                         :wrap vector
+                                                         :current-ns current-ns})
                                (.then (fn [v]
                                         (vreset! current-ns (:ns (second v)))
                                         (send-value request send-fn v)))
                                (.then (fn [_] (loop-fn))
                                       (fn [e]
-                                        (handle-error send-fn request @current-ns e)
+                                        (on-error e)
                                         (loop-fn))))))
                        (catch :default e
-                         (handle-error send-fn request @current-ns e)
+                         (on-error e)
                          (loop-fn))))]
     (.run eval-storage #js {:request request
                             :sendFn send-fn
