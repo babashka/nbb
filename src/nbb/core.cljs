@@ -336,6 +336,11 @@
                     (js/Promise.reject (js/Error. (str "Could not find namespace: " libname)))))))))))
     (js/Promise.resolve (:ns ns-opts))))
 
+(defn- track-ns!
+  "Resets the :current-ns volatile in opts, if present, to ns."
+  [opts ns]
+  (some-> (:current-ns opts) (vreset! ns)))
+
 (defn eval-ns-form [ns-form opts]
   ;; the parsing is still very crude, we only support a subset of the ns form
   ;; and ignore everything but (:require clauses)
@@ -361,6 +366,7 @@
         ;; ignore all :require-macros for now
         ns-obj (sci/binding [sci/ns @sci/ns]
                  (sci/eval-form (ctx/get-ctx) (list 'do (list* 'ns ns-name other-forms) '*ns*)))
+        _ (track-ns! opts ns-obj)
         libspecs (mapcat rest require-forms)
         ns-opts (into #{} (filter keyword? libspecs))
         libspecs (remove keyword? libspecs)
@@ -419,8 +425,11 @@
           (try (let [pre-await await-counter
                      [next-val ns-after] (sci/binding [sci/ns (:ns opts)
                                                        sci/file (:file opts)]
-                                           (let [v (sci/eval-form (ctx/get-ctx) form)]
-                                             [v @sci/ns]))
+                                           (try
+                                             (let [v (sci/eval-form (ctx/get-ctx) form)]
+                                               [v @sci/ns])
+                                             (finally
+                                               (track-ns! opts @sci/ns))))
                      opts (assoc opts :ns ns-after)
                      post-await await-counter]
                  (if (= pre-await post-await)
