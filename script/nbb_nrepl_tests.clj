@@ -332,6 +332,13 @@
           (is (= ["#:a{:b 1, :c 2}"]
                  (values (cond-> {"session" a "code" "{:a/b 1 :a/c 2}"}
                            printer (assoc "nrepl.middleware.print/print" printer)))))))
+      (testing "printer foo/bar replies with nrepl.middleware.print/error and prints the value with pr-str"
+        (let [id (send! {"op" "eval" "session" b "code" "[1 2]"
+                         "nrepl.middleware.print/print" "foo/bar"})
+              msgs (get (read-until-done in [id]) id)]
+          (is (= ["Couldn't resolve var foo/bar"] (keep :nrepl.middleware.print/error msgs)))
+          (is (some #(= ["nrepl.middleware.print/error"] (:status %)) msgs))
+          (is (= ["[1 2]"] (keep :value msgs)))))
       (send! {"op" "eval" "code" "(js/process.exit 0)" "session" a}))))
 
 (deftest eldoc-test

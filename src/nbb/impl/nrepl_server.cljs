@@ -118,10 +118,13 @@
 (defn format-value [printer options value]
   (if-let [print-value (printers printer)]
     (print-value options value)
-    (do
-      (when printer
-        (debug "Unsupported printer:" printer))
-      (sio/pr-str value))))
+    (sio/pr-str value)))
+
+(defn- check-printer [request send-fn]
+  (let [printer (:nrepl.middleware.print/print request)]
+    (when (and printer (not (printers printer)))
+      (send-fn request {"nrepl.middleware.print/error" (str "Couldn't resolve var " printer)
+                        "status" ["nrepl.middleware.print/error"]}))))
 
 (defn send-value [request send-fn v]
   (let [[v opts] v
@@ -212,6 +215,7 @@
 
 (defn do-handle-eval [{:keys [eval-ns code file
                               _load-file? _line] :as request} send-fn]
+  (check-printer request send-fn)
   (let [rdr (sci/reader code)
         current-ns (volatile! eval-ns)
         on-error (fn [e]
